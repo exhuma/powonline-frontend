@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 // TODO import RouteList from '@/components/RouteList'
 // TODO import StationDashboard from '@/components/StationDashboard'
-// TODO import StationList from '@/components/StationList'
+import StationList from '@/components/StationList'
 // TODO import TeamList from '@/components/TeamList'
 // TODO import UserList from '@/components/UserList'
 import HomePage from '@/components/HomePage'
@@ -14,10 +14,10 @@ export default new Router({
     {
       path: '/',
       component: HomePage
-    // TODO },
-    // TODO {
-    // TODO   path: '/station',
-    // TODO   component: StationList
+    },
+    {
+      path: '/station',
+      component: StationList
     // TODO },
     // TODO {
     // TODO   path: '/station/:stationName',
