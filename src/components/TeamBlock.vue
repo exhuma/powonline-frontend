@@ -1,0 +1,53 @@
+<template>
+  <v-card class="mt-3">
+    <v-card-title><span>Team: "{{ name }}"</span></v-card-title>
+    <v-card-text>
+      <mini-status
+        :station="station.name"
+        :team="name"
+        :key="name + station.name"
+        v-for="station in stations"></mini-status>
+    </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions v-if="hasRole('admin')">
+      <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteTeamRemote">
+        <v-card-title slot="title">Do you want to delete the team "{{ name }}"?</v-card-title>
+        <v-card-text slot="text">
+          <p>this will delete the team with the name "{{ name }}" and all
+            related information!</p>
+          <p>Are you sure?</p>
+        </v-card-text>
+      </confirmation-dialog>
+    </v-card-actions>
+  </v-card>
+</template>
+
+<script>
+import axios from 'axios'
+export default {
+  name: 'team-block',
+  data () {
+    return {
+      stations: []
+    }
+  },
+  props: {
+    'name': {
+      type: String,
+      default: 'Unknown Team'
+    }
+  },
+  created () {
+    const baseUrl = this.$store.state.baseUrl
+    axios.get(baseUrl + '/team/' + this.name + '/stations')
+    .then(response => {
+      this.stations = response.data.items
+    })
+  },
+  methods: {
+    hasRole (roleName) {
+      return this.$store.state.roles.indexOf(roleName) > -1
+    }
+  }
+}
+</script>

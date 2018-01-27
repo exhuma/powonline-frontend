@@ -7,8 +7,15 @@ import Vuex from 'vuex'
 import appconf from './appconf'
 import axios from 'axios'
 
-import HomePage from './components/HomePage'
-import ErrorBlock from './components/ErrorBlock'
+import ConfirmationDialog from './components/ConfirmationDialog'
+import MiniStatus from './components/MiniStatus'
+import RouteBlock from './components/RouteBlock'
+import StateIcon from './components/StateIcon'
+import StationBlock from './components/StationBlock'
+import TeamBlock from './components/TeamBlock'
+import UserBlock from './components/UserBlock'
+import UserRoleCheckbox from './components/UserRoleCheckbox'
+import UserStationCheckbox from './components/UserStationCheckbox'
 
 Vue.config.productionTip = false
 Vue.use(Vuex)
@@ -838,8 +845,15 @@ const store = new Vuex.Store({
   }
 })
 
-Vue.component('error-block', ErrorBlock)
-Vue.component('home-page', HomePage)
+Vue.component('confirmation-dialog', ConfirmationDialog)
+Vue.component('mini-status', MiniStatus)
+Vue.component('route-block', RouteBlock)
+Vue.component('state-icon', StateIcon)
+Vue.component('station-block', StationBlock)
+Vue.component('team-block', TeamBlock)
+Vue.component('user-block', UserBlock)
+Vue.component('user-role-checkbox', UserRoleCheckbox)
+Vue.component('user-station-checkbox', UserStationCheckbox)
 
 /* eslint-disable no-new */
 new Vue({
