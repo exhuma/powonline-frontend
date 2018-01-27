@@ -7,6 +7,8 @@ import Vuex from 'vuex'
 import appconf from './appconf'
 import axios from 'axios'
 
+import ErrorBlock from './components/ErrorBlock'
+
 Vue.config.productionTip = false
 Vue.use(Vuex)
 Vue.use(Vuetify)
@@ -834,6 +836,8 @@ const store = new Vuex.Store({
     }
   }
 })
+
+Vue.component('error-block', ErrorBlock)
 
 /* eslint-disable no-new */
 new Vue({
