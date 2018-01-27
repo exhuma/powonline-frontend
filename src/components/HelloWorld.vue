@@ -79,16 +79,19 @@
           awesome-vue
         </a>
       </li>
+      <pre>Backend: {{ backend_url }}</pre>
     </ul>
   </div>
 </template>
 
 <script>
+import appconf from '@/appconf'
 export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      backend_url: appconf.BACKEND_URL
     }
   }
 }
