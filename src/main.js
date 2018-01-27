@@ -7,6 +7,7 @@ import Vuex from 'vuex'
 import appconf from './appconf'
 import axios from 'axios'
 
+import HomePage from './components/HomePage'
 import ErrorBlock from './components/ErrorBlock'
 
 Vue.config.productionTip = false
@@ -838,6 +839,7 @@ const store = new Vuex.Store({
 })
 
 Vue.component('error-block', ErrorBlock)
+Vue.component('home-page', HomePage)
 
 /* eslint-disable no-new */
 new Vue({
