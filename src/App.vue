@@ -1,13 +1,142 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <v-app dark>
+      <v-toolbar>
+        <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <span v-if="tokenIsAvailable">Logged in as {{ appUserName }}</span>
+        <v-btn @click.native="addElement" icon light v-if="hasRole('admin')"><v-icon>add</v-icon></v-btn>
+        <v-tooltip bottom v-if="tokenIsAvailable">
+          <v-btn slot="activator" @click.native.stop="logoutUser" icon light><v-icon>exit_to_app</v-icon></v-btn>
+          <span>Login</span>
+        </v-tooltip>
+        <v-tooltip bottom v-else>
+          <v-btn slot="activator" @click.native.stop="showLoginDialog" icon light><v-icon>perm_identity</v-icon></v-btn>
+          <span>Logout</span>
+        </v-tooltip>
+      </v-toolbar>
+      <main>
+        <v-container fluid>
+          <v-dialog v-model="loginDialogVisible">
+
+            <v-card>
+              <v-card-title>
+                <span>Login</span>
+              </v-card-title>
+              <v-card-text>
+                <v-text-field
+                  type='text'
+                  @keyup.enter.native="loginUser"
+                  v-model='username'
+                  label='Enter a new username' />
+                <v-text-field
+                  @keyup.enter.native="loginUser"
+                  type='password'
+                  v-model='password'
+                  label='Password' />
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-btn flat="flat" @click.native="cancelLogin">Cancel</v-btn>
+                <v-btn flat="flat" @click.native="loginUser">Login</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <router-view></router-view>
+          <div id="errors">
+            <error-block :error="error" v-for="(error, idx) in errors" :key="'error-' + idx"></error-block>
+          </div>
+        </v-container>
+        <v-bottom-nav :value="isBottomNavVisible">
+          <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat light :value="here === route.to">
+            <span>{{ route.label }}</span>
+            <v-icon>{{route.icon}}</v-icon>
+          </v-btn>
+        </v-bottom-nav>
+      </main>
+    </v-app>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
-  name: 'App'
+  name: 'App',
+  data () {
+    return {
+      loginDialogVisible: false,
+      username: '',
+      password: ''
+    }
+  },
+  methods: {
+    addElement () {
+      this.$store.commit('showAddBlock', this.$route.path)
+    },
+    showLoginDialog () {
+      this.loginDialogVisible = true
+    },
+    loginUser () {
+      axios.post(this.$store.state.baseUrl + '/login', {
+        'username': this.username,
+        'password': this.password
+      }).then(response => {
+        if (response.status < 300) {
+          this.$store.commit('loginUser', response.data)
+        } else {
+          // TODO show alert to user
+          this.$store.commit('logoutUser')
+        }
+      })
+      this.loginDialogVisible = false
+    },
+    logoutUser () {
+      this.$store.commit('logoutUser')
+      this.$router.push('/')
+    },
+    cancelLogin () {
+      this.loginDialogVisible = false
+    },
+    hasRole (roleName) {
+      return this.$store.state.roles.indexOf(roleName) > -1
+    }
+  },
+  computed: {
+    appUserName () {
+      return this.$store.state.userName
+    },
+    routes () {
+      const output = [
+        { label: 'Home', to: '/', icon: 'home' },
+        { label: 'Stations', to: '/station', icon: 'place' },
+        { label: 'Teams', to: '/team', icon: 'group' }
+      ]
+      const roles = this.$store.state.roles
+      if (roles && roles.indexOf('admin') > -1) {
+        output.push({ label: 'Routes', to: '/route', icon: 'gesture' })
+        output.push({ label: 'Users', to: '/user', icon: 'face' })
+      }
+      return output
+    },
+    pageTitle () {
+      return this.$store.state.pageTitle
+    },
+    isBottomNavVisible () {
+      return this.$store.state.isBottomNavVisible
+    },
+    tokenIsAvailable () {
+      const token = this.$store.state.jwt
+      const result = token !== ''
+      return result
+    },
+    errors () {
+      return this.$store.state.errors
+    },
+    here () {
+      return this.$route.path
+    }
+  }
 }
 </script>
 
