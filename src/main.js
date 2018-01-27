@@ -21,6 +21,23 @@ Vue.config.productionTip = false
 Vue.use(Vuex)
 Vue.use(Vuetify)
 
+/**
+ * Inject the JWT token into each outgoing request if it's available
+ */
+axios.interceptors.request.use(config => {
+  const jwt = localStorage.getItem('jwt') || ''
+  if (jwt !== '') {
+    config.headers['Authorization'] = 'Bearer ' + jwt
+    console.debug('Intercepted and set auth token to ' + jwt)
+  } else {
+    console.debug('JWT was null!')
+  }
+  return config
+}, error => {
+  // nothing to do
+  return Promise.reject(error)
+})
+
 const store = new Vuex.Store({
   state: {
     users: [],
