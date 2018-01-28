@@ -2,6 +2,8 @@
 
 > A Mobile & Web App for a local event
 
+This repository serves as frontend for [powonline](https://github.com/exhuma/powonline)
+
 ## Build Setup
 
 ``` bash
