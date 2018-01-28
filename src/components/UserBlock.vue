@@ -2,14 +2,14 @@
   <v-card class="mt-3">
     <v-card-title><span>User: "{{ name }}"</span></v-card-title>
     <v-card-text>
-      <h6>Roles</h6>
+      <h2>Roles</h2>
       <user-role-checkbox
         v-for="role in roles"
         :key="role[0]"
         :user="name"
         :label="role[0]"
         :role="role[0]"></user-role-checkbox>
-      <h6>Stations</h6>
+      <h2>Stations</h2>
       <user-station-checkbox
         v-for="station in stations"
         :key="station[0]"

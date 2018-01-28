@@ -16,6 +16,7 @@ import TeamBlock from './components/TeamBlock'
 import UserBlock from './components/UserBlock'
 import UserRoleCheckbox from './components/UserRoleCheckbox'
 import UserStationCheckbox from './components/UserStationCheckbox'
+require('./assets/css/main.css')
 
 Vue.config.productionTip = false
 Vue.use(Vuex)
