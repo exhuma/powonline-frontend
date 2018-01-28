@@ -5,13 +5,13 @@
         <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable">Logged in as {{ appUserName }}</span>
-        <v-btn @click.native="addElement" icon light v-if="hasRole('admin')"><v-icon>add</v-icon></v-btn>
+        <v-btn @click.native="addElement" icon v-if="hasRole('admin')"><v-icon>add</v-icon></v-btn>
         <v-tooltip bottom v-if="tokenIsAvailable">
-          <v-btn slot="activator" @click.native.stop="logoutUser" icon light><v-icon>exit_to_app</v-icon></v-btn>
+          <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
           <span>Login</span>
         </v-tooltip>
         <v-tooltip bottom v-else>
-          <v-btn slot="activator" @click.native.stop="showLoginDialog" icon light><v-icon>perm_identity</v-icon></v-btn>
+          <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
           <span>Logout</span>
         </v-tooltip>
       </v-toolbar>
@@ -48,7 +48,7 @@
           </div>
         </v-container>
         <v-bottom-nav :value="isBottomNavVisible">
-          <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat light :value="here === route.to">
+          <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat :value="here === route.to">
             <span>{{ route.label }}</span>
             <v-icon>{{route.icon}}</v-icon>
           </v-btn>

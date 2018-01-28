@@ -19,7 +19,12 @@ import UserStationCheckbox from './components/UserStationCheckbox'
 
 Vue.config.productionTip = false
 Vue.use(Vuex)
-Vue.use(Vuetify)
+Vue.use(Vuetify, {
+  theme: {
+    primary: '#ce0000',
+    error: '#b71c1c'
+  }
+})
 
 /**
  * Inject the JWT token into each outgoing request if it's available

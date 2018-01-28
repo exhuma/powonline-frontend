@@ -5,7 +5,7 @@
         <v-card-title>
           <span>Add New User</span>
           <v-spacer></v-spacer>
-          <v-btn @click.native="closeAddBlock" icon light><v-icon>close</v-icon></v-btn>
+          <v-btn @click.native="closeAddBlock" icon><v-icon>close</v-icon></v-btn>
         </v-card-title>
         <v-card-text>
           <v-text-field
