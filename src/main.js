@@ -22,6 +22,7 @@ Vue.use(Vuex)
 Vue.use(Vuetify, {
   theme: {
     primary: '#ce0000',
+    accent: '#d8ee00',
     error: '#b71c1c'
   }
 })

@@ -4,7 +4,7 @@
       <v-toolbar>
         <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <span v-if="tokenIsAvailable">Logged in as {{ appUserName }}</span>
+        <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
         <v-btn @click.native="addElement" icon v-if="hasRole('admin')"><v-icon>add</v-icon></v-btn>
         <v-tooltip bottom v-if="tokenIsAvailable">
           <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
