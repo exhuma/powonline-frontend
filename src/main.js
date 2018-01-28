@@ -55,9 +55,9 @@ const store = new Vuex.Store({
     dashboard: [], // maps team names to station-states
     dashboardStation: '',
     teamStates: [],
-    jwt: '',
-    roles: [],
-    userName: '',
+    jwt: localStorage.getItem('jwt') || '',
+    roles: localStorage.getItem('roles') || [],
+    userName: localStorage.getItem('userName') || '',
     baseUrl: appconf.BACKEND_URL,
     pageTitle: 'Powonline',
     isBottomNavVisible: true,
