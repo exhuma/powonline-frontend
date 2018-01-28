@@ -31,12 +31,12 @@ export default {
   created () {
     const baseUrl = this.$store.state.baseUrl
     axios.get(baseUrl + '/user/' + this.user + '/stations/' + this.station)
-    .then(response => {
-      this.checked = response.data
-    })
-    .catch(e => {
-      this.$store.commit('logError', e)
-    })
+      .then(response => {
+        this.checked = response.data
+      })
+      .catch(e => {
+        this.$store.commit('logError', e)
+      })
   }
 }
 </script>

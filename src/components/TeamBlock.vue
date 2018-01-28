@@ -40,9 +40,9 @@ export default {
   created () {
     const baseUrl = this.$store.state.baseUrl
     axios.get(baseUrl + '/team/' + this.name + '/stations')
-    .then(response => {
-      this.stations = response.data.items
-    })
+      .then(response => {
+        this.stations = response.data.items
+      })
   },
   methods: {
     hasRole (roleName) {

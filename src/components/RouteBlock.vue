@@ -44,7 +44,6 @@
     </v-card-actions>
   </v-card>
 
-
   <!--
   <v-container fluid grid-list-md class="mb-4" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 0, 0, 0.2)">
     <v-layout row wrap>
@@ -60,10 +59,7 @@
   </v-container>
   -->
 
-  <!--
-  -->
 </template>
-
 
 <!--
       <v-container>

@@ -44,21 +44,21 @@ export default {
   methods: {
     refreshStations () {
       axios.get(this.$store.state.baseUrl + '/user/' + this.name + '/stations')
-      .then(response => {
-        this.stations = response.data
-      })
-      .catch(e => {
-        this.$store.commit('logError', e)
-      })
+        .then(response => {
+          this.stations = response.data
+        })
+        .catch(e => {
+          this.$store.commit('logError', e)
+        })
     },
     refreshRoles () {
       axios.get(this.$store.state.baseUrl + '/user/' + this.name + '/roles')
-      .then(response => {
-        this.roles = response.data
-      })
-      .catch(e => {
-        this.$store.commit('logError', e)
-      })
+        .then(response => {
+          this.roles = response.data
+        })
+        .catch(e => {
+          this.$store.commit('logError', e)
+        })
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
