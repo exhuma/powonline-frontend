@@ -10,6 +10,10 @@ This repository serves as frontend for [powonline](https://github.com/exhuma/pow
 # install dependencies
 npm install
 
+# Create a local config file
+cp src/appconf/index.js.dist src/appconf/index.js
+vim src/appconf/index.js
+
 # serve with hot reload at localhost:8080
 npm run dev
 
