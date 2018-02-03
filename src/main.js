@@ -5,6 +5,7 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import Vuex from 'vuex'
 import appconf from './appconf'
+import auth from './auth'
 import axios from 'axios'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
@@ -33,8 +34,11 @@ Vue.use(Vuetify, {
  * Inject the JWT token into each outgoing request if it's available
  */
 axios.interceptors.request.use(config => {
-  const jwt = localStorage.getItem('jwt') || ''
+  const jwt = auth.get_token()
   if (jwt !== '') {
+    if (auth.token_expired(jwt)) {
+      auth.renew_token(appconf.BACKEND_URL + '/login/renew', jwt)
+    }
     config.headers['Authorization'] = 'Bearer ' + jwt
     console.debug('Intercepted and set auth token to ' + jwt)
   } else {
@@ -58,9 +62,9 @@ const store = new Vuex.Store({
     dashboard: [], // maps team names to station-states
     dashboardStation: '',
     teamStates: [],
-    jwt: localStorage.getItem('jwt') || '',
-    roles: localStorage.getItem('roles') || [],
-    userName: localStorage.getItem('userName') || '',
+    jwt: auth.get_token(),
+    roles: auth.get_roles(),
+    userName: auth.get_username(),
     baseUrl: appconf.BACKEND_URL,
     pageTitle: 'Powonline',
     isBottomNavVisible: true,
