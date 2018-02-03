@@ -81,6 +81,8 @@ export default {
         'username': this.username,
         'password': this.password
       }).then(response => {
+        this.username = ''
+        this.password = ''
         if (response.status < 300) {
           this.$store.commit('loginUser', response.data)
         } else {
@@ -93,9 +95,13 @@ export default {
     logoutUser () {
       this.$store.commit('logoutUser')
       this.$router.push('/')
+      this.username = ''
+      this.password = ''
     },
     cancelLogin () {
       this.loginDialogVisible = false
+      this.username = ''
+      this.password = ''
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
