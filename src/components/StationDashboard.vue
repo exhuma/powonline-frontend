@@ -5,7 +5,12 @@
         <span>{{ state.team }}</span>
       </v-card-title>
       <v-card-text v-ripple>
-        <state-icon class="clickable" @click.native="advanceState" :data-idx="idx" :state="state.state"></state-icon> <span class="clickable" @click="advanceState" :data-idx="idx">{{ state.state }}</span>
+        <div
+          class="clickable"
+          @click="advanceState(state)">
+          <state-icon
+            :state="state.state"></state-icon> <span>{{ state.state }}</span>
+        </div>
       </v-card-text>
     </v-card>
   </div>
@@ -44,8 +49,7 @@ export default {
     this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
   },
   methods: {
-    advanceState: function (event) {
-      const state = this.states[event.target.getAttribute('data-idx')]
+    advanceState: function (state) {
       this.$store.dispatch('advanceState', {
         teamName: state['team'],
         stationName: this.$route.params.stationName})
