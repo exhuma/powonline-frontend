@@ -30,14 +30,14 @@ export default {
    * Determines whether a token has expired or not.
    */
   token_expired: function (token) {
-    console.log('Checking if "' + token + '" has expired')
+    console.log('Checking if current token has expired')
     if (token === '') {
       console.log('Empty token (always counts as expired)')
       return true
     }
     const now = Math.floor(Date.now() / 1000)
     const decoded = jwt_decode(token)
-    console.log('Now: ' + now + ' Exp: ' + decoded['exp'] + ' Diff: ' + (decoded['exp'] - now))
+    console.log('Token will expire in ' + (decoded['exp'] - now) + 's')
     if (decoded['exp'] <= now) {
       console.log('Security token has expired!')
       return true
