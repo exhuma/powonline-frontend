@@ -26,7 +26,8 @@ Vue.use(Vuetify, {
   theme: {
     primary: '#ce0000',
     accent: '#d8ee00',
-    error: '#b71c1c'
+    error: '#b71c1c',
+    success: '#00ce00'
   }
 })
 
@@ -452,6 +453,23 @@ const store = new Vuex.Store({
     }
   },
   actions: {
+    setStationScore (context, payload) {
+      axios.post(appconf.BACKEND_URL + '/job', {
+        'action': 'set_score',
+        'args': {
+          'station_name': payload.stationName,
+          'team_name': payload.teamName,
+          'score': payload.score
+        }
+      })
+        .then(response => {
+          context.dispatch('fetchDashboard', payload.stationName)
+        })
+        .catch(e => {
+          context.commit('logError', e)
+        })
+    },
+
     /**
      * Advance the state of a team on a station
      *
