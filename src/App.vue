@@ -17,8 +17,7 @@
       </v-toolbar>
       <main>
         <v-container fluid>
-          <v-dialog v-model="loginDialogVisible">
-
+          <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
               <v-card-title>
                 <span>Login</span>
