@@ -1,5 +1,5 @@
 <template>
-  <div id="Dashboard">
+  <center-col id="Dashboard">
     <v-card v-for="(state, idx) in states" class="mb-2" :key="idx">
       <v-card-title>
         <span>{{ state.team }}</span>
@@ -10,11 +10,8 @@
             <v-flex xs2 class="clickable" @click="advanceState(state)" elevation-1>
               <v-container v-ripple fill-height>
                 <v-layout row align-center>
-                  <v-flex xs6>
+                  <v-flex xs12>
                     <state-icon :state="state.state"></state-icon>
-                  </v-flex>
-                  <v-flex xs6>
-                    <span>{{ state.state }}</span>
                   </v-flex>
                 </v-layout>
               </v-container>
@@ -39,7 +36,7 @@
       </v-card-text>
     </v-card>
     <v-snackbar :top="true" :timeout="2000" color="success" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
-  </div>
+  </center-col>
 </template>
 
 <script>

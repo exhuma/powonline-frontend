@@ -1,5 +1,5 @@
 <template>
-  <div id="TeamList">
+  <center-col id="TeamList">
     <transition name="slide">
       <v-card v-show="isAddBlockVisible">
         <v-card-title>
@@ -29,7 +29,7 @@
       </v-card>
     </transition>
     <team-block v-for="team in teams" :name="team.name" :key="team.name"></team-block>
-  </div>
+  </center-col>
 </template>
 
 <script>

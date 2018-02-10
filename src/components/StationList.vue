@@ -1,5 +1,5 @@
 <template>
-  <div id="StationList">
+  <center-col id="StationList">
     <transition name="slide">
       <v-card v-show="isAddBlockVisible">
         <v-card-title>
@@ -27,7 +27,7 @@
         :name="station.name"
         :key="station.name"></station-block>
     </v-list>
-  </div>
+  </center-col>
 </template>
 
 <script>

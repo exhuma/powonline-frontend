@@ -1,17 +1,19 @@
 <template>
-  <v-list id="Scoreboard">
-    <v-list-tile v-for="row in leaderboard" :key="row.team">
-      <v-list-tile-content>
-        <v-container>
-          <v-layout row>
-            <v-flex xs1>{{ row[0] }}</v-flex>
-            <v-flex xs9>{{ row[2] }}</v-flex>
-            <v-flex xs2 text-xs-right>{{ row[1] }} points</v-flex>
-          </v-layout>
-        </v-container>
-      </v-list-tile-content>
-    </v-list-tile>
-  </v-list>
+  <center-col>
+    <v-list id="Scoreboard">
+      <v-list-tile v-for="row in leaderboard" :key="row.team">
+        <v-list-tile-content>
+          <v-container>
+            <v-layout row>
+              <v-flex xs1>{{ row[0] }}</v-flex>
+              <v-flex xs9>{{ row[2] }}</v-flex>
+              <v-flex xs2 text-xs-right>{{ row[1] }} points</v-flex>
+            </v-layout>
+          </v-container>
+        </v-list-tile-content>
+      </v-list-tile>
+    </v-list>
+  </center-col>
 </template>
 <script>
 export default {

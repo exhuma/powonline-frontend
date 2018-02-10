@@ -10,6 +10,7 @@ import axios from 'axios'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
 import ErrorBlock from './components/ErrorBlock'
+import CenterCol from './components/CenterCol'
 import GlobalDashboard from './components/GlobalDashboard'
 import MiniStatus from './components/MiniStatus'
 import RouteBlock from './components/RouteBlock'
@@ -934,6 +935,7 @@ const store = new Vuex.Store({
 
 Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('error-block', ErrorBlock)
+Vue.component('center-col', CenterCol)
 Vue.component('global-dashboard', GlobalDashboard)
 Vue.component('mini-status', MiniStatus)
 Vue.component('route-block', RouteBlock)

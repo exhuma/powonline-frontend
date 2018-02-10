@@ -1,5 +1,5 @@
 <template>
-  <div id="UserList">
+  <center-col id="UserList">
     <transition name="slide">
       <v-card v-show="isAddBlockVisible">
         <v-card-title>
@@ -29,7 +29,7 @@
       </v-card>
     </transition>
     <user-block v-for="user in users" :name="user.name" :key="user.name"></user-block>
-  </div>
+  </center-col>
 </template>
 
 <script>
