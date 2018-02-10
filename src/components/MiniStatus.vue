@@ -4,6 +4,7 @@
 
 <script>
 import axios from 'axios'
+import util from '@/util'
 export default {
   name: 'mini-status',
   props: ['team', 'station'],
@@ -17,20 +18,8 @@ export default {
     const baseUrl = this.$store.state.baseUrl
     axios.get(baseUrl + '/station/' + this.station + '/teams/' + this.team)
       .then(response => {
-        switch (response.data.state) {
-          case 'unknown':
-            this.stateIcon = 'radio_button_unchecked'
-            break
-          case 'arrived':
-            this.stateIcon = 'radio_button_checked'
-            break
-          case 'finished':
-            this.stateIcon = 'check'
-            break
-          default:
-            this.stateIcon = 'radio_button_unchecked'
-            break
-        }
+        const icon = util.getStateIcon(response.data.state)
+        this.stateIcon = icon
       })
       .catch(e => {
         this.$store.commit('logError', e)
