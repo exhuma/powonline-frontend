@@ -38,7 +38,7 @@
         </v-container>
       </v-card-text>
     </v-card>
-    <v-snackbar top="true" timeout="2000" color="success" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
+    <v-snackbar :top="true" :timeout="2000" color="success" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
   </div>
 </template>
 
