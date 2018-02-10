@@ -113,7 +113,7 @@ export default {
     },
     routes () {
       const output = [
-        { label: 'Home', to: '/', icon: 'home' },
+        { label: 'Dashboard', to: '/', icon: 'border_all' },
         { label: 'Stations', to: '/station', icon: 'place' },
         { label: 'Teams', to: '/team', icon: 'group' }
       ]
