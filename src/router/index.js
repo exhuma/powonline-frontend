@@ -2,10 +2,10 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import RouteList from '@/components/RouteList'
 import StationDashboard from '@/components/StationDashboard'
+import GlobalDashboard from '@/components/GlobalDashboard'
 import StationList from '@/components/StationList'
 import TeamList from '@/components/TeamList'
 import UserList from '@/components/UserList'
-import HomePage from '@/components/HomePage'
 
 Vue.use(Router)
 
@@ -13,7 +13,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: HomePage
+      component: GlobalDashboard
     },
     {
       path: '/station',

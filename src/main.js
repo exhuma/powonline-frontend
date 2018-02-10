@@ -10,6 +10,7 @@ import axios from 'axios'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
 import ErrorBlock from './components/ErrorBlock'
+import GlobalDashboard from './components/GlobalDashboard'
 import MiniStatus from './components/MiniStatus'
 import RouteBlock from './components/RouteBlock'
 import StateIcon from './components/StateIcon'
@@ -62,6 +63,7 @@ const store = new Vuex.Store({
     route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
     dashboard: [], // maps team names to station-states
     dashboardStation: '',
+    global_dashboard: [],
     teamStates: [],
     jwt: auth.get_token(),
     roles: auth.get_roles(),
@@ -248,6 +250,17 @@ const store = new Vuex.Store({
      */
     updateDashboard (state, data) {
       state.dashboard = data
+    },
+
+    /**
+     * Replace the global dashboard data with new data
+     *
+     * This is triggered by the completion of a corresponding remote call.
+     *
+     * :param data: The new dashboard data
+     */
+    updateGlobalDashboard (state, data) {
+      state.global_dashboard = data
     },
 
     /**
@@ -509,6 +522,19 @@ const store = new Vuex.Store({
     },
 
     /**
+     * Fetch the global dashboard data
+     */
+    fetchGlobalDashboard (context) {
+      axios.get(appconf.BACKEND_URL + '/dashboard')
+        .then(response => {
+          context.commit('updateGlobalDashboard', response.data)
+        })
+        .catch(e => {
+          // context.commit('logError', e)
+        })
+    },
+
+    /**
      * Add a user to the backend store
      *
      * :param user: The user object to add
@@ -577,6 +603,7 @@ const store = new Vuex.Store({
       context.dispatch('refreshAssignments')
       context.dispatch('refreshStations')
       context.dispatch('refreshUsers')
+      context.dispatch('refreshGlobalDashboard')
     },
 
     /**
@@ -643,6 +670,19 @@ const store = new Vuex.Store({
       axios.get(appconf.BACKEND_URL + '/assignments')
         .then(response => {
           context.commit('replaceAssignments', response.data)
+        })
+        .catch(e => {
+          context.commit('logError', e)
+        })
+    },
+
+    /**
+     * Refreshes the local global dashboard from the backend
+     */
+    refreshGlobalDashboard (context) {
+      axios.get(appconf.BACKEND_URL + '/dashboard')
+        .then(response => {
+          context.commit('updateGlobalDashboard', response.data)
         })
         .catch(e => {
           context.commit('logError', e)
@@ -894,6 +934,7 @@ const store = new Vuex.Store({
 
 Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('error-block', ErrorBlock)
+Vue.component('global-dashboard', GlobalDashboard)
 Vue.component('mini-status', MiniStatus)
 Vue.component('route-block', RouteBlock)
 Vue.component('state-icon', StateIcon)
@@ -908,5 +949,8 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
+  created: function () {
+    this.$store.dispatch('refreshRemote')
+  }
 })
