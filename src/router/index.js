@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import RouteList from '@/components/RouteList'
 import StationDashboard from '@/components/StationDashboard'
+import ScoreBoard from '@/components/ScoreBoard'
 import GlobalDashboard from '@/components/GlobalDashboard'
 import StationList from '@/components/StationList'
 import TeamList from '@/components/TeamList'
@@ -18,6 +19,10 @@ export default new Router({
     {
       path: '/station',
       component: StationList
+    },
+    {
+      path: '/scoreboard',
+      component: ScoreBoard
     },
     {
       path: '/station/:stationName',

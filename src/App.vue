@@ -114,6 +114,7 @@ export default {
     routes () {
       const output = [
         { label: 'Dashboard', to: '/', icon: 'border_all' },
+        { label: 'Scoreboard', to: '/scoreboard', icon: 'format_list_numbered' },
         { label: 'Stations', to: '/station', icon: 'place' },
         { label: 'Teams', to: '/team', icon: 'group' }
       ]
