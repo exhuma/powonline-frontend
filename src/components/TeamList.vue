@@ -28,7 +28,12 @@
         </v-card-actions>
       </v-card>
     </transition>
-    <team-block v-for="team in teams" :name="team.name" :key="team.name"></team-block>
+    <v-list two-line>
+      <team-block
+        v-for="team in teams"
+        :name="team.name"
+        :key="team.name"></team-block>
+    </v-list>
   </center-col>
 </template>
 
