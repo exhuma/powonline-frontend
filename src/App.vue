@@ -42,9 +42,9 @@
             </v-card>
           </v-dialog>
           <router-view></router-view>
-          <div id="errors">
+          <center-col id="errors">
             <error-block :error="error" v-for="(error, idx) in errors" :key="'error-' + idx"></error-block>
-          </div>
+          </center-col>
         </v-container>
         <v-bottom-nav :value="isBottomNavVisible">
           <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat :value="here === route.to">
