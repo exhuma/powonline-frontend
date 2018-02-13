@@ -1,15 +1,9 @@
 <template>
-  <v-card class="mt-3">
-    <v-card-title><span>Team: "{{ name }}"</span></v-card-title>
-    <v-card-text>
-      <mini-status
-        :station="station.name"
-        :team="name"
-        :key="name + station.name"
-        v-for="station in stations"></mini-status>
-    </v-card-text>
-    <v-divider></v-divider>
-    <v-card-actions v-if="hasRole('admin')">
+  <v-list-tile>
+    <v-list-tile-content>
+      <v-list-tile-title>{{ name }}</v-list-tile-title>
+    </v-list-tile-content>
+    <v-list-tile-action class="ml-3" v-if="hasRole('admin')">
       <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteTeamRemote">
         <v-card-title slot="title">Do you want to delete the team "{{ name }}"?</v-card-title>
         <v-card-text slot="text">
@@ -18,8 +12,8 @@
           <p>Are you sure?</p>
         </v-card-text>
       </confirmation-dialog>
-    </v-card-actions>
-  </v-card>
+    </v-list-tile-action>
+  </v-list-tile>
 </template>
 
 <script>

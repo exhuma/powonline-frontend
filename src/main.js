@@ -9,7 +9,6 @@ import auth from './auth'
 import axios from 'axios'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
-import ErrorBlock from './components/ErrorBlock'
 import CenterCol from './components/CenterCol'
 import GlobalDashboard from './components/GlobalDashboard'
 import MiniStatus from './components/MiniStatus'
@@ -53,13 +52,20 @@ axios.interceptors.request.use(config => {
   return Promise.reject(error)
 })
 
+axios.interceptors.response.use(response => {
+  // nothing to do on successful response
+  return response
+}, error => {
+  console.error('Remote error')
+  return Promise.reject(error)
+})
+
 const store = new Vuex.Store({
   state: {
     users: [],
     stations: [],
     teams: [],
     routes: [],
-    errors: [],
     route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
     route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
     dashboard: [], // maps team names to station-states
@@ -229,17 +235,6 @@ const store = new Vuex.Store({
      */
     replaceStations (state, stations) {
       state.stations = stations
-    },
-
-    /**
-     * Display an error to the user
-     *
-     * :param error (object): The error object. No keys are obligatory. If the
-     *     error comes from axios it will have specific fields which change the
-     *     layout a bit.
-     */
-    logError (state, error) {
-      state.errors.push(error)
     },
 
     /**
@@ -479,9 +474,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.dispatch('fetchDashboard', payload.stationName)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -502,9 +494,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.dispatch('fetchDashboard', payload.stationName)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -517,9 +506,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('updateDashboard', response.data)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -529,9 +515,6 @@ const store = new Vuex.Store({
       axios.get(appconf.BACKEND_URL + '/dashboard')
         .then(response => {
           context.commit('updateGlobalDashboard', response.data)
-        })
-        .catch(e => {
-          // context.commit('logError', e)
         })
     },
 
@@ -545,9 +528,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('addUser', user)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -559,9 +539,6 @@ const store = new Vuex.Store({
       axios.post(appconf.BACKEND_URL + '/team', team)
         .then(response => {
           context.commit('addTeam', team)
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -575,9 +552,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('addRoute', route)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -589,9 +563,6 @@ const store = new Vuex.Store({
       axios.post(appconf.BACKEND_URL + '/station', station)
         .then(response => {
           context.commit('addStation', station)
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -618,9 +589,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('replaceUsers', response.data.items)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -631,9 +599,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('replaceTeams', response.data.items)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -643,9 +608,6 @@ const store = new Vuex.Store({
       axios.get(appconf.BACKEND_URL + '/route')
         .then(response => {
           context.commit('replaceRoutes', response.data.items)
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -658,9 +620,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('replaceStations', response.data.items)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -672,9 +631,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('replaceAssignments', response.data)
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -684,9 +640,6 @@ const store = new Vuex.Store({
       axios.get(appconf.BACKEND_URL + '/dashboard')
         .then(response => {
           context.commit('updateGlobalDashboard', response.data)
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -711,9 +664,6 @@ const store = new Vuex.Store({
           context.commit('assignTeamToRoute', {routeName: data.routeName, team: team})
           context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -728,9 +678,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('unassignTeamFromRoute', data)
           context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -755,9 +702,6 @@ const store = new Vuex.Store({
           context.commit('assignStationToRoute', {routeName: data.routeName, station: station})
           context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -772,9 +716,6 @@ const store = new Vuex.Store({
         .then(response => {
           context.commit('unassignStationFromRoute', data)
           context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -791,9 +732,6 @@ const store = new Vuex.Store({
         .then(function () {
           context.dispatch('refreshAssignments')
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -808,9 +746,6 @@ const store = new Vuex.Store({
         })
         .then(function () {
           context.dispatch('refreshAssignments')
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     },
 
@@ -827,9 +762,6 @@ const store = new Vuex.Store({
         .then(function () {
           context.dispatch('refreshAssignments')
         })
-        .catch(e => {
-          context.commit('logError', e)
-        })
     },
 
     /**
@@ -844,9 +776,6 @@ const store = new Vuex.Store({
         })
         .then(function () {
           context.dispatch('refreshAssignments')
-        })
-        .catch(e => {
-          context.commit('logError', e)
         })
     }
   },
@@ -934,7 +863,6 @@ const store = new Vuex.Store({
 })
 
 Vue.component('confirmation-dialog', ConfirmationDialog)
-Vue.component('error-block', ErrorBlock)
 Vue.component('center-col', CenterCol)
 Vue.component('global-dashboard', GlobalDashboard)
 Vue.component('mini-status', MiniStatus)
