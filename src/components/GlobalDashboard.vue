@@ -48,7 +48,6 @@ export default {
     tableItems () {
       let rows = []
       this.$store.state.global_dashboard.forEach(function (team) {
-        console.log(team)
         let row = {
           stations: [],
           team: team.team
