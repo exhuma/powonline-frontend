@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <v-app dark>
-      <v-toolbar>
+      <v-toolbar app>
+        <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
         <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
@@ -15,7 +16,17 @@
           <span>Logout</span>
         </v-tooltip>
       </v-toolbar>
-      <main>
+      <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
+        <v-list>
+          <v-list-tile v-for="route in routes" :to="route.to" :key="route.to">
+            <v-list-tile-action><v-icon>{{ route.icon }}</v-icon></v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>{{ route.label }}</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+      </v-navigation-drawer>
+      <v-content>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
@@ -43,13 +54,13 @@
           </v-dialog>
           <router-view></router-view>
         </v-container>
-        <v-bottom-nav :value="isBottomNavVisible">
+        <v-bottom-nav transition="slide-y-transition" class="hidden-xs-only" :value="isBottomNavVisible">
           <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat :value="here === route.to">
             <span>{{ route.label }}</span>
             <v-icon>{{route.icon}}</v-icon>
           </v-btn>
         </v-bottom-nav>
-      </main>
+      </v-content>
     </v-app>
   </div>
 </template>
@@ -62,6 +73,7 @@ export default {
   data () {
     return {
       loginDialogVisible: false,
+      sideMenuVisible: false,
       username: '',
       password: ''
     }
@@ -69,6 +81,9 @@ export default {
   methods: {
     addElement () {
       this.$store.commit('showAddBlock', this.$route.path)
+    },
+    toggleSideMenu () {
+      this.sideMenuVisible = !this.sideMenuVisible
     },
     showLoginDialog () {
       this.loginDialogVisible = true
