@@ -141,7 +141,7 @@ export default {
       return this.$store.state.pageTitle
     },
     isBottomNavVisible () {
-      return this.$store.state.isBottomNavVisible
+      return true
     },
     tokenIsAvailable () {
       const token = this.$store.state.jwt

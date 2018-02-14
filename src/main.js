@@ -77,7 +77,6 @@ const store = new Vuex.Store({
     userName: auth.get_username(),
     baseUrl: appconf.BACKEND_URL,
     pageTitle: 'Powonline',
-    isBottomNavVisible: true,
     isAddBlockVisible: {
       '/route': false,
       '/station': false,
@@ -444,21 +443,6 @@ const store = new Vuex.Store({
      */
     closeAddBlock (state, path) {
       state.isAddBlockVisible[path] = false
-    },
-
-    /**
-     * Show the bottom navigation panel
-     */
-    showBottomNav (state) {
-      state.isBottomNavVisible = true
-    },
-
-    /**
-     * Hide the bottom navigation panel
-     */
-    hideBottomNav (state) {
-      // this is disabled as it currently causes problems on iPhone
-      // state.isBottomNavVisible = false
     }
   },
   actions: {
