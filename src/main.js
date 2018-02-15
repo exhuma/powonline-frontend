@@ -443,6 +443,32 @@ const store = new Vuex.Store({
      */
     closeAddBlock (state, path) {
       state.isAddBlockVisible[path] = false
+    },
+
+    /**
+     * Updates station score and/or state for one team at one station locally.
+     *
+     * :param payload (object): An object with the following keys:
+     *    * team: The name of the team
+     *    * station: The name of the station
+     *    * new_state: The new state (optional)
+     *    * new_score: The new score (optional)
+     */
+    updateTeamState (state, payload) {
+      state.global_dashboard.forEach(item => {
+        if (item.team === payload.team) {
+          item.stations.forEach(stationState => {
+            if (stationState.name === payload.station) {
+              if (payload.new_state !== undefined) {
+                stationState.state = payload.new_state
+              }
+              if (payload.new_score !== undefined) {
+                stationState.score = payload.new_score
+              }
+            }
+          })
+        }
+      })
     }
   },
   actions: {
@@ -866,5 +892,26 @@ new Vue({
   render: h => h(App),
   created: function () {
     this.$store.dispatch('refreshRemote')
+
+    if (appconf.PUSHER_KEY) {
+      // eslint-disable-next-line
+      let PusherClient = Pusher || undefined
+      PusherClient.logToConsole = appconf.PUSHER_DEBUG
+      var pusher = new PusherClient(appconf.PUSHER_KEY, {
+        cluster: 'eu',
+        encrypted: true
+      })
+      var channel = pusher.subscribe('team-station-state')
+      let that = this
+      channel.bind('state-change', function (data) {
+        console.log(data)
+        that.$store.commit('updateTeamState', data)
+      })
+      channel.bind('score-change', function (data) {
+        that.$store.commit('updateTeamState', data)
+      })
+    } else {
+      console.warn('Pusher key not specified. Pusher disabled!')
+    }
   }
 })
