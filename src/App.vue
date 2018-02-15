@@ -39,6 +39,7 @@
                   type='text'
                   @keyup.enter.native="loginUser"
                   v-model='username'
+                  ref="LoginDialogUsername"
                   label='Enter a new username' />
                 <v-text-field
                   @keyup.enter.native="loginUser"
@@ -91,6 +92,7 @@ export default {
     },
     showLoginDialog () {
       this.loginDialogVisible = true
+      this.$nextTick(() => this.$refs.LoginDialogUsername.focus())
     },
     loginUser () {
       axios.post(this.$store.state.baseUrl + '/login', {
