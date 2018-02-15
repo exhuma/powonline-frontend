@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <v-app dark>
+      <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
       <v-toolbar app>
         <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
         <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
@@ -75,7 +76,10 @@ export default {
       loginDialogVisible: false,
       sideMenuVisible: false,
       username: '',
-      password: ''
+      password: '',
+      globalSnack: false,
+      globalSnackText: '',
+      globalSnackColor: ''
     }
   },
   methods: {
@@ -95,13 +99,20 @@ export default {
       }).then(response => {
         this.username = ''
         this.password = ''
-        if (response.status < 300) {
+        if (response.status === 200) {
           this.$store.commit('loginUser', response.data)
         } else {
-          // TODO show alert to user
-          this.$store.commit('logoutUser')
+          this.globalSnackText = 'Unexpected remote response (' + response.status + ')'
+          this.globalSnack = true
+          this.globalSnackColor = 'orange'
         }
       })
+        .catch(e => {
+          this.$store.commit('logoutUser')
+          this.globalSnackText = 'Invalid login!'
+          this.globalSnack = true
+          this.globalSnackColor = 'error'
+        })
       this.loginDialogVisible = false
     },
     logoutUser () {
