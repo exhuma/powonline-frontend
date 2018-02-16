@@ -5,7 +5,7 @@
     </v-list-tile-content>
     <v-list-tile-action>
       <v-btn icon ripple @click.native="openDashBoard(name)">
-        <v-icon>info</v-icon>
+        <v-icon>assignment</v-icon>
       </v-btn>
     </v-list-tile-action>
     <v-list-tile-action class="ml-3" v-if="hasRole('admin')">
