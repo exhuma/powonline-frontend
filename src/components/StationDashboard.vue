@@ -1,40 +1,13 @@
 <template>
   <center-col id="Dashboard">
-    <v-card v-for="(state, idx) in states" class="mb-2" :key="idx">
-      <v-card-title>
-        <span>{{ state.team }}</span>
-      </v-card-title>
-      <v-card-text>
-        <v-container>
-          <v-layout row wrap class="bigrow">
-            <v-flex xs2 class="clickable" @click="advanceState(state)" elevation-1>
-              <v-container v-ripple fill-height>
-                <v-layout row align-center>
-                  <v-flex xs12>
-                    <state-icon :state="state.state"></state-icon>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-flex>
-            <v-flex xs10>
-              <v-container>
-                <v-layout row align-center>
-                  <v-flex xs2>
-                    Score:
-                  </v-flex>
-                  <v-flex xs8 text-xs-left>
-                    <input :value="state.score" type="number" @change="updateScore" :data-team="state.team" placeholder="score" />
-                  </v-flex>
-                  <v-flex xs2>
-                    <v-btn @click="saveChanges" success><v-icon>save</v-icon></v-btn>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-flex>
-          </v-layout>
-        </v-container>
-      </v-card-text>
-    </v-card>
+    <large-station-dashboard-item
+        v-for="(state, idx) in states"
+        @scoreUpdated="onScoreUpdated"
+        @saveClicked="onSaveClicked"
+        @stateAdvanced="onStateAdvanced"
+        :state="state"
+        :key="idx">
+    </large-station-dashboard-item>
     <v-snackbar :top="true" :timeout="2000" color="success" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
   </center-col>
 </template>
@@ -78,21 +51,20 @@ export default {
     this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
   },
   methods: {
-    advanceState: function (state) {
+    onStateAdvanced: function (state) {
       this.$store.dispatch('advanceState', {
-        teamName: state['team'],
+        teamName: state.team,
         stationName: this.$route.params.stationName})
     },
-    updateScore: function (event) {
-      const teamName = event.target.getAttribute('data-team')
+    onScoreUpdated: function (state, newScore) {
       this.$store.dispatch('setStationScore', {
-        teamName: teamName,
+        teamName: state.team,
         stationName: this.$route.params.stationName,
-        score: event.target.value})
+        score: newScore})
       this.snacktext = 'Changes saved'
       this.snackbar = true
     },
-    saveChanges: function (state) {
+    onSaveClicked: function (state) {
       this.snacktext = 'Changes saved'
       this.snackbar = true
     }
