@@ -1,13 +1,21 @@
 <template>
   <center-col id="Dashboard">
-    <large-station-dashboard-item
+    <small-station-dashboard-item
+        class="hidden-sm-and-up mb-2"
         v-for="(state, idx) in states"
         @scoreUpdated="onScoreUpdated"
         @saveClicked="onSaveClicked"
         @stateAdvanced="onStateAdvanced"
         :state="state"
-        :key="idx">
-    </large-station-dashboard-item>
+        :key="'small' + idx"></small-station-dashboard-item>
+    <large-station-dashboard-item
+        class="hidden-xs-only mb-2"
+        v-for="(state, idx) in states"
+        @scoreUpdated="onScoreUpdated"
+        @saveClicked="onSaveClicked"
+        @stateAdvanced="onStateAdvanced"
+        :state="state"
+        :key="'large' + idx"></large-station-dashboard-item>
     <v-snackbar :top="true" :timeout="2000" color="success" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
   </center-col>
 </template>
