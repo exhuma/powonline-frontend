@@ -4,14 +4,9 @@
       <span>{{ state.team }}</span>
     </v-card-title>
     <v-card-text>
-      <v-container fluid>
-        <v-layout row>
-          <v-flex xs5>
-            <v-btn
-              style="height: 6em;"
-              @click="advanceState(state)"><state-icon :state="state.state"></state-icon></v-btn>
-          </v-flex>
-          <v-flex xs7>
+      <v-container pa-0>
+        <v-layout row align-center>
+          <v-flex xs12>
             <v-text-field
               @keyup.enter="onScoreEnter"
               @change="updateScore"
@@ -20,9 +15,14 @@
               label='Score' />
           </v-flex>
         </v-layout>
-        <v-layout row>
-          <v-flex xs12>
-            <v-btn @click="saveChanges" success style="width: 100%"><v-icon>save</v-icon></v-btn>
+        <v-layout row align-center>
+          <v-flex xs6>
+            <v-btn
+              style="height: 4em;"
+              @click="advanceState(state)"><state-icon :state="state.state"></state-icon></v-btn>
+          </v-flex>
+          <v-flex xs6>
+            <v-btn style="height: 4em;" @click="saveChanges" success><v-icon>save</v-icon></v-btn>
           </v-flex>
         </v-layout>
       </v-container>
