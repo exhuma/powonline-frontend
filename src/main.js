@@ -19,6 +19,7 @@ import TeamBlock from './components/TeamBlock'
 import UserBlock from './components/UserBlock'
 import UserRoleCheckbox from './components/UserRoleCheckbox'
 import UserStationCheckbox from './components/UserStationCheckbox'
+import SmallStationDashboardItem from './components/SmallStationDashboardItem'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -883,6 +884,7 @@ Vue.component('team-block', TeamBlock)
 Vue.component('user-block', UserBlock)
 Vue.component('user-role-checkbox', UserRoleCheckbox)
 Vue.component('user-station-checkbox', UserStationCheckbox)
+Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
 
 /* eslint-disable no-new */
 new Vue({
