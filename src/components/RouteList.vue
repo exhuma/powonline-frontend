@@ -1,27 +1,17 @@
 <template>
   <div id="RouteList">
-    <transition name="slide">
-      <v-card v-show="isAddBlockVisible">
-        <v-card-title>
-          <span>Add New Route</span>
-          <v-spacer></v-spacer>
-          <v-btn @click.native="closeAddBlock" icon><v-icon>close</v-icon></v-btn>
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            name="route-input"
-            id="RouteNameImput"
-            @keyup.enter.native="addRoute"
-            type='text'
-            v-model='routename'
-            label='Enter a new routename' />
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn @click.native="addRoute" flat>Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </transition>
+    <popup-dialog
+      @dialogConfirmed="addRoute"
+      @dialogDismissed="closeAddBlock"
+      :dialogVisible="isAddBlockVisible"
+      title="Add New Route">
+      <v-text-field
+        name="route-input"
+        @keyup.enter.native="addRoute"
+        type='text'
+        v-model='routeName'
+        label='Enter a new routename' />
+    </popup-dialog>
 
     <!-- List all routes -->
     <route-block v-for="route in routes" :name="route.name" :key="route.name"></route-block>
@@ -33,10 +23,10 @@ export default {
   name: 'route_list',
   methods: {
     addRoute: function (event) {
-      this.$store.dispatch('addRouteRemote', {name: this.routename})
-      const input = document.getElementById('RouteNameImput')
-      input.focus()
-      input.select()
+      this.$store.dispatch('addRouteRemote', {
+        name: this.routeName
+      })
+      this.$store.commit('closeAddBlock', this.$route.path)
     },
     closeAddBlock () {
       this.$store.commit('closeAddBlock', this.$route.path)
@@ -48,7 +38,7 @@ export default {
   },
   data () {
     return {
-      routename: ''
+      routeName: ''
     }
   },
   computed: {

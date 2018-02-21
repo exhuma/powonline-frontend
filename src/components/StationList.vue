@@ -1,26 +1,16 @@
 <template>
   <center-col id="StationList">
-    <transition name="slide">
-      <v-card v-show="isAddBlockVisible">
-        <v-card-title>
-          <span>Add New Station</span>
-          <v-spacer></v-spacer>
-          <v-btn @click.native="closeAddBlock" icon><v-icon>close</v-icon></v-btn>
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            id="StationNameImput"
-            @keyup.enter.native="addStation"
-            type='text'
-            v-model='stationname'
-            label='Enter a new stationname' />
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn @click.native="addStation" flat>Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </transition>
+    <popup-dialog
+      @dialogConfirmed="addStation"
+      @dialogDismissed="closeAddBlock"
+      :dialogVisible="isAddBlockVisible"
+      title="Add New Station">
+      <v-text-field
+        @keyup.enter.native="addStation"
+        type='text'
+        v-model='stationname'
+        label='Enter a new stationname' />
+    </popup-dialog>
     <v-list two-line>
       <station-block
         v-for="station in stations"
@@ -35,10 +25,10 @@ export default {
   name: 'station_list',
   methods: {
     addStation: function (event) {
-      this.$store.dispatch('addStationRemote', {name: this.stationname})
-      const input = document.getElementById('StationNameImput')
-      input.focus()
-      input.select()
+      this.$store.dispatch('addStationRemote', {
+        name: this.stationname
+      })
+      this.$store.commit('closeAddBlock', this.$route.path)
     },
     closeAddBlock () {
       this.$store.commit('closeAddBlock', this.$route.path)

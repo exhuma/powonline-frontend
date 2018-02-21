@@ -1,33 +1,22 @@
 <template>
   <center-col id="TeamList">
-    <transition name="slide">
-      <v-card v-show="isAddBlockVisible">
-        <v-card-title>
-          <span>Add New Team</span>
-          <v-spacer></v-spacer>
-          <v-btn @click.native="closeAddBlock" icon><v-icon>close</v-icon></v-btn>
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            name="team-input"
-            id="TeamNameImput"
-            @keyup.enter.native="addTeam"
-            type='text'
-            v-model='teamname'
-            label='Enter a new teamname' />
-          <v-text-field
-            name="email-input"
-            id="EmailInput"
-            type='text'
-            v-model='email'
-            label='Enter a new email' />
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn @click.native="addTeam" flat>Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </transition>
+    <popup-dialog
+      @dialogConfirmed="addTeam"
+      @dialogDismissed="closeAddBlock"
+      :dialogVisible="isAddBlockVisible"
+      title="Add New Team">
+      <v-text-field
+        name="team-input"
+        @keyup.enter.native="addTeam"
+        type='text'
+        v-model='teamname'
+        label='Enter a new teamname' />
+      <v-text-field
+        name="email-input"
+        type='text'
+        v-model='email'
+        label='Enter a new email' />
+    </popup-dialog>
     <v-list two-line>
       <team-block
         v-for="team in teams"
@@ -43,6 +32,7 @@ export default {
   methods: {
     addTeam: function (event) {
       this.$store.dispatch('addTeamRemote', {
+        // TODO: Add missing fields to the form
         name: this.teamname,
         email: this.email,
         order: 500,
@@ -53,9 +43,7 @@ export default {
         inserted: '2000-01-01 10:00:00',
         confirmation_key: ''
       })
-      const input = document.getElementById('TeamNameImput')
-      input.focus()
-      input.select()
+      this.$store.commit('closeAddBlock', this.$route.path)
     },
     closeAddBlock () {
       this.$store.commit('closeAddBlock', this.$route.path)

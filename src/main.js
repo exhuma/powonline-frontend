@@ -20,6 +20,7 @@ import UserBlock from './components/UserBlock'
 import UserRoleCheckbox from './components/UserRoleCheckbox'
 import UserStationCheckbox from './components/UserStationCheckbox'
 import SmallStationDashboardItem from './components/SmallStationDashboardItem'
+import PopupDialog from './components/PopupDialog'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -865,6 +866,7 @@ Vue.component('user-block', UserBlock)
 Vue.component('user-role-checkbox', UserRoleCheckbox)
 Vue.component('user-station-checkbox', UserStationCheckbox)
 Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
+Vue.component('popup-dialog', PopupDialog)
 
 /* eslint-disable no-new */
 new Vue({
