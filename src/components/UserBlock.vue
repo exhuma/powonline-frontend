@@ -20,12 +20,12 @@
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
       <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteUserRemote">
-        <v-card-title slot="title">Do you want to delete the user "{{ name }}"?</v-card-title>
-        <v-card-text slot="text">
+        <span slot="title">Do you want to delete the user "{{ name }}"?</span>
+        <div slot="text">
           <p>this will delete the user with the name "{{ name }}" and all
             related information!</p>
           <p>Are you sure?</p>
-        </v-card-text>
+        </div>
       </confirmation-dialog>
     </v-card-actions>
   </v-card>
