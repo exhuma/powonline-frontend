@@ -69,8 +69,6 @@ const store = new Vuex.Store({
     routes: [],
     route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
     route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
-    dashboard: [], // maps team names to station-states
-    dashboardStation: '',
     global_dashboard: [],
     teamStates: [],
     jwt: auth.get_token(),
@@ -235,17 +233,6 @@ const store = new Vuex.Store({
      */
     replaceStations (state, stations) {
       state.stations = stations
-    },
-
-    /**
-     * Replace the dashboard data with new data
-     *
-     * This is triggered by the completion of a corresponding remote call.
-     *
-     * :param data: The new dashboard data
-     */
-    updateDashboard (state, data) {
-      state.dashboard = data
     },
 
     /**
@@ -482,9 +469,6 @@ const store = new Vuex.Store({
           'score': payload.score
         }
       })
-        .then(response => {
-          context.dispatch('fetchDashboard', payload.stationName)
-        })
     },
 
     /**
@@ -503,19 +487,15 @@ const store = new Vuex.Store({
         }
       })
         .then(response => {
-          context.dispatch('fetchDashboard', payload.stationName)
-        })
-    },
-
-    /**
-     * Fetch the dashboard data for a station
-     *
-     * :param stationName: The name of the station
-     */
-    fetchDashboard (context, stationName) {
-      axios.get(appconf.BACKEND_URL + '/station/' + stationName + '/dashboard')
-        .then(response => {
-          context.commit('updateDashboard', response.data)
+          // The server assigned a new state, so we must update our local
+          // values
+          const newState = response.data.result.state
+          let data = {
+            team: payload.teamName,
+            station: payload.stationName,
+            new_state: newState
+          }
+          context.commit('updateTeamState', data)
         })
     },
 

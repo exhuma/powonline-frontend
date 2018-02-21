@@ -29,24 +29,36 @@ export default {
       const outputUnknown = []
       const outputArrived = []
       const outputFinished = []
-      this.$store.state.dashboard.forEach(item => {
-        switch (item.state) {
-          case 'unknown':
-            outputUnknown.push(item)
-            break
-          case 'arrived':
-            outputArrived.push(item)
-            break
-          case 'finished':
-            outputFinished.push(item)
-            break
-        }
+      this.$store.state.global_dashboard.forEach(teamInfo => {
+        teamInfo.stations.forEach(stationState => {
+          if (stationState.name !== this.$route.params.stationName) {
+            return // skip states from other stations
+          }
+          let container = outputUnknown
+          switch (stationState.state) {
+            case 'unknown':
+              container = outputUnknown
+              break
+            case 'arrived':
+              container = outputArrived
+              break
+            case 'finished':
+              container = outputFinished
+              break
+            default:
+              console.error('Unknown state: ' + stationState.state)
+          }
+          container.push({
+            team: teamInfo.team,
+            state: stationState.state,
+            score: stationState.score
+          })
+        })
       })
       return outputUnknown.concat(outputArrived).concat(outputFinished)
     }
   },
   created () {
-    this.$store.dispatch('fetchDashboard', this.$route.params.stationName)
     this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
   },
   methods: {
