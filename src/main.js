@@ -906,7 +906,6 @@ new Vue({
       var channel = pusher.subscribe('team-station-state')
       let that = this
       channel.bind('state-change', function (data) {
-        console.log(data)
         that.$store.commit('updateTeamState', data)
       })
       channel.bind('score-change', function (data) {
