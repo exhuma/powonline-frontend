@@ -2,6 +2,7 @@
   <center-col id="Dashboard">
     <small-station-dashboard-item
         v-for="(state, idx) in states"
+        class="mb-4"
         @scoreUpdated="onScoreUpdated"
         @saveClicked="onSaveClicked"
         @stateAdvanced="onStateAdvanced"
