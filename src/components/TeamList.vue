@@ -18,6 +18,12 @@
         <v-tabs-items>
           <v-tabs-content key="teamInfo" id="teamInfo">
             <v-card flat><v-card-text>
+              <v-select
+                v-bind:items="routes"
+                v-model='teamRoute'
+                item-value="name"
+                item-text="name"
+                label='Route' />
               <v-text-field
                 name="team-input"
                 type='text'
@@ -88,6 +94,12 @@
               <v-checkbox
                 label="Team was confirmed by the registration staff"
                 v-model="isConfirmed" />
+              <v-select
+                v-bind:items="routes"
+                v-model='teamRoute'
+                item-value="name"
+                item-text="name"
+                label='Route' />
             </v-card-text></v-card>
           </v-tabs-content>
 
@@ -121,7 +133,6 @@ export default {
   methods: {
     addTeam: function (event) {
       // TODO: Add "order"
-      // TODO: Add "route_name"
 
       const payload = {
         name: this.teamname,
@@ -137,7 +148,8 @@ export default {
         num_vegetarians: this.numVegetarians,
         num_participants: this.numParticipants,
         planned_start_time: this.plannedStartTime,
-        effective_start_time: this.effectiveStartTime
+        effective_start_time: this.effectiveStartTime,
+        route_name: this.teamRoute
       }
 
       // clean up empty strings (fix needed due to a limitation of ths
@@ -162,6 +174,7 @@ export default {
   data () {
     return {
       teamname: '',
+      teamRoute: null,
       activeTab: 'teamInfo',
       hasCancelled: false,
       hasCompleted: false,
@@ -181,6 +194,9 @@ export default {
   computed: {
     teams () {
       return this.$store.state.teams
+    },
+    routes () {
+      return this.$store.state.routes
     },
     isAddBlockVisible () {
       return this.$store.state.isAddBlockVisible[this.$route.path]
