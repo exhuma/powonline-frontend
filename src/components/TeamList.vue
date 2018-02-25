@@ -159,7 +159,6 @@ export default {
       if (payload.num_vegetarians === '') payload.num_vegetarians = null
       if (payload.num_participants === '') payload.num_participants = null
 
-      console.log(payload) // XXX
       this.$store.dispatch('addTeamRemote', payload)
       this.$store.commit('closeAddBlock', this.$route.path)
     },
