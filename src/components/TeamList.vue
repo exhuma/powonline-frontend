@@ -7,12 +7,12 @@
       title="Add New Team">
       <v-text-field
         name="team-input"
-        @keyup.enter.native="addTeam"
         type='text'
         v-model='teamname'
         label='Enter a new teamname' />
       <v-text-field
         name="email-input"
+        @keyup.enter.native="addTeam"
         type='text'
         v-model='email'
         label='Enter a new email' />
