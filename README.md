@@ -10,9 +10,16 @@ This repository serves as frontend for [powonline](https://github.com/exhuma/pow
 # install dependencies
 npm install
 
-# Create a local config file
-cp src/appconf/index.js.dist src/appconf/index.js
-vim src/appconf/index.js
+# Create local config files
+
+The folder "config" contain several `.dist` files (like `pusher.env.js.dist`).
+
+Copy those and remove the `.dist` extension and fill in your site-specific
+details. The files are:
+
+* `pusher.env.js` - Contains configuration values for pusher.com
+* `siteSettings.env.js` - Contains configuration values your current
+  development site.
 
 # serve with hot reload at localhost:8080
 npm run dev

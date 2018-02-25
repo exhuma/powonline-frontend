@@ -4,7 +4,6 @@ import router from './router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import Vuex from 'vuex'
-import appconf from './appconf'
 import auth from './auth'
 import axios from 'axios'
 
@@ -42,7 +41,7 @@ axios.interceptors.request.use(config => {
   const jwt = auth.get_token()
   if (jwt !== '') {
     if (auth.token_expired(jwt)) {
-      auth.renew_token(appconf.BACKEND_URL + '/login/renew', jwt)
+      auth.renew_token(process.env.BACKEND_URL + '/login/renew', jwt)
     }
     config.headers['Authorization'] = 'Bearer ' + jwt
     console.debug('Intercepted and set auth token to ' + jwt)
@@ -76,7 +75,7 @@ const store = new Vuex.Store({
     jwt: auth.get_token(),
     roles: auth.get_roles(),
     userName: auth.get_username(),
-    baseUrl: appconf.BACKEND_URL,
+    baseUrl: process.env.BACKEND_URL,
     pageTitle: 'Powonline',
     isAddBlockVisible: {
       '/route': false,
@@ -463,7 +462,7 @@ const store = new Vuex.Store({
   },
   actions: {
     setStationScore (context, payload) {
-      axios.post(appconf.BACKEND_URL + '/job', {
+      axios.post(process.env.BACKEND_URL + '/job', {
         'action': 'set_score',
         'args': {
           'station_name': payload.stationName,
@@ -481,7 +480,7 @@ const store = new Vuex.Store({
      *     * teamName: The name of the team
      */
     advanceState (context, payload) {
-      axios.post(appconf.BACKEND_URL + '/job', {
+      axios.post(process.env.BACKEND_URL + '/job', {
         'action': 'advance',
         'args': {
           'station_name': payload.stationName,
@@ -505,7 +504,7 @@ const store = new Vuex.Store({
      * Fetch the global dashboard data
      */
     fetchGlobalDashboard (context) {
-      axios.get(appconf.BACKEND_URL + '/dashboard')
+      axios.get(process.env.BACKEND_URL + '/dashboard')
         .then(response => {
           context.commit('updateGlobalDashboard', response.data)
         })
@@ -517,7 +516,7 @@ const store = new Vuex.Store({
      * :param user: The user object to add
      */
     addUserRemote (context, user) {
-      axios.post(appconf.BACKEND_URL + '/user', user)
+      axios.post(process.env.BACKEND_URL + '/user', user)
         .then(response => {
           context.commit('addUser', user)
         })
@@ -529,7 +528,7 @@ const store = new Vuex.Store({
      * :param team: The team object to add
      */
     addTeamRemote (context, team) {
-      axios.post(appconf.BACKEND_URL + '/team', team)
+      axios.post(process.env.BACKEND_URL + '/team', team)
         .then(response => {
           context.commit('addTeam', team)
         })
@@ -541,7 +540,7 @@ const store = new Vuex.Store({
      * :param route: The route object to add
      */
     addRouteRemote (context, route) {
-      axios.post(appconf.BACKEND_URL + '/route', route)
+      axios.post(process.env.BACKEND_URL + '/route', route)
         .then(response => {
           context.commit('addRoute', route)
         })
@@ -553,7 +552,7 @@ const store = new Vuex.Store({
      * :param route: The station object to add
      */
     addStationRemote (context, station) {
-      axios.post(appconf.BACKEND_URL + '/station', station)
+      axios.post(process.env.BACKEND_URL + '/station', station)
         .then(response => {
           context.commit('addStation', station)
         })
@@ -578,7 +577,7 @@ const store = new Vuex.Store({
       if (context.state.roles.indexOf('admin') === -1) {
         return
       }
-      axios.get(appconf.BACKEND_URL + '/user')
+      axios.get(process.env.BACKEND_URL + '/user')
         .then(response => {
           context.commit('replaceUsers', response.data.items)
         })
@@ -588,7 +587,7 @@ const store = new Vuex.Store({
      * Refreshes the local teams from the backend
      */
     refreshTeams (context) {
-      axios.get(appconf.BACKEND_URL + '/team')
+      axios.get(process.env.BACKEND_URL + '/team')
         .then(response => {
           context.commit('replaceTeams', response.data.items)
         })
@@ -598,7 +597,7 @@ const store = new Vuex.Store({
      * Refreshes the local routes from the backend
      */
     refreshRoutes (context) {
-      axios.get(appconf.BACKEND_URL + '/route')
+      axios.get(process.env.BACKEND_URL + '/route')
         .then(response => {
           context.commit('replaceRoutes', response.data.items)
         })
@@ -609,7 +608,7 @@ const store = new Vuex.Store({
      */
     refreshStations (context) {
       // --- Fetch Stations from server
-      axios.get(appconf.BACKEND_URL + '/station')
+      axios.get(process.env.BACKEND_URL + '/station')
         .then(response => {
           context.commit('replaceStations', response.data.items)
         })
@@ -620,7 +619,7 @@ const store = new Vuex.Store({
      */
     refreshAssignments (context) {
       // --- Fetch team/route assignments from server
-      axios.get(appconf.BACKEND_URL + '/assignments')
+      axios.get(process.env.BACKEND_URL + '/assignments')
         .then(response => {
           context.commit('replaceAssignments', response.data)
         })
@@ -630,7 +629,7 @@ const store = new Vuex.Store({
      * Refreshes the local global dashboard from the backend
      */
     refreshGlobalDashboard (context) {
-      axios.get(appconf.BACKEND_URL + '/dashboard')
+      axios.get(process.env.BACKEND_URL + '/dashboard')
         .then(response => {
           context.commit('updateGlobalDashboard', response.data)
         })
@@ -652,7 +651,7 @@ const store = new Vuex.Store({
           team = item
         }
       })
-      axios.post(appconf.BACKEND_URL + '/route/' + data.routeName + '/teams', team)
+      axios.post(process.env.BACKEND_URL + '/route/' + data.routeName + '/teams', team)
         .then(response => {
           context.commit('assignTeamToRoute', {routeName: data.routeName, team: team})
           context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
@@ -667,7 +666,7 @@ const store = new Vuex.Store({
      *     * routeName: The name of the route the team should be unassigned from
      */
     unassignTeamFromRouteRemote (context, data) {
-      axios.delete(appconf.BACKEND_URL + '/route/' + data.routeName + '/teams/' + data.teamName)
+      axios.delete(process.env.BACKEND_URL + '/route/' + data.routeName + '/teams/' + data.teamName)
         .then(response => {
           context.commit('unassignTeamFromRoute', data)
           context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
@@ -690,7 +689,7 @@ const store = new Vuex.Store({
           station = item
         }
       })
-      axios.post(appconf.BACKEND_URL + '/route/' + data.routeName + '/stations', station)
+      axios.post(process.env.BACKEND_URL + '/route/' + data.routeName + '/stations', station)
         .then(response => {
           context.commit('assignStationToRoute', {routeName: data.routeName, station: station})
           context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
@@ -705,7 +704,7 @@ const store = new Vuex.Store({
      *     * routeName: The name of the route the station should be unassigned from
      */
     unassignStationFromRouteRemote (context, data) {
-      axios.delete(appconf.BACKEND_URL + '/route/' + data.routeName + '/stations/' + data.stationName)
+      axios.delete(process.env.BACKEND_URL + '/route/' + data.routeName + '/stations/' + data.stationName)
         .then(response => {
           context.commit('unassignStationFromRoute', data)
           context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
@@ -718,7 +717,7 @@ const store = new Vuex.Store({
      * :param routeName: The name of the route to delete
      */
     deleteRouteRemote (context, routeName) {
-      axios.delete(appconf.BACKEND_URL + '/route/' + routeName)
+      axios.delete(process.env.BACKEND_URL + '/route/' + routeName)
         .then(response => {
           context.commit('deleteRoute', routeName)
         })
@@ -733,7 +732,7 @@ const store = new Vuex.Store({
      * :param stationName: The name of the station to delete
      */
     deleteStationRemote (context, stationName) {
-      axios.delete(appconf.BACKEND_URL + '/station/' + stationName)
+      axios.delete(process.env.BACKEND_URL + '/station/' + stationName)
         .then(response => {
           context.commit('deleteStation', stationName)
         })
@@ -748,7 +747,7 @@ const store = new Vuex.Store({
      * :param userName: The name of the user to delete
      */
     deleteUserRemote (context, userName) {
-      axios.delete(appconf.BACKEND_URL + '/user/' + userName)
+      axios.delete(process.env.BACKEND_URL + '/user/' + userName)
         .then(response => {
           context.commit('deleteUser', userName)
         })
@@ -763,7 +762,7 @@ const store = new Vuex.Store({
      * :param teamName: The name of the team to delete
      */
     deleteTeamRemote (context, teamName) {
-      axios.delete(appconf.BACKEND_URL + '/team/' + teamName)
+      axios.delete(process.env.BACKEND_URL + '/team/' + teamName)
         .then(response => {
           context.commit('deleteTeam', teamName)
         })
@@ -879,11 +878,11 @@ new Vue({
   created: function () {
     this.$store.dispatch('refreshRemote')
 
-    if (appconf.PUSHER_KEY) {
+    if (process.env.PUSHER_KEY) {
       // eslint-disable-next-line
       let PusherClient = Pusher || undefined
-      PusherClient.logToConsole = appconf.PUSHER_DEBUG
-      var pusher = new PusherClient(appconf.PUSHER_KEY, {
+      PusherClient.logToConsole = process.env.PUSHER_DEBUG
+      var pusher = new PusherClient(process.env.PUSHER_KEY, {
         cluster: 'eu',
         encrypted: true
       })
