@@ -37,6 +37,9 @@ def deploy():
     finally:
         fab.run('rm -rf %s' % tmpdir)
 
+    fab.sudo('install -o %s -d %s' % (fab.env.user, DEPLOY_DIR))
+    fab.put('run-frontend.sh', '%s/run-frontend.sh.dist' % DEPLOY_DIR)
+
 
 @fab.task
 def run():
