@@ -24,7 +24,7 @@
     </popup-dialog>
 
     <!-- List all routes -->
-    <route-block v-for="route in routes" :name="route.name" :key="route.name"></route-block>
+    <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
   </div>
 </template>
 
