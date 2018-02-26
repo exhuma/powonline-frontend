@@ -5,26 +5,40 @@
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
       title="Add New Route">
-      <v-text-field
-        name="route-input"
-        @keyup.enter.native="addRoute"
-        type='text'
-        v-model='routeName'
-        label='Enter a new routename' />
+      <v-layout row class="text-xs-left">
+        <v-flex xs12>
+          <v-text-field
+            name="route-input"
+            @keyup.enter.native="addRoute"
+            type='text'
+            v-model='routeName'
+            label='Enter a new routename' />
+        </v-flex>
+      </v-layout>
+      <v-layout row class="text-xs-left">
+        <v-flex xs3>Color</v-flex>
+        <v-flex xs9>
+          <swatches colors="material-dark" v-model="routeColor" />
+        </v-flex>
+      </v-layout>
     </popup-dialog>
 
     <!-- List all routes -->
-    <route-block v-for="route in routes" :name="route.name" :key="route.name"></route-block>
+    <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
   </div>
 </template>
 
 <script>
+import Swatches from 'vue-swatches'
+import 'vue-swatches/dist/vue-swatches.min.css'
 export default {
   name: 'route_list',
+  components: {Swatches},
   methods: {
     addRoute: function (event) {
       this.$store.dispatch('addRouteRemote', {
-        name: this.routeName
+        name: this.routeName,
+        color: this.routeColor
       })
       this.$store.commit('closeAddBlock', this.$route.path)
     },
@@ -38,7 +52,8 @@ export default {
   },
   data () {
     return {
-      routeName: ''
+      routeName: '',
+      routeColor: '#000000'
     }
   },
   computed: {

@@ -124,7 +124,7 @@ const store = new Vuex.Store({
       localStorage.removeItem('userName')
       state.jwt = ''
       state.roles = []
-      console.debug('cleared LS')
+      console.debug('Successfully logged out user & cleared state')
     },
 
     /**
@@ -876,6 +876,13 @@ new Vue({
   store,
   render: h => h(App),
   created: function () {
+    // If the token has expired, remove it completely.
+    // ... otherwise, the UI still looks as if we were logged in
+    const tokenCleared = auth.clearExpiredToken()
+    if (tokenCleared) {
+      this.$store.commit('logoutUser')
+    }
+
     this.$store.dispatch('refreshRemote')
 
     if (process.env.PUSHER_KEY) {

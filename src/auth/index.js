@@ -36,7 +36,13 @@ export default {
       return true
     }
     const now = Math.floor(Date.now() / 1000)
-    const decoded = jwt_decode(token)
+    let decoded = null
+    try {
+      decoded = jwt_decode(token)
+    } catch (err) {
+      console.error('Invalid token detected, clearing auth info!')
+      return true
+    }
     console.log('Token will expire in ' + (decoded['exp'] - now) + 's')
     if (decoded['exp'] <= now) {
       console.log('Security token has expired!')
@@ -74,5 +80,24 @@ export default {
         localStorage.setItem('failedRenewals', failedRenewals + 1)
       }
     })
+  },
+
+  /**
+   * Checks if the token in current storage has expired. If true, clears if
+   * from the storage..
+   *
+   * Return true if the token was cleared, false otherwise.
+   */
+  clearExpiredToken: function () {
+    const jwt = this.get_token()
+    if (jwt !== '' && this.token_expired(jwt)) {
+      console.log('Clearing auth info')
+      localStorage.setItem('jwt', '')
+      localStorage.setItem('userName', '')
+      localStorage.setItem('roles', [])
+      localStorage.setItem('failedRenewals', 0)
+      return true
+    }
+    return false
   }
 }

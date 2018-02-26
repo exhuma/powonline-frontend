@@ -1,6 +1,8 @@
 <template>
-  <v-card class="mt-3">
-    <v-card-title><span class="white--text">Route: "{{ name }}"</span></v-card-title>
+  <v-card
+      class="mt-3"
+      :style="'border-left: 3px solid ' + routeColor">
+    <v-card-title><span class="white--text">Route: "{{ route.name }}"</span></v-card-title>
     <v-card-text>
       <v-layout row wrap>
         <!-- Assigned Items -->
@@ -54,10 +56,10 @@
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
-      <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteRouteRemote">
-        <span slot="title">Do you want to delete the route "{{ name }}"?</span>
+      <confirmation-dialog buttonText="Delete" :actionArgument="route.name" actionName="deleteRouteRemote">
+        <span slot="title">Do you want to delete the route "{{ route.name }}"?</span>
         <div slot="text">
-          <p>this will delete the route with the name "{{ name }}" and all
+          <p>this will delete the route with the name "{{ route.name }}" and all
             related information!</p>
           <p>Are you sure?</p>
         </div>
@@ -70,37 +72,44 @@
 export default {
   name: 'route-block',
   props: {
-    'name': {
-      type: String,
+    'route': {
+      type: Object,
       default: 'Unknown Route'
     }
   },
   computed: {
+    routeColor () {
+      if (this.route.color) {
+        return this.route.color
+      } else {
+        return '#000000'
+      }
+    },
     assignedTeams () {
-      return this.$store.getters.assignedTeams(this.name)
+      return this.$store.getters.assignedTeams(this.route.name)
     },
     unassignedTeams () {
       return this.$store.getters.unassignedTeams
     },
     assignedStations () {
-      return this.$store.getters.assignedStations(this.name)
+      return this.$store.getters.assignedStations(this.route.name)
     },
     unassignedStations () {
-      return this.$store.getters.unassignedStations(this.name)
+      return this.$store.getters.unassignedStations(this.route.name)
     }
   },
   methods: {
     unassignTeam: function (team) {
-      this.$store.dispatch('unassignTeamFromRouteRemote', {teamName: team, routeName: this.name})
+      this.$store.dispatch('unassignTeamFromRouteRemote', {teamName: team, routeName: this.route.name})
     },
     assignTeam: function (team) {
-      this.$store.dispatch('assignTeamToRouteRemote', {teamName: team, routeName: this.name})
+      this.$store.dispatch('assignTeamToRouteRemote', {teamName: team, routeName: this.route.name})
     },
     unassignStation: function (station) {
-      this.$store.dispatch('unassignStationFromRouteRemote', {stationName: station, routeName: this.name})
+      this.$store.dispatch('unassignStationFromRouteRemote', {stationName: station, routeName: this.route.name})
     },
     assignStation: function (station) {
-      this.$store.dispatch('assignStationToRouteRemote', {stationName: station, routeName: this.name})
+      this.$store.dispatch('assignStationToRouteRemote', {stationName: station, routeName: this.route.name})
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1

@@ -1,8 +1,9 @@
 <template>
 
   <div>
-    <h1 class="white--text">{{ route }}</h1>
+    <h1 class="white--text">{{ route.name }}</h1>
     <v-data-table
+      :style="'border-left: 3px solid ' + routeColor"
       hide-actions
       :headers="tableHeaders"
       :items="tableItems">
@@ -19,17 +20,25 @@
 
 <script>
 import util from '@/util'
+
 export default {
   name: 'route-dashboard',
   props: {
     'route': {
-      type: String,
+      type: Object,
       default: null
     }
   },
   computed: {
+    routeColor () {
+      if (this.route.color) {
+        return this.route.color
+      } else {
+        return '#000000'
+      }
+    },
     assignedStations () {
-      return this.$store.state.route_station_map[this.route]
+      return this.$store.state.route_station_map[this.route.name]
     },
     tableHeaders () {
       let output = [{
@@ -76,7 +85,7 @@ export default {
       for (const teamName in routeTeams) {
         if (routeTeams.hasOwnProperty(teamName)) {
           const route = routeTeams[teamName]
-          if (this.route !== route) {
+          if (this.route.name !== route) {
             continue
           }
           let row = {

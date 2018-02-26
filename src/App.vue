@@ -110,8 +110,15 @@ export default {
         }
       })
         .catch(e => {
+          let message = 'Unknown Error'
+          if (e.response) {
+            message = e.response.data
+          } else {
+            message = e.message
+          }
+
           this.$store.commit('logoutUser')
-          this.globalSnackText = 'Invalid login!'
+          this.globalSnackText = message
           this.globalSnack = true
           this.globalSnackColor = 'error'
         })
