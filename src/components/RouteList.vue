@@ -24,7 +24,8 @@ export default {
   methods: {
     addRoute: function (event) {
       this.$store.dispatch('addRouteRemote', {
-        name: this.routeName
+        name: this.routeName,
+        color: '#000000'
       })
       this.$store.commit('closeAddBlock', this.$route.path)
     },
@@ -38,7 +39,8 @@ export default {
   },
   data () {
     return {
-      routeName: ''
+      routeName: '',
+      routeColor: '#000000'
     }
   },
   computed: {

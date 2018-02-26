@@ -3,6 +3,7 @@
   <div>
     <h1 class="white--text">{{ route.name }}</h1>
     <v-data-table
+      :style="'border-left: 3px solid ' + routeColor"
       hide-actions
       :headers="tableHeaders"
       :items="tableItems">
@@ -22,11 +23,6 @@ import util from '@/util'
 
 export default {
   name: 'route-dashboard',
-  data () {
-    return {
-      routeColor: '#00ff00'
-    }
-  },
   props: {
     'route': {
       type: Object,
@@ -34,6 +30,13 @@ export default {
     }
   },
   computed: {
+    routeColor () {
+      if (this.route.color) {
+        return this.route.color
+      } else {
+        return '#000000'
+      }
+    },
     assignedStations () {
       return this.$store.state.route_station_map[this.route.name]
     },
