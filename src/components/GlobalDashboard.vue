@@ -7,7 +7,7 @@
         <route-dashboard
           v-for="route in routes"
           class="mb-5"
-          :route="route.name"
+          :route="route"
           :key="route.name"></route-dashboard>
 
       </v-flex>
