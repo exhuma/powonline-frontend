@@ -56,6 +56,7 @@
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
+      <v-spacer />
       <confirmation-dialog buttonText="Delete" :actionArgument="route.name" actionName="deleteRouteRemote">
         <span slot="title">Do you want to delete the route "{{ route.name }}"?</span>
         <div slot="text">

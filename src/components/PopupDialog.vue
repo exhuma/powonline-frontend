@@ -11,6 +11,8 @@
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn flat @click="dismiss">Cancel</v-btn>
         <v-btn @click="confirm">Add</v-btn>
       </v-card-actions>
     </v-card>
