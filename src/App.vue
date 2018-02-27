@@ -49,8 +49,9 @@
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions>
-                <v-btn flat="flat" @click.native="cancelLogin">Cancel</v-btn>
-                <v-btn flat="flat" @click.native="loginUser">Login</v-btn>
+                <v-spacer />
+                <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
+                <v-btn @click.native="loginUser">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
