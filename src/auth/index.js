@@ -67,7 +67,7 @@ export default {
       console.error('Too many retries!')
       return ''
     }
-    localStorage.setItem('jwt', '')
+    this.clearToken(false)
     console.log('Renewing token')
     axios.post(url, {
       'token': token
@@ -83,6 +83,24 @@ export default {
   },
 
   /**
+   * Remove all auth information from local storage
+   *
+   * @param resetFailedRenewals Whether to set failedRenewals back to 0
+   */
+  clearToken: function (resetFailedRenewals) {
+    if (resetFailedRenewals === undefined) {
+      resetFailedRenewals = true
+    }
+    console.log('Clearing auth info')
+    localStorage.setItem('jwt', '')
+    localStorage.setItem('userName', '')
+    localStorage.setItem('roles', [])
+    if (resetFailedRenewals) {
+      localStorage.setItem('failedRenewals', 0)
+    }
+  },
+
+  /**
    * Checks if the token in current storage has expired. If true, clears if
    * from the storage..
    *
@@ -90,12 +108,8 @@ export default {
    */
   clearExpiredToken: function () {
     const jwt = this.get_token()
-    if (jwt !== '' && this.token_expired(jwt)) {
-      console.log('Clearing auth info')
-      localStorage.setItem('jwt', '')
-      localStorage.setItem('userName', '')
-      localStorage.setItem('roles', [])
-      localStorage.setItem('failedRenewals', 0)
+    if (jwt === '' || this.token_expired(jwt)) {
+      this.clearToken()
       return true
     }
     return false
