@@ -5,8 +5,9 @@
       <v-card-title><slot name="title">Confirm Action</slot></v-card-title>
       <v-card-text><slot name="text">Are you sure?</slot></v-card-text>
       <v-card-actions>
-        <v-btn @click.native="discardAction">No</v-btn>
-        <v-btn @click.native="acceptAction">Yes</v-btn>
+        <v-spacer />
+        <v-btn flat @click.native="discardAction">No</v-btn>
+        <v-btn class="error" @click.native="acceptAction">Yes</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
