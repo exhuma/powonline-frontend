@@ -5,6 +5,7 @@ const siteSettings = require('./siteSettings.env')
 const pusher = require('./pusher.env')
 const withoutsiteSettings = merge(prodEnv, {
   NODE_ENV: '"development"',
+  PUSHER_CHANNEL: '"development"'
 })
 
 module.exports = merge(withoutsiteSettings, siteSettings, pusher)

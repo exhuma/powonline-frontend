@@ -893,7 +893,7 @@ new Vue({
         cluster: 'eu',
         encrypted: true
       })
-      var channel = pusher.subscribe('team-station-state')
+      var channel = pusher.subscribe(process.env.PUSHER_CHANNEL)
       let that = this
       channel.bind('state-change', function (data) {
         that.$store.commit('updateTeamState', data)
