@@ -10,7 +10,7 @@
         <slot>Dialog Content</slot>
       </v-card-text>
       <v-divider></v-divider>
-      <v-card-actions>
+      <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
         <v-btn flat @click="dismiss">Cancel</v-btn>
         <v-btn @click="confirm">Add</v-btn>
@@ -22,7 +22,11 @@
 <script>
 export default {
   name: 'popup-dialog',
-  props: ['title', 'dialogVisible'],
+  props: [
+    'title',
+    'dialogVisible',
+    'customActionButtons'
+  ],
   methods: {
     confirm: function (event) {
       this.$emit('dialogConfirmed')
