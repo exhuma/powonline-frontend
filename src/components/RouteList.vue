@@ -1,7 +1,7 @@
 <template>
   <div id="RouteList">
     <popup-dialog
-      @dialogConfirmed="addRoute"
+      @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
       title="Add New Route">
@@ -9,41 +9,65 @@
         <v-flex xs12>
           <v-text-field
             name="route-input"
-            @keyup.enter.native="addRoute"
+            @keyup.enter.native="onDialogConfirmed"
             type='text'
-            v-model='routeName'
+            v-model='selectedRoute.name'
             label='Enter a new routename' />
         </v-flex>
       </v-layout>
       <v-layout row class="text-xs-left">
         <v-flex xs3>Color</v-flex>
         <v-flex xs9>
-          <swatches colors="material-dark" v-model="routeColor" />
+          <swatches colors="material-dark" v-model="selectedRoute.color" />
         </v-flex>
       </v-layout>
     </popup-dialog>
 
     <!-- List all routes -->
     <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
+
+    <div v-if="hasRole('admin')">
+      <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Route</v-btn>
+    </div>
   </div>
 </template>
 
 <script>
 import Swatches from 'vue-swatches'
 import 'vue-swatches/dist/vue-swatches.min.css'
+import model from '@/model'
 export default {
   name: 'route_list',
   components: {Swatches},
   methods: {
-    addRoute: function (event) {
-      this.$store.dispatch('addRouteRemote', {
-        name: this.routeName,
-        color: this.routeColor
-      })
-      this.$store.commit('closeAddBlock', this.$route.path)
+    onDialogConfirmed: function (event) {
+      const route = this.selectedRoute
+
+      if (this.sendMode === model.SEND_MODE.CREATE) {
+        this.$store.dispatch('addRouteRemote', route)
+      } else if (this.sendMode === model.SEND_MODE.UPDATE) {
+        console.warn('Updating routes is not implemented yet!')
+      } else {
+        console.error('Invalid send mode: ' + this.sendMode)
+      }
+
+      this.$emit('routeSaved', route)
+      this.selectedRoute = model.route.makeEmpty()
+
+      this.isAddBlockVisible = false
+    },
+    openCreateDialog: function () {
+      const newRoute = model.route.makeEmpty()
+
+      this.selectedRoute = newRoute
+      this.isAddBlockVisible = true
+      this.sendMode = model.SEND_MODE.CREATE
     },
     closeAddBlock () {
-      this.$store.commit('closeAddBlock', this.$route.path)
+      this.isAddBlockVisible = false
+    },
+    hasRole (roleName) {
+      return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
   created () {
@@ -52,16 +76,14 @@ export default {
   },
   data () {
     return {
-      routeName: '',
-      routeColor: '#000000'
+      isAddBlockVisible: false,
+      selectedRoute: model.route.makeEmpty(),
+      sendMode: model.SEND_MODE.CREATE
     }
   },
   computed: {
     routes () {
       return this.$store.state.routes
-    },
-    isAddBlockVisible () {
-      return this.$store.state.isAddBlockVisible[this.$route.path]
     }
   }
 }

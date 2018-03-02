@@ -5,6 +5,15 @@ export default {
     UPDATE: 'update'
   },
 
+  route: {
+    makeEmpty: function () {
+      return {
+        name: '',
+        color: ''
+      }
+    }
+  },
+
   user: {
     makeEmpty: function () {
       return {
