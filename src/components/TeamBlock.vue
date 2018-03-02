@@ -3,6 +3,9 @@
     <v-list-tile-content>
       <v-list-tile-title>{{ name }}</v-list-tile-title>
     </v-list-tile-content>
+    <v-list-tile-action>
+      <v-icon :style="routeColor">gesture</v-icon>
+    </v-list-tile-action>
     <v-list-tile-action v-if="hasRole('admin')">
       <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
     </v-list-tile-action>
@@ -37,6 +40,33 @@ export default {
       default: 'Unknown Team'
     }
   },
+
+  computed: {
+    routeColor () {
+      let selectedTeam = null
+      this.$store.state.teams.forEach(team => {
+        if (team.name !== this.name) {
+          return
+        }
+        selectedTeam = team
+      })
+
+      let selectedRoute = null
+      this.$store.state.routes.forEach(route => {
+        if (route.name !== selectedTeam.route_name) {
+          return
+        }
+        selectedRoute = route
+      })
+
+      if (selectedRoute && selectedRoute.color) {
+        return `color: ${selectedRoute.color};`
+      } else {
+        return 'color: #000000;'
+      }
+    }
+  },
+
   created () {
     const baseUrl = this.$store.state.baseUrl
     axios.get(baseUrl + '/team/' + this.name + '/stations')
