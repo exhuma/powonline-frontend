@@ -76,13 +76,7 @@ const store = new Vuex.Store({
     roles: auth.get_roles(),
     userName: auth.get_username(),
     baseUrl: process.env.BACKEND_URL,
-    pageTitle: 'Powonline',
-    isAddBlockVisible: {
-      '/route': false,
-      '/station': false,
-      '/team': false,
-      '/user': false
-    }
+    pageTitle: 'Powonline'
   },
   mutations: {
     /**
@@ -412,26 +406,6 @@ const store = new Vuex.Store({
       if (idx > -1) {
         state.users.splice(idx, 1)
       }
-    },
-
-    /**
-     * Displays a block to add a new entity. Which block to show depends on the
-     * route.
-     *
-     * :param path (str): The "router" path (current URL) of the current page
-     */
-    showAddBlock (state, path) {
-      state.isAddBlockVisible[path] = true
-    },
-
-    /**
-     * Hides the block which allows adding a new entity. Which block to hide
-     * depends on the route.
-     *
-     * :param path (str): The "router" path (current URL) of the current page
-     */
-    closeAddBlock (state, path) {
-      state.isAddBlockVisible[path] = false
     },
 
     /**
