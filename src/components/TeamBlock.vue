@@ -60,7 +60,7 @@ export default {
       })
 
       if (selectedRoute === null) {
-        return null;
+        return null
       }
       if (selectedRoute.color) {
         return `color: ${selectedRoute.color};`
