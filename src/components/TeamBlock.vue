@@ -7,7 +7,10 @@
       <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
     </v-list-tile-action>
     <v-list-tile-action class="ml-3" v-if="hasRole('admin')">
-      <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteTeamRemote">
+      <confirmation-dialog
+        buttonText="Delete"
+        :actionArgument="name"
+        actionName="deleteTeamRemote">
         <span slot="title">Do you want to delete the team "{{ name }}"?</span>
         <div slot="text">
           <p>this will delete the team with the name "{{ name }}" and all
