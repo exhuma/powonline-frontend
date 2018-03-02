@@ -21,6 +21,7 @@ import UserStationCheckbox from './components/UserStationCheckbox'
 import SmallStationDashboardItem from './components/SmallStationDashboardItem'
 import PopupDialog from './components/PopupDialog'
 import RouteDashboard from './components/RouteDashboard'
+import TeamForm from './components/forms/TeamForm'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -842,6 +843,7 @@ Vue.component('user-role-checkbox', UserRoleCheckbox)
 Vue.component('user-station-checkbox', UserStationCheckbox)
 Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
 Vue.component('popup-dialog', PopupDialog)
+Vue.component('team-form', TeamForm)
 
 /* eslint-disable no-new */
 new Vue({
