@@ -1,22 +1,28 @@
 <template>
-  <transition name="slide">
-    <v-card v-show="dialogVisible" class="mb-3">
-      <v-card-title>
-        <span>{{ title }}</span>
-        <v-spacer></v-spacer>
+  <v-dialog
+    v-model="dialogVisible"
+    transition="dialog-bottom-transition"
+    :overlay="false"
+    scrollable
+    fullscreen
+    max-width="100em"
+    >
+    <v-card>
+      <v-toolbar card>
+        <v-toolbar-title>{{title}}</v-toolbar-title>
+        <v-spacer />
         <v-btn @click="dismiss" icon><v-icon>close</v-icon></v-btn>
-      </v-card-title>
+      </v-toolbar>
       <v-card-text>
         <slot>Dialog Content</slot>
       </v-card-text>
-      <v-divider></v-divider>
       <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
         <v-btn flat @click="dismiss">Cancel</v-btn>
         <v-btn @click="confirm">Add</v-btn>
       </v-card-actions>
     </v-card>
-  </transition>
+  </v-dialog>
 </template>
 
 <script>

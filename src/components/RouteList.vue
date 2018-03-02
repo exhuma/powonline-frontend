@@ -15,7 +15,7 @@
             label='Enter a new routename' />
         </v-flex>
       </v-layout>
-      <v-layout row class="text-xs-left">
+      <v-layout row class="text-xs-left" style="min-height: 30em">
         <v-flex xs3>Color</v-flex>
         <v-flex xs9>
           <swatches colors="material-dark" v-model="selectedRoute.color" />
