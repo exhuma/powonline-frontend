@@ -5,6 +5,15 @@ export default {
     UPDATE: 'update'
   },
 
+  user: {
+    makeEmpty: function () {
+      return {
+        name: '',
+        password: ''
+      }
+    }
+  },
+
   station: {
     makeEmpty: function () {
       return {
