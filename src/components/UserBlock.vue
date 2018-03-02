@@ -19,6 +19,7 @@
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
+      <v-spacer />
       <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteUserRemote">
         <span slot="title">Do you want to delete the user "{{ name }}"?</span>
         <div slot="text">
