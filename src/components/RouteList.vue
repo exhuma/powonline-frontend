@@ -24,7 +24,9 @@
     </popup-dialog>
 
     <!-- List all routes -->
-    <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
+    <v-list two-line>
+      <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
+    </v-list>
 
     <div v-if="hasRole('admin')">
       <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Route</v-btn>

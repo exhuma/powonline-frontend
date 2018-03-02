@@ -22,6 +22,7 @@ import SmallStationDashboardItem from './components/SmallStationDashboardItem'
 import PopupDialog from './components/PopupDialog'
 import RouteDashboard from './components/RouteDashboard'
 import TeamForm from './components/forms/TeamForm'
+import RouteAssignments from './components/forms/RouteAssignments'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -844,6 +845,7 @@ Vue.component('user-station-checkbox', UserStationCheckbox)
 Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
 Vue.component('popup-dialog', PopupDialog)
 Vue.component('team-form', TeamForm)
+Vue.component('route-assignments', RouteAssignments)
 
 /* eslint-disable no-new */
 new Vue({

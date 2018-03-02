@@ -1,62 +1,28 @@
 <template>
-  <v-card
-      class="mt-3"
-      :style="'border-left: 3px solid ' + routeColor">
-    <v-card-title><span class="white--text">Route: "{{ route.name }}"</span></v-card-title>
-    <v-card-text>
-      <v-layout row wrap>
-        <!-- Assigned Items -->
-        <v-flex xs6>
-          <v-card class="mx-3">
-            <v-card-title>Assigned Teams</v-card-title>
-            <div v-for="team in assignedTeams" :key="team.name">
-              <v-flex xs6>{{ team }}</v-flex>
-              <v-flex xs6>
-                <v-btn @click="unassignTeam(team)" flat><v-icon>arrow_downward</v-icon></v-btn>
-              </v-flex>
-            </div>
-          </v-card>
-        </v-flex>
-        <v-flex xs6>
-          <v-card class="mx-3">
-            <v-card-title>Assigned Stations</v-card-title>
-            <div v-for="station in assignedStations" :key="station.name">
-              <v-flex xs6>{{ station }}</v-flex>
-              <v-flex xs6>
-                <v-btn @click="unassignStation(station)" flat><v-icon>arrow_downward</v-icon></v-btn>
-              </v-flex>
-            </div>
-          </v-card>
-        </v-flex>
-
-        <!-- Unassigned Items -->
-        <v-flex xs6 class="mt-4">
-          <v-card class="mx-3">
-            <v-card-title>Unassigned Teams</v-card-title>
-            <div v-for="team in unassignedTeams" :key="team.name">
-              <v-flex xs6>{{ team }}</v-flex>
-              <v-flex xs6>
-                <v-btn @click="assignTeam(team)" flat><v-icon>arrow_upward</v-icon></v-btn>
-              </v-flex>
-            </div>
-          </v-card>
-        </v-flex>
-        <v-flex xs6 class="mt-4">
-          <v-card class="mx-3">
-            <v-card-title>Unassigned Stations</v-card-title>
-            <div v-for="station in unassignedStations" :key="station.name">
-              <v-flex xs6>{{ station }}</v-flex>
-              <v-flex xs6>
-                <v-btn @click="assignStation(station)" flat><v-icon>arrow_upward</v-icon></v-btn>
-              </v-flex>
-            </div>
-          </v-card>
-        </v-flex>
-      </v-layout>
-    </v-card-text>
-    <v-divider></v-divider>
-    <v-card-actions v-if="hasRole('admin')">
-      <v-spacer />
+  <v-list-tile>
+    <v-dialog v-model="dialogVisible">
+      <v-card>
+        <v-toolbar card>
+          <v-toolbar-title>Assignments for "{{ route.name }}"</v-toolbar-title>
+          <v-spacer />
+          <v-btn @click="dismissDialog" icon><v-icon>close</v-icon></v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <route-assignments :route="route" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="dismissDialog">Done</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-list-tile-content class="pl-2" :style="'border-left: 3px solid ' + routeColor">
+      <v-list-tile-title>{{ route.name }}</v-list-tile-title>
+    </v-list-tile-content>
+    <v-list-tile-action v-if="hasRole('admin')">
+      <v-btn class="mr-2" icon @click="dialogVisible = true"><v-icon>extension</v-icon></v-btn>
+    </v-list-tile-action>
+    <v-list-tile-action v-if="hasRole('admin')">
       <confirmation-dialog buttonText="Delete" :actionArgument="route.name" actionName="deleteRouteRemote">
         <span slot="title">Do you want to delete the route "{{ route.name }}"?</span>
         <div slot="text">
@@ -65,8 +31,9 @@
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
-    </v-card-actions>
-  </v-card>
+    </v-list-tile-action>
+
+  </v-list-tile>
 </template>
 
 <script>
@@ -78,6 +45,11 @@ export default {
       default: 'Unknown Route'
     }
   },
+  data () {
+    return {
+      dialogVisible: false
+    }
+  },
   computed: {
     routeColor () {
       if (this.route.color) {
@@ -85,32 +57,11 @@ export default {
       } else {
         return '#000000'
       }
-    },
-    assignedTeams () {
-      return this.$store.getters.assignedTeams(this.route.name)
-    },
-    unassignedTeams () {
-      return this.$store.getters.unassignedTeams
-    },
-    assignedStations () {
-      return this.$store.getters.assignedStations(this.route.name)
-    },
-    unassignedStations () {
-      return this.$store.getters.unassignedStations(this.route.name)
     }
   },
   methods: {
-    unassignTeam: function (team) {
-      this.$store.dispatch('unassignTeamFromRouteRemote', {teamName: team, routeName: this.route.name})
-    },
-    assignTeam: function (team) {
-      this.$store.dispatch('assignTeamToRouteRemote', {teamName: team, routeName: this.route.name})
-    },
-    unassignStation: function (station) {
-      this.$store.dispatch('unassignStationFromRouteRemote', {stationName: station, routeName: this.route.name})
-    },
-    assignStation: function (station) {
-      this.$store.dispatch('assignStationToRouteRemote', {stationName: station, routeName: this.route.name})
+    dismissDialog: function () {
+      this.dialogVisible = false
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
