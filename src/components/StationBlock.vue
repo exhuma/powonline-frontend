@@ -3,6 +3,9 @@
     <v-list-tile-content>
       <v-list-tile-title>{{ name }}</v-list-tile-title>
     </v-list-tile-content>
+    <v-list-tile-action v-if="hasRole('admin')">
+      <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
+    </v-list-tile-action>
     <v-list-tile-action>
       <v-btn icon ripple @click.native="openDashBoard(name)">
         <v-icon>assignment</v-icon>
@@ -39,6 +42,9 @@ export default {
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
+    },
+    openEditDialog () {
+      this.$emit('openEditDialog')
     }
   }
 }

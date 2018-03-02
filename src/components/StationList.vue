@@ -14,6 +14,7 @@
     <v-list two-line>
       <station-block
         v-for="station in stations"
+        @openEditDialog="onOpenEditDialog(station)"
         :name="station.name"
         :key="station.name"></station-block>
       <v-list-tile>
