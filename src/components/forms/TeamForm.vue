@@ -112,13 +112,6 @@
       </v-tabs-items>
 
     </v-tabs>
-    <!--
-    <div>
-      <v-spacer />
-      <v-btn flat @click="dismissForm">Cancel</v-btn>
-      <v-btn @click="addTeam">Save</v-btn>
-    </div>
-    -->
   </div>
 </template>
 
