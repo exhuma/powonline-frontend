@@ -177,7 +177,27 @@ const store = new Vuex.Store({
      *     object returned from the backend.
      */
     addStation (state, station) {
-      state.stations.push(station)
+      // find the position where we can insert this station (according to the
+      // "order" property)
+      let insertPosition = 0
+      let foundPosition = false
+      for (let [idx, entry] of state.stations.entries()) {
+        if (entry.order >= station.order) {
+          console.debug(`New station has order ${station.order} which goes before ${entry.name} with order ${entry.order}`)
+          foundPosition = true
+          insertPosition = idx
+          break
+        }
+      }
+      if (foundPosition) {
+        console.debug(`Inserting ${station} at position ${insertPosition}`)
+        state.stations.splice(insertPosition, 0, station)
+      } else {
+        console.debug(`Appending ${station} at end`)
+        state.stations.push(station)
+      }
+      console.debug('Stations is now:')
+      console.debug(state.stations)
     },
 
     /**

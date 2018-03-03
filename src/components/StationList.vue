@@ -10,6 +10,12 @@
         type='text'
         v-model='selectedStation.name'
         label='Enter a new stationname' />
+      <v-text-field
+        name="order"
+        type='number'
+        v-model='selectedStation.order'
+        hint="This field is used to sort stations"
+        label="Station Ordering" />
     </popup-dialog>
     <v-list two-line>
       <station-block
