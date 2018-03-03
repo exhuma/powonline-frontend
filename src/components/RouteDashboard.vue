@@ -38,7 +38,11 @@ export default {
       }
     },
     assignedStations () {
-      return this.$store.state.route_station_map[this.route.name] || []
+      const output = this.$store.state.route_station_map[this.route.name] || []
+      output.sort((a, b) => {
+        return a.order - b.order
+      })
+      return output
     },
     tableHeaders () {
       let output = [{

@@ -802,6 +802,9 @@ const store = new Vuex.Store({
     unassignedStations: (state, getters) => (routeName) => {
       const unassignedStations = []
       const tmp = state.route_station_map[routeName] || []
+      tmp.sort((a, b) => {
+        return a.order - b.order
+      })
       const assignedStations = []
       tmp.forEach(item => { assignedStations.push(item.name) })
 
@@ -823,6 +826,10 @@ const store = new Vuex.Store({
      */
     assignedStations: (state, getters) => (routeName) => {
       const tmp = state.route_station_map[routeName] || []
+      tmp.sort((a, b) => {
+        return a.order - b.order
+      })
+
       const assignedStations = []
       tmp.forEach(item => { assignedStations.push(item.name) })
       return assignedStations
