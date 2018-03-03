@@ -38,7 +38,7 @@ export default {
       }
     },
     assignedStations () {
-      return this.$store.state.route_station_map[this.route.name]
+      return this.$store.state.route_station_map[this.route.name] || []
     },
     tableHeaders () {
       let output = [{
