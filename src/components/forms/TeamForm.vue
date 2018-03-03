@@ -44,6 +44,7 @@
               name="plannedStartTime"
               type='datetime-local'
               v-model='team.planned_start_time'
+              @change="setDefaultEffectiveStartTime"
               hint="The time the team was scheduled to start"
               label='Planned Start Time' />
             <v-text-field
@@ -133,6 +134,19 @@ export default {
   data () {
     return {
       activeTab: 'teamInfo'
+    }
+  },
+
+  methods: {
+    setDefaultEffectiveStartTime (newValue) {
+      if (this.team.effective_start_time) {
+        // We already have a value and should not overwrite it!
+        return
+      }
+
+      if (newValue && newValue !== '') {
+        this.team.effective_start_time = newValue
+      }
     }
   },
 

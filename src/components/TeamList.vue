@@ -63,7 +63,6 @@ export default {
     onDialogConfirmed () {
       const team = this.selectedTeam
 
-      // TODO // TODO: Add "order"
       if (this.sendMode === model.SEND_MODE.CREATE) {
         this.$store.dispatch('addTeamRemote', team)
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {

@@ -153,7 +153,27 @@ const store = new Vuex.Store({
      *     returned from the backend.
      */
     addTeam (state, team) {
-      state.teams.push(team)
+      // find the position where we can insert this team (according to the
+      // "effectiveStartTime" property)
+      let insertPosition = 0
+      let foundPosition = false
+      for (let [idx, entry] of state.teams.entries()) {
+        console.debug(`New team has effectiveStartTime ${team.effective_start_time} entry-time: ${entry.effective_start_time}`)
+        if (entry.effective_start_time >= team.effective_start_time) {
+          foundPosition = true
+          insertPosition = idx
+          break
+        }
+      }
+      if (foundPosition) {
+        console.debug(`Inserting ${team} at position ${insertPosition}`)
+        state.teams.splice(insertPosition, 0, team)
+      } else {
+        console.debug(`Appending ${team} at end`)
+        state.teams.push(team)
+      }
+      console.debug('teams is now:')
+      console.debug(state.teams)
     },
 
     /**
