@@ -1,4 +1,5 @@
 import fabric.api as fab
+from json import load
 
 fab.env.roledefs = {
     'prod': ['178.62.219.167'],
@@ -24,6 +25,9 @@ def build(with_docker_image=True):
 
 @fab.task
 def deploy():
+    with open('package.json') as fptr:
+        package = load(fptr)
+    version = package['version']
     fab.execute(build, with_docker_image=False)
     tmpdir = fab.run('mktemp -d')
     fab.put('dist', tmpdir)
@@ -33,7 +37,8 @@ def deploy():
         with fab.cd(tmpdir):
             fab.run('docker build '
                     '-t exhuma/powonline-frontend:latest '
-                    '.')
+                    '-t exhuma/powonline-frontend:%s '
+                    '.' % version)
     finally:
         fab.run('rm -rf %s' % tmpdir)
 
