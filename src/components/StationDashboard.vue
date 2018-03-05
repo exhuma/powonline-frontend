@@ -35,6 +35,10 @@ export default {
           if (stationState.name !== this.$route.params.stationName) {
             return // skip states from other stations
           }
+          if (stationState.state === 'unreachable') {
+            // This team cannot reach the current sation (not assigned)
+            return
+          }
           let container = outputUnknown
           switch (stationState.state) {
             case 'unknown':
