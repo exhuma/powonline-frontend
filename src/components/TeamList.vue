@@ -14,7 +14,7 @@
       <team-block
         @openEditDialog="onOpenEditDialog(team)"
         v-for="team in teams"
-        :name="team.name"
+        :team="team"
         :key="team.name"></team-block>
       <v-list-tile>
         <v-spacer />

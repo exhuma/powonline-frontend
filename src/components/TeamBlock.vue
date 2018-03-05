@@ -1,7 +1,7 @@
 <template>
   <v-list-tile>
     <v-list-tile-content>
-      <v-list-tile-title>{{ name }}</v-list-tile-title>
+      <v-list-tile-title>{{ team.name }}</v-list-tile-title>
     </v-list-tile-content>
     <v-list-tile-action>
       <v-icon v-show="routeColor !== null" :style="routeColor">gesture</v-icon>
@@ -14,9 +14,9 @@
         buttonText="Delete"
         :actionArgument="name"
         actionName="deleteTeamRemote">
-        <span slot="title">Do you want to delete the team "{{ name }}"?</span>
+        <span slot="title">Do you want to delete the team "{{ team.name }}"?</span>
         <div slot="text">
-          <p>this will delete the team with the name "{{ name }}" and all
+          <p>this will delete the team with the name "{{ team.name }}" and all
             related information!</p>
           <p>Are you sure?</p>
         </div>
@@ -27,6 +27,7 @@
 
 <script>
 import axios from 'axios'
+import model from '@/model'
 export default {
   name: 'team-block',
   data () {
@@ -35,9 +36,9 @@ export default {
     }
   },
   props: {
-    'name': {
-      type: String,
-      default: 'Unknown Team'
+    'team': {
+      type: Object,
+      default: model.team.makeEmpty()
     }
   },
 
@@ -45,7 +46,7 @@ export default {
     routeColor () {
       let selectedTeam = null
       this.$store.state.teams.forEach(team => {
-        if (team.name !== this.name) {
+        if (team.name !== this.team.name) {
           return
         }
         selectedTeam = team
@@ -72,7 +73,7 @@ export default {
 
   created () {
     const baseUrl = this.$store.state.baseUrl
-    axios.get(baseUrl + '/team/' + this.name + '/stations')
+    axios.get(baseUrl + '/team/' + this.team.name + '/stations')
       .then(response => {
         this.stations = response.data.items
       })
