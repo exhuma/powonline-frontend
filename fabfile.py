@@ -54,4 +54,4 @@ def deploy():
 
 @fab.task
 def run():
-    fab.local('npm run dev')
+    fab.local('HOST=0.0.0.0 npm run dev')
