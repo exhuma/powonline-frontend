@@ -9,11 +9,11 @@
         <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
         <v-tooltip bottom v-if="tokenIsAvailable">
           <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
-          <span>Login</span>
+          <span>Logout</span>
         </v-tooltip>
         <v-tooltip bottom v-else>
           <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
-          <span>Logout</span>
+          <span>Login</span>
         </v-tooltip>
       </v-toolbar>
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">

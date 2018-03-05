@@ -8,7 +8,7 @@
         @stateAdvanced="onStateAdvanced"
         :state="state"
         :key="'small' + idx"></small-station-dashboard-item>
-    <v-snackbar :top="true" :timeout="2000" color="success" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
+    <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
   </center-col>
 </template>
 
@@ -18,7 +18,8 @@ export default {
   data () {
     return {
       snackbar: false,
-      snacktext: ''
+      snacktext: '',
+      snackColor: 'success'
     }
   },
   computed: {
@@ -34,6 +35,10 @@ export default {
         teamInfo.stations.forEach(stationState => {
           if (stationState.name !== this.$route.params.stationName) {
             return // skip states from other stations
+          }
+          if (stationState.state === 'unreachable') {
+            // This team cannot reach the current sation (not assigned)
+            return
           }
           let container = outputUnknown
           switch (stationState.state) {
@@ -72,12 +77,18 @@ export default {
       this.$store.dispatch('setStationScore', {
         teamName: state.team,
         stationName: this.$route.params.stationName,
-        score: newScore})
-      this.snacktext = 'Changes saved'
+        score: newScore}).then(evt => {
+        this.snacktext = 'Changes saved'
+        this.snackColor = 'success'
+      }).catch(err => {
+        this.snacktext = `Error: ${err.response.data}`
+        this.snackColor = 'error'
+      })
       this.snackbar = true
     },
     onSaveClicked: function (state) {
       this.snacktext = 'Changes saved'
+      this.snackColor = 'success'
       this.snackbar = true
     }
   }

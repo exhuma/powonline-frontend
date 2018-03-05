@@ -22,7 +22,7 @@
               @click="advanceState(state)"><state-icon :state="state.state"></state-icon></v-btn>
           </v-flex>
           <v-flex xs6>
-            <v-btn style="height: 4em;" @click="saveChanges" success><v-icon>save</v-icon></v-btn>
+            <v-btn style="height: 4em;" @click="saveChanges" color="success"><v-icon>save</v-icon></v-btn>
           </v-flex>
         </v-layout>
       </v-container>
@@ -46,7 +46,8 @@ export default {
       this.$emit('scoreUpdated', this.state, newValue)
     },
     saveChanges: function () {
-      this.$emit('saveClicked', this.state)
+      this.$emit('scoreUpdated', this.state, this.state.score)
+      this.$emit('stateAdvanced', this.state)
     }
   }
 }

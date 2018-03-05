@@ -478,7 +478,7 @@ const store = new Vuex.Store({
   },
   actions: {
     setStationScore (context, payload) {
-      axios.post(process.env.BACKEND_URL + '/job', {
+      return axios.post(process.env.BACKEND_URL + '/job', {
         'action': 'set_score',
         'args': {
           'station_name': payload.stationName,
