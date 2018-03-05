@@ -46,7 +46,8 @@ export default {
       this.$emit('scoreUpdated', this.state, newValue)
     },
     saveChanges: function () {
-      this.$emit('saveClicked', this.state)
+      this.$emit('scoreUpdated', this.state, this.state.score)
+      this.$emit('stateAdvanced', this.state)
     }
   }
 }
