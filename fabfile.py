@@ -2,7 +2,7 @@ import fabric.api as fab
 from json import load
 
 fab.env.roledefs = {
-    'prod': ['178.62.219.167'],
+    'prod': ['195.201.33.98'],
     'staging': ['192.168.1.2'],
 }
 
@@ -45,8 +45,9 @@ def deploy():
     exists = fab.run('[ -d %s ] && echo 1 || echo 0' % DEPLOY_DIR).strip()
     if exists == '0':
         fab.sudo('install -o %s -d %s' % (fab.env.user, DEPLOY_DIR))
-    fab.run('docker stop powonline-frontend')
-    fab.run('docker rm powonline-frontend')
+    with fab.quiet():
+        fab.run('docker stop powonline-frontend')
+        fab.run('docker rm powonline-frontend')
     fab.put('run-frontend.sh', '%s/run-frontend.sh.dist' % DEPLOY_DIR)
     with fab.cd(DEPLOY_DIR):
         fab.run('bash run-frontend.sh')
