@@ -1,5 +1,5 @@
 <template>
-  <div id="RouteList">
+  <center-col id="RouteList">
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
@@ -31,7 +31,7 @@
     <div v-if="hasRole('admin')">
       <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Route</v-btn>
     </div>
-  </div>
+  </center-col>
 </template>
 
 <script>
