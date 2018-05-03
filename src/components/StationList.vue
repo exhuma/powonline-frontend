@@ -16,6 +16,10 @@
         v-model='selectedStation.order'
         hint="This field is used to sort stations"
         label="Station Ordering" />
+      <v-text-field
+        name="is_start"
+        v-model='selectedStation.is_start'
+        label="Depatue Station" />
     </popup-dialog>
     <v-list two-line>
       <station-block

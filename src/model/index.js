@@ -26,7 +26,8 @@ export default {
   station: {
     makeEmpty: function () {
       return {
-        name: ''
+        name: '',
+        is_start: false
       }
     }
   },
