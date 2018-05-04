@@ -23,6 +23,7 @@ import PopupDialog from './components/PopupDialog'
 import RouteDashboard from './components/RouteDashboard'
 import TeamForm from './components/forms/TeamForm'
 import RouteAssignments from './components/forms/RouteAssignments'
+import ExpandableCard from './components/ExpandableCard'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -893,6 +894,7 @@ Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
 Vue.component('popup-dialog', PopupDialog)
 Vue.component('team-form', TeamForm)
 Vue.component('route-assignments', RouteAssignments)
+Vue.component('expandable-card', ExpandableCard)
 
 /* eslint-disable no-new */
 new Vue({

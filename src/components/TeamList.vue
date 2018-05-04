@@ -10,19 +10,18 @@
         :team='selectedTeam'
         />
     </popup-dialog>
-    <v-list two-line>
-      <team-block
-        @openEditDialog="onOpenEditDialog(team)"
-        v-for="team in teams"
-        :team="team"
-        :key="team.name"></team-block>
-      <v-list-tile>
-        <v-spacer />
-        <v-list-tile-action v-if="hasRole('admin')">
-          <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Team</v-btn>
-        </v-list-tile-action>
-      </v-list-tile>
-    </v-list>
+    <expandable-card
+      :team="team"
+      :expanded="team.name === selectedTeam"
+      @team-selected="onTeamSelected"
+      v-for="team in teams"
+      :key="team.name" />
+    <v-list-tile v-if="hasRole('admin')"> <!-- TODO: should not use v-list-tile here -->
+      <v-spacer />
+      <v-list-tile-action>
+        <v-btn @click="openCreateDialog">Add new Team</v-btn>
+      </v-list-tile-action>
+    </v-list-tile>
   </center-col>
 </template>
 
@@ -39,10 +38,8 @@ export default {
     }
   },
   methods: {
-    onOpenEditDialog: function (team) {
+    onTeamSelected (team) {
       this.selectedTeam = team
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.UPDATE
     },
     openCreateDialog: function () {
       const newTeam = model.team.makeEmpty()
@@ -55,10 +52,6 @@ export default {
       this.selectedTeam = newTeam
       this.isAddBlockVisible = true
       this.sendMode = model.SEND_MODE.CREATE
-    },
-    dismissForm: function (event) {
-      this.$emit('formDismissed')
-      this.selectedTeam = model.team.makeEmpty()
     },
     onDialogConfirmed () {
       const team = this.selectedTeam

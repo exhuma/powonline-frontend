@@ -27,7 +27,9 @@ export default {
     makeEmpty: function () {
       return {
         name: '',
-        is_start: false
+        order: 500,
+        is_start: false,
+        is_end: false
       }
     }
   },
