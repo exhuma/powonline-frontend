@@ -26,6 +26,7 @@ export default {
   },
   created () {
     this.$store.dispatch('fetchGlobalDashboard')
+    this.$store.dispatch('fetchQuestionnaireScores')
     this.$store.commit('changeTitle', 'Global Dashboard')
   }
 }

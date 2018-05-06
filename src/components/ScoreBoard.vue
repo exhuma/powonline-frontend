@@ -20,17 +20,32 @@ export default {
   name: 'Scoreboard',
   created () {
     this.$store.dispatch('fetchGlobalDashboard')
+    this.$store.dispatch('fetchQuestionnaireScores')
     this.$store.commit('changeTitle', 'Scoreboard')
   },
   computed: {
     leaderboard () {
+      const teamQuestScores = {}
       const teamScores = []
+      const qScores = this.$store.state.questionnaireScores
+      for (var teamName in qScores) {
+        if (qScores.hasOwnProperty(teamName)) {
+          const questData = qScores[teamName]
+          for (var stationName in questData) {
+            if (questData.hasOwnProperty(stationName)) {
+              teamQuestScores[teamName] = teamQuestScores[teamName] || 0
+              teamQuestScores[teamName] += questData[stationName].score
+            }
+          }
+        }
+      }
       this.$store.state.global_dashboard.forEach(function (item) {
         let score = item.stations.reduce(function (accu, current) {
           return accu + current.score
         }, 0)
         let position = 0
-        teamScores.push([position, score, item.team])
+        let tmp = teamQuestScores[item.team] || 0
+        teamScores.push([position, score + tmp, item.team])
       })
       teamScores.sort(function (a, b) { return b[1] - a[1] })
       let effectivePosition = 0

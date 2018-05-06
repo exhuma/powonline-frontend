@@ -4,6 +4,7 @@
         v-for="(state, idx) in states"
         class="mb-4"
         @scoreUpdated="onScoreUpdated"
+        @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
         @saveClicked="onSaveClicked"
         @stateAdvanced="onStateAdvanced"
         :state="state"
@@ -56,6 +57,7 @@ export default {
           }
           container.push({
             team: teamInfo.team,
+            station: this.$route.params.stationName,
             state: stationState.state,
             score: stationState.score
           })
@@ -66,6 +68,7 @@ export default {
   },
   created () {
     this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
+    this.$store.dispatch('fetchQuestionnaireScores')
   },
   methods: {
     onStateAdvanced: function (state) {
@@ -78,6 +81,25 @@ export default {
         teamName: state.team,
         stationName: this.$route.params.stationName,
         score: newScore}).then(evt => {
+        this.snacktext = 'Changes saved'
+        this.snackColor = 'success'
+      }).catch(err => {
+        this.snackColor = 'error'
+        if (!err.response) {
+          this.snacktext = `Error: ${err.message}`
+        } else {
+          this.snacktext = `Error: ${err.response.data}`
+        }
+      })
+      this.snackbar = true
+    },
+    onQuestionnaireScoreUpdated: function (payload) {
+      const data = {
+        teamName: payload.team,
+        stationName: this.$route.params.stationName,
+        score: payload.score
+      }
+      this.$store.dispatch('setQuestionnaireScore', data).then(evt => {
         this.snacktext = 'Changes saved'
         this.snackColor = 'success'
       }).catch(err => {

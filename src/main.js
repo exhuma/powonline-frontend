@@ -71,6 +71,7 @@ const store = new Vuex.Store({
     stations: [],
     teams: [],
     routes: [],
+    questionnaireScores: {}, // map: team -> station -> questionnaireScore
     route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
     route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
     global_dashboard: [],
@@ -285,6 +286,17 @@ const store = new Vuex.Store({
     },
 
     /**
+     * Replace the global questionnaire data with new data
+     *
+     * This is triggered by the completion of a corresponding remote call.
+     *
+     * :param data: The new dashboard data
+     */
+    updateQuestionnaireScores (state, data) {
+      state.questionnaireScores = data
+    },
+
+    /**
      * Replace team-to-route mapping
      *
      * :param assignments: An object as returned by the backend
@@ -475,6 +487,18 @@ const store = new Vuex.Store({
           })
         }
       })
+    },
+
+    /**
+     * Updats a teams questionnaire score on a station
+     *
+     * :param payload (object): An object with the following keys:
+     *    * TODO
+     */
+    setQuestionnaireScore (state, payload) {
+      const teamScores = state.questionnaireScores[payload.teamName] || {}
+      const stationScores = teamScores[payload.stationName] || {}
+      stationScores.score = payload.score
     }
   },
   actions: {
@@ -486,6 +510,23 @@ const store = new Vuex.Store({
           'team_name': payload.teamName,
           'score': payload.score
         }
+      })
+    },
+
+    setQuestionnaireScore (context, payload) {
+      return axios.post(process.env.BACKEND_URL + '/job', {
+        'action': 'set_questionnaire_score',
+        'args': {
+          'station_name': payload.stationName,
+          'team_name': payload.teamName,
+          'score': payload.score
+        }
+      }).then(response => {
+        context.commit('setQuestionnaireScore', {
+          'stationName': payload.stationName,
+          'teamName': payload.teamName,
+          'score': parseInt(payload.score, 10)
+        })
       })
     },
 
@@ -524,6 +565,16 @@ const store = new Vuex.Store({
       axios.get(process.env.BACKEND_URL + '/dashboard')
         .then(response => {
           context.commit('updateGlobalDashboard', response.data)
+        })
+    },
+
+    /**
+     * Fetch the global questionnaire data
+     */
+    fetchQuestionnaireScores (context) {
+      axios.get(process.env.BACKEND_URL + '/questionnaire-scores')
+        .then(response => {
+          context.commit('updateQuestionnaireScores', response.data)
         })
     },
 
@@ -927,6 +978,9 @@ new Vue({
       })
       channel.bind('score-change', function (data) {
         that.$store.commit('updateTeamState', data)
+      })
+      channel.bind('questionnaire-score-change', function (data) {
+        that.$store.commit('setQuestionnaireScore', data)
       })
     } else {
       console.warn('Pusher key not specified. Pusher disabled!')
