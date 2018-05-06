@@ -81,8 +81,12 @@ export default {
         this.snacktext = 'Changes saved'
         this.snackColor = 'success'
       }).catch(err => {
-        this.snacktext = `Error: ${err.response.data}`
         this.snackColor = 'error'
+        if (!err.response) {
+          this.snacktext = `Error: ${err.message}`
+        } else {
+          this.snacktext = `Error: ${err.response.data}`
+        }
       })
       this.snackbar = true
     },
