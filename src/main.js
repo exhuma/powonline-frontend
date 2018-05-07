@@ -6,6 +6,7 @@ import 'vuetify/dist/vuetify.min.css'
 import Vuex from 'vuex'
 import auth from './auth'
 import axios from 'axios'
+import hello from 'hellojs'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
 import CenterCol from './components/CenterCol'
@@ -35,6 +36,42 @@ Vue.use(Vuetify, {
     error: '#b71c1c',
     success: '#00ce00'
   }
+})
+
+/**
+ * Register callback for social logins
+ *
+ * After a user successfully logs in using a social identity provider, post
+ * that message to the backend to retrieve a corresponding JWT token.
+ */
+hello.on('auth.login', function (auth) {
+  // Fetch user details from the selected network
+  hello(auth.network).api('me').then(function (userInfo) {
+    // Now we can autheticate with the powonline backup
+    axios.post(store.state.baseUrl + '/login', {
+      'social_provider': auth.authResponse.network,
+      'user_id': userInfo.id,
+      'token': auth.authResponse.access_token
+    }).then(response => {
+      if (response.status === 200) {
+        store.commit('loginUser', response.data)
+      } else {
+        // TODO show error as snack-text
+        console.error('Unexpected remote response (' + response.status + ')')
+      }
+    }).catch(e => {
+      let message = 'Unknown Error'
+      if (e.response) {
+        message = e.response.data
+      } else {
+        message = e.message
+      }
+
+      store.commit('logoutUser')
+      // TODO show message as snack-text
+      console.error(message)
+    })
+  })
 })
 
 /**
@@ -956,6 +993,14 @@ new Vue({
   created: function () {
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
+
+    // Configure social login providers
+    hello.init({
+      google: null,
+      facebook: null
+    }, {redirect_uri: 'redirect.html'})
+
+    // Logout user if JWT token has expired.
     const tokenCleared = auth.clearExpiredToken()
     if (tokenCleared) {
       this.$store.commit('logoutUser')

@@ -45,6 +45,10 @@
                   type='password'
                   v-model='password'
                   label='Password' />
+                <v-divider></v-divider>
+                <v-btn @click="login('google')">Google</v-btn>
+                <v-btn @click="login('facebook')">Facebook</v-btn>
+                <v-divider></v-divider>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions>
@@ -69,6 +73,7 @@
 
 <script>
 import axios from 'axios'
+import hello from 'hellojs'
 
 export default {
   name: 'App',
@@ -90,6 +95,12 @@ export default {
     showLoginDialog () {
       this.loginDialogVisible = true
       this.$nextTick(() => this.$refs.LoginDialogUsername.focus())
+    },
+    login (provider) {
+      hello(provider).login({
+        'scope': 'basic, email'
+      })
+      this.loginDialogVisible = false
     },
     loginUser () {
       axios.post(this.$store.state.baseUrl + '/login', {
