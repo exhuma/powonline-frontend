@@ -45,6 +45,7 @@
                   type='password'
                   v-model='password'
                   label='Password' />
+                <v-btn @click="loginGoogle">Google</v-btn>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions>
@@ -69,6 +70,7 @@
 
 <script>
 import axios from 'axios'
+import hello from 'hellojs'
 
 export default {
   name: 'App',
@@ -90,6 +92,17 @@ export default {
     showLoginDialog () {
       this.loginDialogVisible = true
       this.$nextTick(() => this.$refs.LoginDialogUsername.focus())
+    },
+    loginGoogle () {
+      hello.init({
+        // facebook: FACEBOOK_CLIENT_ID,
+        // windows: WINDOWS_CLIENT_ID,
+        google: '<TODO>' // TODO
+      }, {redirect_uri: 'redirect.html'})
+      hello('google').login({ // TODO hardcoded provider
+        'scope': 'basic, email'
+      })
+      this.loginDialogVisible = false
     },
     loginUser () {
       axios.post(this.$store.state.baseUrl + '/login', {
