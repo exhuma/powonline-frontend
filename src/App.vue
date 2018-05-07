@@ -45,7 +45,10 @@
                   type='password'
                   v-model='password'
                   label='Password' />
-                <v-btn @click="loginGoogle">Google</v-btn>
+                <v-divider></v-divider>
+                <v-btn @click="login('google')">Google</v-btn>
+                <v-btn @click="login('facebook')">Facebook</v-btn>
+                <v-divider></v-divider>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions>
@@ -93,13 +96,8 @@ export default {
       this.loginDialogVisible = true
       this.$nextTick(() => this.$refs.LoginDialogUsername.focus())
     },
-    loginGoogle () {
-      hello.init({
-        // facebook: FACEBOOK_CLIENT_ID,
-        // windows: WINDOWS_CLIENT_ID,
-        google: '<TODO>' // TODO
-      }, {redirect_uri: 'redirect.html'})
-      hello('google').login({ // TODO hardcoded provider
+    login (provider) {
+      hello(provider).login({
         'scope': 'basic, email'
       })
       this.loginDialogVisible = false

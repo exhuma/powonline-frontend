@@ -45,10 +45,8 @@ Vue.use(Vuetify, {
  * that message to the backend to retrieve a corresponding JWT token.
  */
 hello.on('auth.login', function (auth) {
-
   // Fetch user details from the selected network
   hello(auth.network).api('me').then(function (userInfo) {
-
     // Now we can autheticate with the powonline backup
     axios.post(store.state.baseUrl + '/login', {
       'social_provider': auth.authResponse.network,
@@ -995,6 +993,14 @@ new Vue({
   created: function () {
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
+
+    // Configure social login providers
+    hello.init({
+      google: null,
+      facebook: null
+    }, {redirect_uri: 'redirect.html'})
+
+    // Logout user if JWT token has expired.
     const tokenCleared = auth.clearExpiredToken()
     if (tokenCleared) {
       this.$store.commit('logoutUser')
