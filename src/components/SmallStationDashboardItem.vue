@@ -93,7 +93,6 @@ export default {
         score: this.questionnaireScore.score,
         team: this.state.team
       })
-      this.$emit('stateAdvanced', this.state)
     }
   }
 }
