@@ -1,14 +1,54 @@
 <template>
   <center-col id="Dashboard">
-    <small-station-dashboard-item
-        v-for="(state, idx) in states"
-        class="mb-4"
-        @scoreUpdated="onScoreUpdated"
-        @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
-        @saveClicked="onSaveClicked"
-        @stateAdvanced="onStateAdvanced"
-        :state="state"
-        :key="'small' + idx"></small-station-dashboard-item>
+
+    <v-tabs
+      v-model="activeTab">
+
+      <v-tabs-bar>
+        <v-tabs-item href="#pending" key="pending" ripple>Pending</v-tabs-item>
+        <v-tabs-item href="#arrived" key="arrived" ripple>Arrived</v-tabs-item>
+        <v-tabs-item href="#finished" key="finished" ripple>Finished</v-tabs-item>
+        <v-tabs-slider color="accent" />
+      </v-tabs-bar>
+
+      <v-tabs-items>
+        <v-tabs-content key="pending" id="pending">
+        <small-station-dashboard-item
+            v-for="(state, idx) in pendingTeams"
+            class="mb-4"
+            @scoreUpdated="onScoreUpdated"
+            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+            @saveClicked="onSaveClicked"
+            @stateAdvanced="onStateAdvanced"
+            :state="state"
+            :key="'small' + idx"></small-station-dashboard-item>
+        </v-tabs-content>
+        <v-tabs-content key="arrived" id="arrived">
+        <small-station-dashboard-item
+            v-for="(state, idx) in arrivedTeams"
+            class="mb-4"
+            @scoreUpdated="onScoreUpdated"
+            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+            @saveClicked="onSaveClicked"
+            @stateAdvanced="onStateAdvanced"
+            :state="state"
+            :key="'small' + idx"></small-station-dashboard-item>
+        </v-tabs-content>
+        <v-tabs-content key="finished" id="finished">
+        <small-station-dashboard-item
+            v-for="(state, idx) in finishedTeams"
+            class="mb-4"
+            @scoreUpdated="onScoreUpdated"
+            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+            @saveClicked="onSaveClicked"
+            @stateAdvanced="onStateAdvanced"
+            :state="state"
+            :key="'small' + idx"></small-station-dashboard-item>
+        </v-tabs-content>
+      </v-tabs-items>
+
+    </v-tabs>
+
     <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
   </center-col>
 </template>
@@ -18,20 +58,30 @@ export default {
   name: 'station_dashboard',
   data () {
     return {
+      activeTab: 'pending',
       snackbar: false,
       snacktext: '',
       snackColor: 'success'
     }
   },
   computed: {
-    states () {
-      // We want a custom ordering. First, we want to see teams with "unknown"
-      // state, then those which have "arrived", and finally the "finished"
-      // teams.  As second sort criteria we use the internal ordering (as
-      // stored in the db-column "order").
-      const outputUnknown = []
-      const outputArrived = []
-      const outputFinished = []
+    pendingTeams () {
+      return this.limitesStates('unknown')
+    },
+    arrivedTeams () {
+      return this.limitesStates('arrived')
+    },
+    finishedTeams () {
+      return this.limitesStates('finished')
+    }
+  },
+  created () {
+    this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
+    this.$store.dispatch('fetchQuestionnaireScores')
+  },
+  methods: {
+    limitesStates: function (state) {
+      const output = []
       this.$store.state.global_dashboard.forEach(teamInfo => {
         teamInfo.stations.forEach(stationState => {
           if (stationState.name !== this.$route.params.stationName) {
@@ -41,21 +91,10 @@ export default {
             // This team cannot reach the current sation (not assigned)
             return
           }
-          let container = outputUnknown
-          switch (stationState.state) {
-            case 'unknown':
-              container = outputUnknown
-              break
-            case 'arrived':
-              container = outputArrived
-              break
-            case 'finished':
-              container = outputFinished
-              break
-            default:
-              console.error('Unknown state: ' + stationState.state)
+          if (stationState.state !== state) {
+            return // We skip everything that is not of the selected tate in this window
           }
-          container.push({
+          output.push({
             team: teamInfo.team,
             station: this.$route.params.stationName,
             state: stationState.state,
@@ -63,14 +102,8 @@ export default {
           })
         })
       })
-      return outputUnknown.concat(outputArrived).concat(outputFinished)
-    }
-  },
-  created () {
-    this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
-    this.$store.dispatch('fetchQuestionnaireScores')
-  },
-  methods: {
+      return output
+    },
     onStateAdvanced: function (state) {
       this.$store.dispatch('advanceState', {
         teamName: state.team,
