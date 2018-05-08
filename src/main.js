@@ -996,8 +996,8 @@ new Vue({
 
     // Configure social login providers
     hello.init({
-      google: null,
-      facebook: null
+      google: process.env.OAUTH_ID.GOOGLE,
+      facebook: process.env.OAUTH_ID.FACEBOOK
     }, {redirect_uri: 'redirect.html'})
 
     // Logout user if JWT token has expired.
