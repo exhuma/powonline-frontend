@@ -2,7 +2,7 @@ import fabric.api as fab
 from json import load
 
 fab.env.roledefs = {
-    'prod': ['195.201.33.98'],
+    'prod': ['195.201.226.98'],
     'staging': ['192.168.1.2'],
 }
 
