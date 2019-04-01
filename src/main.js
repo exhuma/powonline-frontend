@@ -3,10 +3,11 @@ import App from './App'
 import router from './router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import axios from 'axios'
 import Vuex from 'vuex'
 import auth from './auth'
-import axios from 'axios'
 import hello from 'hellojs'
+import remote from './remote'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
 import CenterCol from './components/CenterCol'
@@ -38,41 +39,7 @@ Vue.use(Vuetify, {
   }
 })
 
-/**
- * Register callback for social logins
- *
- * After a user successfully logs in using a social identity provider, post
- * that message to the backend to retrieve a corresponding JWT token.
- */
-hello.on('auth.login', function (auth) {
-  // Fetch user details from the selected network
-  hello(auth.network).api('me').then(function (userInfo) {
-    // Now we can autheticate with the powonline backup
-    axios.post(store.state.baseUrl + '/login', {
-      'social_provider': auth.authResponse.network,
-      'user_id': userInfo.id,
-      'token': auth.authResponse.access_token
-    }).then(response => {
-      if (response.status === 200) {
-        store.commit('loginUser', response.data)
-      } else {
-        // TODO show error as snack-text
-        console.error('Unexpected remote response (' + response.status + ')')
-      }
-    }).catch(e => {
-      let message = 'Unknown Error'
-      if (e.response) {
-        message = e.response.data
-      } else {
-        message = e.message
-      }
-
-      store.commit('logoutUser')
-      // TODO show message as snack-text
-      console.error(message)
-    })
-  })
-})
+const remoteProxy = new remote.Proxy(process.env.BACKEND_URL)
 
 /**
  * Inject the JWT token into each outgoing request if it's available
@@ -540,31 +507,13 @@ const store = new Vuex.Store({
   },
   actions: {
     setStationScore (context, payload) {
-      return axios.post(process.env.BACKEND_URL + '/job', {
-        'action': 'set_score',
-        'args': {
-          'station_name': payload.stationName,
-          'team_name': payload.teamName,
-          'score': payload.score
-        }
-      })
+      remoteProxy.setStationScore(
+        payload.stationName, payload.teamName, payload.score)
     },
 
     setQuestionnaireScore (context, payload) {
-      return axios.post(process.env.BACKEND_URL + '/job', {
-        'action': 'set_questionnaire_score',
-        'args': {
-          'station_name': payload.stationName,
-          'team_name': payload.teamName,
-          'score': payload.score
-        }
-      }).then(response => {
-        context.commit('setQuestionnaireScore', {
-          'stationName': payload.stationName,
-          'teamName': payload.teamName,
-          'score': parseInt(payload.score, 10)
-        })
-      })
+      remoteProxy.setQuestionnaireScore(
+        context, payload.stationName, payload.teamName, payload.score)
     },
 
     /**
@@ -575,34 +524,15 @@ const store = new Vuex.Store({
      *     * teamName: The name of the team
      */
     advanceState (context, payload) {
-      axios.post(process.env.BACKEND_URL + '/job', {
-        'action': 'advance',
-        'args': {
-          'station_name': payload.stationName,
-          'team_name': payload.teamName
-        }
-      })
-        .then(response => {
-          // The server assigned a new state, so we must update our local
-          // values
-          const newState = response.data.result.state
-          let data = {
-            team: payload.teamName,
-            station: payload.stationName,
-            new_state: newState
-          }
-          context.commit('updateTeamState', data)
-        })
+      remoteProxy.advanceState(
+        context, payload.stationName, payload.teamName)
     },
 
     /**
      * Fetch the global dashboard data
      */
     fetchGlobalDashboard (context) {
-      axios.get(process.env.BACKEND_URL + '/dashboard')
-        .then(response => {
-          context.commit('updateGlobalDashboard', response.data)
-        })
+      remoteProxy.fetchDashboard(context)
     },
 
     /**
@@ -985,7 +915,7 @@ Vue.component('route-assignments', RouteAssignments)
 Vue.component('expandable-card', ExpandableCard)
 
 /* eslint-disable no-new */
-new Vue({
+let vue = new Vue({
   el: '#app',
   router,
   store,
@@ -1031,4 +961,22 @@ new Vue({
       console.warn('Pusher key not specified. Pusher disabled!')
     }
   }
+})
+
+/**
+ * Register callback for social logins
+ *
+ * After a user successfully logs in using a social identity provider, post
+ * that message to the backend to retrieve a corresponding JWT token.
+ */
+hello.on('auth.login', function (ath) {
+  // Fetch user details from the selected network
+  hello(ath.network).api('me').then(function (userInfo) {
+    // Now we can autheticate with the powonline backend
+    remoteProxy.socialLogin(
+      vue.$store,
+      ath.authResponse.network,
+      userInfo.id,
+      ath.authResponse.access_token)
+  })
 })
