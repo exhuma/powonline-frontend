@@ -919,6 +919,7 @@ let vue = new Vue({
   el: '#app',
   router,
   store,
+  remoteProxy,
   render: h => h(App),
   created: function () {
     // If the token has expired, remove it completely.

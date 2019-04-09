@@ -2,6 +2,18 @@
  * Proxy for the remote API
  */
 import axios from 'axios'
+import Vue from 'vue'
+
+Vue.mixin({
+  beforeCreate () {
+    const options = this.$options
+    if (options.remoteProxy) {
+      this.$remoteProxy = options.remoteProxy
+    } else if (options.parent && options.parent.$remoteProxy) {
+      this.$remoteProxy = options.parent.$remoteProxy
+    }
+  }
+})
 
 class APIProxy {
   constructor (baseUrl) {
