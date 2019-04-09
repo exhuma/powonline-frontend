@@ -7,7 +7,7 @@ import axios from 'axios'
 import Vuex from 'vuex'
 import auth from './auth'
 import hello from 'hellojs'
-import remote from './remote'
+import makeRemoteProxy from './remote'
 
 import ConfirmationDialog from './components/ConfirmationDialog'
 import CenterCol from './components/CenterCol'
@@ -39,7 +39,7 @@ Vue.use(Vuetify, {
   }
 })
 
-const remoteProxy = new remote.Proxy(process.env.BACKEND_URL)
+const remoteProxy = makeRemoteProxy(true, process.env.BACKEND_URL)
 
 /**
  * Inject the JWT token into each outgoing request if it's available

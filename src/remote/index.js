@@ -106,6 +106,6 @@ class APIProxy {
   }
 }
 
-export default {
-  Proxy: APIProxy
+export default function makeRemoteProxy (fake, backendUrl) {
+  return new Proxy(backendUrl)
 }
