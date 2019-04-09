@@ -72,7 +72,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import hello from 'hellojs'
 
 export default {
@@ -103,33 +102,29 @@ export default {
       this.loginDialogVisible = false
     },
     loginUser () {
-      axios.post(this.$store.state.baseUrl + '/login', {
-        'username': this.username,
-        'password': this.password
-      }).then(response => {
+      this.$remoteProxy.loginUser(this.username, this.password).then(data => {
         this.username = ''
         this.password = ''
-        if (response.status === 200) {
-          this.$store.commit('loginUser', response.data)
+        if (data.status === 200) {
+          this.$store.commit('loginUser', data)
         } else {
-          this.globalSnackText = 'Unexpected remote response (' + response.status + ')'
+          this.globalSnackText = 'Unexpected remote response (' + data.status + ')'
           this.globalSnack = true
           this.globalSnackColor = 'orange'
         }
-      })
-        .catch(e => {
-          let message = 'Unknown Error'
-          if (e.response) {
-            message = e.response.data
-          } else {
-            message = e.message
-          }
+      }).catch(e => {
+        let message = 'Unknown Error'
+        if (e.response) {
+          message = e.response.data
+        } else {
+          message = e.message
+        }
 
-          this.$store.commit('logoutUser')
-          this.globalSnackText = message
-          this.globalSnack = true
-          this.globalSnackColor = 'error'
-        })
+        this.$store.commit('logoutUser')
+        this.globalSnackText = message
+        this.globalSnack = true
+        this.globalSnackColor = 'error'
+      })
       this.loginDialogVisible = false
     },
     logoutUser () {

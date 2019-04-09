@@ -51,6 +51,28 @@ class APIProxy {
     })
   }
 
+  /**
+   * Send a normal login package to the back-end to allow non-social logins.
+   */
+  loginUser (username, password) {
+    let promise = new Promise(function (resolve, reject) {
+      axios.post(this.baseUrl + '/login', {
+        'username': this.username,
+        'password': this.password
+      }).then(response => {
+        resolve({
+          status: response.status,
+          roles: response.data['roles'],
+          token: response.data['token'],
+          user: response.data['user']
+        })
+      }).catch(e => {
+        reject(e)
+      })
+    })
+    return promise
+  }
+
   setStationScore (stationName, teamName, score) {
     return axios.post(this.baseUrl + '/job', {
       'action': 'set_score',
@@ -115,6 +137,20 @@ class FakeProxy extends APIProxy {
     }
     store.commit('loginUser', responseData)
     console.log('User logged in as ' + responseData)
+  }
+
+  loginUser (username, password) {
+    let data = {
+      status: 200,
+      roles: ['role1'],
+      token: 'fake-token',
+      user: username
+    }
+    console.log('Fake user login, returning ' + data)
+    let promise = new Promise(function (resolve, reject) {
+      resolve(data)
+    })
+    return promise
   }
 
   setStationScore (stationName, teamName, score) {
