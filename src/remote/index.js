@@ -21,6 +21,26 @@ class APIProxy {
   }
 
   /**
+   * Request a new JTW token using an existing token
+   */
+  renewToken (token) {
+    let promise = new Promise((resolve, reject) => {
+      axios.post(this.baseUrl + '/login/renew', {
+        'token': token
+      }).then(response => {
+        let data = {
+          status: response.status,
+          token: response.data.token
+        }
+        resolve(data)
+      }).catch(e => {
+        reject(e)
+      })
+    })
+    return promise
+  }
+
+  /**
    * Perform a social login on the back-end
    *
    * This assumes that we've already done a social login on the client-side and
@@ -129,6 +149,17 @@ class APIProxy {
 }
 
 class FakeProxy extends APIProxy {
+  renewToken (token) {
+    let promise = new Promise((resolve, reject) => {
+      let data = {
+        status: 200,
+        token: 'fake-jwt-token'
+      }
+      resolve(data)
+    })
+    return promise
+  }
+
   socialLogin (store, network, userId, token) {
     let responseData = {
       'token': 'fake-jwt-token',

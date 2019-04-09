@@ -48,7 +48,7 @@ axios.interceptors.request.use(config => {
   const jwt = auth.get_token()
   if (jwt !== '') {
     if (auth.token_expired(jwt)) {
-      auth.renew_token(process.env.BACKEND_URL + '/login/renew', jwt)
+      auth.renewToken(remoteProxy, jwt)
     }
     config.headers['Authorization'] = 'Bearer ' + jwt
     console.debug('Intercepted and set auth token to ' + jwt)
