@@ -38,16 +38,16 @@ class APIProxy {
       'token': token
     }).then(response => {
       if (response.status === 200) {
-        store.commit('loginUser', response.data)
+        store.commit('updateUserData', response.data)
       } else {
         // TODO show error as snack-text
         console.error('Unexpected remote response (' + response.status + ')')
-        store.commit('logoutUser')
+        store.commit('clearUserData')
       }
     }).catch(e => {
       // TODO show message as snack-text
       console.error(e)
-      store.commit('logoutUser')
+      store.commit('clearUserData')
     })
   }
 
@@ -135,7 +135,7 @@ class FakeProxy extends APIProxy {
       'roles': ['role1'],
       'user': 'fake-user'
     }
-    store.commit('loginUser', responseData)
+    store.commit('updateUserData', responseData)
     console.log('User logged in as ' + responseData)
   }
 

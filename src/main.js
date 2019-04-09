@@ -107,7 +107,7 @@ const store = new Vuex.Store({
      *    * token - The JWT token (without "Bearer" prefix)
      *    * roles - A list of role-names which the user has assigned to himself
      */
-    loginUser (state, data) {
+    updateUserData (state, data) {
       localStorage.setItem('roles', data['roles'])
       localStorage.setItem('jwt', data['token'])
       localStorage.setItem('userName', data['user'])
@@ -120,7 +120,7 @@ const store = new Vuex.Store({
     /**
      * Flag the user as "logged out"
      */
-    logoutUser (state) {
+    clearUserData (state) {
       localStorage.removeItem('jwt')
       localStorage.removeItem('roles')
       localStorage.removeItem('userName')
@@ -934,7 +934,7 @@ let vue = new Vue({
     // Logout user if JWT token has expired.
     const tokenCleared = auth.clearExpiredToken()
     if (tokenCleared) {
-      this.$store.commit('logoutUser')
+      this.$store.commit('clearUserData')
     }
 
     this.$store.dispatch('refreshRemote')

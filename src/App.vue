@@ -106,7 +106,7 @@ export default {
         this.username = ''
         this.password = ''
         if (data.status === 200) {
-          this.$store.commit('loginUser', data)
+          this.$store.commit('updateUserData', data)
         } else {
           this.globalSnackText = 'Unexpected remote response (' + data.status + ')'
           this.globalSnack = true
@@ -120,7 +120,7 @@ export default {
           message = e.message
         }
 
-        this.$store.commit('logoutUser')
+        this.$store.commit('clearUserData')
         this.globalSnackText = message
         this.globalSnack = true
         this.globalSnackColor = 'error'
@@ -128,7 +128,7 @@ export default {
       this.loginDialogVisible = false
     },
     logoutUser () {
-      this.$store.commit('logoutUser')
+      this.$store.commit('clearUserData')
       this.$router.push('/')
       this.username = ''
       this.password = ''
