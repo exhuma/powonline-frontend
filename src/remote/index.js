@@ -106,6 +106,49 @@ class APIProxy {
   }
 }
 
+class FakeProxy extends APIProxy {
+  socialLogin (store, network, userId, token) {
+    let responseData = {
+      'token': 'fake-jwt-token',
+      'roles': ['role1'],
+      'user': 'fake-user'
+    }
+    store.commit('loginUser', responseData)
+    console.log('User logged in as ' + responseData)
+  }
+
+  setStationScore (stationName, teamName, score) {
+    // no-op
+  }
+
+  setQuestionnaireScore (store, stationName, teamName, score) {
+    // no-op
+  }
+
+  advanceState (store, stationName, teamName) {
+    let data = {
+      team: teamName,
+      station: stationName,
+      new_state: 'arrived'
+    }
+    store.commit('updateTeamState', data)
+  }
+
+  fetchDashboard (store) {
+    let data = [
+      {
+        'team': 'team-1',
+        'stations': [{'name': 'station-1', 'score': 10, 'state': 'arrived'}]
+      }, {
+        'team': 'team-2',
+        'stations': [{'name': 'station-1', 'score': 20, 'state': 'unknown'}]
+      }
+    ]
+    store.commit('updateGlobalDashboard', data)
+  }
+}
+
 export default function makeRemoteProxy (fake, backendUrl) {
-  return new Proxy(backendUrl)
+  let Cls = (fake ? FakeProxy : Proxy)
+  return new Cls(backendUrl)
 }
