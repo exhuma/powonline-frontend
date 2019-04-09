@@ -1,4 +1,5 @@
 from json import load
+from subprocess import call
 
 from fabric import Connection, task
 from invoke.context import Context
@@ -69,4 +70,4 @@ def deploy(ctx, environment='staging'):  # type: ignore
 
 @task
 def run(ctx):  # type: ignore
-    ctx.run('HOST=0.0.0.0 npm run dev', replace_env=False)
+    call(['npm', 'run', 'dev'])
