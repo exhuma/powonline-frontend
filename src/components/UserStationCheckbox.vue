@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   name: 'user-station-checkbox',
   props: [
@@ -18,21 +17,17 @@ export default {
   },
   methods: {
     onValueChanged (newValue) {
-      const baseUrl = this.$store.state.baseUrl
       if (newValue) {
-        axios.post(baseUrl + '/user/' + this.user + '/stations', {
-          name: this.station
-        })
+        this.$remote.addStationToUser(this.user, this.station)
       } else {
-        axios.delete(baseUrl + '/user/' + this.user + '/stations/' + this.station)
+        this.$remote.removeStationFromUser(this.user, this.station)
       }
     }
   },
   created () {
-    const baseUrl = this.$store.state.baseUrl
-    axios.get(baseUrl + '/user/' + this.user + '/stations/' + this.station)
-      .then(response => {
-        this.checked = response.data
+    this.$remote.fetchAssignedStationState(this.user, this.station)
+      .then(data => {
+        this.checked = data
       })
       .catch(e => {
         this.$store.commit('logError', e)

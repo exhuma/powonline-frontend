@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -449,7 +448,10 @@ function makeStore (auth, remoteProxy) {
 
       setQuestionnaireScore (context, payload) {
         remoteProxy.setQuestionnaireScore(
-          context, payload.stationName, payload.teamName, payload.score)
+          payload.stationName, payload.teamName, payload.score)
+          .then(data => {
+            context.commit('setQuestionnaireScore', data)
+          })
       },
 
       /**
@@ -461,24 +463,19 @@ function makeStore (auth, remoteProxy) {
       */
       advanceState (context, payload) {
         remoteProxy.advanceState(
-          context, payload.stationName, payload.teamName)
-      },
-
-      /**
-      * Fetch the global dashboard data
-      */
-      fetchGlobalDashboard (context) {
-        remoteProxy.fetchDashboard(context)
+          payload.stationName, payload.teamName)
+          .then(data => {
+            store.commit('updateTeamState', data)
+          })
       },
 
       /**
       * Fetch the global questionnaire data
       */
       fetchQuestionnaireScores (context) {
-        axios.get(process.env.BACKEND_URL + '/questionnaire-scores')
-          .then(response => {
-            context.commit('updateQuestionnaireScores', response.data)
-          })
+        remoteProxy.fetchQuestionnaireScores().then((data) => {
+          context.commit('updateQuestionnaireScores', data)
+        })
       },
 
       /**
@@ -487,10 +484,9 @@ function makeStore (auth, remoteProxy) {
       * :param user: The user object to add
       */
       addUserRemote (context, user) {
-        axios.post(process.env.BACKEND_URL + '/user', user)
-          .then(response => {
-            context.commit('addUser', user)
-          })
+        remoteProxy.addUser(user).then(data => {
+          context.commit('addUser', user)
+        })
       },
 
       /**
@@ -499,10 +495,9 @@ function makeStore (auth, remoteProxy) {
       * :param team: The team object to add
       */
       addTeamRemote (context, team) {
-        axios.post(process.env.BACKEND_URL + '/team', team)
-          .then(response => {
-            context.commit('addTeam', team)
-          })
+        remoteProxy.addTeam(team).then(team => {
+          context.commit('addTeam', team)
+        })
       },
 
       /**
@@ -511,10 +506,9 @@ function makeStore (auth, remoteProxy) {
       * :param route: The route object to add
       */
       addRouteRemote (context, route) {
-        axios.post(process.env.BACKEND_URL + '/route', route)
-          .then(response => {
-            context.commit('addRoute', route)
-          })
+        remoteProxy(route).then(route => {
+          context.commit('addRoute', route)
+        })
       },
 
       /**
@@ -523,10 +517,9 @@ function makeStore (auth, remoteProxy) {
       * :param route: The station object to add
       */
       addStationRemote (context, station) {
-        axios.post(process.env.BACKEND_URL + '/station', station)
-          .then(response => {
-            context.commit('addStation', station)
-          })
+        remoteProxy.addStation(station).then(station => {
+          context.commit('addStation', station)
+        })
       },
 
       /**
@@ -548,63 +541,54 @@ function makeStore (auth, remoteProxy) {
         if (context.state.roles.indexOf('admin') === -1) {
           return
         }
-        axios.get(process.env.BACKEND_URL + '/user')
-          .then(response => {
-            context.commit('replaceUsers', response.data.items)
-          })
+        remoteProxy.fetchUsers().then(users => {
+          context.commit('replaceUsers', users)
+        })
       },
 
       /**
       * Refreshes the local teams from the backend
       */
       refreshTeams (context) {
-        axios.get(process.env.BACKEND_URL + '/team')
-          .then(response => {
-            context.commit('replaceTeams', response.data.items)
-          })
+        remoteProxy.fetchTeams().then(teams => {
+          context.commit('replaceTeams', teams)
+        })
       },
 
       /**
       * Refreshes the local routes from the backend
       */
       refreshRoutes (context) {
-        axios.get(process.env.BACKEND_URL + '/route')
-          .then(response => {
-            context.commit('replaceRoutes', response.data.items)
-          })
+        remoteProxy.fetchRoutes().then(routes => {
+          context.commit('replaceRoutes', routes)
+        })
       },
 
       /**
       * Refreshes the local stations from the backend
       */
       refreshStations (context) {
-        // --- Fetch Stations from server
-        axios.get(process.env.BACKEND_URL + '/station')
-          .then(response => {
-            context.commit('replaceStations', response.data.items)
-          })
+        remoteProxy.fetchStations().then(stations => {
+          context.commit('replaceStations', stations)
+        })
       },
 
       /**
       * Refreshes the local assignments from the backend
       */
       refreshAssignments (context) {
-        // --- Fetch team/route assignments from server
-        axios.get(process.env.BACKEND_URL + '/assignments')
-          .then(response => {
-            context.commit('replaceAssignments', response.data)
-          })
+        remoteProxy.fetchAssignments().then(assignments => {
+          context.commit('replaceAssignments', assignments)
+        })
       },
 
       /**
       * Refreshes the local global dashboard from the backend
       */
       refreshGlobalDashboard (context) {
-        console.log('refreshing dashboard')
-        axios.get(process.env.BACKEND_URL + '/dashboard')
-          .then(response => {
-            context.commit('updateGlobalDashboard', response.data)
-          })
+        remoteProxy.fetchDashboard().then(data => {
+          context.commit('updateGlobalDashboard', data)
+        })
       },
 
       /**
@@ -623,11 +607,10 @@ function makeStore (auth, remoteProxy) {
             team = item
           }
         })
-        axios.post(process.env.BACKEND_URL + '/route/' + data.routeName + '/teams', team)
-          .then(response => {
-            context.commit('assignTeamToRoute', {routeName: data.routeName, team: team})
-            context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
-          })
+        remoteProxy.addTeamToRoute(data.routeName, team).then(() => {
+          context.commit('assignTeamToRoute', {routeName: data.routeName, team: team})
+          context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+        })
       },
 
       /**
@@ -638,11 +621,10 @@ function makeStore (auth, remoteProxy) {
       *     * routeName: The name of the route the team should be unassigned from
       */
       unassignTeamFromRouteRemote (context, data) {
-        axios.delete(process.env.BACKEND_URL + '/route/' + data.routeName + '/teams/' + data.teamName)
-          .then(response => {
-            context.commit('unassignTeamFromRoute', data)
-            context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
-          })
+        remoteProxy.unassignTeamFromRoute(data.routeName, data.teamName).then(() => {
+          context.commit('unassignTeamFromRoute', data)
+          context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+        })
       },
 
       /**
@@ -661,11 +643,10 @@ function makeStore (auth, remoteProxy) {
             station = item
           }
         })
-        axios.post(process.env.BACKEND_URL + '/route/' + data.routeName + '/stations', station)
-          .then(response => {
-            context.commit('assignStationToRoute', {routeName: data.routeName, station: station})
-            context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
-          })
+        remoteProxy.assignStationToRoute(data.routeName, station).then(() => {
+          context.commit('assignStationToRoute', {routeName: data.routeName, station: station})
+          context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+        })
       },
 
       /**
@@ -676,11 +657,10 @@ function makeStore (auth, remoteProxy) {
       *     * routeName: The name of the route the station should be unassigned from
       */
       unassignStationFromRouteRemote (context, data) {
-        axios.delete(process.env.BACKEND_URL + '/route/' + data.routeName + '/stations/' + data.stationName)
-          .then(response => {
-            context.commit('unassignStationFromRoute', data)
-            context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
-          })
+        remoteProxy.unassignStationFromRoute(data.routeName, data.stationName).then(() => {
+          context.commit('unassignStationFromRoute', data)
+          context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+        })
       },
 
       /**
@@ -689,13 +669,11 @@ function makeStore (auth, remoteProxy) {
       * :param routeName: The name of the route to delete
       */
       deleteRouteRemote (context, routeName) {
-        axios.delete(process.env.BACKEND_URL + '/route/' + routeName)
-          .then(response => {
-            context.commit('deleteRoute', routeName)
-          })
-          .then(function () {
-            context.dispatch('refreshAssignments')
-          })
+        remoteProxy.deleteRoute(routeName).then(() => {
+          context.commit('deleteRoute', routeName)
+        }).then(() => {
+          context.dispatch('refreshAssignments')
+        })
       },
 
       /**
@@ -704,13 +682,11 @@ function makeStore (auth, remoteProxy) {
       * :param stationName: The name of the station to delete
       */
       deleteStationRemote (context, stationName) {
-        axios.delete(process.env.BACKEND_URL + '/station/' + stationName)
-          .then(response => {
-            context.commit('deleteStation', stationName)
-          })
-          .then(function () {
-            context.dispatch('refreshAssignments')
-          })
+        remoteProxy.deleteStation(stationName).then(() => {
+          context.commit('deleteStation', stationName)
+        }).then(() => {
+          context.dispatch('refreshAssignments')
+        })
       },
 
       /**
@@ -719,13 +695,11 @@ function makeStore (auth, remoteProxy) {
       * :param userName: The name of the user to delete
       */
       deleteUserRemote (context, userName) {
-        axios.delete(process.env.BACKEND_URL + '/user/' + userName)
-          .then(response => {
-            context.commit('deleteUser', userName)
-          })
-          .then(function () {
-            context.dispatch('refreshAssignments')
-          })
+        remoteProxy.deleteUser(userName).then(() => {
+          context.commit('deleteUser', userName)
+        }).then(function () {
+          context.dispatch('refreshAssignments')
+        })
       },
 
       /**
@@ -734,13 +708,11 @@ function makeStore (auth, remoteProxy) {
       * :param teamName: The name of the team to delete
       */
       deleteTeamRemote (context, teamName) {
-        axios.delete(process.env.BACKEND_URL + '/team/' + teamName)
-          .then(response => {
-            context.commit('deleteTeam', teamName)
-          })
-          .then(function () {
-            context.dispatch('refreshAssignments')
-          })
+        remoteProxy.deleteTeam(teamName).then(() => {
+          context.commit('deleteTeam', teamName)
+        }).then(function () {
+          context.dispatch('refreshAssignments')
+        })
       }
     },
     getters: {

@@ -33,7 +33,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   name: 'user-block',
   data () {
@@ -44,18 +43,18 @@ export default {
   },
   methods: {
     refreshStations () {
-      axios.get(this.$store.state.baseUrl + '/user/' + this.name + '/stations')
-        .then(response => {
-          this.stations = response.data
+      this.$remote.fetchUserStations(this.name)
+        .then(items => {
+          this.stations = items
         })
         .catch(e => {
           this.$store.commit('logError', e)
         })
     },
     refreshRoles () {
-      axios.get(this.$store.state.baseUrl + '/user/' + this.name + '/roles')
-        .then(response => {
-          this.roles = response.data
+      this.$remote.fetchUserRoles(this.name)
+        .then(items => {
+          this.roles = items
         })
         .catch(e => {
           this.$store.commit('logError', e)

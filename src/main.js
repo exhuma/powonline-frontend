@@ -151,6 +151,11 @@ hello.on('auth.login', function (ath) {
       vue.$store,
       ath.authResponse.network,
       userInfo.id,
-      ath.authResponse.access_token)
+      ath.authResponse.access_token).then(data => {
+      store.commit('updateUserData', data)
+    }).catch(e => {
+      // TODO show message as snack-text
+      store.commit('clearUserData')
+    })
   })
 })
