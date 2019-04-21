@@ -54,9 +54,8 @@ def _deploy_remotely(conn: Connection) -> None:  # type: ignore
     exists = conn.run('[ -d %s ] && echo 1 || echo 0' % DEPLOY_DIR).stdout.strip()
     if exists == '0':
         conn.sudo('install -o %s -d %s' % (conn.user, DEPLOY_DIR))
-    with conn.quiet():
-        conn.run('docker stop powonline-frontend')
-        conn.run('docker rm powonline-frontend')
+    conn.run('docker stop powonline-frontend', warn=True)
+    conn.run('docker rm powonline-frontend', warn=True)
     conn.put('run-frontend.sh', '%s/run-frontend.sh.dist' % DEPLOY_DIR)
     with conn.cd(DEPLOY_DIR):
         conn.run('bash run-frontend.sh')

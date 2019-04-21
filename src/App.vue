@@ -4,7 +4,7 @@
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
       <v-toolbar app>
         <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
-        <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
+        <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
         <v-tooltip bottom v-if="tokenIsAvailable">
@@ -71,6 +71,12 @@
   </div>
 </template>
 
+<style scoped>
+  SMALL {
+    font-size: 60%;
+  }
+</style>
+
 <script>
 import hello from 'hellojs'
 
@@ -84,7 +90,8 @@ export default {
       password: '',
       globalSnack: false,
       globalSnackText: '',
-      globalSnackColor: ''
+      globalSnackColor: '',
+      version: '2019.04.0'
     }
   },
   methods: {
