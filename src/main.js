@@ -148,10 +148,10 @@ hello.on('auth.login', function (ath) {
   hello(ath.network).api('me').then(function (userInfo) {
     // Now we can autheticate with the powonline backend
     remoteProxy.socialLogin(
-      vue.$store,
       ath.authResponse.network,
       userInfo.id,
-      ath.authResponse.access_token).then(data => {
+      ath.authResponse.access_token
+    ).then(data => {
       store.commit('updateUserData', data)
     }).catch(e => {
       // TODO show message as snack-text
