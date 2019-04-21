@@ -88,7 +88,7 @@ Vue.component('route-assignments', RouteAssignments)
 Vue.component('expandable-card', ExpandableCard)
 
 /* eslint-disable no-new */
-let vue = new Vue({
+new Vue({
   el: '#app',
   router,
   store,
