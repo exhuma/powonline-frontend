@@ -506,7 +506,7 @@ function makeStore (auth, remoteProxy) {
       * :param route: The route object to add
       */
       addRouteRemote (context, route) {
-        remoteProxy(route).then(route => {
+        remoteProxy.addRoute(route).then(route => {
           context.commit('addRoute', route)
         })
       },
