@@ -4,7 +4,7 @@
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
       <v-toolbar app>
         <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
-        <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
+        <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
         <v-tooltip bottom v-if="tokenIsAvailable">
@@ -71,8 +71,13 @@
   </div>
 </template>
 
+<style scoped>
+  SMALL {
+    font-size: 60%;
+  }
+</style>
+
 <script>
-import axios from 'axios'
 import hello from 'hellojs'
 
 export default {
@@ -85,7 +90,8 @@ export default {
       password: '',
       globalSnack: false,
       globalSnackText: '',
-      globalSnackColor: ''
+      globalSnackColor: '',
+      version: '2019.04.0'
     }
   },
   methods: {
@@ -103,37 +109,33 @@ export default {
       this.loginDialogVisible = false
     },
     loginUser () {
-      axios.post(this.$store.state.baseUrl + '/login', {
-        'username': this.username,
-        'password': this.password
-      }).then(response => {
+      this.$remoteProxy.loginUser(this.username, this.password).then(data => {
         this.username = ''
         this.password = ''
-        if (response.status === 200) {
-          this.$store.commit('loginUser', response.data)
+        if (data.status === 200) {
+          this.$store.commit('updateUserData', data)
         } else {
-          this.globalSnackText = 'Unexpected remote response (' + response.status + ')'
+          this.globalSnackText = 'Unexpected remote response (' + data.status + ')'
           this.globalSnack = true
           this.globalSnackColor = 'orange'
         }
-      })
-        .catch(e => {
-          let message = 'Unknown Error'
-          if (e.response) {
-            message = e.response.data
-          } else {
-            message = e.message
-          }
+      }).catch(e => {
+        let message = 'Unknown Error'
+        if (e.response) {
+          message = e.response.data
+        } else {
+          message = e.message
+        }
 
-          this.$store.commit('logoutUser')
-          this.globalSnackText = message
-          this.globalSnack = true
-          this.globalSnackColor = 'error'
-        })
+        this.$store.commit('clearUserData')
+        this.globalSnackText = message
+        this.globalSnack = true
+        this.globalSnackColor = 'error'
+      })
       this.loginDialogVisible = false
     },
     logoutUser () {
-      this.$store.commit('logoutUser')
+      this.$store.commit('clearUserData')
       this.$router.push('/')
       this.username = ''
       this.password = ''

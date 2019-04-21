@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import model from '@/model'
 export default {
   name: 'team-block',
@@ -72,11 +71,9 @@ export default {
   },
 
   created () {
-    const baseUrl = this.$store.state.baseUrl
-    axios.get(baseUrl + '/team/' + this.team.name + '/stations')
-      .then(response => {
-        this.stations = response.data.items
-      })
+    this.$remote.fetchTeamStations(this.team.name).then(items => {
+      this.stations = items
+    })
   },
   methods: {
     hasRole (roleName) {

@@ -1,5 +1,4 @@
 import jwt_decode from 'jwt-decode' // eslint-disable-line camelcase
-import axios from 'axios'
 
 export default {
 
@@ -57,7 +56,7 @@ export default {
    * Renews the current token. Note that this will only work for tokens that
    * have not expired yet!
    */
-  renew_token: function (url, token) {
+  renewToken: function (remote, token) {
     if (token === '') {
       return ''
     }
@@ -69,11 +68,9 @@ export default {
     }
     this.clearToken(false)
     console.log('Renewing token')
-    axios.post(url, {
-      'token': token
-    }).then(response => {
-      if (response.status < 300) {
-        localStorage.setItem('jwt', response.data.token)
+    remote.renewToken(token).then(data => {
+      if (data.status < 300) {
+        localStorage.setItem('jwt', data.token)
         localStorage.setItem('failedRenewals', 0)
       } else {
         console.error('Unable to renew the token!')

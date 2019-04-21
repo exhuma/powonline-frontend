@@ -19,7 +19,7 @@
 export default {
   name: 'Scoreboard',
   created () {
-    this.$store.dispatch('fetchGlobalDashboard')
+    this.$store.dispatch('refreshGlobalDashboard')
     this.$store.dispatch('fetchQuestionnaireScores')
     this.$store.commit('changeTitle', 'Scoreboard')
   },
