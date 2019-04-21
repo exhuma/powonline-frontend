@@ -38,7 +38,7 @@ Vue.use(Vuetify, {
   }
 })
 
-const remoteProxy = makeRemoteProxy(true, process.env.BACKEND_URL)
+const remoteProxy = makeRemoteProxy(false, process.env.BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
 
 /**
