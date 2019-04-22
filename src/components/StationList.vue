@@ -1,9 +1,27 @@
 <template>
   <center-col id="StationList">
+    <v-dialog
+      v-model="errorDialog">
+      <v-card>
+        <v-card-title>Error</v-card-title>
+      </v-card>
+      <v-card-text class="white--text">
+        {{errorText}}
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="primary"
+          @click="errorDialog = false"
+        >OK</v-btn>
+      </v-card-actions>
+    </v-dialog>
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
+      :editMode="this.sendMode == this.SEND_MODE.UPDATE"
       title="Add New Station">
       <v-text-field
         @keyup.enter.native="onDialogConfirmed"
@@ -19,7 +37,15 @@
       <v-text-field
         name="is_start"
         v-model='selectedStation.is_start'
-        label="Depatue Station" />
+        label="Departure Station" />
+      <v-text-field
+        name="phone"
+        v-model='selectedStation.phone'
+        label="Phone Number" />
+      <v-text-field
+        name="contact"
+        v-model='selectedStation.contact'
+        label="Contact" />
     </popup-dialog>
     <v-list two-line>
       <station-block
@@ -54,7 +80,13 @@ export default {
       if (this.sendMode === model.SEND_MODE.CREATE) {
         this.$store.dispatch('addStationRemote', station)
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        console.warn('Updating stations is not implemented yet!')
+        station.contact = station.contact || ''
+        station.phone = station.phone || ''
+        this.$remoteProxy.updateStation(station.name, station)
+          .catch(error => {
+            this.errorDialog = true
+            this.errorText = error.response.data
+          })
       } else {
         console.error('Invalid send mode: ' + this.sendMode)
       }
@@ -85,7 +117,10 @@ export default {
     return {
       isAddBlockVisible: false,
       selectedStation: model.station.makeEmpty(),
-      sendMode: model.SEND_MODE.CREATE
+      sendMode: model.SEND_MODE.CREATE,
+      errorDialog: false,
+      errorText: '',
+      SEND_MODE: model.SEND_MODE
     }
   },
   computed: {

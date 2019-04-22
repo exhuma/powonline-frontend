@@ -586,6 +586,20 @@ class Proxy extends FakeProxy {
     })
     return output
   }
+
+  updateStation (stationName, newData) {
+    console.log({station: stationName, data: newData})
+    let output = new Promise((resolve, reject) => {
+      axios.put(this.baseUrl + '/station/' + stationName, newData)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
 }
 
 export default function makeRemoteProxy (fake, backendUrl) {

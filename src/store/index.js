@@ -439,6 +439,7 @@ function makeStore (auth, remoteProxy) {
         const stationScores = teamScores[payload.stationName] || {}
         stationScores.score = payload.score
       }
+
     },
     actions: {
       setStationScore (context, payload) {
