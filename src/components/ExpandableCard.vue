@@ -3,6 +3,7 @@
       <v-toolbar card>
         <v-toolbar-title>{{ team.name }}</v-toolbar-title>
         <v-spacer />
+        <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
         <confirmation-dialog
           v-if="hasRole('admin')"
           buttonText="Delete"
@@ -111,6 +112,9 @@ export default {
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
+    },
+    openEditDialog () {
+      this.$emit('openEditDialog', this.team)
     }
   },
   created () {

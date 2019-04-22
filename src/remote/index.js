@@ -600,6 +600,19 @@ class Proxy extends FakeProxy {
     })
     return output
   }
+
+  updateTeam (teamName, newData) {
+    let output = new Promise((resolve, reject) => {
+      axios.put(this.baseUrl + '/team/' + teamName, newData)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
 }
 
 export default function makeRemoteProxy (fake, backendUrl) {

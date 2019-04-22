@@ -31,6 +31,7 @@
       :team="team"
       :expanded="team.name === selectedTeam"
       @team-selected="onTeamSelected"
+      @openEditDialog="onOpenEditDialog(team)"
       v-for="team in teams"
       :key="team.name" />
     <v-list-tile v-if="hasRole('admin')"> <!-- TODO: should not use v-list-tile here -->
@@ -53,7 +54,8 @@ export default {
       selectedTeam: model.team.makeEmpty(),
       sendMode: model.SEND_MODE.CREATE,
       errorDialog: false,
-      errorText: ''
+      errorText: '',
+      SEND_MODE: model.SEND_MODE
     }
   },
   methods: {
@@ -86,7 +88,11 @@ export default {
             console.error(error)
           })
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        console.warn('Updating teams is not implemented yet!')
+        this.$remoteProxy.updateTeam(team.name, team)
+          .catch(error => {
+            this.errorDialog = true
+            this.errorText = error.response.data
+          })
       } else {
         console.error('Invalid send mode: ' + this.sendMode)
       }
@@ -101,6 +107,11 @@ export default {
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
+    },
+    onOpenEditDialog: function (team) {
+      this.selectedTeam = team
+      this.isAddBlockVisible = true
+      this.sendMode = model.SEND_MODE.UPDATE
     }
   },
 
