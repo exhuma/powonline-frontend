@@ -503,7 +503,7 @@ class Proxy extends FakeProxy {
 
   unassignStationFromRoute (routeName, stationName) {
     let output = new Promise((resolve, reject) => {
-      axios.delete(this + '/route/' + routeName + '/stations/' + stationName)
+      axios.delete(this.baseUrl + '/route/' + routeName + '/stations/' + stationName)
         .then(response => {
           resolve()
         }).catch(e => {
