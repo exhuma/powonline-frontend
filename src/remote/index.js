@@ -588,7 +588,6 @@ class Proxy extends FakeProxy {
   }
 
   updateStation (stationName, newData) {
-    console.log({station: stationName, data: newData})
     let output = new Promise((resolve, reject) => {
       axios.put(this.baseUrl + '/station/' + stationName, newData)
         .then(response => {
