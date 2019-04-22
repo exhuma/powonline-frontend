@@ -791,6 +791,23 @@ function makeStore (auth, remoteProxy) {
         const assignedStations = []
         tmp.forEach(item => { assignedStations.push(item.name) })
         return assignedStations
+      },
+
+      /**
+      * Given the name of a team, this returns the details for that team (or
+      * null if it is not found)
+      *
+      * :param teamName: The name of the team
+      * :returns: Either an object with the team details or null
+      */
+      findTeam: (state, getters) => (teamName) => {
+        let filtered = state.teams.filter(item => {
+          return item.name === teamName
+        })
+        if (filtered.length === 1) {
+          return filtered[0]
+        }
+        return null
       }
     }
   })
