@@ -493,17 +493,6 @@ function makeStore (auth, remoteProxy) {
       /**
       * Add a team to the backend store
       *
-      * :param team: The team object to add
-      */
-      addTeamRemote (context, team) {
-        remoteProxy.addTeam(team).then(team => {
-          context.commit('addTeam', team)
-        })
-      },
-
-      /**
-      * Add a team to the backend store
-      *
       * :param route: The route object to add
       */
       addRouteRemote (context, route) {

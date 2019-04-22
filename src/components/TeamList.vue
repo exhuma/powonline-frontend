@@ -1,5 +1,22 @@
 <template>
   <center-col id="TeamList">
+    <v-dialog
+      v-model="errorDialog">
+      <v-card>
+        <v-card-title>Error</v-card-title>
+      </v-card>
+      <v-card-text class="white--text">
+        {{errorText}}
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="primary"
+          @click="errorDialog = false"
+        >OK</v-btn>
+      </v-card-actions>
+    </v-dialog>
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
@@ -34,7 +51,9 @@ export default {
     return {
       isAddBlockVisible: false,
       selectedTeam: model.team.makeEmpty(),
-      sendMode: model.SEND_MODE.CREATE
+      sendMode: model.SEND_MODE.CREATE,
+      errorDialog: false,
+      errorText: ''
     }
   },
   methods: {
@@ -57,7 +76,15 @@ export default {
       const team = this.selectedTeam
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
-        this.$store.dispatch('addTeamRemote', team)
+        this.$remoteProxy.addTeam(team)
+          .then(team => {
+            this.$store.commit('addTeam', team)
+          })
+          .catch(error => {
+            this.errorDialog = true
+            this.errorText = error.response.data
+            console.error(error)
+          })
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
         console.warn('Updating teams is not implemented yet!')
       } else {
