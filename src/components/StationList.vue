@@ -125,7 +125,11 @@ export default {
   },
   computed: {
     stations () {
-      return this.$store.state.stations
+      let copy = this.$store.state.stations.concat()
+      copy.sort((a, b) => {
+        return parseInt(a.order, 10) - parseInt(b.order, 10)
+      })
+      return copy
     }
   }
 }
