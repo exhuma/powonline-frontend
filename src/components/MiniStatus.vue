@@ -14,7 +14,7 @@ export default {
     }
   },
   created () {
-    this.$remote.fetchTeamState(this.station, this.team).then((state) => {
+    this.$remoteProxy.fetchTeamState(this.station, this.team).then((state) => {
       const icon = util.getStateIcon(state)
       this.stateIcon = icon
     }).catch(e => {

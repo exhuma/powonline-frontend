@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     refreshStations () {
-      this.$remote.fetchUserStations(this.name)
+      this.$remoteProxy.fetchUserStations(this.name)
         .then(items => {
           this.stations = items
         })
@@ -52,7 +52,7 @@ export default {
         })
     },
     refreshRoles () {
-      this.$remote.fetchUserRoles(this.name)
+      this.$remoteProxy.fetchUserRoles(this.name)
         .then(items => {
           this.roles = items
         })
