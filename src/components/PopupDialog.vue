@@ -19,7 +19,7 @@
       <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
         <v-btn flat @click="dismiss">Cancel</v-btn>
-        <v-btn @click="confirm">Add</v-btn>
+        <v-btn @click="confirm">{{(editMode === true ? 'Save' : 'Add')}}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -31,7 +31,8 @@ export default {
   props: [
     'title',
     'dialogVisible',
-    'customActionButtons'
+    'customActionButtons',
+    'editMode'
   ],
   methods: {
     confirm: function (event) {
