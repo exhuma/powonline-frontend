@@ -55,7 +55,7 @@
               label='Effective Start Time' />
             <v-checkbox
               label="Team has cancelled the event"
-              v-model="team.has_cancelled" />
+              v-model="team.cancelled" />
             <v-checkbox
               label="Team has completed the event"
               v-model="team.completed" />
