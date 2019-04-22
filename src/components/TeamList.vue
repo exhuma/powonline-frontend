@@ -21,6 +21,7 @@
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
+      :editMode="this.sendMode == this.SEND_MODE.UPDATE"
       title="Add New Team">
       <team-form
         :send-mode='sendMode'
