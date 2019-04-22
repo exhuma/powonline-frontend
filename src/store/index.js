@@ -403,6 +403,21 @@ function makeStore (auth, remoteProxy) {
       },
 
       /**
+      * Updates the details of a team
+      *
+      * :param payload (object): An object with the following keys:
+      *    * team: The name of the team
+      *    * newData: The new team data
+      */
+      updateTeam (state, payload) {
+        state.teams.forEach(item => {
+          if (item.name === payload.team) {
+            Object.assign(item, payload.newData)
+          }
+        })
+      },
+
+      /**
       * Updates station score and/or state for one team at one station locally.
       *
       * :param payload (object): An object with the following keys:

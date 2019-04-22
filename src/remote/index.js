@@ -392,6 +392,18 @@ class Proxy extends FakeProxy {
     return output
   }
 
+  fetchTeam (teamName) {
+    let output = new Promise((resolve, reject) => {
+      axios.get(this.baseUrl + '/team/' + teamName)
+        .then(response => {
+          resolve(response.data)
+        }).catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   addStationToUser (userName, stationName) {
     let output = new Promise((resolve, reject) => {
       axios.post(this.baseUrl + '/user/' + userName + '/stations', {

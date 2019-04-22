@@ -131,6 +131,15 @@ new Vue({
       channel.bind('questionnaire-score-change', function (data) {
         that.$store.commit('setQuestionnaireScore', data)
       })
+      channel.bind('team-details-change', function (data) {
+        that.$remoteProxy.fetchTeam(data.name)
+          .then(newData => {
+            that.$store.commit('updateTeam', {team: data.name, newData: newData})
+          })
+      })
+      channel.bind('team-deleted', function (data) {
+        that.$store.commit('deleteTeam', data.name)
+      })
     } else {
       console.warn('Pusher key not specified. Pusher disabled!')
     }
