@@ -1,7 +1,8 @@
 <template>
   <v-card>
     <v-card-title>
-      <span>{{ state.team }}</span>
+      <span :class="hasCancelled ? 'cancelled' : ''">{{ state.team }}</span>
+      <span class="cancelledHeader" v-if="hasCancelled">Cancelled</span>
     </v-card-title>
     <v-card-text>
       <v-container pa-0>
@@ -40,11 +41,35 @@
   </v-card>
 </template>
 
+<style scoped>
+  .cancelledHeader {
+    color: #fa0;
+    margin-left: 1em;
+    font-size: 120%;
+    font-weight: bold;
+  }
+
+  .cancelled {
+    text-decoration: line-through;
+    color: #888;
+  }
+</style>
+
 <script>
 export default {
   name: 'small-station-dashboard-item',
-  props: ['state'],
+  props: [
+    'state',
+    'cancelled'
+  ],
   computed: {
+    hasCancelled () {
+      let teamDetails = this.$store.getters.findTeam(this.state.team)
+      if (teamDetails === null) {
+        return false
+      }
+      return teamDetails.cancelled
+    },
     questionnaireScore () {
       const team = this.$store.state.questionnaireScores[this.state.team]
       if (!team) {

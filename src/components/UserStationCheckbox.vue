@@ -18,14 +18,14 @@ export default {
   methods: {
     onValueChanged (newValue) {
       if (newValue) {
-        this.$remote.addStationToUser(this.user, this.station)
+        this.$remoteProxy.addStationToUser(this.user, this.station)
       } else {
-        this.$remote.removeStationFromUser(this.user, this.station)
+        this.$remoteProxy.removeStationFromUser(this.user, this.station)
       }
     }
   },
   created () {
-    this.$remote.fetchAssignedStationState(this.user, this.station)
+    this.$remoteProxy.fetchAssignedStationState(this.user, this.station)
       .then(data => {
         this.checked = data
       })

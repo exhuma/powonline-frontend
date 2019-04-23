@@ -8,7 +8,7 @@
       :headers="tableHeaders"
       :items="tableItems">
       <template slot="items" slot-scope="props">
-        <td>{{props.item.team}}</td>
+        <td :class="props.item.cancelled ? 'cancelled' : ''">{{props.item.team}}</td>
         <td v-for="cell in props.item.stations" :key="props.item.team + cell.station">
           <v-icon :title="props.item.team + '@' + cell.station" v-if="cell.state !== 'unreachable'"> {{ getStateIcon(cell.state) }}</v-icon>
         </td>
@@ -17,6 +17,13 @@
   </div>
 
 </template>
+
+<style scoped>
+  .cancelled {
+    text-decoration: line-through;
+    color: #888;
+  }
+</style>
 
 <script>
 import util from '@/util'
@@ -92,9 +99,11 @@ export default {
           if (this.route.name !== route) {
             continue
           }
+          let teamDetails = this.$store.getters.findTeam(teamName)
           let row = {
             stations: [],
-            team: teamName
+            team: teamName,
+            cancelled: teamDetails.cancelled
           }
           assignedStations.forEach(station => {
             const stationData = mapping[station.name]

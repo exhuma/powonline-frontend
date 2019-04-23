@@ -18,14 +18,14 @@ export default {
   methods: {
     onValueChanged (newValue) {
       if (newValue) {
-        this.$remote.addUserRole(this.user, this.role)
+        this.$remoteProxy.addUserRole(this.user, this.role)
       } else {
-        this.$remote.removeUserRole(this.user, this.role)
+        this.$remoteProxy.removeUserRole(this.user, this.role)
       }
     }
   },
   created () {
-    this.$remote.getUserRole(this.user, this.role)
+    this.$remoteProxy.getUserRole(this.user, this.role)
       .then(data => {
         this.checked = data
       })

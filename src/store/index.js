@@ -403,6 +403,21 @@ function makeStore (auth, remoteProxy) {
       },
 
       /**
+      * Updates the details of a team
+      *
+      * :param payload (object): An object with the following keys:
+      *    * team: The name of the team
+      *    * newData: The new team data
+      */
+      updateTeam (state, payload) {
+        state.teams.forEach(item => {
+          if (item.name === payload.team) {
+            Object.assign(item, payload.newData)
+          }
+        })
+      },
+
+      /**
       * Updates station score and/or state for one team at one station locally.
       *
       * :param payload (object): An object with the following keys:
@@ -439,6 +454,7 @@ function makeStore (auth, remoteProxy) {
         const stationScores = teamScores[payload.stationName] || {}
         stationScores.score = payload.score
       }
+
     },
     actions: {
       setStationScore (context, payload) {
@@ -486,17 +502,6 @@ function makeStore (auth, remoteProxy) {
       addUserRemote (context, user) {
         remoteProxy.addUser(user).then(data => {
           context.commit('addUser', user)
-        })
-      },
-
-      /**
-      * Add a team to the backend store
-      *
-      * :param team: The team object to add
-      */
-      addTeamRemote (context, team) {
-        remoteProxy.addTeam(team).then(team => {
-          context.commit('addTeam', team)
         })
       },
 
@@ -801,6 +806,23 @@ function makeStore (auth, remoteProxy) {
         const assignedStations = []
         tmp.forEach(item => { assignedStations.push(item.name) })
         return assignedStations
+      },
+
+      /**
+      * Given the name of a team, this returns the details for that team (or
+      * null if it is not found)
+      *
+      * :param teamName: The name of the team
+      * :returns: Either an object with the team details or null
+      */
+      findTeam: (state, getters) => (teamName) => {
+        let filtered = state.teams.filter(item => {
+          return item.name === teamName
+        })
+        if (filtered.length === 1) {
+          return filtered[0]
+        }
+        return null
       }
     }
   })

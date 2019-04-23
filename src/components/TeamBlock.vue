@@ -71,7 +71,7 @@ export default {
   },
 
   created () {
-    this.$remote.fetchTeamStations(this.team.name).then(items => {
+    this.$remoteProxy.fetchTeamStations(this.team.name).then(items => {
       this.stations = items
     })
   },

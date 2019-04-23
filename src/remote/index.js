@@ -392,6 +392,18 @@ class Proxy extends FakeProxy {
     return output
   }
 
+  fetchTeam (teamName) {
+    let output = new Promise((resolve, reject) => {
+      axios.get(this.baseUrl + '/team/' + teamName)
+        .then(response => {
+          resolve(response.data)
+        }).catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   addStationToUser (userName, stationName) {
     let output = new Promise((resolve, reject) => {
       axios.post(this.baseUrl + '/user/' + userName + '/stations', {
@@ -503,7 +515,7 @@ class Proxy extends FakeProxy {
 
   unassignStationFromRoute (routeName, stationName) {
     let output = new Promise((resolve, reject) => {
-      axios.delete(this + '/route/' + routeName + '/stations/' + stationName)
+      axios.delete(this.baseUrl + '/route/' + routeName + '/stations/' + stationName)
         .then(response => {
           resolve()
         }).catch(e => {
@@ -579,6 +591,32 @@ class Proxy extends FakeProxy {
       axios.get(this.baseUrl + '/team/' + teamName + '/stations')
         .then(response => {
           resolve(response.data.items)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  updateStation (stationName, newData) {
+    let output = new Promise((resolve, reject) => {
+      axios.put(this.baseUrl + '/station/' + stationName, newData)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  updateTeam (teamName, newData) {
+    let output = new Promise((resolve, reject) => {
+      axios.put(this.baseUrl + '/team/' + teamName, newData)
+        .then(response => {
+          resolve(response.data)
         })
         .catch(e => {
           reject(e)

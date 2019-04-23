@@ -1,9 +1,10 @@
+import os
 from json import load
 from subprocess import call
 
 from fabric import Connection, task
 from invoke.context import Context
-from patchwork.transfers import rsync
+from patchwork.transfers import rsync as rsync_
 
 DOCKER_HOST_01 = '195.201.33.98'
 DOCKER_HOST_02 = '195.201.226.98'
@@ -15,57 +16,49 @@ ROLEDEFS = {
 }
 
 
+def rsync(ctx, *args, **kwargs):  # type: ignore
+    """Ugly workaround for https://github.com/fabric/patchwork/issues/16."""
+    ssh_agent = os.environ.get('SSH_AUTH_SOCK', None)
+    if ssh_agent:
+        ctx.config['run']['env']['SSH_AUTH_SOCK'] = ssh_agent
+    return rsync_(ctx, *args, **kwargs)
+
+
 @task
 def develop(ctx):  # type: ignore
     ctx.run('npm install')
 
 
 @task
-def build(ctx, with_docker_image=True):  # type: ignore
-    ctx.run('npm run build', replace_env=False)
-    if with_docker_image:
-        ctx.run('docker build '
-                   '-t exhuma/powonline-frontend:latest '
-                   '.')
-
-
-def _deploy_remotely(conn: Connection) -> None:  # type: ignore
+def _build_js_remotely(conn, tmpdir):  # type: ignore
     with open('package.json') as fptr:
-        package = load(fptr)
-    version = package['version']
+        pdata = load(fptr)
+    version = pdata['version'].strip()
+    with conn.cd(tmpdir):
+        conn.run('docker build '
+                 '-t exhuma/powonline-frontend:latest '
+                 '-t exhuma/powonline-frontend:%s '
+                 '.' % version)
 
-    ctx = Context(conn.config)
-    build(ctx, with_docker_image=False)
+@task
+def build_js_package(ctx, environment):  # type: ignore
 
-    tmpdir = conn.run('mktemp -d /tmp/deploy-powonline-fe-XXXX').stdout.strip()
-
-    rsync(conn, 'dist', tmpdir)
-    conn.put('Dockerfile', tmpdir)
-    conn.put('nginx.conf', tmpdir)
-    try:
-        with conn.cd(tmpdir):
-            conn.run('docker build '
-                     '-t exhuma/powonline-frontend:latest '
-                     '-t exhuma/powonline-frontend:%s '
-                     '.' % version)
-    finally:
-        conn.run('rm -rf %s' % tmpdir)
-
-    exists = conn.run('[ -d %s ] && echo 1 || echo 0' % DEPLOY_DIR).stdout.strip()
-    if exists == '0':
-        conn.sudo('install -o %s -d %s' % (conn.user, DEPLOY_DIR))
-    conn.run('docker stop powonline-frontend', warn=True)
-    conn.run('docker rm powonline-frontend', warn=True)
-    conn.put('run-frontend.sh', '%s/run-frontend.sh.dist' % DEPLOY_DIR)
-    with conn.cd(DEPLOY_DIR):
-        conn.run('bash run-frontend.sh')
+    host = ROLEDEFS[environment]
+    with Connection(host) as conn:
+        jstmp = conn.run('mktemp -d /tmp/deploy-powonline-js-XXXX').stdout.strip()
+        try:
+            rsync(conn, 'dist', jstmp)  # type: ignore
+            conn.put('Dockerfile', jstmp)
+            conn.put('nginx.conf', jstmp)
+            _build_js_remotely(conn, jstmp)
+        finally:
+            conn.run('rm -rf %s' % jstmp)
 
 
 @task
-def deploy(ctx, environment='staging'):  # type: ignore
-    host = ROLEDEFS[environment]
-    with Connection(host) as conn:
-        _deploy_remotely(conn)
+def build(ctx, environment='staging'):  # type: ignore
+    build_js_package(ctx, environment)
+
 
 @task
 def run(ctx):  # type: ignore

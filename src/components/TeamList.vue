@@ -1,9 +1,27 @@
 <template>
   <center-col id="TeamList">
+    <v-dialog
+      v-model="errorDialog">
+      <v-card>
+        <v-card-title>Error</v-card-title>
+      </v-card>
+      <v-card-text class="white--text">
+        {{errorText}}
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="primary"
+          @click="errorDialog = false"
+        >OK</v-btn>
+      </v-card-actions>
+    </v-dialog>
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
+      :editMode="this.sendMode == this.SEND_MODE.UPDATE"
       title="Add New Team">
       <team-form
         :send-mode='sendMode'
@@ -14,6 +32,7 @@
       :team="team"
       :expanded="team.name === selectedTeam"
       @team-selected="onTeamSelected"
+      @openEditDialog="onOpenEditDialog(team)"
       v-for="team in teams"
       :key="team.name" />
     <v-list-tile v-if="hasRole('admin')"> <!-- TODO: should not use v-list-tile here -->
@@ -34,7 +53,10 @@ export default {
     return {
       isAddBlockVisible: false,
       selectedTeam: model.team.makeEmpty(),
-      sendMode: model.SEND_MODE.CREATE
+      sendMode: model.SEND_MODE.CREATE,
+      errorDialog: false,
+      errorText: '',
+      SEND_MODE: model.SEND_MODE
     }
   },
   methods: {
@@ -57,9 +79,21 @@ export default {
       const team = this.selectedTeam
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
-        this.$store.dispatch('addTeamRemote', team)
+        this.$remoteProxy.addTeam(team)
+          .then(team => {
+            this.$store.commit('addTeam', team)
+          })
+          .catch(error => {
+            this.errorDialog = true
+            this.errorText = error.response.data
+            console.error(error)
+          })
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        console.warn('Updating teams is not implemented yet!')
+        this.$remoteProxy.updateTeam(team.name, team)
+          .catch(error => {
+            this.errorDialog = true
+            this.errorText = error.response.data
+          })
       } else {
         console.error('Invalid send mode: ' + this.sendMode)
       }
@@ -74,6 +108,11 @@ export default {
     },
     hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
+    },
+    onOpenEditDialog: function (team) {
+      this.selectedTeam = team
+      this.isAddBlockVisible = true
+      this.sendMode = model.SEND_MODE.UPDATE
     }
   },
 

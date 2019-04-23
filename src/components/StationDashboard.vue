@@ -66,13 +66,13 @@ export default {
   },
   computed: {
     pendingTeams () {
-      return this.limitesStates('unknown')
+      return this.limitedStates('unknown')
     },
     arrivedTeams () {
-      return this.limitesStates('arrived')
+      return this.limitedStates('arrived')
     },
     finishedTeams () {
-      return this.limitesStates('finished')
+      return this.limitedStates('finished')
     }
   },
   created () {
@@ -80,7 +80,7 @@ export default {
     this.$store.dispatch('fetchQuestionnaireScores')
   },
   methods: {
-    limitesStates: function (state) {
+    limitedStates: function (state) {
       const output = []
       this.$store.state.global_dashboard.forEach(teamInfo => {
         teamInfo.stations.forEach(stationState => {
