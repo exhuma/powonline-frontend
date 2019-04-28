@@ -30,7 +30,7 @@ def develop(ctx):  # type: ignore
 
 
 @task
-def _build_js_remotely(conn, tmpdir):  # type: ignore
+def _build_docker_image(conn, tmpdir):  # type: ignore
     with open('package.json') as fptr:
         pdata = load(fptr)
     version = pdata['version'].strip()
@@ -40,9 +40,14 @@ def _build_js_remotely(conn, tmpdir):  # type: ignore
                  '-t exhuma/powonline-frontend:%s '
                  '.' % version)
 
-@task
-def build_js_package(ctx, environment):  # type: ignore
 
+@task
+def build_js(ctx, environment='staging'):  # type: ignore
+    ctx.run('npm run build', pty=True)
+
+@task
+def build_docker(ctx, environment='staging'):  # type: ignore
+    build_js(ctx, environment)
     host = ROLEDEFS[environment]
     with Connection(host) as conn:
         jstmp = conn.run('mktemp -d /tmp/deploy-powonline-js-XXXX').stdout.strip()
@@ -50,14 +55,35 @@ def build_js_package(ctx, environment):  # type: ignore
             rsync(conn, 'dist', jstmp)  # type: ignore
             conn.put('Dockerfile', jstmp)
             conn.put('nginx.conf', jstmp)
-            _build_js_remotely(conn, jstmp)
+            _build_docker_image(conn, jstmp)
         finally:
             conn.run('rm -rf %s' % jstmp)
 
 
+def _safe_put(conn, filename, destination):
+    """
+    Uploads *filename* to *destination* only if it does not exist.
+    """
+    exists_cmd = conn.run('[ -f %s ]' % destination, warn=True)
+    if exists_cmd.failed:
+        conn.put(filename, destination)
+    else:
+        print('File %r already exists. Will not overwrite!' % destination)
+
+
 @task
-def build(ctx, environment='staging'):  # type: ignore
-    build_js_package(ctx, environment)
+def deploy(ctx, environment='staging'):  # type: ignore
+    build_docker(ctx, environment)
+    host = ROLEDEFS[environment]
+    with Connection(host) as conn:
+        _safe_put(conn,
+                  'api.env', '%s/api.env' % DEPLOY_DIR)
+        _safe_put(conn,
+                  'frontend.env', '%s/frontend.env' % DEPLOY_DIR)
+        _safe_put(conn,
+                  'docker-compose.yaml', '%s/docker-compose.yaml' % DEPLOY_DIR)
+        with conn.cd(DEPLOY_DIR):
+            conn.run('docker-compose down && docker-compose up -d', pty=True)
 
 
 @task
