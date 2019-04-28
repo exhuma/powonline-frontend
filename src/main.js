@@ -65,7 +65,7 @@ axios.interceptors.response.use(response => {
   // nothing to do on successful response
   return response
 }, error => {
-  console.error('Remote error')
+  console.error({msg: 'Remote error', error: error})
   return Promise.reject(error)
 })
 
