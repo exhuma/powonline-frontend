@@ -38,3 +38,28 @@ npm test
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+
+## Deployment
+
+We use the Python task runner "invoke" to automate deployment. You need to
+install `invoke`, `fabric` and `patchwork` for this to work:
+
+```
+pip install --user -U invoke fabric patchwork
+```
+
+Before deployment, make sure the OAuth keys in `oauth.env.js` are set up
+correctly for production. If that is the case, the following task can be used:
+
+* `inv build_docker -e prod`
+
+This will build the JS package for production, send it to the remote server and
+build the docker image on that host. Building remotely is necessary as I
+currently have a slow connection which makes building locally and uploading the
+image to a registry unfeasible.
+
+* Create copies of `api.env.dist` and `frontend.env.dist` (removing the `.dist`
+  suffix). Modify the values as necessary.
+
+Once this is done, run `inv deploy -e prod`
