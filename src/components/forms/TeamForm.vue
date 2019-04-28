@@ -13,46 +13,71 @@
       <v-tabs-items>
         <v-tabs-content key="teamInfo" id="teamInfo">
           <v-card flat><v-card-text>
-            <v-text-field
-              name="team-input"
-              type='text'
-              v-model='team.name'
-              label='Enter a new teamname' />
-            <v-select
-              v-bind:items="routes"
-              v-model='team.route_name'
-              item-value="name"
-              item-text="name"
-              label='Route' />
-            <v-text-field
-              name="email-input"
-              type='text'
-              v-model='team.email'
-              label='Enter a new email' />
-            <v-text-field
-              name="numParticipants"
-              type='number'
-              v-model='team.num_participants'
-              label='Total number of particibpants' />
-            <v-text-field
-              name="numVegetarians"
-              type='number'
-              v-model='team.num_vegetarians'
-              hint="How many people of the team are vegetarians"
-              label='Total number of vegetarians' />
-            <v-text-field
-              name="plannedStartTime"
-              type='datetime-local'
-              v-model='team.planned_start_time'
-              @change="setDefaultEffectiveStartTime"
-              hint="The time the team was scheduled to start"
-              label='Planned Start Time' />
-            <v-text-field
-              name="effectiveStartTime"
-              type='datetime-local'
-              v-model='team.effective_start_time'
-              hint="The time the team <em>actually</em> started"
-              label='Effective Start Time' />
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-text-field
+                  name="team-input"
+                  type='text'
+                  v-model='team.name'
+                  label='Enter a new teamname' />
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-select
+                  v-bind:items="routes"
+                  v-model='team.route_name'
+                  item-value="name"
+                  item-text="name"
+                  label='Route' />
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-text-field
+                  name="email-input"
+                  type='text'
+                  v-model='team.email'
+                  label='Enter a new email' />
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-text-field
+                  name="numParticipants"
+                  type='number'
+                  v-model='team.num_participants'
+                  label='Total number of particibpants' />
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-text-field
+                  name="numVegetarians"
+                  type='number'
+                  v-model='team.num_vegetarians'
+                  hint="How many people of the team are vegetarians"
+                  label='Total number of vegetarians' />
+              </v-flex>
+            </v-layout>
+            <v-layout row wrap justify-space-between>
+              <v-flex xs12 sm6>
+                <h2>Planned Start Time</h2>
+                <v-time-picker
+                  v-model="plannedStartTime"
+                  hint="The time the team was scheduled to start"
+                  format="24hr"
+                  label='Planned Start Time' />
+              </v-flex>
+              <v-flex xs12 sm6>
+                <h2>Effective Start Time</h2>
+                <v-time-picker
+                  v-model="effectiveStartTime"
+                  hint="The time the team <em>actually</em> started"
+                  format="24hr"
+                  label='Effective Start Time' />
+              </v-flex>
+            </v-layout>
             <v-checkbox
               label="Team has cancelled the event"
               v-model="team.cancelled" />
@@ -118,6 +143,7 @@
 
 <script>
 import model from '@/model'
+import moment from 'moment'
 
 export default {
   name: 'team-form',
@@ -137,20 +163,55 @@ export default {
     }
   },
 
-  methods: {
-    setDefaultEffectiveStartTime (newValue) {
-      if (this.team.effective_start_time) {
-        // We already have a value and should not overwrite it!
-        return
-      }
-
-      if (newValue && newValue !== '') {
-        this.team.effective_start_time = newValue
-      }
-    }
-  },
-
   computed: {
+    plannedStartTime: {
+      get: function () {
+        let output = null
+        if (this.team.planned_start_time) {
+          output = moment(this.team.planned_start_time)
+        } else {
+          output = moment('2019-10-05T19:00')
+        }
+        return output.format('HH:mm')
+      },
+      set: function (newValue) {
+        let old = moment(this.team.planned_start_time)
+        if (!old.isValid()) {
+          console.debug('Old for planned start time invalid. Using default')
+          old = moment('2019-10-05T19:00')
+        }
+        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        if (nw.isValid()) {
+          this.team.planned_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
+        } else {
+          console.error({'Cannot set date value to': nw})
+        }
+      }
+    },
+    effectiveStartTime: {
+      get: function () {
+        let output = null
+        if (this.team.effective_start_time) {
+          output = moment(this.team.effective_start_time)
+        } else {
+          output = moment('2019-10-05T19:00')
+        }
+        return output.format('HH:mm')
+      },
+      set: function (newValue) {
+        let old = moment(this.team.effective_start_time)
+        if (!old.isValid()) {
+          console.debug('Old for planned start time invalid. Using default')
+          old = moment('2019-10-05T19:00')
+        }
+        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        if (nw.isValid()) {
+          this.team.effective_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
+        } else {
+          console.error({'Cannot set date value to': nw})
+        }
+      }
+    },
     routes () {
       return this.$store.state.routes
     }
