@@ -78,6 +78,11 @@
                   label='Effective Start Time' />
               </v-flex>
             </v-layout>
+            <v-layout row>
+              <v-flex xs12>
+                <h1>Status</h1>
+              </v-flex>
+            </v-layout>
             <v-checkbox
               label="Team has cancelled the event"
               v-model="team.cancelled" />
