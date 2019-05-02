@@ -1,6 +1,6 @@
 {
   "name": "powonline",
-  "version": "2019.04.2",
+  "version": "2019.04.3",
   "description": "A Mobile & Web App for a local event",
   "author": "Michel Albert <michel@albert.lu>",
   "private": true,
@@ -16,6 +16,7 @@
     "axios": "^0.17.1",
     "hellojs": "^1.16.1",
     "jwt-decode": "^2.2.0",
+    "moment": "^2.24.0",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vue-swatches": "^1.0.0-rc.10",

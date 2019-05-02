@@ -91,7 +91,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.04.2'
+      version: '2019.04.3'
     }
   },
   methods: {
@@ -127,6 +127,8 @@ export default {
           message = e.message
         }
 
+        hello.logout('facebook')
+        hello.logout('google')
         this.$store.commit('clearUserData')
         this.globalSnackText = message
         this.globalSnack = true
@@ -135,6 +137,8 @@ export default {
       this.loginDialogVisible = false
     },
     logoutUser () {
+      hello.logout('facebook')
+      hello.logout('google')
       this.$store.commit('clearUserData')
       this.$router.push('/')
       this.username = ''
