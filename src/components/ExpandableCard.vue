@@ -31,8 +31,8 @@
 
           <optional-team-row tooltip="Status" :value="statusText(team)" :icon="statusIcon(team)" />
           <optional-team-row tooltip="Contact Name" v-if="team.contact" :value="team.contact" icon="person" />
-          <optional-team-row tooltip="EMail" v-if="team.email" :value="team.email" icon="contact_mail" />
-          <optional-team-row tooltip="Phone #" v-if="team.phone" :value="team.phone" icon="contact_phone" />
+          <optional-team-row mu="email" tooltip="EMail" v-if="team.email" :value="team.email" icon="contact_mail" />
+          <optional-team-row mu="tel" tooltip="Phone #" v-if="team.phone" :value="team.phone" icon="contact_phone" />
           <optional-team-row tooltip="Participants" :value="team.num_participants" icon="group" />
           <optional-team-row tooltip="Vegetarians" :value="team.num_vegetarians" icon="local_florist" />
 
