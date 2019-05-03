@@ -16,6 +16,17 @@ ROLEDEFS = {
 }
 
 
+def _safe_put(conn, filename, destination):
+    """
+    Uploads *filename* to *destination* only if it does not exist.
+    """
+    exists_cmd = conn.run('[ -f %s ]' % destination, warn=True)
+    if exists_cmd.failed:
+        conn.put(filename, destination)
+    else:
+        print('File %r already exists. Will not overwrite!' % destination)
+
+
 def rsync(ctx, *args, **kwargs):  # type: ignore
     """Ugly workaround for https://github.com/fabric/patchwork/issues/16."""
     ssh_agent = os.environ.get('SSH_AUTH_SOCK', None)
@@ -60,24 +71,11 @@ def build_docker(ctx, environment='staging'):  # type: ignore
             conn.run('rm -rf %s' % jstmp)
 
 
-def _safe_put(conn, filename, destination):
-    """
-    Uploads *filename* to *destination* only if it does not exist.
-    """
-    exists_cmd = conn.run('[ -f %s ]' % destination, warn=True)
-    if exists_cmd.failed:
-        conn.put(filename, destination)
-    else:
-        print('File %r already exists. Will not overwrite!' % destination)
-
-
 @task
 def deploy(ctx, environment='staging'):  # type: ignore
     build_docker(ctx, environment)
     host = ROLEDEFS[environment]
     with Connection(host) as conn:
-        _safe_put(conn,
-                  'api.env', '%s/api.env' % DEPLOY_DIR)
         _safe_put(conn,
                   'frontend.env', '%s/frontend.env' % DEPLOY_DIR)
         _safe_put(conn,
