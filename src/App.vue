@@ -107,7 +107,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.04.3'
+      version: '2019.05.1'
     }
   },
   methods: {
