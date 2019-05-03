@@ -167,10 +167,10 @@ class Proxy extends FakeProxy {
    * Send a normal login package to the back-end to allow non-social logins.
    */
   loginUser (username, password) {
-    let promise = new Promise(function (resolve, reject) {
+    let promise = new Promise((resolve, reject) => {
       axios.post(this.baseUrl + '/login', {
-        'username': this.username,
-        'password': this.password
+        'username': username,
+        'password': password
       }).then(response => {
         resolve({
           status: response.status,
