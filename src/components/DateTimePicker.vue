@@ -1,16 +1,44 @@
 <template>
   <v-layout row wrap>
-    <v-flex xs12>
+    <v-flex xs6>
       <v-dialog
         persistent
-        v-model="dialogVisible"
+        v-model="dateDialogVisible"
+        lazy
+        full-width
+        width="290px">
+        <v-text-field
+          :label="label"
+          v-model="innerDateValue"
+          prepend-icon="event"
+          readonly
+          slot="activator">
+        </v-text-field>
+        <v-date-picker
+          v-model="innerDateValue"
+          :hint="hint"
+          :label="label">
+            <template slot-scope="{ save, cancel }">
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn flat @click="cancel">Cancel</v-btn>
+                <v-btn @click="save">OK</v-btn>
+              </v-card-actions>
+            </template>
+        </v-date-picker>
+      </v-dialog>
+    </v-flex>
+    <v-flex xs6>
+      <v-dialog
+        persistent
+        v-model="timeDialogVisible"
         lazy
         full-width
         width="290px">
         <v-text-field
           :label="label"
           v-model="innerTimeValue"
-          prepend-icon="event"
+          prepend-icon="schedule"
           readonly
           slot="activator">
         </v-text-field>
@@ -65,11 +93,36 @@ export default {
           console.error({'Cannot set date value to': nw})
         }
       }
+    },
+    innerDateValue: {
+      get: function () {
+        let output = null
+        if (this.timeValue) {
+          output = moment(this.timeValue)
+        } else {
+          output = moment('2019-10-05T19:00')
+        }
+        return output.format('YYYY-MM-DD')
+      },
+      set: function (newValue) {
+        let old = moment(this.timeValue)
+        if (!old.isValid()) {
+          console.debug('Old for planned start date invalid. Using default')
+          old = moment('2019-10-05T19:00')
+        }
+        let nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
+        if (nw.isValid()) {
+          this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
+        } else {
+          console.error({'Cannot set date value to': nw})
+        }
+      }
     }
   },
   data () {
     return {
-      dialogVisible: false
+      timeDialogVisible: false,
+      dateDialogVisible: false
     }
   }
 }
