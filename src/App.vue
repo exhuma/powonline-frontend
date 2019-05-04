@@ -34,28 +34,43 @@
                 <span>Login</span>
               </v-card-title>
               <v-card-text>
-                <v-text-field
-                  type='text'
-                  @keyup.enter.native="loginUser"
-                  v-model='username'
-                  ref="LoginDialogUsername"
-                  label='Enter a new username' />
-                <v-text-field
-                  @keyup.enter.native="loginUser"
-                  type='password'
-                  v-model='password'
-                  label='Password' />
-                <v-divider></v-divider>
-                <v-btn @click="login('google')">Google</v-btn>
-                <v-btn @click="login('facebook')">Facebook</v-btn>
-                <v-divider></v-divider>
+
+                <v-tabs v-model="activeLoginTab" grow>
+                  <v-tabs-bar>
+                    <v-tabs-item href="#socialLogin" key="socialLogin" ripple>Social Login</v-tabs-item>
+                    <v-tabs-item href="#localLogin" key="localLogin" ripple>Local Login</v-tabs-item>
+                    <v-tabs-slider color="accent" />
+                  </v-tabs-bar>
+                  <v-tabs-items>
+                    <v-tabs-content key="socialLogin" id="socialLogin">
+                      <v-divider></v-divider>
+                      <v-btn @click="login('google')">Google</v-btn>
+                      <v-btn @click="login('facebook')">Facebook</v-btn>
+                      <v-divider></v-divider>
+                    </v-tabs-content>
+                    <v-tabs-content key="localLogin" id="localLogin">
+                      <v-text-field
+                        type='text'
+                        @keyup.enter.native="loginUser"
+                        v-model='username'
+                        ref="LoginDialogUsername"
+                        label='Enter a new username' />
+                      <v-text-field
+                        @keyup.enter.native="loginUser"
+                        type='password'
+                        v-model='password'
+                        label='Password' />
+                      <v-divider></v-divider>
+                      <v-card-actions>
+                        <v-spacer />
+                        <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
+                        <v-btn @click.native="loginUser">Login</v-btn>
+                      </v-card-actions>
+                    </v-tabs-content>
+                  </v-tabs-items>
+                </v-tabs>
+
               </v-card-text>
-              <v-divider></v-divider>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
-                <v-btn @click.native="loginUser">Login</v-btn>
-              </v-card-actions>
             </v-card>
           </v-dialog>
           <router-view></router-view>
@@ -84,6 +99,7 @@ export default {
   name: 'App',
   data () {
     return {
+      activeLoginTab: 'socialLogin',
       loginDialogVisible: false,
       sideMenuVisible: false,
       username: '',
@@ -91,7 +107,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.04.3'
+      version: '2019.05.1'
     }
   },
   methods: {

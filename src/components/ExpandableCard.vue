@@ -1,7 +1,7 @@
 <template>
     <v-card class="card--flex-toolbar">
       <v-toolbar card>
-        <v-toolbar-title>{{ team.name }}</v-toolbar-title>
+        <v-toolbar-title>{{st_display}} - {{ team.name }}</v-toolbar-title>
         <v-spacer />
         <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
         <confirmation-dialog
@@ -31,8 +31,8 @@
 
           <optional-team-row tooltip="Status" :value="statusText(team)" :icon="statusIcon(team)" />
           <optional-team-row tooltip="Contact Name" v-if="team.contact" :value="team.contact" icon="person" />
-          <optional-team-row tooltip="EMail" v-if="team.email" :value="team.email" icon="contact_mail" />
-          <optional-team-row tooltip="Phone #" v-if="team.phone" :value="team.phone" icon="contact_phone" />
+          <optional-team-row mu="email" tooltip="EMail" v-if="team.email" :value="team.email" icon="contact_mail" />
+          <optional-team-row mu="tel" tooltip="Phone #" v-if="team.phone" :value="team.phone" icon="contact_phone" />
           <optional-team-row tooltip="Participants" :value="team.num_participants" icon="group" />
           <optional-team-row tooltip="Vegetarians" :value="team.num_vegetarians" icon="local_florist" />
 
@@ -61,6 +61,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 export default {
   name: 'expandable-card',
   props: [
@@ -74,6 +75,11 @@ export default {
 
       // properties should not be mutated so we need an indirection
       expanded__: false
+    }
+  },
+  computed: {
+    st_display () {
+      return moment(this.team.planned_start_time).format('HH:mm')
     }
   },
   methods: {

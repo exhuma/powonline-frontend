@@ -26,6 +26,7 @@ import RouteDashboard from './components/RouteDashboard'
 import TeamForm from './components/forms/TeamForm'
 import RouteAssignments from './components/forms/RouteAssignments'
 import ExpandableCard from './components/ExpandableCard'
+import OptionalTeamRow from './components/OptionalTeamRow'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -86,6 +87,7 @@ Vue.component('popup-dialog', PopupDialog)
 Vue.component('team-form', TeamForm)
 Vue.component('route-assignments', RouteAssignments)
 Vue.component('expandable-card', ExpandableCard)
+Vue.component('optional-team-row', OptionalTeamRow)
 
 /* eslint-disable no-new */
 new Vue({
