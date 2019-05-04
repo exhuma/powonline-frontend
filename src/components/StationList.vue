@@ -34,10 +34,14 @@
         v-model='selectedStation.order'
         hint="This field is used to sort stations"
         label="Station Ordering" />
-      <v-text-field
+      <v-checkbox
         name="is_start"
-        v-model='selectedStation.is_start'
-        label="Departure Station" />
+        label="Departure Station"
+        v-model="selectedStation.is_start" />
+      <v-checkbox
+        name="is_end"
+        label="Arrival Station"
+        v-model="selectedStation.is_end" />
       <v-text-field
         name="phone"
         v-model='selectedStation.phone'

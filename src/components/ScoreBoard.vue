@@ -4,7 +4,7 @@
       <v-list-tile v-for="row in leaderboard" :key="row.team">
         <v-list-tile-content>
           <v-container>
-            <v-layout row>
+            <v-layout row :class="row[3]">
               <v-flex xs1>{{ row[0] }}</v-flex>
               <v-flex xs9>{{ row[2] }}</v-flex>
               <v-flex xs2 text-xs-right>{{ row[1] }} points</v-flex>
@@ -15,6 +15,14 @@
     </v-list>
   </center-col>
 </template>
+
+<style scoped>
+  .cancelled {
+    text-decoration: line-through;
+    color: #888;
+  }
+</style>
+
 <script>
 export default {
   name: 'Scoreboard',
@@ -28,6 +36,7 @@ export default {
       const teamQuestScores = {}
       const teamScores = []
       const qScores = this.$store.state.questionnaireScores
+      const that = this
       for (var teamName in qScores) {
         if (qScores.hasOwnProperty(teamName)) {
           const questData = qScores[teamName]
@@ -45,7 +54,9 @@ export default {
         }, 0)
         let position = 0
         let tmp = teamQuestScores[item.team] || 0
-        teamScores.push([position, score + tmp, item.team])
+        let teamData = that.$store.getters.findTeam(item.team)
+        let cancelled = (teamData.cancelled ? 'cancelled' : '')
+        teamScores.push([position, score + tmp, item.team, cancelled])
       })
       teamScores.sort(function (a, b) { return b[1] - a[1] })
       let effectivePosition = 0

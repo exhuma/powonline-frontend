@@ -8,7 +8,7 @@
       :headers="tableHeaders"
       :items="tableItems">
       <template slot="items" slot-scope="props">
-        <td :class="props.item.cancelled ? 'cancelled' : ''">{{props.item.team}}</td>
+        <td :class="props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'">{{props.item.team}}</td>
         <td v-for="cell in props.item.stations" :key="props.item.team + cell.station">
           <v-icon :title="props.item.team + '@' + cell.station" v-if="cell.state !== 'unreachable'"> {{ getStateIcon(cell.state) }}</v-icon>
         </td>
@@ -54,7 +54,7 @@ export default {
     tableHeaders () {
       let output = [{
         text: 'Team',
-        align: 'center',
+        align: 'left',
         value: 'team'
       }]
       const assignedStations = this.assignedStations

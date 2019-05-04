@@ -95,6 +95,13 @@ class FakeProxy {
     })
     return output
   }
+
+  setRouteColor (routeName, newColor) {
+    let output = new Promise((resolve, reject) => {
+      resolve(newColor)
+    })
+    return output
+  }
 }
 
 class Proxy extends FakeProxy {
@@ -617,6 +624,19 @@ class Proxy extends FakeProxy {
       axios.put(this.baseUrl + '/team/' + teamName, newData)
         .then(response => {
           resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  setRouteColor (routeName, newColor) {
+    let output = new Promise((resolve, reject) => {
+      axios.put(`${this.baseUrl}/route/${routeName}/color`, {color: newColor})
+        .then(response => {
+          resolve(response.data.color)
         })
         .catch(e => {
           reject(e)

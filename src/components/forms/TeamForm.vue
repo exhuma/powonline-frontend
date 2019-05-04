@@ -60,24 +60,25 @@
                   label='Total number of vegetarians' />
               </v-flex>
             </v-layout>
-            <v-layout row wrap justify-space-between>
-              <v-flex xs12 sm6>
-                <h2>Planned Start Time</h2>
-                <v-time-picker
-                  v-model="plannedStartTime"
-                  hint="The time the team was scheduled to start"
-                  format="24hr"
-                  label='Planned Start Time' />
-              </v-flex>
-              <v-flex xs12 sm6>
-                <h2>Effective Start Time</h2>
-                <v-time-picker
-                  v-model="effectiveStartTime"
-                  hint="The time the team <em>actually</em> started"
-                  format="24hr"
-                  label='Effective Start Time' />
-              </v-flex>
-            </v-layout>
+
+            <date-time-picker
+              @timeValueChanged="updatePlannedTime"
+              :time-value="this.team.planned_start_time"
+              hine="The time the team was scheduled to start"
+              label="Planned Start Time"/>
+
+            <date-time-picker
+              @timeValueChanged="updateEffectiveTime"
+              :time-value="this.team.effective_start_time"
+              hine="The time the team effectively left the departure station"
+              label="Effective Start Time"/>
+
+            <date-time-picker
+              @timeValueChanged="updateFinishTime"
+              :time-value="this.team.finish_time"
+              hine="The time the team finished the event"
+              label="Finish Time"/>
+
             <v-layout row>
               <v-flex xs12>
                 <h1>Status</h1>
@@ -149,10 +150,11 @@
 <script>
 import model from '@/model'
 import moment from 'moment'
+import DateTimePicker from '@/components/DateTimePicker'
 
 export default {
   name: 'team-form',
-
+  components: {DateTimePicker},
   props: {
     'team': {
       type: Object,
@@ -164,30 +166,45 @@ export default {
 
   data () {
     return {
-      activeTab: 'teamInfo'
+      activeTab: 'teamInfo',
+      showPlannedStartTimeDialog: false,
+      showEffectiveStartTimeDialog: false,
+      showFinishTimeDialog: false
+    }
+  },
+
+  methods: {
+    updatePlannedTime (newValue) {
+      this.team.planned_start_time = newValue
+    },
+    updateEffectiveTime (newValue) {
+      this.team.effective_start_time = newValue
+    },
+    updateFinishTime (newValue) {
+      this.team.finish_time = newValue
     }
   },
 
   computed: {
-    plannedStartTime: {
+    finishTime: {
       get: function () {
         let output = null
-        if (this.team.planned_start_time) {
-          output = moment(this.team.planned_start_time)
+        if (this.team.finish_time) {
+          output = moment(this.team.finish_time)
         } else {
           output = moment('2019-10-05T19:00')
         }
         return output.format('HH:mm')
       },
       set: function (newValue) {
-        let old = moment(this.team.planned_start_time)
+        let old = moment(this.team.finish_time)
         if (!old.isValid()) {
-          console.debug('Old for planned start time invalid. Using default')
+          console.debug('Old for finish time invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
         let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
-          this.team.planned_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
+          this.team.finish_time = nw.format('YYYY-MM-DDTHH:mm:00')
         } else {
           console.error({'Cannot set date value to': nw})
         }
