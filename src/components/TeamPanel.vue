@@ -13,8 +13,8 @@
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
+      <v-btn @click="save">Save</v-btn>
     </div>
-    <v-btn @click="save">Save</v-btn>
   </center-col>
 </template>
 
