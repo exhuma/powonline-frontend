@@ -28,6 +28,14 @@
         :team='selectedTeam'
         />
     </popup-dialog>
+    <v-text-field
+      v-model="teamFilter"
+      append-icon="search"
+      clearable
+      label="Filter"
+      @click:clear="onFilterCleared"
+      hint="Filter list of teams by name and/or contact"
+      ></v-text-field>
     <expandable-card
       :team="team"
       :expanded="team.name === selectedTeam"
@@ -56,10 +64,14 @@ export default {
       sendMode: model.SEND_MODE.CREATE,
       errorDialog: false,
       errorText: '',
-      SEND_MODE: model.SEND_MODE
+      SEND_MODE: model.SEND_MODE,
+      teamFilter: ''
     }
   },
   methods: {
+    onFilterCleared (e) {
+      this.teamFilter = ''
+    },
     onTeamSelected (team) {
       this.selectedTeam = team
     },
@@ -122,7 +134,17 @@ export default {
 
   computed: {
     teams () {
-      return this.$store.state.teams
+      let all = this.$store.state.teams
+      if (!this.teamFilter || this.teamFilter.length < 3) {
+        return all
+      }
+      let filtered = all.filter((item) => {
+        let fltr = this.teamFilter.toLowerCase()
+        let nameMatches = item.name.toLowerCase().includes(fltr)
+        let contactMatches = item.contact.toLowerCase().includes(fltr)
+        return nameMatches || contactMatches
+      })
+      return filtered
     }
   }
 }
