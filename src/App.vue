@@ -43,10 +43,12 @@
                   </v-tabs-bar>
                   <v-tabs-items>
                     <v-tabs-content key="socialLogin" id="socialLogin">
-                      <v-divider></v-divider>
-                      <v-btn @click="login('google')">Google</v-btn>
-                      <v-btn @click="login('facebook')">Facebook</v-btn>
-                      <v-divider></v-divider>
+                      <v-btn class="mt-5 mb-5" @click="login('google')">Google</v-btn>
+                      <v-btn class="mt-5 mb-5" @click="login('facebook')">Facebook</v-btn>
+                      <v-card-actions>
+                        <v-spacer />
+                        <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
+                      </v-card-actions>
                     </v-tabs-content>
                     <v-tabs-content key="localLogin" id="localLogin">
                       <v-text-field
@@ -60,7 +62,6 @@
                         type='password'
                         v-model='password'
                         label='Password' />
-                      <v-divider></v-divider>
                       <v-card-actions>
                         <v-spacer />
                         <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
