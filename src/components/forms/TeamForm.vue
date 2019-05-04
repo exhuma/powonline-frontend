@@ -125,6 +125,38 @@
               </v-flex>
             </v-layout>
 
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-dialog
+                  persistent
+                  v-model="showFinishTimeDialog"
+                  lazy
+                  full-width
+                  width="290px">
+                  <v-text-field
+                    label="Finish Time"
+                    v-model="finishTime"
+                    prepend-icon="event"
+                    readonly
+                    slot="activator">
+                  </v-text-field>
+                  <v-time-picker
+                    v-model="finishTime"
+                    hint="The time the team has finished the event"
+                    format="24hr"
+                    label='Finish Time'>
+                      <template slot-scope="{ save, cancel }">
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn flat @click="cancel">Cancel</v-btn>
+                          <v-btn @click="save">OK</v-btn>
+                        </v-card-actions>
+                      </template>
+                  </v-time-picker>
+                </v-dialog>
+              </v-flex>
+            </v-layout>
+
             <v-layout row>
               <v-flex xs12>
                 <h1>Status</h1>
@@ -235,6 +267,30 @@ export default {
         let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
           this.team.planned_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
+        } else {
+          console.error({'Cannot set date value to': nw})
+        }
+      }
+    },
+    finishTime: {
+      get: function () {
+        let output = null
+        if (this.team.finish_time) {
+          output = moment(this.team.finish_time)
+        } else {
+          output = moment('2019-10-05T19:00')
+        }
+        return output.format('HH:mm')
+      },
+      set: function (newValue) {
+        let old = moment(this.team.finish_time)
+        if (!old.isValid()) {
+          console.debug('Old for finish time invalid. Using default')
+          old = moment('2019-10-05T19:00')
+        }
+        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        if (nw.isValid()) {
+          this.team.finish_time = nw.format('YYYY-MM-DDTHH:mm:00')
         } else {
           console.error({'Cannot set date value to': nw})
         }
