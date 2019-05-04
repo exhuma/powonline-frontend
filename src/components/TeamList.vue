@@ -82,6 +82,14 @@
           </v-list-tile-action>
         </v-list-tile>
 
+        <v-list-tile v-if="hasRole('admin')" :key="item.data.name + 'info'" no-action>
+          <v-list-tile-content>
+            <v-list-tile-content>
+              <v-btn :to="`/team/${item.data.name}`">Open Team Panel</v-btn>
+            </v-list-tile-content>
+          </v-list-tile-content>
+        </v-list-tile>
+
       </v-list-group>
     </v-list>
 

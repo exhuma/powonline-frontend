@@ -7,12 +7,17 @@ import GlobalDashboard from '@/components/GlobalDashboard'
 import StationList from '@/components/StationList'
 import TeamList from '@/components/TeamList'
 import UserList from '@/components/UserList'
+import TeamPanel from '@/components/TeamPanel'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   routes: [
+    {
+      path: '/team/:teamName',
+      component: TeamPanel
+    },
     {
       path: '/matrix',
       component: GlobalDashboard
