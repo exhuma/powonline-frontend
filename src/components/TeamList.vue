@@ -205,7 +205,7 @@ export default {
       const output = []
       filtered.forEach((item) => {
         output.push({
-          active: true,
+          active: false,
           data: item
         })
       })
