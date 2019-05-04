@@ -5,6 +5,12 @@
         <v-spacer />
         <small>{{st_display}}</small>
         <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
+        <v-btn icon v-if="team.phone">
+          <a :href="`tel://${team.phone}`"><v-icon>phone</v-icon></a>
+        </v-btn>
+        <v-btn icon disabled v-if="!team.phone">
+          <v-icon>phone</v-icon>
+        </v-btn>
         <v-btn icon v-if="!expanded__" @click="showInfos(team)"><v-icon>expand_more</v-icon></v-btn>
         <v-btn icon v-else @click="hideInfos()"><v-icon>expand_less</v-icon></v-btn>
       </v-toolbar>
