@@ -100,8 +100,10 @@ export default {
       }
       let filtered = all.filter((item) => {
         let fltr = this.teamFilter.toLowerCase()
+        let teamData = this.$store.getters.findTeam(item.team)
+        let contactMatches = teamData.contact.toLowerCase().includes(fltr)
         let nameMatches = item.team.toLowerCase().includes(fltr)
-        return nameMatches
+        return nameMatches || contactMatches
       })
       return filtered
     },
