@@ -61,101 +61,23 @@
               </v-flex>
             </v-layout>
 
-            <v-layout row wrap>
-              <v-flex xs12>
-                <v-dialog
-                  persistent
-                  v-model="showPlannedStartTimeDialog"
-                  lazy
-                  full-width
-                  width="290px">
-                  <v-text-field
-                    label="Planned Start Time"
-                    v-model="plannedStartTime"
-                    prepend-icon="event"
-                    readonly
-                    slot="activator">
-                  </v-text-field>
-                  <v-time-picker
-                    v-model="plannedStartTime"
-                    hint="The time the team was scheduled to start"
-                    format="24hr"
-                    label='Planned Start Time'>
-                      <template slot-scope="{ save, cancel }">
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn flat @click="cancel">Cancel</v-btn>
-                          <v-btn @click="save">OK</v-btn>
-                        </v-card-actions>
-                      </template>
-                  </v-time-picker>
-                </v-dialog>
-              </v-flex>
-            </v-layout>
+            <date-time-picker
+              @timeValueChanged="updatePlannedTime"
+              :time-value="this.team.planned_start_time"
+              hine="The time the team was scheduled to start"
+              label="Planned Start Time"/>
 
-            <v-layout row wrap>
-              <v-flex xs12>
-                <v-dialog
-                  persistent
-                  v-model="showEffectiveStartTimeDialog"
-                  lazy
-                  full-width
-                  width="290px">
-                  <v-text-field
-                    label="Effective Start Time"
-                    v-model="effectiveStartTime"
-                    prepend-icon="event"
-                    readonly
-                    slot="activator">
-                  </v-text-field>
-                  <v-time-picker
-                    v-model="effectiveStartTime"
-                    hint="The time the team was scheduled to start"
-                    format="24hr"
-                    label='Effective Start Time'>
-                      <template slot-scope="{ save, cancel }">
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn flat @click="cancel">Cancel</v-btn>
-                          <v-btn @click="save">OK</v-btn>
-                        </v-card-actions>
-                      </template>
-                  </v-time-picker>
-                </v-dialog>
-              </v-flex>
-            </v-layout>
+            <date-time-picker
+              @timeValueChanged="updateEffectiveTime"
+              :time-value="this.team.effective_start_time"
+              hine="The time the team effectively left the departure station"
+              label="Effective Start Time"/>
 
-            <v-layout row wrap>
-              <v-flex xs12>
-                <v-dialog
-                  persistent
-                  v-model="showFinishTimeDialog"
-                  lazy
-                  full-width
-                  width="290px">
-                  <v-text-field
-                    label="Finish Time"
-                    v-model="finishTime"
-                    prepend-icon="event"
-                    readonly
-                    slot="activator">
-                  </v-text-field>
-                  <v-time-picker
-                    v-model="finishTime"
-                    hint="The time the team has finished the event"
-                    format="24hr"
-                    label='Finish Time'>
-                      <template slot-scope="{ save, cancel }">
-                        <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn flat @click="cancel">Cancel</v-btn>
-                          <v-btn @click="save">OK</v-btn>
-                        </v-card-actions>
-                      </template>
-                  </v-time-picker>
-                </v-dialog>
-              </v-flex>
-            </v-layout>
+            <date-time-picker
+              @timeValueChanged="updateFinishTime"
+              :time-value="this.team.finish_time"
+              hine="The time the team finished the event"
+              label="Finish Time"/>
 
             <v-layout row>
               <v-flex xs12>
@@ -228,10 +150,11 @@
 <script>
 import model from '@/model'
 import moment from 'moment'
+import DateTimePicker from '@/components/DateTimePicker'
 
 export default {
   name: 'team-form',
-
+  components: {DateTimePicker},
   props: {
     'team': {
       type: Object,
@@ -250,31 +173,19 @@ export default {
     }
   },
 
-  computed: {
-    plannedStartTime: {
-      get: function () {
-        let output = null
-        if (this.team.planned_start_time) {
-          output = moment(this.team.planned_start_time)
-        } else {
-          output = moment('2019-10-05T19:00')
-        }
-        return output.format('HH:mm')
-      },
-      set: function (newValue) {
-        let old = moment(this.team.planned_start_time)
-        if (!old.isValid()) {
-          console.debug('Old for planned start time invalid. Using default')
-          old = moment('2019-10-05T19:00')
-        }
-        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
-        if (nw.isValid()) {
-          this.team.planned_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
-        } else {
-          console.error({'Cannot set date value to': nw})
-        }
-      }
+  methods: {
+    updatePlannedTime (newValue) {
+      this.team.planned_start_time = newValue
     },
+    updateEffectiveTime (newValue) {
+      this.team.effective_start_time = newValue
+    },
+    updateFinishTime (newValue) {
+      this.team.finish_time = newValue
+    }
+  },
+
+  computed: {
     finishTime: {
       get: function () {
         let output = null
