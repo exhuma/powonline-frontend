@@ -52,7 +52,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="item.data.contact" :key="item.data.name + 'contact'">
+        <v-list-tile v-if="hasRole('admin') && item.data.contact" :key="item.data.name + 'contact'">
           <v-list-tile-content>
             <v-list-tile-title>{{item.data.contact}}</v-list-tile-title>
             <v-list-tile-sub-title>Contact</v-list-tile-sub-title>
@@ -62,7 +62,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="item.data.phone" :key="item.data.name + 'phone'">
+        <v-list-tile v-if="hasRole('admin') && item.data.phone" :key="item.data.name + 'phone'">
           <v-list-tile-content>
             <v-list-tile-title>
               <a class="yellow--text" :href="`tel:${item.data.phone}`">{{item.data.phone}}</a>
@@ -75,7 +75,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="item.data.email" :key="item.data.name + 'email'">
+        <v-list-tile v-if="hasRole('admin') && item.data.email" :key="item.data.name + 'email'">
           <v-list-tile-content>
             <v-list-tile-title>
               <a class="yellow--text" :href="`mailto:${item.data.email}`">{{item.data.email}}</a>
