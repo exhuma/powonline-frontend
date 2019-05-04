@@ -1,6 +1,15 @@
 <template>
   <center-col id="Dashboard">
 
+    <v-text-field
+      v-model="teamFilter"
+      append-icon="search"
+      clearable
+      label="Filter"
+      @click:clear="onFilterCleared"
+      hint="Filter list of teams by name and/or contact"
+      ></v-text-field>
+
     <v-tabs
       v-model="activeTab">
 
@@ -61,7 +70,8 @@ export default {
       activeTab: 'pending',
       snackbar: false,
       snacktext: '',
-      snackColor: 'success'
+      snackColor: 'success',
+      teamFilter: ''
     }
   },
   computed: {
@@ -80,6 +90,21 @@ export default {
     this.$store.dispatch('fetchQuestionnaireScores')
   },
   methods: {
+    onFilterCleared (e) {
+      this.teamFilter = ''
+    },
+    filteredTeams: function (teams) {
+      let all = teams
+      if (!this.teamFilter || this.teamFilter.length < 3) {
+        return all
+      }
+      let filtered = all.filter((item) => {
+        let fltr = this.teamFilter.toLowerCase()
+        let nameMatches = item.team.toLowerCase().includes(fltr)
+        return nameMatches
+      })
+      return filtered
+    },
     limitedStates: function (state) {
       const output = []
       this.$store.state.global_dashboard.forEach(teamInfo => {
@@ -102,7 +127,8 @@ export default {
           })
         })
       })
-      return output
+      let filtered = this.filteredTeams(output)
+      return filtered
     },
     onStateAdvanced: function (state) {
       this.$store.dispatch('advanceState', {
