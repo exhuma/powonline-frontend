@@ -243,7 +243,10 @@ export default {
 
   data () {
     return {
-      activeTab: 'teamInfo'
+      activeTab: 'teamInfo',
+      showPlannedStartTimeDialog: false,
+      showEffectiveStartTimeDialog: false,
+      showFinishTimeDialog: false
     }
   },
 
