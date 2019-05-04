@@ -1,8 +1,9 @@
 <template>
     <v-card class="card--flex-toolbar">
       <v-toolbar card>
-        <v-toolbar-title>{{st_display}} - {{ team.name }}</v-toolbar-title>
+        <v-toolbar-title>{{ team.name }}</v-toolbar-title>
         <v-spacer />
+        <small>{{st_display}}</small>
         <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
         <confirmation-dialog
           v-if="hasRole('admin')"
