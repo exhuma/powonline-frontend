@@ -26,12 +26,11 @@
           <optional-team-row tooltip="Vegetarians" :value="team.num_vegetarians" icon="local_florist" />
 
           <template v-if="team.comments">
-            <v-divider class="mt-4 mb-2"/>
             <v-layout row>
               <v-flex xs12><h1>Notes</h1></v-flex>
             </v-layout>
             <v-layout row class="text-xs-left">
-              <v-flex xs12>{{ team.comments }}</v-flex>
+              <v-flex xs12><div class="textblock">{{ team.comments }}</div></v-flex>
             </v-layout>
           </template>
 
@@ -130,3 +129,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+DIV.textblock {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1em 2em;
+  background: rgba(255, 255, 255, 0.1);
+  font-style: italic;
+}
+</style>
