@@ -145,6 +145,21 @@ export default {
     },
     onDialogConfirmed () {
       const team = this.selectedTeam
+      if (!team.route_name) {
+        this.$emit('snackRequested', {
+          message: 'You must select a route!',
+          color: 'red'
+        })
+        return false
+      }
+
+      if (!team.name) {
+        this.$emit('snackRequested', {
+          message: 'The team must have a name!',
+          color: 'red'
+        })
+        return false
+      }
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
         this.$remoteProxy.addTeam(team)
