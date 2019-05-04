@@ -64,21 +64,27 @@
 
         <v-list-tile v-if="item.data.phone" :key="item.data.name + 'phone'">
           <v-list-tile-content>
-            <v-list-tile-title>{{item.data.phone}}</v-list-tile-title>
+            <v-list-tile-title>
+              <a class="yellow--text" :href="`tel:${item.data.phone}`">{{item.data.phone}}</a>
+            </v-list-tile-title>
             <v-list-tile-sub-title>Phone</v-list-tile-sub-title>
           </v-list-tile-content>
           <v-list-tile-action>
-            <v-btn icon><a :href="`tel://${item.data.phone}`"><v-icon>phone</v-icon></a></v-btn>
+            <a :href="`tel:${item.data.phone}`">
+              <v-btn icon flat class="yellow--text"><v-icon>phone</v-icon></v-btn></a>
           </v-list-tile-action>
         </v-list-tile>
 
         <v-list-tile v-if="item.data.email" :key="item.data.name + 'email'">
           <v-list-tile-content>
-            <v-list-tile-title>{{item.data.email}}</v-list-tile-title>
+            <v-list-tile-title>
+              <a class="yellow--text" :href="`mailto:${item.data.email}`">{{item.data.email}}</a>
+            </v-list-tile-title>
             <v-list-tile-sub-title>e-mail</v-list-tile-sub-title>
           </v-list-tile-content>
           <v-list-tile-action>
-            <v-btn icon><a :href="`mailto:${item.data.email}`"><v-icon>email</v-icon></a></v-btn>
+            <a :href="`mailto:${item.data.email}`">
+              <v-btn icon flat class="yellow--text"><v-icon>email</v-icon></v-btn></a>
           </v-list-tile-action>
         </v-list-tile>
 
