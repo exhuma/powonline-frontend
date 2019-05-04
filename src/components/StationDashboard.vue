@@ -10,7 +10,7 @@
       hint="Filter list of teams by name and/or contact"
       ></v-text-field>
 
-    <v-tabs
+    <v-tabs grow
       v-model="activeTab">
 
       <v-tabs-bar>
