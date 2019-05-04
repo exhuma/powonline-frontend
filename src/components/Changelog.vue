@@ -10,6 +10,8 @@
             is used to automatically set the "finish time" of a team</li>
         <li>Allow admins to change the route color</li>
         <li>Allow admins to change the finish time of a team</li>
+        <li>Add date-picker for team times. <small>This ensures the date is
+            correct if a team arrives after midnight</small></li>
       </ul>
       <h2>Quality-of-Life improvments</h2>
       <ul>
