@@ -42,6 +42,11 @@ export default {
     },
     save () {
       this.$remoteProxy.updateTeam(this.$route.params.teamName, this.team)
+        .then((data) => {
+          this.$emit('snackRequested', {
+            message: 'Save successful'
+          })
+        })
         .catch(error => {
           this.errorDialog = true
           this.errorText = error.response.data

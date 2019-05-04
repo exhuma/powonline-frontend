@@ -150,6 +150,9 @@ export default {
         this.$remoteProxy.addTeam(team)
           .then(team => {
             this.$store.commit('addTeam', team)
+            this.$emit('snackRequested', {
+              message: 'Save successful'
+            })
           })
           .catch(error => {
             this.errorDialog = true
@@ -158,6 +161,11 @@ export default {
           })
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
         this.$remoteProxy.updateTeam(team.name, team)
+          .then(team => {
+            this.$emit('snackRequested', {
+              message: 'Save successful'
+            })
+          })
           .catch(error => {
             this.errorDialog = true
             this.errorText = error.response.data

@@ -74,7 +74,7 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <router-view></router-view>
+          <router-view @snackRequested="onSnackRequested"></router-view>
         </v-container>
         <v-bottom-nav
           app
@@ -116,6 +116,11 @@ export default {
     }
   },
   methods: {
+    onSnackRequested (data) {
+      this.globalSnack = true
+      this.globalSnackText = data.message
+      this.globalSnackColor = data.color || 'green'
+    },
     toggleSideMenu () {
       this.sideMenuVisible = !this.sideMenuVisible
     },
