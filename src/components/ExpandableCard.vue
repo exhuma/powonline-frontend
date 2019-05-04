@@ -5,18 +5,6 @@
         <v-spacer />
         <small>{{st_display}}</small>
         <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
-        <confirmation-dialog
-          v-if="hasRole('admin')"
-          buttonText="Delete"
-          :actionArgument="team.name"
-          actionName="deleteTeamRemote">
-          <span slot="title">Do you want to delete the team "{{ team.name }}"?</span>
-          <div slot="text">
-            <p>this will delete the team with the name "{{ team.name }}" and all
-              related information!</p>
-            <p>Are you sure?</p>
-          </div>
-        </confirmation-dialog>
         <v-btn icon v-if="!expanded__" @click="showInfos(team)"><v-icon>expand_more</v-icon></v-btn>
         <v-btn icon v-else @click="hideInfos()"><v-icon>expand_less</v-icon></v-btn>
       </v-toolbar>
@@ -46,6 +34,19 @@
               <v-flex xs12>{{ team.comments }}</v-flex>
             </v-layout>
           </template>
+
+          <confirmation-dialog
+            v-if="hasRole('admin')"
+            buttonText="Delete Team"
+            :actionArgument="team.name"
+            actionName="deleteTeamRemote">
+            <span slot="title">Do you want to delete the team "{{ team.name }}"?</span>
+            <div slot="text">
+              <p>this will delete the team with the name "{{ team.name }}" and all
+                related information!</p>
+              <p>Are you sure?</p>
+            </div>
+          </confirmation-dialog>
 
         <!--  TODO
         is_confirmed: false,
