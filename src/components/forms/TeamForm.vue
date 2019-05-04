@@ -60,24 +60,71 @@
                   label='Total number of vegetarians' />
               </v-flex>
             </v-layout>
-            <v-layout row wrap justify-space-between>
-              <v-flex xs12 sm6>
-                <h2>Planned Start Time</h2>
-                <v-time-picker
-                  v-model="plannedStartTime"
-                  hint="The time the team was scheduled to start"
-                  format="24hr"
-                  label='Planned Start Time' />
-              </v-flex>
-              <v-flex xs12 sm6>
-                <h2>Effective Start Time</h2>
-                <v-time-picker
-                  v-model="effectiveStartTime"
-                  hint="The time the team <em>actually</em> started"
-                  format="24hr"
-                  label='Effective Start Time' />
+
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-dialog
+                  persistent
+                  v-model="showPlannedStartTimeDialog"
+                  lazy
+                  full-width
+                  width="290px">
+                  <v-text-field
+                    label="Planned Start Time"
+                    v-model="plannedStartTime"
+                    prepend-icon="event"
+                    readonly
+                    slot="activator">
+                  </v-text-field>
+                  <v-time-picker
+                    v-model="plannedStartTime"
+                    hint="The time the team was scheduled to start"
+                    format="24hr"
+                    label='Planned Start Time'>
+                      <template slot-scope="{ save, cancel }">
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn flat @click="cancel">Cancel</v-btn>
+                          <v-btn @click="save">OK</v-btn>
+                        </v-card-actions>
+                      </template>
+                  </v-time-picker>
+                </v-dialog>
               </v-flex>
             </v-layout>
+
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-dialog
+                  persistent
+                  v-model="showEffectiveStartTimeDialog"
+                  lazy
+                  full-width
+                  width="290px">
+                  <v-text-field
+                    label="Effective Start Time"
+                    v-model="effectiveStartTime"
+                    prepend-icon="event"
+                    readonly
+                    slot="activator">
+                  </v-text-field>
+                  <v-time-picker
+                    v-model="effectiveStartTime"
+                    hint="The time the team was scheduled to start"
+                    format="24hr"
+                    label='Effective Start Time'>
+                      <template slot-scope="{ save, cancel }">
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn flat @click="cancel">Cancel</v-btn>
+                          <v-btn @click="save">OK</v-btn>
+                        </v-card-actions>
+                      </template>
+                  </v-time-picker>
+                </v-dialog>
+              </v-flex>
+            </v-layout>
+
             <v-layout row>
               <v-flex xs12>
                 <h1>Status</h1>
