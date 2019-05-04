@@ -20,6 +20,15 @@
       <v-list-tile-title>{{ route.name }}</v-list-tile-title>
     </v-list-tile-content>
     <v-list-tile-action v-if="hasRole('admin')">
+      <swatches
+        @input="setRouteColor"
+        colors="text-advanced"
+        v-model="route.color"
+        popover-to="left"
+        shapes="circles"
+        swatch-size="30"/>
+    </v-list-tile-action>
+    <v-list-tile-action v-if="hasRole('admin')">
       <v-btn class="mr-2" icon @click="dialogVisible = true"><v-icon>extension</v-icon></v-btn>
     </v-list-tile-action>
     <v-list-tile-action v-if="hasRole('admin')">
@@ -37,8 +46,11 @@
 </template>
 
 <script>
+import Swatches from 'vue-swatches'
+import 'vue-swatches/dist/vue-swatches.min.css'
 export default {
   name: 'route-block',
+  components: {Swatches},
   props: {
     'route': {
       type: Object,
@@ -60,6 +72,14 @@ export default {
     }
   },
   methods: {
+    setRouteColor: function (newColor) {
+      this.$remoteProxy.setRouteColor(this.route.name, newColor)
+        .then(() => {
+          console.log('Color changed') // XXX snack
+        }).catch((e) => {
+          console.lerror(e) // XXX snack
+        })
+    },
     dismissDialog: function () {
       this.dialogVisible = false
     },

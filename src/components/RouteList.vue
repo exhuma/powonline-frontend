@@ -18,7 +18,9 @@
       <v-layout row class="text-xs-left" style="min-height: 30em">
         <v-flex xs3>Color</v-flex>
         <v-flex xs9>
-          <swatches colors="material-dark" v-model="selectedRoute.color" />
+          <swatches colors="text-advanced" v-model="selectedRoute.color"
+            shapes="circles"
+            swatch-size="30"/>
         </v-flex>
       </v-layout>
     </popup-dialog>
