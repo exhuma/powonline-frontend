@@ -9,6 +9,7 @@
         <li>Stations can now also be flagged for "arrival" station. This flag
             is used to automatically set the "finish time" of a team</li>
         <li>Allow admins to change the route color</li>
+        <li>Allow admins to change the finish time of a team</li>
       </ul>
       <h2>Quality-of-Life improvments</h2>
       <ul>
