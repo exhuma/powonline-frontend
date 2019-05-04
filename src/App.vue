@@ -186,6 +186,7 @@ export default {
         output.push({ label: 'Routes', to: '/route', icon: 'gesture' })
         output.push({ label: 'Users', to: '/user', icon: 'face' })
       }
+      output.push({ label: 'Changelog', to: '/changelog', icon: 'info' })
       return output
     },
     pageTitle () {
