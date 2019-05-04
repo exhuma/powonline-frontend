@@ -76,7 +76,11 @@
           </v-dialog>
           <router-view></router-view>
         </v-container>
-        <v-bottom-nav transition="slide-y-transition" class="hidden-xs-only" :value="isBottomNavVisible">
+        <v-bottom-nav
+          app
+          transition="slide-y-transition"
+          class="hidden-xs-only"
+          :value="isBottomNavVisible">
           <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat :value="here === route.to">
             <span>{{ route.label }}</span>
             <v-icon>{{route.icon}}</v-icon>
