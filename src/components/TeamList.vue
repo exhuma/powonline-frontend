@@ -36,13 +36,55 @@
       @click:clear="onFilterCleared"
       hint="Filter list of teams by name and/or contact"
       ></v-text-field>
-    <expandable-card
-      :team="team"
-      :expanded="team.name === selectedTeam"
-      @team-selected="onTeamSelected"
-      @openEditDialog="onOpenEditDialog(team)"
-      v-for="team in teams"
-      :key="team.name" />
+    <v-list>
+      <v-list-group
+        :key="item.title"
+        :value="item.active"
+        v-for="item in listItems"
+        no-action>
+
+        <v-list-tile slot="item" no-action>
+          <v-list-tile-content>
+            <v-list-tile-title>{{ item.data.name }}</v-list-tile-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-icon>keyboard_arrow_down</v-icon>
+          </v-list-tile-action>
+        </v-list-tile>
+
+        <v-list-tile v-if="item.data.contact" :key="item.data.name + 'contact'">
+          <v-list-tile-content>
+            <v-list-tile-title>{{item.data.contact}}</v-list-tile-title>
+            <v-list-tile-sub-title>Contact</v-list-tile-sub-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-icon>face</v-icon>
+          </v-list-tile-action>
+        </v-list-tile>
+
+        <v-list-tile v-if="item.data.phone" :key="item.data.name + 'phone'">
+          <v-list-tile-content>
+            <v-list-tile-title>{{item.data.phone}}</v-list-tile-title>
+            <v-list-tile-sub-title>Phone</v-list-tile-sub-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-btn icon><a :href="`tel://${item.data.phone}`"><v-icon>phone</v-icon></a></v-btn>
+          </v-list-tile-action>
+        </v-list-tile>
+
+        <v-list-tile v-if="item.data.email" :key="item.data.name + 'email'">
+          <v-list-tile-content>
+            <v-list-tile-title>{{item.data.email}}</v-list-tile-title>
+            <v-list-tile-sub-title>e-mail</v-list-tile-sub-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-btn icon><a :href="`mailto:${item.data.email}`"><v-icon>email</v-icon></a></v-btn>
+          </v-list-tile-action>
+        </v-list-tile>
+
+      </v-list-group>
+    </v-list>
+
     <v-list-tile v-if="hasRole('admin')"> <!-- TODO: should not use v-list-tile here -->
       <v-spacer />
       <v-list-tile-action>
@@ -133,6 +175,28 @@ export default {
   },
 
   computed: {
+    listItems () {
+      let all = this.$store.state.teams
+      let filtered = null
+      if (!this.teamFilter || this.teamFilter.length < 3) {
+        filtered = all
+      } else {
+        filtered = all.filter((item) => {
+          let fltr = this.teamFilter.toLowerCase()
+          let nameMatches = item.name.toLowerCase().includes(fltr)
+          let contactMatches = item.contact.toLowerCase().includes(fltr)
+          return nameMatches || contactMatches
+        })
+      }
+      const output = []
+      filtered.forEach((item) => {
+        output.push({
+          active: true,
+          data: item
+        })
+      })
+      return output
+    },
     teams () {
       let all = this.$store.state.teams
       if (!this.teamFilter || this.teamFilter.length < 3) {
