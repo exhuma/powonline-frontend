@@ -13,8 +13,8 @@
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
+      <v-btn @click="save">Save</v-btn>
     </div>
-    <v-btn @click="save">Save</v-btn>
   </center-col>
 </template>
 
@@ -42,6 +42,11 @@ export default {
     },
     save () {
       this.$remoteProxy.updateTeam(this.$route.params.teamName, this.team)
+        .then((data) => {
+          this.$emit('snackRequested', {
+            message: 'Save successful'
+          })
+        })
         .catch(error => {
           this.errorDialog = true
           this.errorText = error.response.data

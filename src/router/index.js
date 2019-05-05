@@ -9,12 +9,17 @@ import TeamList from '@/components/TeamList'
 import UserList from '@/components/UserList'
 import TeamPanel from '@/components/TeamPanel'
 import Changelog from '@/components/Changelog'
+import Uploads from '@/components/Uploads'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   routes: [
+    {
+      path: '/uploads',
+      component: Uploads
+    },
     {
       path: '/changelog',
       component: Changelog

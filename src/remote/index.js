@@ -644,6 +644,52 @@ class Proxy extends FakeProxy {
     })
     return output
   }
+
+  sendUpload (file) {
+    let output = new Promise((resolve, reject) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      axios.post(`${this.baseUrl}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          console.debug(response)
+          resolve({})
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  deleteFile (uuid) {
+    let output = new Promise((resolve, reject) => {
+      axios.delete(`${this.baseUrl}/upload/${uuid}`)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  fetchUploads () {
+    let output = new Promise((resolve, reject) => {
+      axios.get(`${this.baseUrl}/upload`)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
 }
 
 export default function makeRemoteProxy (fake, backendUrl) {

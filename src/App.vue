@@ -74,9 +74,13 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <router-view></router-view>
+          <router-view @snackRequested="onSnackRequested"></router-view>
         </v-container>
-        <v-bottom-nav transition="slide-y-transition" class="hidden-xs-only" :value="isBottomNavVisible">
+        <v-bottom-nav
+          app
+          transition="slide-y-transition"
+          class="hidden-xs-only"
+          :value="isBottomNavVisible">
           <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat :value="here === route.to">
             <span>{{ route.label }}</span>
             <v-icon>{{route.icon}}</v-icon>
@@ -108,10 +112,15 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.2'
+      version: '2019.05.3'
     }
   },
   methods: {
+    onSnackRequested (data) {
+      this.globalSnack = true
+      this.globalSnackText = data.message
+      this.globalSnackColor = data.color || 'green'
+    },
     toggleSideMenu () {
       this.sideMenuVisible = !this.sideMenuVisible
     },
@@ -181,6 +190,9 @@ export default {
         { label: 'Stations', to: '/station', icon: 'place' },
         { label: 'Teams', to: '/team', icon: 'group' }
       ]
+      if (this.tokenIsAvailable) {
+        output.push({ label: 'Uploads', to: '/uploads', icon: 'cloud_upload' })
+      }
       const roles = this.$store.state.roles
       if (roles && roles.indexOf('admin') > -1) {
         output.push({ label: 'Routes', to: '/route', icon: 'gesture' })

@@ -19,7 +19,8 @@ function makeStore (auth, remoteProxy) {
       roles: auth.get_roles(),
       userName: auth.get_username(),
       baseUrl: process.env.BACKEND_URL,
-      pageTitle: 'Powonline'
+      pageTitle: 'Powonline',
+      uploads: {}
     },
     mutations: {
       /**
@@ -453,10 +454,27 @@ function makeStore (auth, remoteProxy) {
         const teamScores = state.questionnaireScores[payload.teamName] || {}
         const stationScores = teamScores[payload.stationName] || {}
         stationScores.score = payload.score
+      },
+
+      replaceUploads (state, data) {
+        state.uploads = data
       }
 
     },
     actions: {
+      refreshUploads (context) {
+        remoteProxy.fetchUploads()
+          .then((data) => {
+            context.commit('replaceUploads', data)
+          })
+          .catch((e) => {
+            this.$emit('snackRequested', {
+              message: `Unable to fetch file list (${e.response.data})`,
+              color: 'red'
+            })
+          })
+      },
+
       setStationScore (context, payload) {
         remoteProxy.setStationScore(
           payload.stationName, payload.teamName, payload.score)
