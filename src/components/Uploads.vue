@@ -6,23 +6,31 @@
       type="file"
       name="file"
       accept="image/*;capture=camera" />
-    <v-list>
-      <v-list-tile v-for="file in files" :key="file.href">
-        <v-list-tile-avatar>
-          <img :src="file.href" />
-        </v-list-tile-avatar>
-        <v-list-tile-content>
-          <v-list-tile-title>
-            <a class="yellow--text" :href="file.href">{{ file.name }}</a>
-          </v-list-tile-title>
-        </v-list-tile-content>
-        <v-list-tile-action>
-          <v-btn
-            icon
-            @click="deleteFile(file.uuid)"><v-icon>delete</v-icon></v-btn>
-        </v-list-tile-action>
-      </v-list-tile>
-    </v-list>
+    <div v-for="(idx, username) in files" :key="username">
+      <h1 v-if="username !== 'self'"
+        class="white--text">Files for {{username}}</h1>
+      <v-list>
+        <v-list-tile v-for="file in files[username]" :key="file.href">
+          <v-list-tile-avatar>
+            <img :src="file.thumbnail" />
+          </v-list-tile-avatar>
+          <v-list-tile-content>
+            <v-list-tile-title>
+              <a class="yellow--text" :href="file.href">{{ file.name }}</a>
+            </v-list-tile-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-btn
+              icon
+              @click="deleteFile(file.uuid)"><v-icon>delete</v-icon></v-btn>
+          </v-list-tile-action>
+        </v-list-tile>
+      </v-list>
+    </div>
+    <v-btn
+      @click="refreshImages"
+      dark
+      >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
     <v-btn
       @click="$refs.fileInput.click()"
       dark
