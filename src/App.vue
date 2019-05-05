@@ -190,6 +190,9 @@ export default {
         { label: 'Stations', to: '/station', icon: 'place' },
         { label: 'Teams', to: '/team', icon: 'group' }
       ]
+      if (this.tokenIsAvailable) {
+        output.push({ label: 'Uploads', to: '/uploads', icon: 'cloud_upload' })
+      }
       const roles = this.$store.state.roles
       if (roles && roles.indexOf('admin') > -1) {
         output.push({ label: 'Routes', to: '/route', icon: 'gesture' })
