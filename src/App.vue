@@ -112,7 +112,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.2'
+      version: '2019.05.3'
     }
   },
   methods: {

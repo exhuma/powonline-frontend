@@ -1,6 +1,23 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
+      <h1>v2019.05.3</h1>
+      <h2>Highlights</h2>
+      <ul>
+        <li>Some sensitive information was leaked to non-admins. This has been
+            fixed</li>
+        <li>Support for Image Uploads (uses the camera on supported mobile
+            phones)</li>
+      </ul>
+      <h2>Quality-of-Life improvments</h2>
+      <ul>
+        <li>More non-intrusive pop-ups on errors and successes</li>
+        <li>The bootom navigation panel no longer covers page content</li>
+        <li>Team list should render a bit faster now</li>
+        <li>Rudimentary validation added on team forms (should make errors more
+            understandable)</li>
+      </ul>
+
       <h1>v2019.05.2</h1>
       <h2>Highlights</h2>
       <ul>
