@@ -141,7 +141,10 @@ new Vue({
         that.$store.commit('deleteTeam', data.name)
       })
       var fileChannel = pusher.subscribe('file-events')
-      fileChannel.bind('file-downloaded', function (data) {
+      fileChannel.bind('file-added', function (data) {
+        that.$store.dispatch('refreshUploads')
+      })
+      fileChannel.bind('file-deleted', function (data) {
         that.$store.dispatch('refreshUploads')
       })
     } else {
