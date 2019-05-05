@@ -140,6 +140,10 @@ new Vue({
       channel.bind('team-deleted', function (data) {
         that.$store.commit('deleteTeam', data.name)
       })
+      var fileChannel = pusher.subscribe('file-events')
+      fileChannel.bind('file-downloaded', function (data) {
+        that.$store.dispatch('refreshUploads')
+      })
     } else {
       console.warn('Pusher key not specified. Pusher disabled!')
     }

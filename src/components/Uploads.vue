@@ -33,25 +33,16 @@
 <script>
 export default {
   created () {
-    this.refreshImages()
+    this.$store.dispatch('refreshUploads')
   },
-  data () {
-    return {
-      files: []
+  computed: {
+    files () {
+      return this.$store.state.uploads
     }
   },
   methods: {
     refreshImages () {
-      this.$remoteProxy.fetchUploads()
-        .then((data) => {
-          this.files = data
-        })
-        .catch((e) => {
-          this.$emit('snackRequested', {
-            message: `Unable to fetch file list (${e.response.data})`,
-            color: 'red'
-          })
-        })
+      this.$store.dispatch('refreshUploads')
     },
     deleteFile (uuid) {
       this.$remoteProxy.deleteFile(uuid)
