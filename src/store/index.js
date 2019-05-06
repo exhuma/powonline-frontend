@@ -490,10 +490,6 @@ function makeStore (auth, remoteProxy) {
           })
           .catch(e => {
             console.error(e)
-            this.$emit('snackRequested', {
-              'message': 'Unable to fetch images',
-              'color': 'red'
-            })
           })
       },
 
@@ -503,10 +499,7 @@ function makeStore (auth, remoteProxy) {
             context.commit('replaceUploads', data)
           })
           .catch((e) => {
-            this.$emit('snackRequested', {
-              message: `Unable to fetch file list (${e.response.data})`,
-              color: 'red'
-            })
+            console.error(e)
           })
       },
 
