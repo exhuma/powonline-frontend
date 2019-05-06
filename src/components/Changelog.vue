@@ -1,7 +1,18 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
-      <h1>v2019.05.3</h1>
+      <h1>v2019.05.3 <small>Released on 2019-05-06</small></h1>
+      <h2>Highlights</h2>
+      <ul>
+        <li>Add a photo gallery</li>
+        <li>Add a "live-image" view</li>
+      </ul>
+      <h2>Quality-of-Life improvments</h2>
+      <ul>
+        <li>Show popup during image upload process</li>
+      </ul>
+
+      <h1>v2019.05.3 <small>Released on 2019-05-05</small></h1>
       <h2>Highlights</h2>
       <ul>
         <li>Some sensitive information was leaked to non-admins. This has been
@@ -18,7 +29,7 @@
             understandable)</li>
       </ul>
 
-      <h1>v2019.05.2</h1>
+      <h1>v2019.05.2 <small>Released on 2019-05-04</small></h1>
       <h2>Highlights</h2>
       <ul>
         <li><strong>Add a "filter" text-box to team lists (both in the admin,
@@ -43,3 +54,11 @@
     </div>
   </center-col>
 </template>
+
+<style scoped>
+H1 SMALL {
+  font-size: 50%;
+  font-weight: normal;
+  font-style: italic;
+}
+</style>
