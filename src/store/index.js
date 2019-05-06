@@ -21,7 +21,8 @@ function makeStore (auth, remoteProxy) {
       baseUrl: process.env.BACKEND_URL,
       pageTitle: 'Powonline',
       uploads: {},
-      gallery: []
+      gallery: [],
+      liveImageQueue: []
     },
     mutations: {
 
@@ -464,6 +465,14 @@ function makeStore (auth, remoteProxy) {
 
       replaceGallery (state, data) {
         state.gallery = data
+      },
+
+      addImageToLiveQueue (state, image) {
+        state.liveImageQueue.push(image)
+      },
+
+      consumeImage (state) {
+        state.liveImageQueue.splice(0, 1)
       }
 
     },

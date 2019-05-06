@@ -144,6 +144,7 @@ new Vue({
       var fileChannel = pusher.subscribe(process.env.PUSHER_FILE_CHANNEL)
       fileChannel.bind('file-added', function (data) {
         that.$store.dispatch('refreshUploads')
+        that.$store.commit('addImageToLiveQueue', data)
       })
       fileChannel.bind('file-deleted', function (data) {
         that.$store.dispatch('refreshUploads')
