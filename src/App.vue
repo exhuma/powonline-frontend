@@ -188,7 +188,8 @@ export default {
         { label: 'Dashboard', to: '/matrix', icon: 'border_all' },
         { label: 'Scoreboard', to: '/scoreboard', icon: 'format_list_numbered' },
         { label: 'Stations', to: '/station', icon: 'place' },
-        { label: 'Teams', to: '/team', icon: 'group' }
+        { label: 'Teams', to: '/team', icon: 'group' },
+        { label: 'Photos', to: '/gallery', icon: 'image' }
       ]
       if (this.tokenIsAvailable) {
         output.push({ label: 'Uploads', to: '/uploads', icon: 'cloud_upload' })

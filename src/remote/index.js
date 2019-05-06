@@ -102,6 +102,14 @@ class FakeProxy {
     })
     return output
   }
+
+  getPublicImages () {
+    let output = new Promise((resolve, reject) => {
+      let output = []
+      resolve(output)
+    })
+    return output
+  }
 }
 
 class Proxy extends FakeProxy {
@@ -681,6 +689,19 @@ class Proxy extends FakeProxy {
   fetchUploads () {
     let output = new Promise((resolve, reject) => {
       axios.get(`${this.baseUrl}/upload`)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  getPublicImages () {
+    let output = new Promise((resolve, reject) => {
+      axios.get(`${this.baseUrl}/upload?public=1`)
         .then(response => {
           resolve(response.data)
         })
