@@ -10,12 +10,22 @@ import UserList from '@/components/UserList'
 import TeamPanel from '@/components/TeamPanel'
 import Changelog from '@/components/Changelog'
 import Uploads from '@/components/Uploads'
+import Gallery from '@/components/Gallery'
+import LiveImage from '@/components/LiveImage'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   routes: [
+    {
+      path: '/live-image',
+      component: LiveImage
+    },
+    {
+      path: '/gallery',
+      component: Gallery
+    },
     {
       path: '/uploads',
       component: Uploads
