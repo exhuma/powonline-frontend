@@ -3,6 +3,7 @@
  */
 import axios from 'axios'
 import Vue from 'vue'
+import EventBus from '@/eventBus'
 
 Vue.mixin({
   beforeCreate () {
@@ -660,6 +661,15 @@ class Proxy extends FakeProxy {
       axios.post(`${this.baseUrl}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.lengthComputable) {
+            const prc = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total)
+            EventBus.$emit('fileUploadProgress', prc)
+          } else {
+            EventBus.$emit('fileUploadProgress', -1)
+          }
         }
       })
         .then(response => {

@@ -32,7 +32,8 @@
             <h2>Uploading</h2>
           </v-card-title>
           <v-card-text>
-            <v-progress-linear :indeterminate="true"></v-progress-linear>
+            <v-progress-linear :indeterminate="progress === -1"
+              v-model="progress"></v-progress-linear>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -49,13 +50,21 @@
 </template>
 
 <script>
+import EventBus from '@/eventBus'
+
 export default {
   created () {
     this.$store.dispatch('refreshUploads')
   },
+  mounted () {
+    EventBus.$on('fileUploadProgress', (payload) => {
+      this.progress = payload
+    })
+  },
   data () {
     return {
-      processActive: false
+      processActive: false,
+      progress: -1
     }
   },
   computed: {
