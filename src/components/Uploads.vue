@@ -104,8 +104,12 @@ export default {
         })
         .catch((e) => {
           console.error(e)
+          let message = 'Unknown Error'
+          if (e.response.status < 500) {
+            message = e.response.data
+          }
           this.$emit('snackRequested', {
-            'message': 'Unable to upload image',
+            'message': `Unable to upload image (${message})`,
             'color': 'red'
           })
           this.processActive = false
