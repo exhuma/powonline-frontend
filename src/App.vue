@@ -27,6 +27,16 @@
         </v-list>
       </v-navigation-drawer>
       <v-content>
+        <v-dialog width="250px" v-model="spinnerActive">
+          <v-card>
+            <v-card-title primary-title>
+              <h2>{{ spinnerTitle }}</h2>
+            </v-card-title>
+            <v-card-text>
+              <v-progress-linear :indeterminate="true"></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
@@ -74,7 +84,9 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <router-view @snackRequested="onSnackRequested"></router-view>
+          <router-view
+            @spinnerStateChange="onSpinnerStateChange"
+            @snackRequested="onSnackRequested"></router-view>
         </v-container>
         <v-bottom-nav
           app
@@ -112,10 +124,16 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.4'
+      version: '2019.05.4',
+      spinnerActive: false,
+      spinnerTitle: 'loading...'
     }
   },
   methods: {
+    onSpinnerStateChange ({state, title}) {
+      this.spinnerActive = state
+      this.newTitle = title
+    },
     onSnackRequested (data) {
       this.globalSnack = true
       this.globalSnackText = data.message
