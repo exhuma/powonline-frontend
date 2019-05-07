@@ -2,7 +2,7 @@
   <div id="app">
     <v-app dark>
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
-      <v-toolbar app>
+      <v-toolbar v-if="isTitleBarVisible" app>
         <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
         <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
         <v-spacer></v-spacer>
@@ -86,6 +86,7 @@
           </v-dialog>
           <router-view
             @spinnerStateChange="onSpinnerStateChange"
+            @fullScreenRequested="setFullscreen"
             @snackRequested="onSnackRequested"></router-view>
         </v-container>
         <v-bottom-nav
@@ -126,10 +127,16 @@ export default {
       globalSnackColor: '',
       version: '2019.05.4',
       spinnerActive: false,
-      spinnerTitle: 'loading...'
+      spinnerTitle: 'loading...',
+      isTitleBarVisible: true,
+      isBottomNavVisible: true
     }
   },
   methods: {
+    setFullscreen (state) {
+      this.isBottomNavVisible = !state
+      this.isTitleBarVisible = !state
+    },
     onSpinnerStateChange ({state, title}) {
       this.spinnerActive = state
       this.newTitle = title
@@ -222,9 +229,6 @@ export default {
     },
     pageTitle () {
       return this.$store.state.siteConfig.title
-    },
-    isBottomNavVisible () {
-      return true
     },
     tokenIsAvailable () {
       const token = this.$store.state.jwt
