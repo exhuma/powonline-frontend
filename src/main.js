@@ -61,6 +61,8 @@ axios.interceptors.request.use(config => {
   return Promise.reject(error)
 })
 
+axios.defaults.withCredentials = true
+
 axios.interceptors.response.use(response => {
   // nothing to do on successful response
   return response
