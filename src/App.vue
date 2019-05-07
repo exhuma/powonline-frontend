@@ -141,7 +141,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.4',
+      version: '2019.05.5',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
       activity: {
