@@ -16,6 +16,10 @@
           <span>Login</span>
         </v-tooltip>
       </v-toolbar>
+      <v-progress-linear
+        v-if="loadingAnimation"
+        class="mt-0"
+        :indeterminate="true"></v-progress-linear>
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
           <v-list-tile v-for="route in routes" :to="route.to" :key="route.to">
@@ -86,6 +90,7 @@
           </v-dialog>
           <router-view
             @spinnerStateChange="onSpinnerStateChange"
+            @loadingAnimation="onLoadingStateChange"
             @fullScreenRequested="setFullscreen"
             @snackRequested="onSnackRequested"></router-view>
         </v-container>
@@ -129,13 +134,17 @@ export default {
       spinnerActive: false,
       spinnerTitle: 'loading...',
       isTitleBarVisible: true,
-      isBottomNavVisible: true
+      isBottomNavVisible: true,
+      loadingAnimation: false
     }
   },
   methods: {
     setFullscreen (state) {
       this.isBottomNavVisible = !state
       this.isTitleBarVisible = !state
+    },
+    onLoadingStateChange (state) {
+      this.loadingAnimation = state
     },
     onSpinnerStateChange ({state, title}) {
       this.spinnerActive = state
