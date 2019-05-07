@@ -20,9 +20,12 @@ function makeStore (auth, remoteProxy) {
       userName: auth.get_username(),
       baseUrl: process.env.BACKEND_URL,
       pageTitle: 'Powonline',
-      uploads: {}
+      uploads: {},
+      gallery: [],
+      liveImageQueue: []
     },
     mutations: {
+
       /**
       * Sets a new JWT token
       *
@@ -458,20 +461,45 @@ function makeStore (auth, remoteProxy) {
 
       replaceUploads (state, data) {
         state.uploads = data
+      },
+
+      replaceGallery (state, data) {
+        state.gallery = data
+      },
+
+      addImageToLiveQueue (state, image) {
+        state.liveImageQueue.push(image)
+      },
+
+      consumeImage (state) {
+        state.liveImageQueue.splice(0, 1)
       }
 
     },
     actions: {
+
+      refreshGallery (context) {
+        remoteProxy.getPublicImages()
+          .then(data => {
+            console.log(data)
+            const simplified = []
+            data.forEach(item => {
+              simplified.push(item.href)
+            })
+            context.commit('replaceGallery', simplified)
+          })
+          .catch(e => {
+            console.error(e)
+          })
+      },
+
       refreshUploads (context) {
         remoteProxy.fetchUploads()
           .then((data) => {
             context.commit('replaceUploads', data)
           })
           .catch((e) => {
-            this.$emit('snackRequested', {
-              message: `Unable to fetch file list (${e.response.data})`,
-              color: 'red'
-            })
+            console.error(e)
           })
       },
 

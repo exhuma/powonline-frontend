@@ -120,29 +120,31 @@ new Vue({
         cluster: 'eu',
         encrypted: true
       })
-      var channel = pusher.subscribe(process.env.PUSHER_CHANNEL)
+      var teamChannel = pusher.subscribe(process.env.PUSHER_TEAM_CHANNEL)
       let that = this
-      channel.bind('state-change', function (data) {
+      teamChannel.bind('state-change', function (data) {
         that.$store.commit('updateTeamState', data)
       })
-      channel.bind('score-change', function (data) {
+      teamChannel.bind('score-change', function (data) {
         that.$store.commit('updateTeamState', data)
       })
-      channel.bind('questionnaire-score-change', function (data) {
+      teamChannel.bind('questionnaire-score-change', function (data) {
         that.$store.commit('setQuestionnaireScore', data)
       })
-      channel.bind('team-details-change', function (data) {
+      teamChannel.bind('team-details-change', function (data) {
         that.$remoteProxy.fetchTeam(data.name)
           .then(newData => {
             that.$store.commit('updateTeam', {team: data.name, newData: newData})
           })
       })
-      channel.bind('team-deleted', function (data) {
+      teamChannel.bind('team-deleted', function (data) {
         that.$store.commit('deleteTeam', data.name)
       })
-      var fileChannel = pusher.subscribe('file-events')
+
+      var fileChannel = pusher.subscribe(process.env.PUSHER_FILE_CHANNEL)
       fileChannel.bind('file-added', function (data) {
         that.$store.dispatch('refreshUploads')
+        that.$store.commit('addImageToLiveQueue', data)
       })
       fileChannel.bind('file-deleted', function (data) {
         that.$store.dispatch('refreshUploads')
