@@ -118,6 +118,9 @@ import EventBus from '@/eventBus'
 export default {
   name: 'App',
   mounted () {
+    EventBus.$on('activityEvent', (payload) => {
+      this.onActivityChange(payload)
+    })
     EventBus.$on('fileUploadProgress', (payload) => {
       this.onActivityChange(payload)
     })
