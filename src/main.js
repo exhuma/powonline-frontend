@@ -112,6 +112,7 @@ new Vue({
       this.$store.commit('clearUserData')
     }
 
+    this.$store.dispatch('fetchSiteConfig')
     this.$store.dispatch('refreshRemote')
 
     if (process.env.PUSHER_KEY) {

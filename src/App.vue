@@ -203,7 +203,7 @@ export default {
       return output
     },
     pageTitle () {
-      return this.$store.state.pageTitle
+      return this.$store.state.siteConfig.title
     },
     isBottomNavVisible () {
       return true

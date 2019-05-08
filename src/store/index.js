@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -22,7 +23,8 @@ function makeStore (auth, remoteProxy) {
       pageTitle: 'Powonline',
       uploads: {},
       gallery: [],
-      liveImageQueue: []
+      liveImageQueue: [],
+      siteConfig: {}
     },
     mutations: {
 
@@ -473,10 +475,23 @@ function makeStore (auth, remoteProxy) {
 
       consumeImage (state) {
         state.liveImageQueue.splice(0, 1)
+      },
+
+      updateConfig (state, payload) {
+        console.log('Committing site config', payload)
+        state.siteConfig = payload
       }
 
     },
     actions: {
+
+      fetchSiteConfig (context) {
+        console.log('Updating site config')
+        axios.get('/static/config.json')
+          .then((response) => {
+            context.commit('updateConfig', response.data)
+          })
+      },
 
       refreshGallery (context) {
         remoteProxy.getPublicImages()
