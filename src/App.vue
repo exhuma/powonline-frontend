@@ -16,10 +16,17 @@
           <span>Login</span>
         </v-tooltip>
       </v-toolbar>
+
+      <div
+        v-if="activity.visible && activity.text"
+        class="grey darken-4 white--text">{{ activity.text }}</div>
       <v-progress-linear
-        v-if="loadingAnimation"
+        v-if="activity.visible"
         class="mt-0"
-        :indeterminate="true"></v-progress-linear>
+        height="2"
+        v-model="activity.progress"
+        :indeterminate="activity.progress === -1"></v-progress-linear>
+
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
           <v-list-tile v-for="route in routes" :to="route.to" :key="route.to">
@@ -31,16 +38,6 @@
         </v-list>
       </v-navigation-drawer>
       <v-content>
-        <v-dialog width="250px" v-model="spinnerActive">
-          <v-card>
-            <v-card-title primary-title>
-              <h2>{{ spinnerTitle }}</h2>
-            </v-card-title>
-            <v-card-text>
-              <v-progress-linear :indeterminate="true"></v-progress-linear>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
@@ -89,8 +86,7 @@
             </v-card>
           </v-dialog>
           <router-view
-            @spinnerStateChange="onSpinnerStateChange"
-            @loadingAnimation="onLoadingStateChange"
+            @changeActivity="onActivityChange"
             @fullScreenRequested="setFullscreen"
             @snackRequested="onSnackRequested"></router-view>
         </v-container>
@@ -131,11 +127,13 @@ export default {
       globalSnackText: '',
       globalSnackColor: '',
       version: '2019.05.4',
-      spinnerActive: false,
-      spinnerTitle: 'loading...',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
-      loadingAnimation: false
+      activity: {
+        visible: false,
+        progress: -1,
+        text: ''
+      }
     }
   },
   methods: {
@@ -143,12 +141,8 @@ export default {
       this.isBottomNavVisible = !state
       this.isTitleBarVisible = !state
     },
-    onLoadingStateChange (state) {
-      this.loadingAnimation = state
-    },
-    onSpinnerStateChange ({state, title}) {
-      this.spinnerActive = state
-      this.newTitle = title
+    onActivityChange (state) {
+      this.activity = state
     },
     onSnackRequested (data) {
       this.globalSnack = true
