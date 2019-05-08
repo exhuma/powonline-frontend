@@ -663,13 +663,16 @@ class Proxy extends FakeProxy {
           'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: (progressEvent) => {
+          let progress = -1
           if (progressEvent.lengthComputable) {
-            const prc = Math.round(
+            progress = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total)
-            EventBus.$emit('fileUploadProgress', prc)
-          } else {
-            EventBus.$emit('fileUploadProgress', -1)
           }
+          EventBus.$emit('fileUploadProgress', {
+            visible: true,
+            progress: progress,
+            text: 'Uploading...'
+          })
         }
       })
         .then(response => {

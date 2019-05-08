@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import EventBus from '@/eventBus'
 
 Vue.use(Vuex)
 
@@ -486,14 +487,37 @@ function makeStore (auth, remoteProxy) {
     actions: {
 
       fetchSiteConfig (context) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         console.log('Updating site config')
         axios.get('/static/config.json')
           .then((response) => {
             context.commit('updateConfig', response.data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch((e) => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
       },
 
       refreshGallery (context) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         remoteProxy.getPublicImages()
           .then(data => {
             console.log(data)
@@ -502,32 +526,94 @@ function makeStore (auth, remoteProxy) {
               simplified.push(item.href)
             })
             context.commit('replaceGallery', simplified)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
           .catch(e => {
             console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
       },
 
       refreshUploads (context) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         remoteProxy.fetchUploads()
           .then((data) => {
             context.commit('replaceUploads', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
           .catch((e) => {
             console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
       },
 
       setStationScore (context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         remoteProxy.setStationScore(
           payload.stationName, payload.teamName, payload.score)
+          .then((payload) => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch((e) => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       setQuestionnaireScore (context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         remoteProxy.setQuestionnaireScore(
           payload.stationName, payload.teamName, payload.score)
           .then(data => {
             context.commit('setQuestionnaireScore', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
       },
 
@@ -539,10 +625,27 @@ function makeStore (auth, remoteProxy) {
       *     * teamName: The name of the team
       */
       advanceState (context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         remoteProxy.advanceState(
           payload.stationName, payload.teamName)
           .then(data => {
             store.commit('updateTeamState', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
           })
       },
 
@@ -550,9 +653,28 @@ function makeStore (auth, remoteProxy) {
       * Fetch the global questionnaire data
       */
       fetchQuestionnaireScores (context) {
-        remoteProxy.fetchQuestionnaireScores().then((data) => {
-          context.commit('updateQuestionnaireScores', data)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchQuestionnaireScores()
+          .then((data) => {
+            context.commit('updateQuestionnaireScores', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -561,9 +683,27 @@ function makeStore (auth, remoteProxy) {
       * :param user: The user object to add
       */
       addUserRemote (context, user) {
-        remoteProxy.addUser(user).then(data => {
-          context.commit('addUser', user)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.addUser(user)
+          .then(data => {
+            context.commit('addUser', user)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -572,9 +712,28 @@ function makeStore (auth, remoteProxy) {
       * :param route: The route object to add
       */
       addRouteRemote (context, route) {
-        remoteProxy.addRoute(route).then(route => {
-          context.commit('addRoute', route)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.addRoute(route)
+          .then(route => {
+            context.commit('addRoute', route)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -583,9 +742,27 @@ function makeStore (auth, remoteProxy) {
       * :param route: The station object to add
       */
       addStationRemote (context, station) {
-        remoteProxy.addStation(station).then(station => {
-          context.commit('addStation', station)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.addStation(station)
+          .then(station => {
+            context.commit('addStation', station)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -607,54 +784,165 @@ function makeStore (auth, remoteProxy) {
         if (context.state.roles.indexOf('admin') === -1) {
           return
         }
-        remoteProxy.fetchUsers().then(users => {
-          context.commit('replaceUsers', users)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchUsers()
+          .then(users => {
+            context.commit('replaceUsers', users)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
       * Refreshes the local teams from the backend
       */
       refreshTeams (context) {
-        remoteProxy.fetchTeams().then(teams => {
-          context.commit('replaceTeams', teams)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchTeams()
+          .then(teams => {
+            context.commit('replaceTeams', teams)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
       * Refreshes the local routes from the backend
       */
       refreshRoutes (context) {
-        remoteProxy.fetchRoutes().then(routes => {
-          context.commit('replaceRoutes', routes)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchRoutes()
+          .then(routes => {
+            context.commit('replaceRoutes', routes)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
       * Refreshes the local stations from the backend
       */
       refreshStations (context) {
-        remoteProxy.fetchStations().then(stations => {
-          context.commit('replaceStations', stations)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchStations()
+          .then(stations => {
+            context.commit('replaceStations', stations)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
       * Refreshes the local assignments from the backend
       */
       refreshAssignments (context) {
-        remoteProxy.fetchAssignments().then(assignments => {
-          context.commit('replaceAssignments', assignments)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchAssignments()
+          .then(assignments => {
+            context.commit('replaceAssignments', assignments)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
       * Refreshes the local global dashboard from the backend
       */
       refreshGlobalDashboard (context) {
-        remoteProxy.fetchDashboard().then(data => {
-          context.commit('updateGlobalDashboard', data)
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.fetchDashboard()
+          .then(data => {
+            context.commit('updateGlobalDashboard', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -665,6 +953,11 @@ function makeStore (auth, remoteProxy) {
       *     *  routeName: The name of the route the team should be assigned to
       */
       assignTeamToRouteRemote (context, data) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         // first, let's find the team object corresponding to this name (yes, I
         // know, a map would be better...)
         let team = null
@@ -673,10 +966,23 @@ function makeStore (auth, remoteProxy) {
             team = item
           }
         })
-        remoteProxy.addTeamToRoute(data.routeName, team).then(() => {
-          context.commit('assignTeamToRoute', {routeName: data.routeName, team: team})
-          context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
-        })
+        remoteProxy.addTeamToRoute(data.routeName, team)
+          .then(() => {
+            context.commit('assignTeamToRoute', {routeName: data.routeName, team: team})
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -687,10 +993,28 @@ function makeStore (auth, remoteProxy) {
       *     * routeName: The name of the route the team should be unassigned from
       */
       unassignTeamFromRouteRemote (context, data) {
-        remoteProxy.unassignTeamFromRoute(data.routeName, data.teamName).then(() => {
-          context.commit('unassignTeamFromRoute', data)
-          context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.unassignTeamFromRoute(data.routeName, data.teamName)
+          .then(() => {
+            context.commit('unassignTeamFromRoute', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -701,6 +1025,11 @@ function makeStore (auth, remoteProxy) {
       *     *  routeName: The name of the route the station should be assigned to
       */
       assignStationToRouteRemote (context, data) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         // first, let's find the station object corresponding to this name (yes, I
         // know, a map would be better...)
         let station = null
@@ -709,10 +1038,23 @@ function makeStore (auth, remoteProxy) {
             station = item
           }
         })
-        remoteProxy.assignStationToRoute(data.routeName, station).then(() => {
-          context.commit('assignStationToRoute', {routeName: data.routeName, station: station})
-          context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
-        })
+        remoteProxy.assignStationToRoute(data.routeName, station)
+          .then(() => {
+            context.commit('assignStationToRoute', {routeName: data.routeName, station: station})
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -723,10 +1065,28 @@ function makeStore (auth, remoteProxy) {
       *     * routeName: The name of the route the station should be unassigned from
       */
       unassignStationFromRouteRemote (context, data) {
-        remoteProxy.unassignStationFromRoute(data.routeName, data.stationName).then(() => {
-          context.commit('unassignStationFromRoute', data)
-          context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.unassignStationFromRoute(data.routeName, data.stationName)
+          .then(() => {
+            context.commit('unassignStationFromRoute', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -735,11 +1095,30 @@ function makeStore (auth, remoteProxy) {
       * :param routeName: The name of the route to delete
       */
       deleteRouteRemote (context, routeName) {
-        remoteProxy.deleteRoute(routeName).then(() => {
-          context.commit('deleteRoute', routeName)
-        }).then(() => {
-          context.dispatch('refreshAssignments')
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.deleteRoute(routeName)
+          .then(() => {
+            context.commit('deleteRoute', routeName)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .then(() => {
+            context.dispatch('refreshAssignments')
+          })
+          .catch(e => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -748,11 +1127,31 @@ function makeStore (auth, remoteProxy) {
       * :param stationName: The name of the station to delete
       */
       deleteStationRemote (context, stationName) {
-        remoteProxy.deleteStation(stationName).then(() => {
-          context.commit('deleteStation', stationName)
-        }).then(() => {
-          context.dispatch('refreshAssignments')
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.deleteStation(stationName)
+          .then(() => {
+            context.commit('deleteStation', stationName)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .then(() => {
+            context.dispatch('refreshAssignments')
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -761,11 +1160,31 @@ function makeStore (auth, remoteProxy) {
       * :param userName: The name of the user to delete
       */
       deleteUserRemote (context, userName) {
-        remoteProxy.deleteUser(userName).then(() => {
-          context.commit('deleteUser', userName)
-        }).then(function () {
-          context.dispatch('refreshAssignments')
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.deleteUser(userName)
+          .then(() => {
+            context.commit('deleteUser', userName)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .then(function () {
+            context.dispatch('refreshAssignments')
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       },
 
       /**
@@ -774,11 +1193,31 @@ function makeStore (auth, remoteProxy) {
       * :param teamName: The name of the team to delete
       */
       deleteTeamRemote (context, teamName) {
-        remoteProxy.deleteTeam(teamName).then(() => {
-          context.commit('deleteTeam', teamName)
-        }).then(function () {
-          context.dispatch('refreshAssignments')
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
         })
+        remoteProxy.deleteTeam(teamName)
+          .then(() => {
+            context.commit('deleteTeam', teamName)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .then(function () {
+            context.dispatch('refreshAssignments')
+          })
+          .catch(e => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
       }
     },
     getters: {
