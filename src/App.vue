@@ -2,20 +2,22 @@
   <div id="app">
     <v-app dark>
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
-      <v-toolbar v-if="isTitleBarVisible" app>
-        <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
-        <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
-        <v-spacer></v-spacer>
-        <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
-        <v-tooltip bottom v-if="tokenIsAvailable">
-          <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
-          <span>Logout</span>
-        </v-tooltip>
-        <v-tooltip bottom v-else>
-          <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
-          <span>Login</span>
-        </v-tooltip>
-      </v-toolbar>
+      <v-slide-y-transition>
+        <v-toolbar v-if="isTitleBarVisible" app>
+          <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
+          <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
+          <v-spacer></v-spacer>
+          <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
+          <v-tooltip bottom v-if="tokenIsAvailable">
+            <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
+            <span>Logout</span>
+          </v-tooltip>
+          <v-tooltip bottom v-else>
+            <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
+            <span>Login</span>
+          </v-tooltip>
+        </v-toolbar>
+      </v-slide-y-transition>
 
       <div
         v-if="activity.visible && activity.text"
