@@ -39,16 +39,10 @@
 </template>
 
 <script>
-import EventBus from '@/eventBus'
 
 export default {
   created () {
     this.$store.dispatch('refreshUploads')
-  },
-  mounted () {
-    EventBus.$on('fileUploadProgress', (payload) => {
-      this.$emit('changeActivity', payload)
-    })
   },
   computed: {
     files () {

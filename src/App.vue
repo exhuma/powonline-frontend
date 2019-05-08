@@ -113,9 +113,15 @@
 
 <script>
 import hello from 'hellojs'
+import EventBus from '@/eventBus'
 
 export default {
   name: 'App',
+  mounted () {
+    EventBus.$on('fileUploadProgress', (payload) => {
+      this.onActivityChange(payload)
+    })
+  },
   data () {
     return {
       activeLoginTab: 'socialLogin',
