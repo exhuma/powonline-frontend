@@ -21,6 +21,10 @@
         v-if="activity.visible && activity.text"
         class="grey darken-4 white--text">{{ activity.text }}</div>
       <v-progress-linear
+        v-if="!activity.visible"
+        class="mt-0"
+        height="2"></v-progress-linear>
+      <v-progress-linear
         v-if="activity.visible"
         class="mt-0"
         height="2"
