@@ -49,8 +49,7 @@ install `invoke`, `fabric` and `patchwork` for this to work:
 pip install --user -U invoke fabric patchwork
 ```
 
-Before deployment, make sure the OAuth keys in `oauth.env.js` are set up
-correctly for production. If that is the case, the following task can be used:
+To build the docker container run:
 
 * `inv build_docker -e prod`
 
@@ -63,3 +62,9 @@ image to a registry unfeasible.
   suffix). Modify the values as necessary.
 
 Once this is done, run `inv deploy -e prod`
+
+### Configuration & Social Logins
+
+The application keeps site-config in the `static/config` folder. This folder
+contains site-specific settings and can (and likely should) be mounted as
+volume in docker containers.

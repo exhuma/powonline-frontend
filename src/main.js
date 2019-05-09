@@ -101,10 +101,19 @@ new Vue({
     // ... otherwise, the UI still looks as if we were logged in
 
     // Configure social login providers
-    hello.init({
-      google: process.env.OAUTH_ID.GOOGLE,
-      facebook: process.env.OAUTH_ID.FACEBOOK
-    }, {redirect_uri: 'redirect.html'})
+    axios.get('/static/config/config.json')
+      .then(response => {
+        if (!response.data.hello) {
+          console.warn(
+            'No config for hellojs found. Social logins will not work!')
+        } else {
+          hello.init(response.data.hello, {redirect_uri: 'redirect.html'})
+          console.log('Social logins initialised.')
+        }
+      })
+      .catch(e => {
+        console.error(e)
+      })
 
     // Logout user if JWT token has expired.
     const tokenCleared = auth.clearExpiredToken()

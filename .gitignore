@@ -16,4 +16,4 @@ yarn-error.log*
 *.pyc
 frontend.env
 api.env
-/static/config.json
+/static/config/config.json

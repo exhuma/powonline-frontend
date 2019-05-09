@@ -493,7 +493,7 @@ function makeStore (auth, remoteProxy) {
           text: ''
         })
         console.log('Updating site config')
-        axios.get('/static/config.json')
+        axios.get('/static/config/config.json')
           .then((response) => {
             context.commit('updateConfig', response.data)
             EventBus.$emit('activityEvent', {
