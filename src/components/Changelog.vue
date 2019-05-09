@@ -56,6 +56,12 @@
 </template>
 
 <style scoped>
+H1 {
+    margin-top: 1em;
+}
+LI {
+    margin-left: 2em;
+}
 H1 SMALL {
   font-size: 50%;
   font-weight: normal;
