@@ -87,6 +87,10 @@
                     </v-tabs-content>
                   </v-tabs-items>
                 </v-tabs>
+                <v-footer class="pa-3">
+                  <v-spacer></v-spacer>
+                  <router-link to="/privacy-policy">Privacy Policy</router-link>
+                </v-footer>
 
               </v-card-text>
             </v-card>
@@ -141,7 +145,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.4',
+      version: '2019.05.5',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
       activity: {
