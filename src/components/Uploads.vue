@@ -6,13 +6,14 @@
       type="file"
       name="file"
       accept="image/*;capture=camera" />
+
     <div v-for="(idx, username) in files" :key="username">
       <h1 v-if="username !== 'self'"
         class="white--text">Files for {{username}}</h1>
       <v-list>
         <v-list-tile v-for="file in files[username]" :key="file.href">
           <v-list-tile-avatar>
-            <img :src="file.thumbnail" />
+            <img :src="file.tiny" />
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title>

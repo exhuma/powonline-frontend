@@ -521,11 +521,7 @@ function makeStore (auth, remoteProxy) {
         remoteProxy.getPublicImages()
           .then(data => {
             console.log(data)
-            const simplified = []
-            data.forEach(item => {
-              simplified.push(item.href)
-            })
-            context.commit('replaceGallery', simplified)
+            context.commit('replaceGallery', data)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
