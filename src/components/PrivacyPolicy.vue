@@ -12,9 +12,7 @@
           <v-card-text class="text-xs-left">
             <h1>Privacy Policy</h1>
 
-
             <p>Effective date: May 09, 2019</p>
-
 
             <p>Lost Tracker ("us", "we", or "our") operates the https://tracker.lost.lu website (hereinafter referred to as the "Service").</p>
 
@@ -56,7 +54,6 @@
                 </li>
                 </ul>
 
-
             <h2>Information Collection and Use</h2>
             <p>We collect several different types of information for various purposes to provide and improve our Service to you.</p>
 
@@ -69,11 +66,9 @@
                 <li>Email address</li>        <li>Phone number</li>        <li>Cookies and Usage Data</li>
             </ul>
 
-
             <h4>Usage Data</h4>
 
             <p>We may also collect information on how the Service is accessed and used ("Usage Data"). This Usage Data may include information such as your computer's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that you visit, the time and date of your visit, the time spent on those pages, unique device identifiers and other diagnostic data.</p>
-
 
             <h4>Tracking & Cookies Data</h4>
             <p>We use cookies and similar tracking technologies to track the activity on our Service and we hold certain information.</p>
@@ -86,8 +81,8 @@
                 <li><strong>Security Cookies.</strong> We use Security Cookies for security purposes.</li>
                 </ul>
 
-            <h2>Use of Data</h2> 
-            <p>Lost Tracker uses the collected data for various purposes:</p>    
+            <h2>Use of Data</h2>
+            <p>Lost Tracker uses the collected data for various purposes:</p>
             <ul>
                 <li>To provide and maintain our Service</li>
                 <li>To notify you about changes to our Service</li>
@@ -98,7 +93,6 @@
                 <li>To detect, prevent and address technical issues</li>
                 </ul>
 
-              
             <h2>Legal Basis for Processing Personal Data under the General Data Protection Regulation (GDPR)</h2>
             <p>If you are from the European Economic Area (EEA), Lost Tracker legal basis for collecting and using the personal information described in this Privacy Policy depends on the Personal Data we collect and the specific context in which we collect it.</p>
             <p>Lost Tracker may process your Personal Data because:</p>
@@ -109,10 +103,9 @@
                     <li>To comply with the law</li>
             </ul>
 
-                
-            <h2>Retention of Data</h2>    
+            <h2>Retention of Data</h2>
             <p>Lost Tracker will retain your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use your Personal Data to the extent necessary to comply with our legal obligations (for example, if we are required to retain your data to comply with applicable laws), resolve disputes and enforce our legal agreements and policies.</p>
-            <p>Lost Tracker will also retain Usage Data for internal analysis purposes. Usage Data is generally retained for a shorter period of time, except when this data is used to strengthen the security or to improve the functionality of our Service, or we are legally obligated to retain this data for longer periods.</p>    
+            <p>Lost Tracker will also retain Usage Data for internal analysis purposes. Usage Data is generally retained for a shorter period of time, except when this data is used to strengthen the security or to improve the functionality of our Service, or we are legally obligated to retain this data for longer periods.</p>
 
             <h2>Transfer of Data</h2>
             <p>Your information, including Personal Data, may be transferred to — and maintained on — computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction.</p>
@@ -121,7 +114,6 @@
             <p>Lost Tracker will take all the steps reasonably necessary to ensure that your data is treated securely and in accordance with this Privacy Policy and no transfer of your Personal Data will take place to an organisation or a country unless there are adequate controls in place including the security of your data and other personal information.</p>
 
             <h2>Disclosure of Data</h2>
-
 
             <h3>Legal Requirements</h3>
             <p>Lost Tracker may disclose your Personal Data in the good faith belief that such action is necessary to:</p>
@@ -136,7 +128,6 @@
             <h2>Security of Data</h2>
             <p>The security of your data is important to us but remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.</p>
 
-
             <h2>Your Data Protection Rights under the General Data Protection Regulation (GDPR)</h2>
             <p>If you are a resident of the European Economic Area (EEA), you have certain data protection rights. Lost Tracker aims to take reasonable steps to allow you to correct, amend, delete or limit the use of your Personal Data.</p>
             <p>If you wish to be informed about what Personal Data we hold about you and if you want it to be removed from our systems, please contact us.</p>
@@ -147,7 +138,7 @@
                 </li>
                 <li>
                     <p><strong>The right of rectification.</strong> You have the right to have your information rectified if that information is inaccurate or incomplete.</p>
-                </li> 
+                </li>
                 <li>
                     <p><strong>The right to object.</strong> You have the right to object to our processing of your Personal Data.</p>
                 </li>
@@ -169,34 +160,24 @@
             <p>We may employ third party companies and individuals to facilitate our Service ("Service Providers"), provide the Service on our behalf, perform Service-related services or assist us in analysing how our Service is used.</p>
             <p>These third parties have access to your Personal Data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</p>
 
-
-              
-
-
-
-
             <h2>Links to Other Sites</h2>
             <p>Our Service may contain links to other sites that are not operated by us. If you click a third party link, you will be directed to that third party's site. We strongly advise you to review the Privacy Policy of every site you visit.</p>
             <p>We have no control over and assume no responsibility for the content, privacy policies or practices of any third party sites or services.</p>
 
-
             <h2>Children's Privacy</h2>
             <p>Our Service does not address anyone under the age of 18 ("Children").</p>
             <p>We do not knowingly collect personally identifiable information from anyone under the age of 18. If you are a parent or guardian and you are aware that your Child has provided us with Personal Data, please contact us. If we become aware that we have collected Personal Data from children without verification of parental consent, we take steps to remove that information from our servers.</p>
-
 
             <h2>Changes to This Privacy Policy</h2>
             <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
             <p>We will let you know via email and/or a prominent notice on our Service, prior to the change becoming effective and update the "effective date" at the top of this Privacy Policy.</p>
             <p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
 
-
             <h2>Contact Us</h2>
             <p>If you have any questions about this Privacy Policy, please contact us:</p>
             <ul>
                     <li>By email: cheffen@lost.lu</li>
-                      
-        </ul>
+            </ul>
           </v-card-text>
         </v-card>
       </v-tabs-content>
@@ -205,9 +186,7 @@
           <v-card-text class="text-xs-left">
             <h1>Politique de Confidentialité</h1>
 
-
             <p>Date de prise d'effet: May 09, 2019</p>
-
 
             <p>Lost Tracker ("nous", "notre", "nos") exploite le site web https://tracker.lost.lu (ci-après désigné par le terme "Service").</p>
 
@@ -249,7 +228,6 @@
                 </li>
                 </ul>
 
-
             <h2>Collecte et utilisation des données</h2>
             <p>Nous recueillons plusieurs types de données à différentes fins en vue de vous fournir notre Service et de l'améliorer.</p>
 
@@ -262,11 +240,9 @@
                 <li>Adresse e-mail</li>        <li>Numéro de téléphone</li>        <li>Cookies et Données d'Utilisation</li>
             </ul>
 
-
             <h4>Données d'Utilisation</h4>
 
             <p>Nous pouvons également recueillir des informations relatives au mode d'accès et d'utilisation du Service ("Données d'Utilisation"). Ces Données d'Utilisation peuvent comprendre des informations telles que l'adresse de protocole Internet (c.-à-d. l'adresse IP) de votre ordinateur, le type de navigateur, la version du navigateur, les pages de notre Service que vous consultez, la date et l'heure de votre visite, le temps passé sur ces pages, les identifiants uniques de dispositifs ainsi que d'autres données de diagnostic.</p>
-
 
             <h4>Suivi et données de cookies</h4>
             <p>Nous avons recours à des cookies et à d'autres technologies de suivi similaires pour effectuer un suivi des activités effectuées dans notre Service, et nous conservons certaines informations.</p>
@@ -279,8 +255,8 @@
                 <li><strong>Cookies de Sécurité.</strong> Nous utilisons des Cookies de Sécurité pour des raisons de sécurité.</li>
                 </ul>
 
-            <h2>Utilisation des données</h2> 
-            <p>Lost Tracker utilise les données recueillies à des fins diverses:</p>    
+            <h2>Utilisation des données</h2>
+            <p>Lost Tracker utilise les données recueillies à des fins diverses:</p>
             <ul>
                 <li>Pour fournir et assurer notre Service</li>
                 <li>Pour vous faire part des changements apportés à notre Service</li>
@@ -291,7 +267,6 @@
                 <li>Pour détecter, prévenir et régler les problèmes techniques</li>
                 </ul>
 
-              
             <h2>Fondement juridique du traitement des données à caractère personnel en vertu du Règlement Général relatif à la Protection des Données (RGPD)</h2>
             <p>Si vous résidez dans l'Espace économique européen (EEE), le fondement juridique de Lost Tracker en ce qui concerne la collecte et l'utilisation des données personnelles décrites dans la présente Politique de Confidentialité dépend des Données à Caractère Personnel que nous recueillons et du contexte précis dans lequel nous les recueillons.</p>
             <p>Lost Tracker peut traiter vos Données à Caractère Personnel:</p>
@@ -302,10 +277,9 @@
                     <li>Pour respecter la loi</li>
             </ul>
 
-                
-            <h2>Conservation des données</h2>    
+            <h2>Conservation des données</h2>
             <p>Lost Tracker ne conservera vos Données à Caractère Personnel que tant que cela sera nécessaire aux fins stipulées dans la présente Politique de Confidentialité. Nous conserverons et utiliserons vos Données à Caractère Personnel dans la mesure où cela sera nécessaire pour que nous puissions nous acquitter de nos obligations légales (par exemple, pour respecter la législation en vigueur), résoudre des différends et appliquer nos accords et nos politiques.</p>
-            <p>Lost Tracker conservera également les Données d'Utilisation à des fins d'analyses internes. Les Données d'Utilisation sont généralement conservées pour une période plus courte, sauf lorsque ces données sont utilisées pour renforcer la sécurité ou pour améliorer les fonctionnalités de notre Service, ou si nous sommes légalement tenus de conserver ces données plus longtemps.</p>    
+            <p>Lost Tracker conservera également les Données d'Utilisation à des fins d'analyses internes. Les Données d'Utilisation sont généralement conservées pour une période plus courte, sauf lorsque ces données sont utilisées pour renforcer la sécurité ou pour améliorer les fonctionnalités de notre Service, ou si nous sommes légalement tenus de conserver ces données plus longtemps.</p>
 
             <h2>Transfert des données</h2>
             <p>Les informations vous concernant, notamment vos Données à Caractère Personnel, peuvent être transférées de votre région, province, pays, ou autre division territoriale vers des ordinateurs – et stockées sur ces derniers – situés à un endroit où la législation relative à la protection des données diffère de celle du territoire où vous résidez.</p>
@@ -314,7 +288,6 @@
             <p>Lost Tracker prendra toutes les mesures raisonnablement nécessaires pour faire en sorte que vos données soient traitées de manière sécurisée et conformément à la présente Politique de Confidentialité et vos Données à Caractère Personnel ne seront transférées vers aucune organisation ni aucun pays à moins que des contrôles adéquats ne soient en place, notamment en ce qui concerne la sécurité de vos données et d'autres données personnelles.</p>
 
             <h2>Communication de données</h2>
-
 
             <h3>Exigences légales</h3>
             <p>Lost Tracker peut communiquer vos Données à Caractère Personnel si elle estime de bonne foi que cela est nécessaire pour:</p>
@@ -329,7 +302,6 @@
             <h2>Sécurité des données</h2>
             <p>La sécurité de vos données nous tient à cœur. Toutefois, n'oubliez pas qu'aucune méthode de transmission de données par Internet ou méthode de stockage électronique n'est sûre à 100 %. Bien que nous nous efforcions d'utiliser des méthodes commercialement acceptables pour protéger vos Données à Caractère Personnel, nous ne pouvons pas leur garantir une sécurité absolue.</p>
 
-
             <h2>Droits à la protection des données qui vous sont accordés par le Règlement Général relatif à la Protection des Données (RGPD)</h2>
             <p>Si vous résidez dans l'Espace économique européen (EEE), vous avez certains droits en matière de protection des données. Lost Tracker entend prendre des mesures raisonnables pour vous permettre de corriger, de modifier, ou de supprimer vos Données à Caractère Personnel ou d'en limiter l'utilisation.</p>
             <p>Si vous souhaitez savoir quelles Données à Caractère Personnel nous détenons à votre sujet et voulez qu'elles soient supprimées de nos systèmes, veuillez nous contacter.</p>
@@ -340,7 +312,7 @@
                 </li>
                 <li>
                     <p><strong>Droit de rectification.</strong> Vous avez le droit de faire rectifier vos données si elles sont inexactes ou incomplètes.</p>
-                </li> 
+                </li>
                 <li>
                     <p><strong>Droit d'opposition.</strong> Vous avez le droit de vous opposer à ce que nous traitions vos Données à Caractère Personnel.</p>
                 </li>
@@ -362,34 +334,24 @@
             <p>Nous pouvons faire appel à des sociétés tierces et à des tierces personnes pour faciliter la prestation de notre Service ("Prestataires de Services"), assurer le Service en notre nom, assurer des services liés au Service ou nous aider à analyser la façon dont notre Service est utilisé.</p>
             <p>Ces tiers n'ont accès à vos Données à Caractère Personnel que pour effectuer ces tâches en notre nom et il leur est interdit de les communiquer ou de les utiliser à quelle qu'autre fin. </p>
 
-
-              
-
-
-
-
             <h2>Liens pointant vers d'autres sites</h2>
             <p>Il se peut que notre Service contienne des liens pointant vers d'autres sites que nous n'exploitons pas. Si vous cliquez sur un lien de tiers, vous serez redirigé vers le site de ce tiers. Nous vous recommandons vivement d'examiner la politique de confidentialité de chacun des sites que vous consultez.</p>
             <p>Nous n'avons aucun contrôle sur le contenu, les politiques ou pratiques de confidentialité des sites ou services de tiers et déclinons toute responsabilité en ce qui les concerne.</p>
 
-
             <h2>Vie privée des enfants</h2>
             <p>Notre Service ne s'adresse pas aux personnes de moins de 18 ans ("Enfants").</p>
             <p>Nous ne recueillons pas sciemment de données personnelles nominatives auprès de personnes de moins de 18 ans. Si vous êtes un parent ou un tuteur et que vous savez que votre Enfant nous a communiqué des Données à Caractère Personnel, veuillez nous contacter. Si nous apprenons que nous avons recueilli des Données à Caractère Personnel auprès d'enfants sans vérifier s'il y a consentement parental, nous faisons le nécessaire pour supprimer ces informations de nos serveurs.</p>
-
 
             <h2>Modifications de la présente Politique de Confidentialité</h2>
             <p>Nous nous réservons le droit d'actualiser notre Politique de Confidentialité de temps à autre. Nous vous informerons de toute modification en publiant la nouvelle Politique de Confidentialité sur cette page.</p>
             <p>Avant que la modification ne prenne effet, nous vous en informerons par e-mail et/ ou en plaçant un avis bien en vue dans notre Service et nous actualiserons la "date de prise d'effet" qui figure en haut de la présente Politique de Confidentialité.</p>
             <p>Nous vous conseillons de consulter la présente Politique de Confidentialité périodiquement pour prendre connaissance de toute modification. Les modifications apportées à la présente Politique de Confidentialité prennent effet lorsqu'elles sont publiées sur cette page.</p>
 
-
             <h2>Nous contacter</h2>
             <p>Pour toute question relative à la présente Politique de Confidentialité, veuillez nous contacter:</p>
             <ul>
-                    <li>Par courrier électronique: cheffen@lost.lu</li>
-                      
-                    </ul>
+              <li>Par courrier électronique: cheffen@lost.lu</li>
+            </ul>
           </v-card-text>
         </v-card>
       </v-tabs-content>
@@ -398,9 +360,7 @@
           <v-card-text class="text-xs-left">
             <h1>Datenschutz-Richtlinie</h1>
 
-
             <p>Datum des Inkrafttretens: May 09, 2019</p>
-
 
             <p>Lost Tracker ("wir", "uns", "unser" usw.) betreibt die Website https://tracker.lost.lu (nachstehend als "Dienst" bezeichnet).</p>
 
@@ -442,7 +402,6 @@
                 </li>
                 </ul>
 
-
             <h2>Erfassung und Nutzung von Daten</h2>
             <p>Wir erfassen verschiedene Arten von Daten für eine Reihe von Zwecken, um den Dienst, den wir Ihnen zur Verfügung stellen, zu verbessern.</p>
 
@@ -455,11 +414,9 @@
                 <li>E-Mail-Adresse</li>        <li>Telefonnummer</li>        <li>Cookies und Nutzungsdaten</li>
             </ul>
 
-
             <h4>Nutzungsdaten</h4>
 
             <p>Wir können außerdem Daten zu der Art und Weise erfassen, auf welche auf unseren Dienst zugegriffen wird bzw. auf welche diese genutzt werden ("Nutzungsdaten"). Diese Nutzungsdaten umfassen gegebenenfalls die Internet-Protocol-Adresse (IP-Adresse) Ihres Computers, Ihren Browsertyp, Ihre Browserversion, die von Ihnen innerhalb unseres Dienstes besuchten Seiten, den Zeitpunkt und das Datum Ihres Besuchs, die Gesamtverweildauer auf den betreffenden Seiten, individuelle Geräteidentifikationsmerkmale und weitere Diagnostikdaten.</p>
-
 
             <h4>Tracking & Cookies</h4>
             <p>Wir setzen Cookies und ähnliche Tracking-Technologien zur Überwachung der Aktivität innerhalb unseres Dienstes ein und speichern in diesem Zusammenhang bestimmte Daten.</p>
@@ -472,8 +429,8 @@
                 <li><strong>Sicherheits-Cookies.</strong> Wir setzen Sicherheits-Cookies für Sicherheitszwecke ein.</li>
                 </ul>
 
-            <h2>Datennutzung</h2> 
-            <p>Wir bei Lost Tracker nutzen die erfassten Daten für verschiedene Zwecke, beispielsweise um:</p>    
+            <h2>Datennutzung</h2>
+            <p>Wir bei Lost Tracker nutzen die erfassten Daten für verschiedene Zwecke, beispielsweise um:</p>
             <ul>
                 <li>Ihnen unseren Dienst zur Verfügung zu stellen und diesen aufrecht zu erhalten;</li>
                 <li>Ihnen Änderungen in Bezug auf unseren Dienst mitzuteilen;</li>
@@ -484,7 +441,6 @@
                 <li>technische Probleme zu erkennen, zu vermeiden und zu beheben;</li>
                 </ul>
 
-              
             <h2>Rechtliche Grundlage für die Verarbeitung personenbezogener Daten nach Maßgabe der Datenschutz-Grundverordnung (DSGVO)</h2>
             <p>Falls sich Ihr Wohnsitz innerhalb des Europäischen Wirtschaftsraums (EWR) befindet, hängt die rechtliche Grundlage von Lost Tracker für die Erfassung und Nutzung der in dieser Datenschutz-Richtlinie beschriebenen personenbezogenen Daten von den von uns erfassten personenbezogenen Daten sowie von dem erfassungsspezifischen Kontext ab.</p>
             <p>Wir bei Lost Tracker können Ihre personenbezogenen Daten aus folgenden Gründen verarbeiten:</p>
@@ -495,10 +451,9 @@
                     <li>Die Verarbeitung dient der Einhaltung der gesetzlichen Bestimmungen.</li>
             </ul>
 
-                
-            <h2>Aufbewahrung von Daten</h2>    
+            <h2>Aufbewahrung von Daten</h2>
             <p>Lost Tracker wird Ihre personenbezogenen Daten nur so lange aufbewahren, wie dies für die Zwecke dieser Datenschutz-Richtlinie erforderlich ist. Wir werden Ihre personenbezogenen Daten in dem Umfang aufbewahren und nutzen, wie es für die Erfüllung unserer gesetzlichen Pflichten (falls wir Ihre Daten beispielsweise zur Einhaltung anwendbarer Gesetze aufbewahren müssen), zur Beilegung von Streitigkeiten sowie zur Durchsetzung unserer rechtlichen Vereinbarungen und Richtlinien erforderlich ist.</p>
-            <p>Lost Tracker wird außerdem Nutzungsdaten für interne Analysezwecke aufbewahren. Nutzungsdaten werden üblicherweise für kürzere Zeiträume aufbewahrt, soweit diese nicht für eine Verstärkung unserer Sicherheitsvorkehrungen oder eine Verbesserung der Funktionalität unseres Dienstes eingesetzt werden oder wir nicht gesetzlich zu einer längeren Aufbewahrung verpflichtet sind.</p>    
+            <p>Lost Tracker wird außerdem Nutzungsdaten für interne Analysezwecke aufbewahren. Nutzungsdaten werden üblicherweise für kürzere Zeiträume aufbewahrt, soweit diese nicht für eine Verstärkung unserer Sicherheitsvorkehrungen oder eine Verbesserung der Funktionalität unseres Dienstes eingesetzt werden oder wir nicht gesetzlich zu einer längeren Aufbewahrung verpflichtet sind.</p>
 
             <h2>Übertragung von Daten</h2>
             <p>Ihre Daten, einschließlich personenbezogener Daten, können auf Computer übertragen – und auf solchen aufbewahrt – werden, die sich außerhalb Ihres Heimatstaates, Ihrer Heimatprovinz, Ihres Heimatlandes oder einer sonstigen Rechtsordnung befinden und somit Datenschutzgesetzen unterliegen, die sich von den Datenschutzgesetzen in Ihrer Rechtsordnung unterscheiden.</p>
@@ -507,7 +462,6 @@
             <p>Lost Tracker wird alle im zumutbaren Rahmen erforderlichen Schritte unternehmen um sicherzustellen, dass Ihre Daten auf sichere Weise sowie in Übereinstimmung mit dieser Datenschutz-Richtlinie behandelt werden, und dass Ihre personenbezogenen Daten nicht an Organisationen oder in Länder übertragen werden, hinsichtlich welcher keine hinreichenden Kontrollmechanismen in Bezug auf die Sicherheit Ihrer Daten und sonstigen personenbezogenen Informationen vorliegen.</p>
 
             <h2>Offenlegung von Daten</h2>
-
 
             <h3>Gesetzliche Anforderungen</h3>
             <p>Lost Tracker kann Ihre personenbezogenen Daten unter Umständen offenlegen, wenn es unter Beachtung der Grundsätze von Treu und Glauben der Ansicht ist, dass dies zur Erreichung der nachfolgenden Zielsetzungen erforderlich ist:</p>
@@ -522,7 +476,6 @@
             <h2>Datensicherheit</h2>
             <p>Die Sicherheit Ihrer Daten ist uns wichtig. Bitte vergessen Sie jedoch nicht, dass es keine Übertragungsmethoden über das Internet und keine elektronischen Speichermedien gibt, die 100 % sicher sind. Obwohl wir stets bemüht sind, kommerziell annehmbare Maßnahmen zum Schutz Ihrer personenbezogenen Daten umzusetzen, können wir eine absolute Sicherheit nicht garantieren.</p>
 
-
             <h2>Ihre Datenschutzrechte im Rahmen der Datenschutz-Grundverordnung (DSGVO)</h2>
             <p>Soweit sich Ihr Wohnsitz innerhalb des Europäischen Wirtschaftsraums (EWR) befindet, haben Sie bestimmte Datenschutzrechte. Lost Tracker ist bestrebt, zumutbare Maßnahmen umzusetzen, die es Ihnen erlauben, Ihre personenbezogenen Daten zu korrigieren, zu ändern, zu löschen oder deren Nutzung zu beschränken.</p>
             <p>Falls Sie in Erfahrung bringen möchten, welche personenbezogenen Daten wir zu Ihnen gespeichert haben, und falls Sie eine Löschung Ihrer Daten aus unserem System wünschen, nehmen Sie bitte Kontakt zu uns auf.</p>
@@ -533,7 +486,7 @@
                 </li>
                 <li>
                     <p><strong>Das Recht auf Berichtigung.</strong> Sie haben das Recht auf Berichtigung Ihrer Daten, falls diese unzutreffend oder unvollständig sein sollten.</p>
-                </li> 
+                </li>
                 <li>
                     <p><strong>Das Recht auf Widerspruch.</strong> Sie haben das Recht, einer Verarbeitung Ihrer personenbezogenen Daten durch uns zu widersprechen.</p>
                 </li>
@@ -555,27 +508,18 @@
             <p>Wir beauftragen gegebenenfalls dritte Unternehmen und Einzelpersonen ("Leistungsanbieter") mit Unterstützungsleistungen zum einfacheren Angebot unseres Dienstes, mit der Erbringung von Leistungen in unserem Namen, mit der Erbringung von mit unserem Dienst verbundenen Leistungen oder mit Unterstützungsleistungen zur Analyse der Art und Weise, auf die unser Dienst in Anspruch genommen wird.</p>
             <p>Diese Dritten können auf Ihre personenbezogenen Daten nur in dem Umfang Zugriff nehmen, der für die Erfüllung der genannten Aufgaben in unserem Namen erforderlich ist, und dürfen diese für keine sonstigen Zwecke offenlegen oder nutzen.</p>
 
-
-              
-
-
-
-
             <h2>Links zu anderen Websites</h2>
             <p>Unser Dienst kann Links zu anderen Websites enthalten, die nicht von uns betrieben werden. Wenn Sie auf einen Drittlink klicken, werden Sie direkt auf die Website des betreffenden Dritten weitergeleitet. Wir empfehlen Ihnen dringend, sich jeweils die Datenschutz-Richtlinien aller von Ihnen besuchten Websites durchzulesen.</p>
             <p>Wir haben keine Kontrolle über die Inhalte, Datenschutzvorschriften und -praktiken dritter Websites oder Dienste und übernehmen in diesem Zusammenhang keine Haftung.</p>
-
 
             <h2>Privatsphäre Minderjähriger</h2>
             <p>Unser Dienst richtet sich nicht an Personen, die das 18. Lebensjahr noch nicht vollendet haben ("minderjährige Personen").</p>
             <p>Wir erfassen wissentlich keine persönlich identifizierbaren Daten zu minderjährigen Personen. Falls Sie ein Elternteil oder Vormund sind und es Ihnen bekannt wird, dass eine Ihrer Aufsicht unterstehende minderjährige Person uns personenbezogene Daten übermittelt hat, bitten wir Sie, mit uns Kontakt aufzunehmen. Falls uns bekannt wird, dass wir personenbezogene Daten einer minderjährigen Person ohne elterliche Zustimmung erfasst haben, setzen wir Maßnahmen zur Entfernung dieser Daten von unseren Servern um.</p>
 
-
             <h2>Änderungen dieser Datenschutz-Richtlinie</h2>
             <p>Wir können unsere Datenschutz-Richtlinie von Zeit zu Zeit aktualisieren. Jegliche solcher Änderungen teilen wir Ihnen mit, indem wir die aktualisierte Fassung auf dieser Seite veröffentlichen.</p>
             <p>Wir werden Sie vor dem Inkrafttreten der betreffenden Änderung per E-Mail und/oder mittels einer sonstigen sichtbaren Mitteilung innerhalb unseres Dienstes informieren und das "Datum des Inkrafttretens" am Beginn dieser Datenschutz-Richtlinie aktualisieren.</p>
             <p>Wir empfehlen Ihnen, diese Datenschutz-Richtlinie regelmäßig auf Änderungen hin durchzusehen. Änderungen dieser Datenschutz-Richtlinie werden im Zeitpunkt ihrer Veröffentlichung auf dieser Seite wirksam.</p>
-
 
             <h2>Kontaktaufnahme</h2>
             <p>Falls Sie Fragen zu dieser Datenschutz-Richtlinie haben, können Sie wie folgt Kontakt zu uns aufnehmen:</p>
