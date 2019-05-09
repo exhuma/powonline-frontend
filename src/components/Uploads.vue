@@ -20,9 +20,27 @@
             </v-list-tile-title>
           </v-list-tile-content>
           <v-list-tile-action>
-            <v-btn
-              icon
-              @click="deleteFile(file.uuid)"><v-icon>delete</v-icon></v-btn>
+            <v-dialog v-model="deleteDialogVisible" hide-overlay max-width="40em">
+              <v-btn
+                slot="activator"
+                @click.native="promptDelete(file)"
+                icon><v-icon>delete</v-icon></v-btn>
+              <v-card>
+                <v-card-title><slot name="title">Confirm Action</slot></v-card-title>
+                <v-card-text>
+                  <slot name="text">
+                    Do you want to delete the file
+                    <img :src="selectedFile.thumbnail" />
+                  </slot>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn flat @click.native="cancelDelete">No</v-btn>
+                  <v-btn class="error" @click.native="deleteFile(selectedFile)">Yes</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
           </v-list-tile-action>
         </v-list-tile>
       </v-list>
@@ -44,17 +62,33 @@ export default {
   created () {
     this.$store.dispatch('refreshUploads')
   },
+  data () {
+    return {
+      selectedFile: {},
+      deleteDialogVisible: false
+    }
+  },
   computed: {
     files () {
       return this.$store.state.uploads
     }
   },
   methods: {
+    promptDelete (file) {
+      this.selectedFile = file
+      this.deleteDialogVisible = true
+    },
+    cancelDelete () {
+      this.selectedFile = {}
+      this.deleteDialogVisible = false
+    },
     refreshImages () {
       this.$store.dispatch('refreshUploads')
     },
-    deleteFile (uuid) {
-      this.$remoteProxy.deleteFile(uuid)
+    deleteFile (file) {
+      this.selectedFile = {}
+      this.deleteDialogVisible = false
+      this.$remoteProxy.deleteFile(file.uuid)
         .then((data) => {
           this.$emit('snackRequested', {
             message: 'File deleted'
