@@ -26,16 +26,6 @@
           </v-list-tile-action>
         </v-list-tile>
       </v-list>
-      <v-dialog width="250px" v-model="processActive">
-        <v-card>
-          <v-card-title primary-title>
-            <h2>Uploading</h2>
-          </v-card-title>
-          <v-card-text>
-            <v-progress-linear :indeterminate="true"></v-progress-linear>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
     </div>
     <v-btn
       @click="refreshImages"
@@ -49,14 +39,10 @@
 </template>
 
 <script>
+
 export default {
   created () {
     this.$store.dispatch('refreshUploads')
-  },
-  data () {
-    return {
-      processActive: false
-    }
   },
   computed: {
     files () {
@@ -84,22 +70,38 @@ export default {
         })
     },
     sendUpload () {
-      this.processActive = true
+      this.$emit('changeActivity', {
+        visible: true,
+        progress: -1,
+        text: 'Uploading...'
+      })
       this.$remoteProxy.sendUpload(this.$refs.fileInput.files[0])
         .then((data) => {
           this.$emit('snackRequested', {
             message: 'Upload successful'
           })
           this.refreshImages()
-          this.processActive = false
+          this.$emit('changeActivity', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
         })
         .catch((e) => {
           console.error(e)
+          let message = 'Unknown Error'
+          if (e.response.status < 500) {
+            message = e.response.data
+          }
           this.$emit('snackRequested', {
-            'message': 'Unable to upload image',
+            'message': `Unable to upload image (${message})`,
             'color': 'red'
           })
-          this.processActive = false
+          this.$emit('changeActivity', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
         })
     }
   }

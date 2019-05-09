@@ -61,6 +61,8 @@ axios.interceptors.request.use(config => {
   return Promise.reject(error)
 })
 
+axios.defaults.withCredentials = true
+
 axios.interceptors.response.use(response => {
   // nothing to do on successful response
   return response
@@ -99,10 +101,19 @@ new Vue({
     // ... otherwise, the UI still looks as if we were logged in
 
     // Configure social login providers
-    hello.init({
-      google: process.env.OAUTH_ID.GOOGLE,
-      facebook: process.env.OAUTH_ID.FACEBOOK
-    }, {redirect_uri: 'redirect.html'})
+    axios.get('/static/config/config.json')
+      .then(response => {
+        if (!response.data.hello) {
+          console.warn(
+            'No config for hellojs found. Social logins will not work!')
+        } else {
+          hello.init(response.data.hello, {redirect_uri: 'redirect.html'})
+          console.log('Social logins initialised.')
+        }
+      })
+      .catch(e => {
+        console.error(e)
+      })
 
     // Logout user if JWT token has expired.
     const tokenCleared = auth.clearExpiredToken()
@@ -110,6 +121,7 @@ new Vue({
       this.$store.commit('clearUserData')
     }
 
+    this.$store.dispatch('fetchSiteConfig')
     this.$store.dispatch('refreshRemote')
 
     if (process.env.PUSHER_KEY) {

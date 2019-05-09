@@ -12,12 +12,17 @@ import Changelog from '@/components/Changelog'
 import Uploads from '@/components/Uploads'
 import Gallery from '@/components/Gallery'
 import LiveImage from '@/components/LiveImage'
+import PrivacyPolicy from '@/components/PrivacyPolicy'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   routes: [
+    {
+      path: '/privacy-policy',
+      component: PrivacyPolicy
+    },
     {
       path: '/live-image',
       component: LiveImage

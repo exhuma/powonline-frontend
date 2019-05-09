@@ -10,53 +10,28 @@
       hint="Filter list of teams by name and/or contact"
       ></v-text-field>
 
-    <v-tabs grow
-      v-model="activeTab">
+    <v-layout row>
+      <v-flex xs-4>
+        <v-checkbox name="showPending" label="Pending" v-model="showPending" />
+      </v-flex>
+      <v-flex xs-4>
+        <v-checkbox name="showArrived" label="Arrived" v-model="showArrived" />
+      </v-flex>
+      <v-flex xs-4>
+        <v-checkbox name="showFinished" label="Finished" v-model="showFinished" />
+      </v-flex>
+    </v-layout>
 
-      <v-tabs-bar>
-        <v-tabs-item href="#pending" key="pending" ripple>Pending</v-tabs-item>
-        <v-tabs-item href="#arrived" key="arrived" ripple>Arrived</v-tabs-item>
-        <v-tabs-item href="#finished" key="finished" ripple>Finished</v-tabs-item>
-        <v-tabs-slider color="accent" />
-      </v-tabs-bar>
-
-      <v-tabs-items>
-        <v-tabs-content key="pending" id="pending">
-        <small-station-dashboard-item
-            v-for="(state, idx) in pendingTeams"
-            class="mb-4"
-            @scoreUpdated="onScoreUpdated"
-            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
-            @saveClicked="onSaveClicked"
-            @stateAdvanced="onStateAdvanced"
-            :state="state"
-            :key="'small' + idx"></small-station-dashboard-item>
-        </v-tabs-content>
-        <v-tabs-content key="arrived" id="arrived">
-        <small-station-dashboard-item
-            v-for="(state, idx) in arrivedTeams"
-            class="mb-4"
-            @scoreUpdated="onScoreUpdated"
-            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
-            @saveClicked="onSaveClicked"
-            @stateAdvanced="onStateAdvanced"
-            :state="state"
-            :key="'small' + idx"></small-station-dashboard-item>
-        </v-tabs-content>
-        <v-tabs-content key="finished" id="finished">
-        <small-station-dashboard-item
-            v-for="(state, idx) in finishedTeams"
-            class="mb-4"
-            @scoreUpdated="onScoreUpdated"
-            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
-            @saveClicked="onSaveClicked"
-            @stateAdvanced="onStateAdvanced"
-            :state="state"
-            :key="'small' + idx"></small-station-dashboard-item>
-        </v-tabs-content>
-      </v-tabs-items>
-
-    </v-tabs>
+    <small-station-dashboard-item
+        v-for="(state, idx) in allTeams"
+        class="mb-4"
+        @scoreUpdated="onScoreUpdated"
+        @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+        @saveClicked="onSaveClicked"
+        @stateAdvanced="onStateAdvanced"
+        v-if="selectedStates.includes(state.state)"
+        :state="state"
+        :key="'small' + idx"></small-station-dashboard-item>
 
     <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
   </center-col>
@@ -71,18 +46,47 @@ export default {
       snackbar: false,
       snacktext: '',
       snackColor: 'success',
-      teamFilter: ''
+      teamFilter: '',
+      showPending: true,
+      showArrived: true,
+      showFinished: false
     }
   },
   computed: {
-    pendingTeams () {
-      return this.limitedStates('unknown')
+    selectedStates () {
+      let output = []
+      if (this.showPending) {
+        output.push('unknown')
+      }
+      if (this.showArrived) {
+        output.push('arrived')
+      }
+      if (this.showFinished) {
+        output.push('finished')
+      }
+      return output
     },
-    arrivedTeams () {
-      return this.limitedStates('arrived')
-    },
-    finishedTeams () {
-      return this.limitedStates('finished')
+    allTeams () {
+      const output = []
+      this.$store.state.global_dashboard.forEach(teamInfo => {
+        teamInfo.stations.forEach(stationState => {
+          if (stationState.name !== this.$route.params.stationName) {
+            return // skip states from other stations
+          }
+          if (stationState.state === 'unreachable') {
+            // This team cannot reach the current sation (not assigned)
+            return
+          }
+          output.push({
+            team: teamInfo.team,
+            station: this.$route.params.stationName,
+            state: stationState.state,
+            score: stationState.score
+          })
+        })
+      })
+      let filtered = this.filteredTeams(output)
+      return filtered
     }
   },
   created () {
@@ -105,31 +109,6 @@ export default {
         let nameMatches = item.team.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
-      return filtered
-    },
-    limitedStates: function (state) {
-      const output = []
-      this.$store.state.global_dashboard.forEach(teamInfo => {
-        teamInfo.stations.forEach(stationState => {
-          if (stationState.name !== this.$route.params.stationName) {
-            return // skip states from other stations
-          }
-          if (stationState.state === 'unreachable') {
-            // This team cannot reach the current sation (not assigned)
-            return
-          }
-          if (stationState.state !== state) {
-            return // We skip everything that is not of the selected tate in this window
-          }
-          output.push({
-            team: teamInfo.team,
-            station: this.$route.params.stationName,
-            state: stationState.state,
-            score: stationState.score
-          })
-        })
-      })
-      let filtered = this.filteredTeams(output)
       return filtered
     },
     onStateAdvanced: function (state) {

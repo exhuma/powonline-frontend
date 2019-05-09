@@ -1,0 +1,7 @@
+{
+  "title": "Main Title",
+  "hello": {
+    "google": "public-google-api-key",
+    "facebook": "public-facebook-api-key"
+  }
+}

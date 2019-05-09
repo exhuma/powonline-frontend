@@ -1,9 +1,13 @@
 <template>
   <div class="imgbox">
-    <div class="white--text">{{ counter }}</div>
+    <div v-if="!fullScreen" class="white--text">{{ counter }}</div>
     <div v-if="this.queuelength" class="white--text">{{queuelength}} images in queue</div>
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
-    <v-slider label="Timeout (s)" thumb-label ticks min="1" max="30" v-model="timeout"></v-slider>
+    <v-slider v-if="!fullScreen" label="Timeout (s)" thumb-label ticks min="1" max="30" v-model="timeout"></v-slider>
+    <v-btn v-if="!fullScreen" class="fab-high" fab
+      @click="toggleFullScreen"><v-icon>fullscreen</v-icon></v-btn>
+    <v-btn v-else class="fab-low" fab
+      @click="toggleFullScreen"><v-icon>fullscreen_exit</v-icon></v-btn>
   </div>
 </template>
 
@@ -20,6 +24,16 @@
   max-width: 100%;
   max-height: 100;
   margin: auto;
+}
+.fab-high {
+  position: absolute;
+  bottom: 75px;
+  right: 25px;
+}
+.fab-low {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
 }
 </style>
 
@@ -43,7 +57,8 @@ export default {
       latestImage: null,
       intervalId: null,
       timeout: 10,
-      counter: 10
+      counter: 10,
+      fullScreen: false
     }
   },
   computed: {
@@ -52,6 +67,10 @@ export default {
     }
   },
   methods: {
+    toggleFullScreen () {
+      this.$emit('fullScreenRequested', !this.fullScreen)
+      this.fullScreen = !this.fullScreen
+    },
     countdown () {
       this.counter -= 1
       if (this.counter === 0) {

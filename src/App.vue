@@ -2,20 +2,37 @@
   <div id="app">
     <v-app dark>
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
-      <v-toolbar app>
-        <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
-        <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
-        <v-spacer></v-spacer>
-        <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
-        <v-tooltip bottom v-if="tokenIsAvailable">
-          <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
-          <span>Logout</span>
-        </v-tooltip>
-        <v-tooltip bottom v-else>
-          <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
-          <span>Login</span>
-        </v-tooltip>
-      </v-toolbar>
+      <v-slide-y-transition>
+        <v-toolbar v-if="isTitleBarVisible" app>
+          <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
+          <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
+          <v-spacer></v-spacer>
+          <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
+          <v-tooltip bottom v-if="tokenIsAvailable">
+            <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
+            <span>Logout</span>
+          </v-tooltip>
+          <v-tooltip bottom v-else>
+            <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
+            <span>Login</span>
+          </v-tooltip>
+        </v-toolbar>
+      </v-slide-y-transition>
+
+      <div
+        v-if="activity.visible && activity.text"
+        class="grey darken-4 white--text">{{ activity.text }}</div>
+      <v-progress-linear
+        v-if="!activity.visible"
+        class="mt-0"
+        height="2"></v-progress-linear>
+      <v-progress-linear
+        v-if="activity.visible"
+        class="mt-0"
+        height="2"
+        v-model="activity.progress"
+        :indeterminate="activity.progress === -1"></v-progress-linear>
+
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
           <v-list-tile v-for="route in routes" :to="route.to" :key="route.to">
@@ -70,11 +87,18 @@
                     </v-tabs-content>
                   </v-tabs-items>
                 </v-tabs>
+                <v-footer class="pa-3">
+                  <v-spacer></v-spacer>
+                  <router-link to="/privacy-policy">Privacy Policy</router-link>
+                </v-footer>
 
               </v-card-text>
             </v-card>
           </v-dialog>
-          <router-view @snackRequested="onSnackRequested"></router-view>
+          <router-view
+            @changeActivity="onActivityChange"
+            @fullScreenRequested="setFullscreen"
+            @snackRequested="onSnackRequested"></router-view>
         </v-container>
         <v-bottom-nav
           app
@@ -99,9 +123,18 @@
 
 <script>
 import hello from 'hellojs'
+import EventBus from '@/eventBus'
 
 export default {
   name: 'App',
+  mounted () {
+    EventBus.$on('activityEvent', (payload) => {
+      this.onActivityChange(payload)
+    })
+    EventBus.$on('fileUploadProgress', (payload) => {
+      this.onActivityChange(payload)
+    })
+  },
   data () {
     return {
       activeLoginTab: 'socialLogin',
@@ -112,10 +145,24 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.4'
+      version: '2019.05.5',
+      isTitleBarVisible: true,
+      isBottomNavVisible: true,
+      activity: {
+        visible: false,
+        progress: -1,
+        text: ''
+      }
     }
   },
   methods: {
+    setFullscreen (state) {
+      this.isBottomNavVisible = !state
+      this.isTitleBarVisible = !state
+    },
+    onActivityChange (state) {
+      this.activity = state
+    },
     onSnackRequested (data) {
       this.globalSnack = true
       this.globalSnackText = data.message
@@ -187,11 +234,11 @@ export default {
       const output = [
         { label: 'Dashboard', to: '/matrix', icon: 'border_all' },
         { label: 'Scoreboard', to: '/scoreboard', icon: 'format_list_numbered' },
-        { label: 'Stations', to: '/station', icon: 'place' },
-        { label: 'Teams', to: '/team', icon: 'group' },
         { label: 'Photos', to: '/gallery', icon: 'image' }
       ]
       if (this.tokenIsAvailable) {
+        output.push({ label: 'Stations', to: '/station', icon: 'place' })
+        output.push({ label: 'Teams', to: '/team', icon: 'group' })
         output.push({ label: 'Uploads', to: '/uploads', icon: 'cloud_upload' })
       }
       const roles = this.$store.state.roles
@@ -203,10 +250,7 @@ export default {
       return output
     },
     pageTitle () {
-      return this.$store.state.pageTitle
-    },
-    isBottomNavVisible () {
-      return true
+      return this.$store.state.siteConfig.title
     },
     tokenIsAvailable () {
       const token = this.$store.state.jwt
