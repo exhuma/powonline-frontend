@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import EventBus from '@/eventBus'
+import moment from 'moment'
 
 Vue.use(Vuex)
 
@@ -467,6 +468,14 @@ function makeStore (auth, remoteProxy) {
       },
 
       replaceGallery (state, data) {
+        data.sort((a, b) => {
+          let adt = moment.utc(a.when)
+          let bdt = moment.utc(b.when)
+          return bdt - adt
+        })
+        data.forEach(item => {
+          console.log(item.when, item.name)
+        })
         state.gallery = data
       },
 
@@ -521,11 +530,7 @@ function makeStore (auth, remoteProxy) {
         remoteProxy.getPublicImages()
           .then(data => {
             console.log(data)
-            const simplified = []
-            data.forEach(item => {
-              simplified.push(item.href)
-            })
-            context.commit('replaceGallery', simplified)
+            context.commit('replaceGallery', data)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,

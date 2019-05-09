@@ -1,6 +1,14 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
+      <h1>v2019.05.6 <small>Released on 2019-05-09</small></h1>
+      <h2>Quality-of-Life improvments</h2>
+      <ul>
+        <li>Photo gallery now updates automatically</li>
+        <li>Deleting files now prompts for a confirmation</li>
+        <li>Photo gallery is sorted by file-date</li>
+      </ul>
+
       <h1>v2019.05.5 <small>Released on 2019-05-09</small></h1>
       <h2>Highlights</h2>
       <ul>
