@@ -1,6 +1,31 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
+      <h1>v2019.05.4 <small>Released on 2019-05-07</small></h1>
+      <h2>Highlights</h2>
+      <ul>
+        <li>Add progress bar to image uploads</li>
+        <li>Add a photo gallery</li>
+        <li>Add a <tt>/live-image</tt> URL. This displays photos as soon as
+            they arrive in the system</li>
+      </ul>
+      <h2>Bug Fixes</h2>
+      <ul>
+        <li>Remote-call error handlers did not correctly show the error in the
+            logs.</li>
+      </ul>
+
+      <h1>v2019.05.3 <small>Released on 2019-05-06</small></h1>
+      <h2>Highlights</h2>
+      <ul>
+        <li>Add a photo gallery</li>
+        <li>Add a "live-image" view</li>
+      </ul>
+      <h2>Quality-of-Life improvments</h2>
+      <ul>
+        <li>Show popup during image upload process</li>
+      </ul>
+
       <h1>v2019.05.3 <small>Released on 2019-05-06</small></h1>
       <h2>Highlights</h2>
       <ul>
