@@ -230,11 +230,11 @@ export default {
       const output = [
         { label: 'Dashboard', to: '/matrix', icon: 'border_all' },
         { label: 'Scoreboard', to: '/scoreboard', icon: 'format_list_numbered' },
-        { label: 'Stations', to: '/station', icon: 'place' },
-        { label: 'Teams', to: '/team', icon: 'group' },
         { label: 'Photos', to: '/gallery', icon: 'image' }
       ]
       if (this.tokenIsAvailable) {
+        output.push({ label: 'Stations', to: '/station', icon: 'place' })
+        output.push({ label: 'Teams', to: '/team', icon: 'group' })
         output.push({ label: 'Uploads', to: '/uploads', icon: 'cloud_upload' })
       }
       const roles = this.$store.state.roles
