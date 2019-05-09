@@ -78,6 +78,10 @@
         <li>Added this changelog</li>
       </ul>
     </div>
+    <v-footer class="pa-3">
+        <v-spacer></v-spacer>
+        <router-link to="/privacy-policy">Privacy Policy</router-link>
+    </v-footer>
   </center-col>
 </template>
 

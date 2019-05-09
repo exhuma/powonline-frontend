@@ -100,10 +100,6 @@
             @fullScreenRequested="setFullscreen"
             @snackRequested="onSnackRequested"></router-view>
         </v-container>
-        <v-footer class="pa-3">
-          <v-spacer></v-spacer>
-          <router-link to="/privacy-policy">Privacy Policy</router-link>
-        </v-footer>
         <v-bottom-nav
           app
           transition="slide-y-transition"
