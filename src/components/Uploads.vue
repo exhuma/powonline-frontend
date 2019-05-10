@@ -20,29 +20,25 @@
               <a class="yellow--text" :href="file.href">{{ file.name }}</a>
             </v-list-tile-title>
           </v-list-tile-content>
-          <v-list-tile-action>
-            <v-dialog v-model="deleteDialogVisible" hide-overlay max-width="40em">
+          <template v-if="confirmDelete === file.uuid">
+            <v-list-tile-action>
+              <v-btn icon @click.native="deleteFile(file.uuid)">
+                <v-icon>check</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+            <v-list-tile-action>
+              <v-btn icon @click.native="confirmDelete = ''">
+                <v-icon>clear</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+          </template>
+          <template v-else>
+            <v-list-tile-action>
               <v-btn
-                slot="activator"
-                @click.native="promptDelete(file)"
+                @click.native="confirmDelete = file.uuid"
                 icon><v-icon>delete</v-icon></v-btn>
-              <v-card>
-                <v-card-title><slot name="title">Confirm Action</slot></v-card-title>
-                <v-card-text>
-                  <slot name="text">
-                    Do you want to delete the file
-                    <img :src="selectedFile.thumbnail" />
-                  </slot>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer />
-                  <v-btn flat @click.native="cancelDelete">No</v-btn>
-                  <v-btn class="error" @click.native="deleteFile(selectedFile)">Yes</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-
-          </v-list-tile-action>
+            </v-list-tile-action>
+          </template>
         </v-list-tile>
       </v-list>
     </div>
@@ -65,8 +61,7 @@ export default {
   },
   data () {
     return {
-      selectedFile: {},
-      deleteDialogVisible: false
+      confirmDelete: ''
     }
   },
   computed: {
@@ -75,26 +70,18 @@ export default {
     }
   },
   methods: {
-    promptDelete (file) {
-      this.selectedFile = file
-      this.deleteDialogVisible = true
-    },
-    cancelDelete () {
-      this.selectedFile = {}
-      this.deleteDialogVisible = false
-    },
     refreshImages () {
       this.$store.dispatch('refreshUploads')
     },
-    deleteFile (file) {
-      this.selectedFile = {}
+    deleteFile (uuid) {
       this.deleteDialogVisible = false
-      this.$remoteProxy.deleteFile(file.uuid)
+      this.$remoteProxy.deleteFile(uuid)
         .then((data) => {
           this.$emit('snackRequested', {
             message: 'File deleted'
           })
           this.refreshImages()
+          this.confirmDelete = ''
         })
         .catch((e) => {
           console.error(e)
@@ -102,6 +89,7 @@ export default {
             'message': 'Unable to delete file',
             'color': 'red'
           })
+          this.confirmDelete = ''
         })
     },
     sendUpload () {

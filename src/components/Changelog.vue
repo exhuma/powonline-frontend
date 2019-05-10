@@ -1,6 +1,16 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
+      <h1>v2019.05.7 <small>Released on 2019-05-10</small></h1>
+      <h2>Highlights</h2>
+      <ul>
+        <li>New "audit-log" which lists all changes to team scores</li>
+      </ul>
+      <h2>Quality-of-Life improvments</h2>
+      <ul>
+        <li>Team contact info is now displayed to staff members</li>
+      </ul>
+
       <h1>v2019.05.6 <small>Released on 2019-05-09</small></h1>
       <h2>Quality-of-Life improvments</h2>
       <ul>
