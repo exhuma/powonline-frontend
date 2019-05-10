@@ -245,6 +245,7 @@ export default {
       if (roles && roles.indexOf('admin') > -1) {
         output.push({ label: 'Routes', to: '/route', icon: 'gesture' })
         output.push({ label: 'Users', to: '/user', icon: 'face' })
+        output.push({ label: 'Audit', to: '/auditlog', icon: 'receipt' })
       }
       output.push({ label: 'Changelog', to: '/changelog', icon: 'info' })
       return output
