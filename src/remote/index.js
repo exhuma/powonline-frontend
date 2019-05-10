@@ -724,6 +724,19 @@ class Proxy extends FakeProxy {
     })
     return output
   }
+
+  fetchAuditLog () {
+    let output = new Promise((resolve, reject) => {
+      axios.get(`${this.baseUrl}/auditlog`)
+        .then(response => {
+          resolve(response.data)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return output
+  }
 }
 
 export default function makeRemoteProxy (fake, backendUrl) {
