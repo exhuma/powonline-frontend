@@ -589,6 +589,14 @@ function makeStore (auth, remoteProxy) {
           })
           .catch((e) => {
             console.error(e)
+            let message = 'Unknown Error'
+            if (e.response.status < 500) {
+              message = e.response.data
+            }
+            EventBus.$emit('snackRequested', {
+              message: message,
+              color: 'red'
+            })
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
@@ -614,6 +622,14 @@ function makeStore (auth, remoteProxy) {
             })
           })
           .catch(e => {
+            let message = 'Unknown Error'
+            if (e.response.status < 500) {
+              message = e.response.data
+            }
+            EventBus.$emit('snackRequested', {
+              message: message,
+              color: 'red'
+            })
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
@@ -646,6 +662,14 @@ function makeStore (auth, remoteProxy) {
             })
           })
           .catch(e => {
+            let message = 'Unknown Error'
+            if (e.response.status < 500) {
+              message = e.response.data
+            }
+            EventBus.$emit('snackRequested', {
+              message: message,
+              color: 'red'
+            })
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,

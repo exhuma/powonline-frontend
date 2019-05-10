@@ -134,6 +134,9 @@ export default {
     EventBus.$on('fileUploadProgress', (payload) => {
       this.onActivityChange(payload)
     })
+    EventBus.$on('snackRequested', (payload) => {
+      this.onSnackRequested(payload)
+    })
   },
   data () {
     return {
