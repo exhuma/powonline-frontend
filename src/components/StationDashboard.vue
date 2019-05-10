@@ -121,17 +121,7 @@ export default {
         teamName: state.team,
         stationName: this.$route.params.stationName,
         score: newScore}).then(evt => {
-        this.snacktext = 'Changes saved'
-        this.snackColor = 'success'
-      }).catch(err => {
-        this.snackColor = 'error'
-        if (!err.response) {
-          this.snacktext = `Error: ${err.message}`
-        } else {
-          this.snacktext = `Error: ${err.response.data}`
-        }
       })
-      this.snackbar = true
     },
     onQuestionnaireScoreUpdated: function (payload) {
       const data = {
@@ -139,18 +129,7 @@ export default {
         stationName: this.$route.params.stationName,
         score: payload.score
       }
-      this.$store.dispatch('setQuestionnaireScore', data).then(evt => {
-        this.snacktext = 'Changes saved'
-        this.snackColor = 'success'
-      }).catch(err => {
-        this.snackColor = 'error'
-        if (!err.response) {
-          this.snacktext = `Error: ${err.message}`
-        } else {
-          this.snacktext = `Error: ${err.response.data}`
-        }
-      })
-      this.snackbar = true
+      this.$store.dispatch('setQuestionnaireScore', data)
     },
     onSaveClicked: function (state) {
       this.snacktext = 'Changes saved'

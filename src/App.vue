@@ -134,6 +134,9 @@ export default {
     EventBus.$on('fileUploadProgress', (payload) => {
       this.onActivityChange(payload)
     })
+    EventBus.$on('snackRequested', (payload) => {
+      this.onSnackRequested(payload)
+    })
   },
   data () {
     return {
@@ -145,7 +148,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2019.05.7',
+      version: '2019.05.8',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
       activity: {

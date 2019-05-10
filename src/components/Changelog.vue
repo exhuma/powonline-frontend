@@ -1,6 +1,14 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
+      <h1>v2019.05.8 <small>Released on 2019-05-10</small></h1>
+      <h2>Bugfixes</h2>
+      <ul>
+        <li>Show error message on station dashboard if remote call fails</li>
+      </ul>
+    </div>
+
+    <div class="white--text text-xs-left">
       <h1>v2019.05.7 <small>Released on 2019-05-10</small></h1>
       <h2>Highlights</h2>
       <ul>
