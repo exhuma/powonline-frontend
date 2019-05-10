@@ -13,12 +13,17 @@ import Uploads from '@/components/Uploads'
 import Gallery from '@/components/Gallery'
 import LiveImage from '@/components/LiveImage'
 import PrivacyPolicy from '@/components/PrivacyPolicy'
+import AuditLog from '@/components/AuditLog'
 
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   routes: [
+    {
+      path: '/auditlog',
+      component: AuditLog
+    },
     {
       path: '/privacy-policy',
       component: PrivacyPolicy
