@@ -52,7 +52,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole('admin') && item.data.contact" :key="item.data.name + 'contact'">
+        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.contact" :key="item.data.name + 'contact'">
           <v-list-tile-content>
             <v-list-tile-title>{{item.data.contact}}</v-list-tile-title>
             <v-list-tile-sub-title>Contact</v-list-tile-sub-title>
@@ -62,7 +62,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole('admin') && item.data.phone" :key="item.data.name + 'phone'">
+        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.phone" :key="item.data.name + 'phone'">
           <v-list-tile-content>
             <v-list-tile-title>
               <a class="yellow--text" :href="`tel:${item.data.phone}`">{{item.data.phone}}</a>
@@ -75,7 +75,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole('admin') && item.data.email" :key="item.data.name + 'email'">
+        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.email" :key="item.data.name + 'email'">
           <v-list-tile-content>
             <v-list-tile-title>
               <a class="yellow--text" :href="`mailto:${item.data.email}`">{{item.data.email}}</a>
@@ -88,7 +88,7 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole('admin')" :key="item.data.name + 'info'" no-action>
+        <v-list-tile v-if="hasRole(['admin'])" :key="item.data.name + 'info'" no-action>
           <v-list-tile-content>
             <v-list-tile-content>
               <v-btn :to="`/team/${item.data.name}`">Open Team Panel</v-btn>
@@ -99,7 +99,7 @@
       </v-list-group>
     </v-list>
 
-    <v-list-tile v-if="hasRole('admin')"> <!-- TODO: should not use v-list-tile here -->
+    <v-list-tile v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-tile here -->
       <v-spacer />
       <v-list-tile-action>
         <v-btn @click="openCreateDialog">Add new Team</v-btn>
@@ -197,8 +197,12 @@ export default {
     closeAddBlock () {
       this.isAddBlockVisible = false
     },
-    hasRole (roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+    hasRole (roleNames) {
+      let output = false
+      roleNames.forEach(role => {
+        output |= this.$store.state.roles.includes(role)
+      })
+      return output
     },
     onOpenEditDialog: function (team) {
       this.selectedTeam = team
