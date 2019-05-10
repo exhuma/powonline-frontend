@@ -586,6 +586,9 @@ function makeStore (auth, remoteProxy) {
               progress: -1,
               text: ''
             })
+            EventBus.$emit('snackRequested', {
+              message: 'Update successful'
+            })
           })
           .catch((e) => {
             console.error(e)
@@ -619,6 +622,9 @@ function makeStore (auth, remoteProxy) {
               visible: false,
               progress: -1,
               text: ''
+            })
+            EventBus.$emit('snackRequested', {
+              message: 'Update successful'
             })
           })
           .catch(e => {
@@ -659,6 +665,9 @@ function makeStore (auth, remoteProxy) {
               visible: false,
               progress: -1,
               text: ''
+            })
+            EventBus.$emit('snackRequested', {
+              message: 'Update successful'
             })
           })
           .catch(e => {
