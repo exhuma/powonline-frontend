@@ -26,10 +26,26 @@
 <script>
 export default {
   name: 'Scoreboard',
+  data () {
+    return {
+      intervalId: null
+    }
+  },
   created () {
-    this.$store.dispatch('refreshGlobalDashboard')
-    this.$store.dispatch('fetchQuestionnaireScores')
     this.$store.commit('changeTitle', 'Scoreboard')
+    this.refresh()
+    this.intervalId = setInterval(() => {
+      this.refresh()
+    }, 15000)
+  },
+  methods: {
+    refresh () {
+      this.$store.dispatch('refreshGlobalDashboard')
+      this.$store.dispatch('fetchQuestionnaireScores')
+    }
+  },
+  beforeDestroy () {
+    clearInterval(this.intervalId)
   },
   computed: {
     leaderboard () {
