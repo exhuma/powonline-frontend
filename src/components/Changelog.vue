@@ -1,6 +1,14 @@
 <template>
   <center-col id="ChangeLog">
     <div class="white--text text-xs-left">
+      <h1>v2019.05.9 <small>Released on 2019-05-10</small></h1>
+      <h2>Bugfixes</h2>
+      <ul>
+        <li>Force auto-refresh on scoreboard</li>
+      </ul>
+    </div>
+
+    <div class="white--text text-xs-left">
       <h1>v2019.05.8 <small>Released on 2019-05-10</small></h1>
       <h2>Bugfixes</h2>
       <ul>
