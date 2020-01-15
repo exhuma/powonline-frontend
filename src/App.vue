@@ -1,7 +1,10 @@
 <template>
   <v-app>
     <v-content>
-      <WelcomePage />
+      <router-view
+        @fullScreenRequested="setFullscreen"
+        @changeActivity="onActivityChange"
+        @snackRequested="onSnackRequested"></router-view>
     </v-content>
   </v-app>
 </template>
