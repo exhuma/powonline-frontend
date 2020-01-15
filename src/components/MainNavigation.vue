@@ -19,8 +19,8 @@
       >
         <v-list-item
           v-for="route in routes"
-          :key="route.to"
-          :to="route.to"
+          :key="route.path"
+          :to="route.path"
         >
           <v-list-item-icon>
             <v-icon>{{ route.icon }}</v-icon>
@@ -34,28 +34,16 @@
 </template>
 
 <script>
+import {getRoutes} from '@/router'
+
 export default {
   name: 'MainNavigation',
 
   computed: {
     routes () {
-      const output = [
-        { label: 'Dashboard', to: '/matrix', icon: 'mdi-border-all' },
-        { label: 'Scoreboard', to: '/scoreboard', icon: 'mdi-format-list-numbered' },
-        { label: 'Photos', to: '/gallery', icon: 'mdi-image' }
-      ]
-      if (this.tokenIsAvailable) {
-        output.push({ label: 'Stations', to: '/station', icon: 'mdi-place' })
-        output.push({ label: 'Teams', to: '/team', icon: 'mdi-group' })
-        output.push({ label: 'Uploads', to: '/uploads', icon: 'mdi-cloud_upload' })
-      }
-      const roles = []
-      if (roles && roles.indexOf('admin') > -1) {
-        output.push({ label: 'Routes', to: '/route', icon: 'mdi-gesture' })
-        output.push({ label: 'Users', to: '/user', icon: 'mdi-face' })
-        output.push({ label: 'Audit', to: '/auditlog', icon: 'mdi-receipt' })
-      }
-      output.push({ label: 'Changelog', to: '/changelog', icon: 'mdi-info' })
+      // XXX const roles = this.$store.state.roles
+      const roles = []  // XXX
+      const output = getRoutes(roles)
       return output
     },
   }

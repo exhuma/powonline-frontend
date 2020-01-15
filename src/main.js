@@ -4,7 +4,7 @@ import vuetify from './plugins/vuetify';
 import development from "@/config/development"
 import production from "@/config/production"
 import VueRouter from 'vue-router'
-import routes from "@/router"
+import {getRoutes} from '@/router'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "production") {
 
 const router = new VueRouter({
   mode: 'history',
-  routes
+  routes: getRoutes([])
 })
 
 new Vue({
