@@ -46,6 +46,7 @@
 <script>
 import MainNavigation from './components/MainNavigation';
 import ProgressIndicator from './components/ProgressIndicator';
+import {getAuthInfo} from '@/auth.js';
 
 export default {
   name: 'App',
@@ -69,10 +70,12 @@ export default {
       return this.$config.title
     },
     appUserName () {
-      return 'jdoe'
+      return getAuthInfo().userName
     },
     tokenIsAvailable () {
-      return false;
+      const token = getAuthInfo().jwtToken
+      const result = token !== ''
+      return result
     },
   },
 

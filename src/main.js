@@ -5,6 +5,7 @@ import development from "@/config/development"
 import production from "@/config/production"
 import VueRouter from 'vue-router'
 import {getRoutes} from '@/router'
+import {getAuthInfo} from '@/auth.js'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
@@ -17,7 +18,7 @@ if (process.env.NODE_ENV === "production") {
 
 const router = new VueRouter({
   mode: 'history',
-  routes: getRoutes([])
+  routes: getRoutes(getAuthInfo().roles)
 })
 
 new Vue({

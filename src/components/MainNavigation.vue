@@ -35,14 +35,14 @@
 
 <script>
 import {getRoutes} from '@/router'
+import {getAuthInfo} from '@/auth.js'
 
 export default {
   name: 'MainNavigation',
 
   computed: {
     routes () {
-      // XXX const roles = this.$store.state.roles
-      const roles = []  // XXX
+      const roles = getAuthInfo().roles
       const output = getRoutes(roles)
       return output
     },
