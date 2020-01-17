@@ -25,6 +25,12 @@
     <ProgressIndicator :model="activity"></ProgressIndicator>
 
     <v-content>
+      <LoginDialog
+        :isVisible="loginDialogVisible"
+        :socialCallback="doSocialLogin"
+        :localCallback="doLocalLogin"
+        @dialogDismissed="closeLoginDialog"
+        ></LoginDialog>
       <router-view
         @fullScreenRequested="setFullscreen"
         @changeActivity="onActivityChange"
@@ -46,6 +52,7 @@
 <script>
 import MainNavigation from './components/MainNavigation';
 import ProgressIndicator from './components/ProgressIndicator';
+import LoginDialog from './components/LoginDialog';
 import {getAuthInfo} from '@/auth.js';
 
 export default {
@@ -57,6 +64,7 @@ export default {
       color: 'success',
       text: '',
     },
+    loginDialogVisible: false,
     version: '2020-01-01',
     activity: {
       visible: false,
@@ -83,10 +91,22 @@ export default {
     setFullscreen: function () {
       // TODO
     },
+    closeLoginDialog: function () {
+      this.loginDialogVisible = false
+    },
     onActivityChange: function (payload) {
       this.activity.visible = payload.visible
       this.activity.progress = payload.progress
       this.activity.text = payload.text
+    },
+    doSocialLogin: function (providerName) {
+      window.console.log(`Logging in with ${providerName}`)
+      // TODO login(providerName)
+    },
+    doLocalLogin: function (userName, password) {
+      window.console.log(`Logging in using local credentials ${userName}`)
+      window.console.log(password)  // XXX
+      // TODO
     },
     onSnackRequested: function (payload) {
       this.snackbar.visible = true
@@ -96,6 +116,7 @@ export default {
   },
 
   components: {
+    LoginDialog,
     MainNavigation,
     ProgressIndicator,
   },
