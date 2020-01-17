@@ -36,6 +36,7 @@
         @fullScreenRequested="setFullscreen"
         @changeActivity="onActivityChange"
         @snackRequested="onSnackRequested"></router-view>
+      <BottomNavigation></BottomNavigation>
     </v-content>
 
     <v-snackbar
@@ -52,6 +53,7 @@
 
 <script>
 import MainNavigation from './components/MainNavigation';
+import BottomNavigation from './components/BottomNavigation';
 import ProgressIndicator from './components/ProgressIndicator';
 import LoginDialog from './components/LoginDialog';
 import {getAuthInfo} from '@/auth.js';
@@ -117,6 +119,7 @@ export default {
   },
 
   components: {
+    BottomNavigation,
     LoginDialog,
     MainNavigation,
     ProgressIndicator,
