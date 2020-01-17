@@ -56,7 +56,7 @@ import MainNavigation from './components/MainNavigation';
 import BottomNavigation from './components/BottomNavigation';
 import ProgressIndicator from './components/ProgressIndicator';
 import LoginDialog from './components/LoginDialog';
-import {getAuthInfo} from '@/auth.js';
+import {getAuthInfo, localLogin} from '@/auth.js';
 
 export default {
   name: 'App',
@@ -107,9 +107,23 @@ export default {
       // TODO login(providerName)
     },
     doLocalLogin: function (userName, password) {
-      window.console.log(`Logging in using local credentials ${userName}`)
-      window.console.log(password)  // XXX
-      // TODO
+      localLogin(userName, password)
+        .then(() => {
+          // TODO this.$store.commit('updateUserData', data)
+          this.onSnackRequested({
+            message: 'Successfully logged in',
+            color: 'green'
+          })
+        })
+        .catch((error) => {
+          this.onSnackRequested({
+            text: error,
+            color: 'error'
+          })
+          // TODO social.logout('facebook')
+          // TODO social.logout('google')
+          // TODO this.$store.commit('clearUserData')
+        })
     },
     onSnackRequested: function (payload) {
       this.snackbar.visible = true
