@@ -17,6 +17,7 @@
         <span>Logout</span>
       </v-tooltip>
       <v-btn
+        v-else
         color="success"
         @click.native.stop="showLoginDialog"
       >Login</v-btn>
