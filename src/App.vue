@@ -1,46 +1,34 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app dense dark
-      >
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
-      <v-spacer></v-spacer>
-      <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
-      <v-tooltip bottom v-if="tokenIsAvailable">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            v-on="on"
-            @click.native.stop="logoutUser"
-            icon><v-icon>mdi-exit-to-app</v-icon></v-btn>
-        </template>
-        <span>Logout</span>
-      </v-tooltip>
-      <v-btn
-        v-else
-        color="success"
-        @click.native.stop="showLoginDialog"
-      >Login</v-btn>
-    </v-app-bar>
-    <MainNavigation></MainNavigation>
+  <v-app dark>
+    <v-slide-y-transition>
+      <TitleBar
+        :title="pageTitle"
+        :version="version"
+        :userName="appUserName"
+        :isTitleBarVisible="isTitleBarVisible"
+        @logoutRequested="onLogoutRequested"
+        ></TitleBar>
+    </v-slide-y-transition>
+
+    <MainNavigation :isVisible="sideMenuVisible"></MainNavigation>
     <ProgressIndicator :model="activity"></ProgressIndicator>
 
     <v-content>
       <LoginDialog
         :isVisible="loginDialogVisible"
-        :socialCallback="doSocialLogin"
-        :localCallback="doLocalLogin"
+        :hello="hello"
+        :localAuth="localAuth"
         @dialogDismissed="closeLoginDialog"
         ></LoginDialog>
       <router-view
-        @fullScreenRequested="setFullscreen"
         @changeActivity="onActivityChange"
+        @fullScreenRequested="setFullscreen"
         @snackRequested="onSnackRequested"></router-view>
-      <BottomNavigation></BottomNavigation>
+      <BottomNavigation :isVisible="isBottomNavVisible"></BottomNavigation>
     </v-content>
 
     <v-snackbar
-      app
+      :top="true"
       :color="snackbar.color"
       :timeout="2000"
       v-model="snackbar.visible">
@@ -51,79 +39,72 @@
   </v-app>
 </template>
 
+<style scoped>
+  SMALL {
+    font-size: 60%;
+  }
+</style>
+
 <script>
-import MainNavigation from './components/MainNavigation';
-import BottomNavigation from './components/BottomNavigation';
-import ProgressIndicator from './components/ProgressIndicator';
-import LoginDialog from './components/LoginDialog';
-import {getAuthInfo, localLogin} from '@/auth.js';
+import hello from 'hellojs'
+import TitleBar from './components/TitleBar'
+import MainNavigation from './components/MainNavigation'
+import BottomNavigation from './components/BottomNavigation'
+import ProgressIndicator from './components/ProgressIndicator'
+import LoginDialog from './components/LoginDialog'
+import auth from '@/auth.js'
+import EventBus from '@/eventBus'
+import localAuth from '@/auth'
 
 export default {
   name: 'App',
+  mounted () {
+    EventBus.$on('activityEvent', (payload) => {
+      this.onActivityChange(payload)
+    })
+    EventBus.$on('fileUploadProgress', (payload) => {
+      this.onActivityChange(payload)
+    })
+    EventBus.$on('snackRequested', (payload) => {
+      this.onSnackRequested(payload)
+    })
+  },
 
-  data: () => ({
-    snackbar: {
-      visible: false,
-      color: 'success',
-      text: '',
-    },
-    loginDialogVisible: false,
-    version: '2020-01-01',
-    activity: {
-      visible: false,
-      progress: -1,
-      text: 'Yoinks'
-    },
-  }),
-
-  computed: {
-    pageTitle () {
-      return this.$config.title
-    },
-    appUserName () {
-      return getAuthInfo().userName
-    },
-    tokenIsAvailable () {
-      const token = getAuthInfo().jwtToken
-      const result = token !== ''
-      return result
-    },
+  data () {
+    return {
+      localAuth: localAuth,
+      hello: hello,
+      snackbar: {
+        visible: false,
+        color: 'success',
+        text: ''
+      },
+      loginDialogVisible: false,
+      sideMenuVisible: false,
+      version: '2019.05.9',
+      isTitleBarVisible: true,
+      isBottomNavVisible: true,
+      activity: {
+        visible: false,
+        progress: -1,
+        text: ''
+      }
+    }
   },
 
   methods: {
-    setFullscreen: function () {
-      // TODO
+    onLogoutRequested () {
+      this.localAuth.logoutUser(this.hello)
+    },
+    setFullscreen (state) {
+      this.isBottomNavVisible = !state
+      this.isTitleBarVisible = !state
     },
     closeLoginDialog: function () {
       this.loginDialogVisible = false
     },
-    onActivityChange: function (payload) {
-      this.activity.visible = payload.visible
-      this.activity.progress = payload.progress
-      this.activity.text = payload.text
-    },
-    doSocialLogin: function (providerName) {
-      window.console.log(`Logging in with ${providerName}`)
-      // TODO login(providerName)
-    },
-    doLocalLogin: function (userName, password) {
-      localLogin(userName, password)
-        .then(() => {
-          // TODO this.$store.commit('updateUserData', data)
-          this.onSnackRequested({
-            message: 'Successfully logged in',
-            color: 'green'
-          })
-        })
-        .catch((error) => {
-          this.onSnackRequested({
-            text: error,
-            color: 'error'
-          })
-          // TODO social.logout('facebook')
-          // TODO social.logout('google')
-          // TODO this.$store.commit('clearUserData')
-        })
+    onActivityChange (state) {
+      this.activity = state
     },
     onSnackRequested: function (payload) {
       this.snackbar.visible = true
@@ -132,12 +113,22 @@ export default {
     }
   },
 
+  computed: {
+    pageTitle: function () {
+      return this.$config.title
+    },
+    appUserName: () => {
+      return auth.getAuthInfo().userName
+    }
+  },
+
   components: {
     BottomNavigation,
     LoginDialog,
     MainNavigation,
     ProgressIndicator,
-  },
+    TitleBar,
+  }
 
-};
+}
 </script>

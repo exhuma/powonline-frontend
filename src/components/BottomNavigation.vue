@@ -19,7 +19,7 @@
 
 <script>
 import {getRoutes} from '@/router'
-import {getAuthInfo} from '@/auth.js'
+import auth from '@/auth.js'
 export default {
   name: 'BottomNavigation',
   computed: {
@@ -27,13 +27,13 @@ export default {
       return this.$route.path
     },
     routes () {
-      const roles = getAuthInfo().roles
+      const roles = auth.getAuthInfo().roles
       const output = getRoutes(roles)
       return output
-    },
+    }
   },
   data: () => ({
     isVisible: true
-  }),
-};
+  })
+}
 </script>

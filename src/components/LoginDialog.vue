@@ -7,8 +7,12 @@
       <v-card-text>
 
         <v-tabs v-model="activeLoginTab" grow>
-          <v-tab key="socialLogin" ripple>Social Login</v-tab>
-          <v-tab key="localLogin" ripple>Local Login</v-tab>
+          <v-tab key="socialLogin" ripple>
+            Social Login
+          </v-tab>
+          <v-tab key="localLogin" ripple>
+            Local Login
+          </v-tab>
           <v-tabs-slider color="accent" />
         </v-tabs>
         <v-tabs-items v-model="activeLoginTab">
@@ -16,8 +20,8 @@
           <v-tab-item key="socialLogin">
             <v-card flat>
               <v-card-text>
-                <v-btn class="mt-5 mb-5" @click="socialCallback('google')">Google</v-btn>
-                <v-btn class="mt-5 mb-5" @click="socialCallback('facebook')">Facebook</v-btn>
+                <v-btn class="mt-5 mb-5" @click="hello.login('google')">Google</v-btn>
+                <v-btn class="mt-5 mb-5" @click="hello.login('facebook')">Facebook</v-btn>
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
@@ -31,19 +35,19 @@
               <v-card-text>
                 <v-text-field
                   type='text'
-                  @keyup.enter.native="loginUser"
+                @keyup.enter.native="localLogin"
                   v-model='username'
                   ref="LoginDialogUsername"
                   label='Enter a new username' />
                 <v-text-field
-                  @keyup.enter.native="loginUser"
+                @keyup.enter.native="localLogin"
                   type='password'
                   v-model='password'
                   label='Password' />
                 <v-card-actions>
                   <v-spacer />
                   <v-btn text @click.native="cancelLogin">Cancel</v-btn>
-                  <v-btn @click.native="localCallback(username, password)">Login</v-btn>
+                  <v-btn @click.native="localLogin">Login</v-btn>
                 </v-card-actions>
               </v-card-text>
             </v-card>
@@ -65,8 +69,8 @@ export default {
   name: 'LoginDialog',
   props: [
     'isVisible',
-    'socialCallback',
-    'localCallback',
+    'hello', // injection point for "hellojs"
+    'localAuth' // injectio point for the local auth lib
   ],
   data: () => ({
     activeLoginTab: 'socialLogin',
@@ -74,9 +78,44 @@ export default {
     password: ''
   }),
   methods: {
-    cancelLogin: function() {
+    localLogin: function () {
+      let prm = this.localAuth.localLogin(this.username, this.password)
+        .then((data) => {
+          this.username = ''
+          this.password = ''
+          this.$store.commit('updateUserData', data)
+          this.$emit('snackRequested', {
+            text: 'Unexpected remote response (' + data.status + ')',
+            color: 'orange'
+          })
+          this.closeDialog()
+        })
+        .catch((error) => {
+          this.hello.logout('facebook')
+          this.hello.logout('google')
+          this.$emit('snackRequested', {
+            text: error,
+            color: 'error'
+          })
+          this.$store.commit('clearUserData')
+          this.closeDialog()
+        })
+      return prm
+    },
+    closeDialog: function () {
+      this.username = ''
+      this.password = ''
       this.$emit('dialogDismissed')
+    },
+    cancelLogin: function () {
+      this.closeDialog()
+    },
+    login (provider) {
+      this.hello(provider).login({
+        'scope': 'basic, email'
+      })
+      this.isVisible = false
     }
-  },
-};
+  }
+}
 </script>

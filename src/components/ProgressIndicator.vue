@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div
+      v-if="model.visible && model.text"
+      class="grey darken-4 white--text">{{ model.text }}</div>
     <v-progress-linear
       v-if="!model.visible"
       class="mt-0"
@@ -16,6 +19,6 @@
 <script>
 export default {
   name: 'ProgressIndicator',
-  props: ["model"]
-};
+  props: ['model']
+}
 </script>
