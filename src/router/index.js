@@ -1,5 +1,6 @@
 import Dashboard from '@/components/Dashboard';
 import NotFound from '@/components/NotFound';
+import Gallery from '@/components/Gallery';
 import WelcomePage from '@/components/WelcomePage';
 
 
@@ -21,7 +22,7 @@ function getRoutes(userRoles) {
       path: '/gallery',
       label: 'Photos',
       icon: 'mdi-image',
-      component: NotFound
+      component: Gallery
     }
   ]
   if (userRoles.length > 0) {
