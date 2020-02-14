@@ -1,7 +1,6 @@
 import Dashboard from '@/components/Dashboard';
 import NotFound from '@/components/NotFound';
 import Gallery from '@/components/Gallery';
-import WelcomePage from '@/components/WelcomePage';
 
 
 function getRoutes(userRoles) {
@@ -16,7 +15,6 @@ function getRoutes(userRoles) {
       path: '/scoreboard',
       label: 'Scoreboard',
       icon: 'mdi-format-list-numbered',
-      component: WelcomePage
     },
     {
       path: '/gallery',
