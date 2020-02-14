@@ -10,19 +10,22 @@ function getRoutes(userRoles) {
       path: '/matrix',
       label: 'Dashboard',
       icon: 'mdi-border-all',
-      component: Dashboard
+      component: Dashboard,
+      inMenu: true
     },
     {
       path: '/scoreboard',
       label: 'Scoreboard',
       icon: 'mdi-format-list-numbered',
-      component: Scoreboard
+      component: Scoreboard,
+      inMenu: true
     },
     {
       path: '/gallery',
       label: 'Photos',
       icon: 'mdi-image',
-      component: Gallery
+      component: Gallery,
+      inMenu: true
     }
   ]
   if (userRoles.length > 0) {
@@ -30,19 +33,22 @@ function getRoutes(userRoles) {
       path: '/station',
       label: 'Stations',
       icon: 'mdi-place',
-      component: NotFound
+      component: NotFound,
+      inMenu: true
     })
     output.push({
       path: '/team',
       label: 'Teams',
       icon: 'mdi-group',
-      component: NotFound
+      component: NotFound,
+      inMenu: true
     })
     output.push({
       path: '/uploads',
       label: 'Uploads',
       icon: 'mdi-cloud_upload',
-      component: NotFound
+      component: NotFound,
+      inMenu: true
     })
   }
   if (userRoles && userRoles.indexOf('admin') > -1) {
@@ -50,26 +56,30 @@ function getRoutes(userRoles) {
       path: '/route',
       label: 'Routes',
       icon: 'mdi-gesture',
-      component: NotFound
+      component: NotFound,
+      inMenu: true
     })
     output.push({
       path: '/user',
       label: 'Users',
       icon: 'mdi-face',
-      component: NotFound
+      component: NotFound,
+      inMenu: true
     })
     output.push({
       path: '/auditlog',
       label: 'Audit',
       icon: 'mdi-receipt',
-      component: NotFound
+      component: NotFound,
+      inMenu: true
     })
   }
-  output.push({ path:
-    '/changelog', label:
-    'Changelog', icon:
-    'mdi-info', component:
-    NotFound
+  output.push({
+    path: '/changelog',
+    label: 'Changelog',
+    icon: 'mdi-info',
+    component: NotFound,
+    inMenu: true
   })
   return output
 }

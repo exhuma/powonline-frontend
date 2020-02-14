@@ -44,6 +44,9 @@ export default {
     routes () {
       const roles = auth.getAuthInfo().roles
       const output = getRoutes(roles)
+        .filter((item) => {
+          return item.inMenu
+        })
       return output
     }
   }
