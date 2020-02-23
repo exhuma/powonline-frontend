@@ -33,8 +33,8 @@ function getRoutes(userRoles) {
     output.push({
       path: '/station',
       label: 'Stations',
-      icon: 'mdi-place',
-      component: NotFound,
+      icon: 'mdi-map-marker',
+      component: StationList,
       inMenu: true
     })
     output.push({
@@ -47,7 +47,7 @@ function getRoutes(userRoles) {
     output.push({
       path: '/uploads',
       label: 'Uploads',
-      icon: 'mdi-cloud_upload',
+      icon: 'mdi-file-upload',
       component: NotFound,
       inMenu: true
     })
@@ -78,7 +78,7 @@ function getRoutes(userRoles) {
   output.push({
     path: '/changelog',
     label: 'Changelog',
-    icon: 'mdi-info',
+    icon: 'mdi-playlist-check',
     component: NotFound,
     inMenu: true
   })
