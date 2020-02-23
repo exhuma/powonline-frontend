@@ -66,6 +66,7 @@ new Vue({
   vuetify,
   router,
   store,
+  remoteProxy,
   render: h => h(App),
   created: function () {
     // If the token has expired, remove it completely.
