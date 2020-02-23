@@ -3,10 +3,16 @@ import NotFound from '@/components/NotFound';
 import Gallery from '@/components/Gallery';
 import Scoreboard from '@/components/Scoreboard';
 import StationList from '@/components/StationList';
+import StationDashboard from '@/components/StationDashboard';
 
 
 function getRoutes(userRoles) {
   const output = [
+    {
+      path: '/station/:stationName',
+      component: StationDashboard,
+      inMenu: false
+    },
     {
       path: '/matrix',
       label: 'Dashboard',
