@@ -17,8 +17,8 @@ Vue.use(VueRouter)
 Vue.use(Vuex)
 
 const LOG = window.console
-const remotIsFake = true
-const remoteProxy = makeRemoteProxy(remotIsFake, process.env.BACKEND_URL)
+const remoteIsFake = true
+const remoteProxy = makeRemoteProxy(remoteIsFake, process.env.BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
 
 /**
