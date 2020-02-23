@@ -2,6 +2,7 @@ import Dashboard from '@/components/Dashboard';
 import NotFound from '@/components/NotFound';
 import Gallery from '@/components/Gallery';
 import Scoreboard from '@/components/Scoreboard';
+import StationList from '@/components/StationList';
 
 
 function getRoutes(userRoles) {
