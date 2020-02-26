@@ -33,9 +33,7 @@
         :key="station.name"></StationBlock>
       <v-list-item>
         <v-spacer />
-        <v-list-tile-action v-if="hasRole('admin')">
-          <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Station</v-btn>
-        </v-list-tile-action>
+        <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Station</v-btn>
       </v-list-item>
     </v-list>
   </CenterCol>
