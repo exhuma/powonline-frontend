@@ -23,33 +23,7 @@
       :dialogVisible="isAddBlockVisible"
       :editMode="this.sendMode == this.SEND_MODE.UPDATE"
       title="Add New Station">
-      <v-text-field
-        @keyup.enter.native="onDialogConfirmed"
-        type='text'
-        v-model='selectedStation.name'
-        label='Enter a new stationname' />
-      <v-text-field
-        name="order"
-        type='number'
-        v-model='selectedStation.order'
-        hint="This field is used to sort stations"
-        label="Station Ordering" />
-      <v-checkbox
-        name="is_start"
-        label="Departure Station"
-        v-model="selectedStation.is_start" />
-      <v-checkbox
-        name="is_end"
-        label="Arrival Station"
-        v-model="selectedStation.is_end" />
-      <v-text-field
-        name="phone"
-        v-model='selectedStation.phone'
-        label="Phone Number" />
-      <v-text-field
-        name="contact"
-        v-model='selectedStation.contact'
-        label="Contact" />
+      <StationForm :station="selectedStation" />
     </PopupDialog>
     <v-list two-line>
       <StationBlock
@@ -75,6 +49,7 @@ import model from '@/model'
 import CenterCol from '@/components/CenterCol'
 import PopupDialog from '@/components/PopupDialog'
 import StationBlock from '@/components/StationBlock'
+import StationForm from '@/components/StationForm'
 
 export default {
   name: 'StationList',
@@ -147,6 +122,7 @@ export default {
     CenterCol,
     PopupDialog,
     StationBlock,
+    StationForm,
   }
 }
 </script>
