@@ -361,13 +361,7 @@ function makeStore (auth, remoteProxy) {
       * :param stationName (str): The name of the station to remove.
       */
       deleteStation (state, stationName) {
-        let idx = -1 // TODO there must be a better way than the following loop
-        state.stations.forEach(item => {
-          if (item.name === stationName) {
-            idx = state.stations.indexOf(item)
-          }
-        })
-
+        let idx = state.stations.findIndex((name) => name == stationName)
         if (idx > -1) {
           state.stations.splice(idx, 1)
         }
