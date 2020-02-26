@@ -110,8 +110,7 @@ export default {
   },
   computed: {
     stations () {
-      window['console']['log'](this.$store.state.stations);  // TODO: DEBUG LOG!!
-      let copy = this.$store.state.stations.items.concat()
+      let copy = this.$store.state.stations.concat()
       copy.sort((a, b) => {
         return parseInt(a.order, 10) - parseInt(b.order, 10)
       })

@@ -21,6 +21,62 @@ Vue.mixin({
 class FakeProxy {
   constructor (baseUrl) {
     this.baseUrl = baseUrl
+    this.stations = [{
+      'name': 'station-starts',
+      'contact': 'Example Contact',
+      'phone': '12345',
+      'is_start': true,
+      'is_end': false,
+      'order': 0
+    }, {
+      'name': 'station-1-1',
+      'contact': 'Example Contact',
+      'phone': '12345',
+      'is_start': false,
+      'is_end': false,
+      'order': 100
+    }, {
+      'name': 'station-2-1',
+      'contact': 'Example Contact',
+      'phone': '12345',
+      'is_start': false,
+      'is_end': false,
+      'order': 100
+    }]
+  }
+
+  deleteStation (stationName) {
+    let output = new Promise((resolve) => {
+      let idx = this.stations.findIndex(({name}) => name == stationName)
+      if (idx == -1) {
+        resolve()
+      } else {
+        this.stations.splice(idx, 1)
+        resolve()
+      }
+    })
+    return output
+  }
+
+  updateStation (stationName, newData) {
+    let output = new Promise((resolve) => {
+      let idx = this.stations.findIndex(({name}) => name == stationName)
+      if (idx == -1) {
+        resolve()
+      } else {
+        this.stations.splice(idx, 1, newData)
+        resolve()
+      }
+    })
+    return output
+  }
+
+  addStation (station) {
+    let output = new Promise((resolve) => {
+      this.stations.push(station)
+      resolve(station)
+    })
+    return output
   }
 
   /**
@@ -125,29 +181,7 @@ class FakeProxy {
 
   fetchStations () {
     let output = new Promise((resolve) => {
-      let data = [{
-        'name': 'station-start',
-        'contact': 'Example Contact',
-        'phone': '12345',
-        'is_start': true,
-        'is_end': false,
-        'order': 0
-      }, {
-        'name': 'station-1-1',
-        'contact': 'Example Contact',
-        'phone': '12345',
-        'is_start': false,
-        'is_end': false,
-        'order': 100
-      }, {
-        'name': 'station-2-1',
-        'contact': 'Example Contact',
-        'phone': '12345',
-        'is_start': false,
-        'is_end': false,
-        'order': 100
-      }]
-      resolve({items: data})
+      resolve(this.stations)
     })
     return output
   }
@@ -279,6 +313,17 @@ class FakeProxy {
     })
     return output
   }
+
+  fetchUsers () {
+    let output = new Promise((resolve) => {
+      let users = [{
+        name: "John Doe"
+      }]
+      resolve(users)
+    })
+    return output
+  }
+
 }
 
 class Proxy extends FakeProxy {
