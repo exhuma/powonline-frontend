@@ -58,6 +58,15 @@ import localAuth from '@/auth'
 
 export default {
   name: 'App',
+  created () {
+    const roles = this.$store.state.roles
+    // TODO return this.$store.state.userName
+    // TODO this.$store.state.jwt
+    if (process.env.NODE_ENV === "development" &&
+        !roles.includes('admin')) {
+      roles.push('admin')
+    }
+  },
   mounted () {
     EventBus.$on('activityEvent', (payload) => {
       this.onActivityChange(payload)
