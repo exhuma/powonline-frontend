@@ -8,7 +8,7 @@
       <v-card-text><slot name="text">Are you sure?</slot></v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn flat @click.native="discardAction">No</v-btn>
+        <v-btn text @click.native="discardAction">No</v-btn>
         <v-btn class="error" @click.native="acceptAction">Yes</v-btn>
       </v-card-actions>
     </v-card>
