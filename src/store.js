@@ -783,7 +783,9 @@ function makeStore (auth, remoteProxy) {
         })
         remoteProxy.addStation(station)
           .then(station => {
-            context.commit('addStation', station)
+            LOG.debug(`Inserting station ${station.name} into local state`)
+            // TODO - This caused a duplicate entry when adding a new station
+            //        context.commit('addStation', station)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
