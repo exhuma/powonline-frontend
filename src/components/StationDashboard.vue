@@ -1,5 +1,5 @@
 <template>
-  <center-col id="Dashboard">
+  <CenterCol id="Dashboard">
 
     <v-text-field
       v-model="teamFilter"
@@ -33,10 +33,11 @@
         :key="'small' + idx"></small-station-dashboard-item>
 
     <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn flat @click="snackbar = false">Close</v-btn></v-snackbar>
-  </center-col>
+  </CenterCol>
 </template>
 
 <script>
+import CenterCol from '@/components/CenterCol'
 export default {
   name: 'StationDashboard',
   data () {
@@ -142,6 +143,9 @@ export default {
       this.snackColor = 'success'
       this.snackbar = true
     }
+  },
+  components: {
+    CenterCol
   }
 }
 </script>
