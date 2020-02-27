@@ -46,6 +46,8 @@
 </style>
 
 <script>
+const LOG = window.console
+
 import hello from 'hellojs'
 import TitleBar from './components/TitleBar'
 import MainNavigation from './components/MainNavigation'
@@ -116,6 +118,9 @@ export default {
       this.activity = state
     },
     onSnackRequested: function (payload) {
+      if (payload.error !== undefined) {
+        LOG.error(payload.error)
+      }
       this.snackbar.visible = true
       this.snackbar.text = payload.text
       this.snackbar.color = payload.color || 'success'

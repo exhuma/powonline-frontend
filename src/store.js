@@ -592,7 +592,8 @@ function makeStore (auth, remoteProxy) {
             }
             EventBus.$emit('snackRequested', {
               message: message,
-              color: 'red'
+              color: 'red',
+              error: e
             })
             EventBus.$emit('activityEvent', {
               visible: false,
@@ -628,7 +629,8 @@ function makeStore (auth, remoteProxy) {
             }
             EventBus.$emit('snackRequested', {
               message: message,
-              color: 'red'
+              color: 'red',
+              error: e
             })
             EventBus.$emit('activityEvent', {
               visible: false,
@@ -671,7 +673,8 @@ function makeStore (auth, remoteProxy) {
             }
             EventBus.$emit('snackRequested', {
               message: message,
-              color: 'red'
+              color: 'red',
+              error: e
             })
             EventBus.$emit('activityEvent', {
               visible: false,

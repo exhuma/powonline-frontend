@@ -95,7 +95,8 @@ export default {
           this.hello.logout('google')
           this.$emit('snackRequested', {
             text: error,
-            color: 'error'
+            color: 'error',
+            error: error
           })
           this.$store.commit('clearUserData')
           this.closeDialog()
