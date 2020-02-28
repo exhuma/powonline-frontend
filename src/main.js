@@ -33,7 +33,7 @@ axios.interceptors.request.use(config => {
     config.headers['Authorization'] = 'Bearer ' + jwt
     LOG.debug('Intercepted and set auth token to ' + jwt)
   } else {
-    LOG.debug('JWT was null!')
+    LOG.debug('JWT is empty. Authorization header was not injected.')
   }
   return config
 }, error => {
@@ -47,7 +47,7 @@ axios.interceptors.response.use(response => {
   // nothing to do on successful response
   return response
 }, error => {
-  LOG.error({msg: 'Remote error', error: error})
+  LOG.error({msg: error.message, error: error})
   return Promise.reject(error)
 })
 
@@ -84,6 +84,7 @@ new Vue({
         }
       })
       .catch(error => {
+        LOG.error('Unable to fetch config!')
         LOG.error(error)
       })
 
