@@ -7,17 +7,17 @@
       <v-card-text>
 
         <v-tabs v-model="activeLoginTab" grow>
-          <v-tab key="socialLogin" ripple>
+          <v-tab key="0" ripple>
             Social Login
           </v-tab>
-          <v-tab key="localLogin" ripple>
+          <v-tab key="1" ripple>
             Local Login
           </v-tab>
           <v-tabs-slider color="accent" />
         </v-tabs>
         <v-tabs-items v-model="activeLoginTab">
 
-          <v-tab-item key="socialLogin">
+          <v-tab-item key="0">
             <v-card flat>
               <v-card-text>
                 <v-btn class="mt-5 mb-5" @click="hello.login('google')">Google</v-btn>
@@ -30,7 +30,7 @@
             </v-card>
           </v-tab-item>
 
-          <v-tab-item key="localLogin">
+          <v-tab-item key="1">
             <v-card flat>
               <v-card-text>
                 <v-text-field
@@ -73,10 +73,21 @@ export default {
     'localAuth' // injectio point for the local auth lib
   ],
   data: () => ({
-    activeLoginTab: 'socialLogin',
+    activeLoginTab: 0,
     username: '',
     password: ''
   }),
+  watch: {
+    activeLoginTab: function (newTab) {
+      if (newTab === 1) {
+        const that = this
+        // See https://forum.vuejs.org/t/solved-this-refs-key-returns-undefined-when-it-really-is/1226/30?u=exhuma
+        window.setTimeout(function () {
+          that.$refs.LoginDialogUsername.focus()
+        }, 300)
+      }
+    }
+  },
   methods: {
     localLogin: function () {
       let prm = this.localAuth.localLogin(this.username, this.password)
