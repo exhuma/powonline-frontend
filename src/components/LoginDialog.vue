@@ -35,12 +35,12 @@
               <v-card-text>
                 <v-text-field
                   type='text'
-                @keyup.enter.native="localLogin"
+                  @keyup.enter.native="localLogin"
                   v-model='username'
                   ref="LoginDialogUsername"
                   label='Enter a new username' />
                 <v-text-field
-                @keyup.enter.native="localLogin"
+                  @keyup.enter.native="localLogin"
                   type='password'
                   v-model='password'
                   label='Password' />
