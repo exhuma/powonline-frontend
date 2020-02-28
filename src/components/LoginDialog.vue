@@ -126,7 +126,7 @@ export default {
       this.hello(provider).login({
         'scope': 'basic, email'
       })
-      this.isVisible = false
+      this.$emit('dialogDismissed')
     }
   }
 }
