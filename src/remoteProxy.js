@@ -3,7 +3,6 @@
  */
 import axios from 'axios'
 import Vue from 'vue'
-import EventBus from '@/eventBus'
 
 const LOG = window.console
 
@@ -19,8 +18,9 @@ Vue.mixin({
 })
 
 class FakeProxy {
-  constructor (baseUrl) {
+  constructor (baseUrl, eventBus) {
     this.baseUrl = baseUrl
+    this.eventBus = eventBus || null
     this.stations = [{
       'name': 'station-starts',
       'contact': 'Example Contact',
@@ -182,6 +182,17 @@ class FakeProxy {
   fetchStations () {
     let output = new Promise((resolve) => {
       resolve(this.stations)
+    })
+    return output
+  }
+
+  /**
+   * fetch one station by name
+   */
+  fetchStation (stationName) {
+    let output = new Promise((resolve) => {
+      let item = this.stations.find(({name}) => name == stationName)
+      resolve(item)
     })
     return output
   }
@@ -890,12 +901,15 @@ class Proxy extends FakeProxy {
           'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: (progressEvent) => {
+          if (!this.eventBus) {
+            return
+          }
           let progress = -1
           if (progressEvent.lengthComputable) {
             progress = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total)
           }
-          EventBus.$emit('fileUploadProgress', {
+          this.eventBus.$emit('fileUploadProgress', {
             visible: true,
             progress: progress,
             text: 'Uploading...'

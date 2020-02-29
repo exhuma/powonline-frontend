@@ -11,6 +11,7 @@ import production from "@/config/production"
 import storeFactory from '@/store.js'
 import vuetify from './plugins/vuetify';
 import {getRoutes} from '@/router'
+import EventBus from '@/eventBus'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
@@ -18,7 +19,11 @@ Vue.use(Vuex)
 
 const LOG = window.console
 const remoteIsFake = true
-const remoteProxy = makeRemoteProxy(remoteIsFake, process.env.BACKEND_URL)
+const remoteProxy = makeRemoteProxy(
+  remoteIsFake,
+  process.env.BACKEND_URL,
+  EventBus
+)
 const store = storeFactory.makeStore(auth, remoteProxy)
 
 /**
