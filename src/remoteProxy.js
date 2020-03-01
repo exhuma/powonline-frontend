@@ -275,7 +275,7 @@ class FakeProxy {
     let output = new Promise((resolve) => {
       let responseData = {
         'token': FAKE_TOKEN,
-        'roles': ['role1'],
+        'roles': ['admin', 'role1'],
         'user': 'fake-user'
       }
       resolve(responseData)
@@ -291,7 +291,7 @@ class FakeProxy {
     })
     let data = {
       status: 200,
-      roles: ['role1'],
+      roles: ['admin', 'role1'],
       token: FAKE_TOKEN,
       user: username
     }
