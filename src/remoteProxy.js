@@ -17,6 +17,7 @@ const LOG = window.console
 //     }, 'supersecret')
 const FAKE_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImpvaG4uZG9lIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0Ijo2NjI2ODQ0MDAsImV4cCI6MzI0NzIxNDA0MDB9.4MGvoPOO_394gskFiSa3_hAOQcj5pE3vXKm1byO_jo4'
 
+// Register the proxy as a Vue global mixin if not yet done
 Vue.mixin({
   beforeCreate () {
     const options = this.$options
@@ -28,6 +29,9 @@ Vue.mixin({
   }
 })
 
+/**
+ * A proxy which does not require any network connection
+ */
 class FakeProxy {
   constructor (baseUrl, eventBus) {
     this.baseUrl = baseUrl
