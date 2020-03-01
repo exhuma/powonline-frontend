@@ -61,6 +61,28 @@ class FakeProxy {
     }]
   }
 
+  fetchAssignedStationState (userName, stationName) {
+    LOG.debug(`Fetching states for ${userName} @ ${stationName}`)
+    let output = new Promise((resolve) => {
+      resolve([])
+    })
+    return output
+  }
+
+  getUserRole (userName, roleName) {
+    LOG.debug(`Determining if ${userName} has role ${roleName}`)
+    let output = new Promise((resolve) => {
+      let user = this.users.find(({name}) => name === userName)
+      let output = false
+      if (user) {
+        let roleIndex = user.roles.findIndex(({name}) => name === roleName)
+        output = roleIndex > -1
+      }
+      resolve(output)
+    })
+    return output
+  }
+
   deleteStation (stationName) {
     let output = new Promise((resolve) => {
       let idx = this.stations.findIndex(({name}) => name == stationName)
