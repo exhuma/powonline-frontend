@@ -6,6 +6,17 @@ import Vue from 'vue'
 
 const LOG = window.console
 
+// token was created in Python using:
+//     import jwt
+//     jwt.encode({}, key='supersecret')
+//     jwt.encode({
+//         'username': 'john.doe',
+//         'roles': ['admin'],
+//         'iat': 662684400,  # 1991-01-01
+//         'exp': 32472140400  # 2999-01-01
+//     }, 'supersecret')
+const FAKE_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImpvaG4uZG9lIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0Ijo2NjI2ODQ0MDAsImV4cCI6MzI0NzIxNDA0MDB9.4MGvoPOO_394gskFiSa3_hAOQcj5pE3vXKm1byO_jo4'
+
 Vue.mixin({
   beforeCreate () {
     const options = this.$options
@@ -216,7 +227,7 @@ class FakeProxy {
     let promise = new Promise((resolve) => {
       let data = {
         status: 200,
-        token: 'fake-jwt-token'
+        token: FAKE_TOKEN
       }
       resolve(data)
     })
@@ -232,7 +243,7 @@ class FakeProxy {
     })
     let output = new Promise((resolve) => {
       let responseData = {
-        'token': 'fake-jwt-token',
+        'token': FAKE_TOKEN,
         'roles': ['role1'],
         'user': 'fake-user'
       }
@@ -250,7 +261,7 @@ class FakeProxy {
     let data = {
       status: 200,
       roles: ['role1'],
-      token: 'fake-token',
+      token: FAKE_TOKEN,
       user: username
     }
     let promise = new Promise(function (resolve) {
