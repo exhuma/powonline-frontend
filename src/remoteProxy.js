@@ -722,7 +722,7 @@ class Proxy extends FakeProxy {
 
   fetchConfig () {
     let output = new Promise((resolve, reject) => {
-      axios.get('/static/config/config.json')
+      axios.get('/config/config.json')
         .then(response => {
           resolve(response.data)
         })
