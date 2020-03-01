@@ -32,6 +32,11 @@ class FakeProxy {
   constructor (baseUrl, eventBus) {
     this.baseUrl = baseUrl
     this.eventBus = eventBus || null
+    this.users = [{
+      name: "John Doe",
+    }, {
+      name: "Jane Doe",
+    }]
     this.stations = [{
       'name': 'station-starts',
       'contact': 'Example Contact',
@@ -338,10 +343,7 @@ class FakeProxy {
 
   fetchUsers () {
     let output = new Promise((resolve) => {
-      let users = [{
-        name: "John Doe"
-      }]
-      resolve(users)
+      resolve(this.users)
     })
     return output
   }
