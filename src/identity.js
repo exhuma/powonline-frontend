@@ -137,6 +137,21 @@ class Identity {
     return prm
   }
 
+  /**
+   * Removes all authentication from this intance
+   *
+   * @param resetFailedRenewals Whether to set failedRenewals back to 0
+   */
+  clear (resetFailedRenewals) {
+    this.roles = []
+    this.iat = 0
+    this.exp = 0
+    this.token = ''
+    if (resetFailedRenewals) {
+      this.failedRenewals = 0
+    }
+  }
+
 }
 
 export {
