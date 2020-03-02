@@ -65,6 +65,11 @@
 </template>
 
 <script>
+
+import {Identity} from '@/identity'
+
+const LOG = window.console
+
 export default {
   name: 'LoginDialog',
   props: [
@@ -85,20 +90,24 @@ export default {
         window.setTimeout(function () {
           that.$refs.LoginDialogUsername.focus()
         }, 300)
+        this.$nextTick(function () {
+        })
       }
     }
   },
   methods: {
     localLogin: function () {
-      let prm = this.localAuth.localLogin(this.username, this.password)
+      LOG.debug(`Requesting login for ${this.username}`)
+      let prm = this.localAuth.loginUser(this.username, this.password)
         .then((data) => {
+          LOG.debug({msg: 'Received data from login', data: data})
+          let identity = Identity.fromToken(data.token)
+          this.$emit('loginSuccessful', identity)
+
+          // Reset text fields
           this.username = ''
           this.password = ''
-          this.$store.commit('updateUserData', data)
-          this.$emit('snackRequested', {
-            text: 'Unexpected remote response (' + data.status + ')',
-            color: 'orange'
-          })
+
           this.closeDialog()
         })
         .catch((error) => {

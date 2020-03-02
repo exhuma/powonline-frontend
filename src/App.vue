@@ -4,27 +4,47 @@
       <TitleBar
         :title="pageTitle"
         :version="version"
-        :userName="appUserName"
         :isTitleBarVisible="isTitleBarVisible"
-        @logoutRequested="onLogoutRequested"
-        ></TitleBar>
+        :identity="identity"
+        >
+        <template v-slot:loginButton>
+          <v-btn
+            color="success"
+            @click.native.stop="startLogin"
+          >Login</v-btn>
+        </template>
+        <template v-slot:logoutButton>
+          <v-btn
+            @click.native.stop="logoutUser"
+            icon><v-icon>mdi-exit-to-app</v-icon></v-btn>
+        </template>
+      </TitleBar>
     </v-slide-y-transition>
 
-    <MainNavigation :isVisible="sideMenuVisible"></MainNavigation>
+    <MainNavigation
+      :isVisible="sideMenuVisible"
+      :identity="identity"
+      ></MainNavigation>
     <ProgressIndicator :model="activity"></ProgressIndicator>
 
     <v-content>
       <LoginDialog
         :isVisible="loginDialogVisible"
         :hello="hello"
-        :localAuth="localAuth"
+        :localAuth="$remoteProxy"
+        @snackRequested="onSnackRequested"
         @dialogDismissed="closeLoginDialog"
+        @loginSuccessful="onLoginSuccessful"
         ></LoginDialog>
       <router-view
+        :identity="identity"
         @changeActivity="onActivityChange"
         @fullScreenRequested="setFullscreen"
         @snackRequested="onSnackRequested"></router-view>
-      <BottomNavigation :isVisible="isBottomNavVisible"></BottomNavigation>
+      <BottomNavigation
+        :isVisible="isBottomNavVisible"
+        :identity="identity"
+        ></BottomNavigation>
     </v-content>
 
     <v-snackbar
@@ -54,21 +74,11 @@ import MainNavigation from './components/MainNavigation'
 import BottomNavigation from './components/BottomNavigation'
 import ProgressIndicator from './components/ProgressIndicator'
 import LoginDialog from './components/LoginDialog'
-import auth from '@/auth.js'
 import EventBus from '@/eventBus'
-import localAuth from '@/auth'
+import {Identity} from '@/identity'
 
 export default {
   name: 'App',
-  created () {
-    const roles = this.$store.state.roles
-    // TODO return this.$store.state.userName
-    // TODO this.$store.state.jwt
-    if (process.env.NODE_ENV === "development" &&
-        !roles.includes('admin')) {
-      roles.push('admin')
-    }
-  },
   mounted () {
     EventBus.$on('activityEvent', (payload) => {
       this.onActivityChange(payload)
@@ -81,10 +91,14 @@ export default {
     })
   },
 
+  created () {
+    this.identity = Identity.fromLocalStorage()
+  },
+
   data () {
     return {
-      localAuth: localAuth,
       hello: hello,
+      identity: Identity.makeNull(),
       snackbar: {
         visible: false,
         color: 'success',
@@ -104,8 +118,12 @@ export default {
   },
 
   methods: {
-    onLogoutRequested () {
-      this.localAuth.logoutUser(this.hello)
+    logoutUser () {
+      this.identity = Identity.makeNull()
+      Identity.clearLocalStorage()
+    },
+    startLogin () {
+      this.loginDialogVisible = true
     },
     setFullscreen (state) {
       this.isBottomNavVisible = !state
@@ -116,6 +134,10 @@ export default {
     },
     onActivityChange (state) {
       this.activity = state
+    },
+    onLoginSuccessful: function (identity) {
+      this.identity = identity
+      this.identity.persistToLocalStorage()
     },
     onSnackRequested: function (payload) {
       if (payload.error !== undefined) {
@@ -130,9 +152,6 @@ export default {
   computed: {
     pageTitle: function () {
       return this.$config.title
-    },
-    appUserName: () => {
-      return auth.getAuthInfo().userName
     }
   },
 

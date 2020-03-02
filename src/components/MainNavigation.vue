@@ -34,19 +34,16 @@
 </template>
 
 <script>
-import {getRoutes} from '@/router'
-import auth from '@/auth.js'
+import {accessibleRoutes} from '@/router'
 
 export default {
   name: 'MainNavigation',
-
+  props: [
+    'identity'
+  ],
   computed: {
     routes () {
-      const roles = auth.getAuthInfo().roles
-      const output = getRoutes(roles)
-        .filter((item) => {
-          return item.inMenu
-        })
+      const output = accessibleRoutes(this.identity.roles)
       return output
     }
   }

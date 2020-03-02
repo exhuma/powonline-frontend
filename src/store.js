@@ -5,9 +5,10 @@ import moment from 'moment'
 const LOG = window.console
 
 
-function makeStore (auth, remoteProxy) {
+function makeStore (remoteProxy) {
   const store = new Vuex.Store({
     state: {
+      identity: null,
       users: [],
       stations: [],
       teams: [],
@@ -17,9 +18,6 @@ function makeStore (auth, remoteProxy) {
       route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
       global_dashboard: [],
       teamStates: [],
-      jwt: auth.get_token(),
-      roles: auth.get_roles(),
-      userName: auth.get_username(),
       baseUrl: process.env.BACKEND_URL,
       pageTitle: 'Powonline',
       uploads: {},
@@ -30,44 +28,17 @@ function makeStore (auth, remoteProxy) {
     mutations: {
 
       /**
-      * Sets a new JWT token
-      *
-      * :param data: An object with two keys:
-      *    * token - The JWT token (without "Bearer" prefix)
-      *    * roles - A list of role-names which the user has assigned to himself
-      */
-      setToken (state, data) {
-        state.jwt = data['token']
-        state.roles = data['roles']
-        state.userName = data['userName']
-      },
-
-      /**
-      * Flag the user as "logged in".
-      *
-      * :param data: An object with two keys:
-      *    * token - The JWT token (without "Bearer" prefix)
-      *    * roles - A list of role-names which the user has assigned to himself
-      */
-      updateUserData (state, data) {
-        localStorage.setItem('roles', data['roles'])
-        localStorage.setItem('jwt', data['token'])
-        localStorage.setItem('userName', data['user'])
-        state.jwt = data['token']
-        state.roles = data['roles']
-        state.userName = data['user']
-        LOG.debug('Set auth token in LS to ' + data['token'])
+       * Stores a new user-identity in the store
+       */
+      setIdentity (state, data) {
+        state.identity = data
       },
 
       /**
       * Flag the user as "logged out"
       */
       clearUserData (state) {
-        localStorage.removeItem('jwt')
-        localStorage.removeItem('roles')
-        localStorage.removeItem('userName')
-        state.jwt = ''
-        state.roles = []
+        state.identity.clear()
         LOG.debug('Successfully logged out user & cleared state')
       },
 
@@ -821,7 +792,7 @@ function makeStore (auth, remoteProxy) {
       * Refreshes the local users from the backend
       */
       refreshUsers (context) {
-        if (context.state.roles.indexOf('admin') === -1) {
+        if (!context.state.identity.hasRole('admin')) {
           return
         }
         EventBus.$emit('activityEvent', {

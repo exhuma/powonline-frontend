@@ -18,17 +18,18 @@
 </template>
 
 <script>
-import {getRoutes} from '@/router'
-import auth from '@/auth.js'
+import {accessibleRoutes} from '@/router'
 export default {
   name: 'BottomNavigation',
+  props: [
+    'identity'
+  ],
   computed: {
     here () {
       return this.$route.path
     },
     routes () {
-      const roles = auth.getAuthInfo().roles
-      const output = getRoutes(roles)
+      const output = accessibleRoutes(this.identity.roles)
       return output
     }
   },

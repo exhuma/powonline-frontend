@@ -27,6 +27,14 @@ class Identity {
   }
 
   /**
+   * Creates a new empty, invalid identity
+   */
+  static makeNull () {
+    const instance = new Identity('', [], 0, 0, '')
+    return instance
+  }
+
+  /**
    * Creates a new identity from a JWT token
    *
    * @param token: The JWT token as string
@@ -45,13 +53,33 @@ class Identity {
   }
 
   /**
+   * Persists the identity token into local storage to be able to retrieve it
+   * later.
+   */
+  persistToLocalStorage () {
+    localStorage.setItem('jwt', this.token)
+  }
+
+  /**
+   * Removes all identity related keys from local-storage
+   */
+  static clearLocalStorage () {
+    localStorage.removeItem('jwt')
+  }
+
+
+  /**
    * Creates an identity object from local storage. If it does not exist, this
    * will return null.
+   *
+   * @param backend the RemoteProxy to use for new instances
    */
   static fromLocalStorage () {
     const token = localStorage.getItem('jwt') || ''
     if (token === '') {
-      return null
+      LOG.debug(
+        'No identity available in local-storage, returning a dummy entry')
+      return new Identity.makeNull()
     }
     const instance = Identity.fromToken(token)
     return instance
@@ -90,6 +118,14 @@ class Identity {
   }
 
   /**
+   * Check if the identity is valid and usable (even an expired identity is
+   * considered "usable")
+   */
+  isUsable () {
+    return this.token !== ''
+  }
+
+  /**
    * Determines whether a token has expired or not.
    */
   isExpired () {
@@ -107,6 +143,15 @@ class Identity {
       LOG.debug('Security token is still fresh')
       return false
     }
+  }
+
+  /**
+   * Check if the current identity has a given role
+   *
+   * @param roleName the role name to check
+   */
+  hasRole (roleName) {
+    return this.roles.findIndex((item) => {item === roleName}) > -1
   }
 
   /**

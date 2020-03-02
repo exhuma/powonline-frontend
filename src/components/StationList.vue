@@ -33,7 +33,7 @@
         :key="station.name"></StationBlock>
       <v-list-item>
         <v-spacer />
-        <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Station</v-btn>
+        <v-btn @click="openCreateDialog" v-if="identity.hasRole('admin')">Add new Station</v-btn>
       </v-list-item>
     </v-list>
   </CenterCol>
@@ -51,6 +51,11 @@ import StationForm from '@/components/StationForm'
 
 export default {
   name: 'StationList',
+  props: {
+    'identity': {
+      type: Object
+    }
+  },
   methods: {
     onOpenEditDialog: function (station) {
       this.selectedStation = station
@@ -88,9 +93,6 @@ export default {
       this.selectedStation = newStation
       this.isAddBlockVisible = true
       this.sendMode = model.SEND_MODE.CREATE
-    },
-    hasRole (roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
   created () {

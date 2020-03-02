@@ -68,3 +68,12 @@ test('Token should be clearable with the retries', () => {
   expect(identity.roles).toEqual([])
   expect(identity.failedRenewals).toEqual(0)
 })
+
+
+test('We should have a simple function to check for roles', () => {
+  const fake_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImpvaG4uZG9lIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0Ijo2NjI2ODQ0MDAsImV4cCI6MzI0NzIxNDA0MDB9.4MGvoPOO_394gskFiSa3_hAOQcj5pE3vXKm1byO_jo4'
+  const identity = Identity.fromToken(fake_token)
+  identity.roles.push('dummyRole')
+  expect(identity.hasRole('nonexistent')).toBe(false)
+  expect(identity.hasRole('dummyRole')).toBe(true)
+})

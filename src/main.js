@@ -2,7 +2,7 @@ import App from './App.vue'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
-import auth from '@/auth.js'
+import {Identity} from '@/identity.js'
 import axios from 'axios'
 import development from "@/config/development"
 import hello from 'hellojs'
@@ -18,25 +18,26 @@ Vue.use(VueRouter)
 Vue.use(Vuex)
 
 const LOG = window.console
-const remoteIsFake = true
+LOG.debug(Identity)
+const remoteIsFake = false
 const remoteProxy = makeRemoteProxy(
   remoteIsFake,
-  process.env.BACKEND_URL,
+  'https://localhost:5000',
   EventBus
 )
-const store = storeFactory.makeStore(auth, remoteProxy)
+const store = storeFactory.makeStore(remoteProxy)
 
 /**
  * Inject the JWT token into each outgoing request if it's available
  */
 axios.interceptors.request.use(config => {
-  const jwt = auth.get_token()
-  if (jwt !== '') {
-    if (auth.token_expired(jwt)) {
-      auth.renewToken(remoteProxy, jwt)
+  const identity = Identity.fromLocalStorage()
+  if (identity.isUsable()) {
+    if (identity.isExpired()) {
+      identity.renew(remoteProxy)
     }
-    config.headers['Authorization'] = 'Bearer ' + jwt
-    LOG.debug('Intercepted and set auth token to ' + jwt)
+    config.headers['Authorization'] = 'Bearer ' + identity.token
+    LOG.debug('Intercepted and set auth token to ' + identity.token)
   } else {
     LOG.debug('JWT is empty. Authorization header was not injected.')
   }
@@ -64,7 +65,7 @@ if (process.env.NODE_ENV === "production") {
 
 const router = new VueRouter({
   mode: 'history',
-  routes: getRoutes(auth.getAuthInfo().roles)
+  routes: getRoutes()
 })
 
 new Vue({
@@ -74,9 +75,6 @@ new Vue({
   remoteProxy,
   render: h => h(App),
   created: function () {
-    // If the token has expired, remove it completely.
-    // ... otherwise, the UI still looks as if we were logged in
-
     // Configure social login providers
     remoteProxy.fetchConfig()
       .then(result => {
@@ -93,8 +91,11 @@ new Vue({
         LOG.error(error)
       })
 
-    // Logout user if JWT token has expired.
-    const tokenCleared = auth.clearExpiredToken()
+    // If the token has expired, remove it completely.
+    // ... otherwise, the UI still looks as if we were logged in
+    const identity = Identity.fromLocalStorage()
+    this.$store.commit('setIdentity', identity)
+    const tokenCleared = identity.clear()
     if (tokenCleared) {
       this.$store.commit('clearUserData')
     }
@@ -163,7 +164,8 @@ hello.on('auth.login', function (ath) {
       userInfo.id,
       ath.authResponse.access_token
     ).then(data => {
-      store.commit('updateUserData', data)
+      let identity = Identity.fromToken(data.token)
+      store.commit('setIdentity', identity)
     }).catch(e => {
       // TODO show message as snack-text
       store.commit('clearUserData')
