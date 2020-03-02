@@ -34,7 +34,8 @@ axios.interceptors.request.use(config => {
   const identity = Identity.fromLocalStorage()
   if (identity.isUsable()) {
     if (identity.isExpired()) {
-      identity.renew(remoteProxy)
+      // XXX identity.renew(remoteProxy)
+      identity.clear()
     }
     config.headers['Authorization'] = 'Bearer ' + identity.token
     LOG.debug('Intercepted and set auth token to ' + identity.token)

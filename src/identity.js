@@ -16,12 +16,11 @@ const LOG = window.console
  */
 class Identity {
 
-  constructor (username, roles, iat, exp, token, backend) {
+  constructor (username, roles, iat, exp, token) {
     this.username = username
     this.roles = roles
     this.iat = iat
     this.exp = exp
-    this.backend = backend
     this.token = token
     this.failedRenewals = 0
   }
@@ -71,8 +70,6 @@ class Identity {
   /**
    * Creates an identity object from local storage. If it does not exist, this
    * will return null.
-   *
-   * @param backend the RemoteProxy to use for new instances
    */
   static fromLocalStorage () {
     const token = localStorage.getItem('jwt') || ''
@@ -157,8 +154,10 @@ class Identity {
   /**
    * Renews the current token. Note that this will only work for tokens that
    * have not expired yet!
+
+   * @param backend An optional injection point for back-end communications
    */
-  renew () {
+  renew (backend) {
     const prm = new Promise((resolve, reject) => {
       if (this.token === '') {
         resolve()
@@ -166,16 +165,17 @@ class Identity {
         this.invalidate()
         reject({message: 'Too many retries!'})
       } else {
-        this.backend.renewToken(this.token).then(data => {
-          if (data.status < 300) {
-            this.token = data.token
-            this.failedRenewals = 0
-            resolve()
-          } else {
-            LOG.error('Unable to renew the token!')
-            this.failedRenewals += 1
-            resolve()
-          }
+        backend.renewToken(this.token).then(data => {
+          // XXX TODO ENDLESS LOOP
+          // if (data.status < 300) {
+          //   this.token = data.token
+          //   this.failedRenewals = 0
+          //   resolve()
+          // } else {
+          //   LOG.error('Unable to renew the token!')
+          //   this.failedRenewals += 1
+          //   resolve()
+          // }
         })
       }
     })
