@@ -148,7 +148,11 @@ class Identity {
    * @param roleName the role name to check
    */
   hasRole (roleName) {
-    return this.roles.findIndex((item) => {item === roleName}) > -1
+    const idx = this.roles.findIndex((item) => {
+      return item === roleName
+    })
+    const output = idx > -1
+    return output
   }
 
   /**
