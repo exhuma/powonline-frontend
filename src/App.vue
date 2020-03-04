@@ -121,6 +121,7 @@ export default {
     logoutUser () {
       this.identity = Identity.makeNull()
       Identity.clearLocalStorage()
+      this.$store.commit('setIdentity', this.identity)
     },
     startLogin () {
       this.loginDialogVisible = true
@@ -138,6 +139,7 @@ export default {
     onLoginSuccessful: function (identity) {
       this.identity = identity
       this.identity.persistToLocalStorage()
+      this.$store.commit('setIdentity', this.identity)
     },
     onSnackRequested: function (payload) {
       if (payload.error !== undefined) {
