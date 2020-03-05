@@ -1,42 +1,76 @@
 <template>
   <CenterCol id="UserList">
 
-    <PopupDialog
-      @dialogConfirmed="onDialogConfirmed"
-      @dialogDismissed="closeAddBlock"
-      :dialogVisible="isAddBlockVisible"
-      title="Add new User">
-      <v-text-field
-        name="user-input"
-        id="UserNameImput"
-        @keyup.enter.native="onDialogConfirmed"
-        type='text'
-        v-model='selectedUser.name'
-        label='Enter a new username' />
-      <v-text-field
-        name="password"
-        @keyup.enter.native="onDialogConfirmed"
-        type='password'
-        v-model='selectedUser.password'
-        label='Password' />
-    </PopupDialog>
+    <v-container>
+      <v-data-table
+          :headers="headers"
+          :items="users"
+          :items-per-page="5"
+          class="elevation-1"
+          >
+          <template v-slot:top>
+            <v-toolbar flat>
+              <v-toolbar-title>Users</v-toolbar-title>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <v-spacer></v-spacer>
+              <v-btn
+                @click="openCreateDialog"
+                color="primary"
+                icon
+                v-if="hasRole('admin')">
+                  <v-icon>mdi-account-plus</v-icon>
+              </v-btn>
+              <v-btn
+                @click="refresh"
+                color="primary"
+                icon
+                v-if="hasRole('admin')">
+                  <v-icon>mdi-refresh</v-icon>
+              </v-btn>
 
-    <UserBlock
-      v-for="user in users"
-      :identity="identity"
-      :name="user.name"
-      :key="user.name"></UserBlock>
+              <PopupDialog
+                @dialogConfirmed="onDialogConfirmed"
+                @dialogDismissed="closeAddBlock"
+                :dialogVisible="isAddBlockVisible"
+                title="Add new User">
+                <v-text-field
+                  name="user-input"
+                  id="UserNameImput"
+                  @keyup.enter.native="onDialogConfirmed"
+                  type='text'
+                  v-model='selectedUser.name'
+                  label='Enter a new username' />
+                <v-text-field
+                  name="password"
+                  @keyup.enter.native="onDialogConfirmed"
+                  type='password'
+                  v-model='selectedUser.password'
+                  label='Password' />
+              </PopupDialog>
 
-    <div v-if="hasRole('admin')">
-      <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new User</v-btn>
-    </div>
-
+            </v-toolbar>
+          </template>
+          <template v-slot:item.action="{ item }">
+            <ConfirmationDialog
+              buttonText="Delete"
+              :actionArgument="item.name"
+              actionName="deleteUserRemote">
+              <span slot="title">Do you want to delete the user "{{ item.name }}"?</span>
+              <div slot="text">
+                <p>this will delete the user with the name "{{ item.name }}" and all
+                  related information!</p>
+                <p>Are you sure?</p>
+              </div>
+            </ConfirmationDialog>
+          </template>
+      </v-data-table>
+    </v-container>
   </CenterCol>
 </template>
 
 <script>
 
-import UserBlock from '@/components/UserBlock'
+import ConfirmationDialog from '@/components/ConfirmationDialog'
 import PopupDialog from '@/components/PopupDialog'
 import CenterCol from '@/components/CenterCol'
 import model from '@/model'
@@ -48,6 +82,9 @@ export default {
     'identity'
   ],
   methods: {
+    refresh: function () {
+      this.$store.dispatch('refreshUsers')
+    },
     onDialogConfirmed: function () {
       const user = this.selectedUser
 
@@ -88,17 +125,30 @@ export default {
     return {
       isAddBlockVisible: false,
       selectedUser: model.user.makeEmpty(),
-      sendMode: model.SEND_MODE.CREATE
+      sendMode: model.SEND_MODE.CREATE,
+      headers: [
+        {
+          text: 'Login',
+          align: 'start',
+          value: 'name'
+        },
+        {
+          text: 'Actions',
+          value: 'action',
+          align: 'end',
+          sortable: false
+        }
+      ]
     }
   },
   computed: {
     users () {
-      return this.$store.state.users // XXX TODO
+      return this.$store.state.users
     }
   },
   components: {
     CenterCol,
-    UserBlock,
+    ConfirmationDialog,
     PopupDialog,
   }
 }
