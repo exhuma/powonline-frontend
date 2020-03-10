@@ -75,7 +75,7 @@ import BottomNavigation from './components/BottomNavigation'
 import ProgressIndicator from './components/ProgressIndicator'
 import LoginDialog from './components/LoginDialog'
 import EventBus from '@/eventBus'
-import {Identity} from '@/identity'
+import {Identity, LocalStorage} from '@/identity'
 
 export default {
   name: 'App',
@@ -92,13 +92,15 @@ export default {
   },
 
   created () {
-    this.identity = Identity.fromLocalStorage()
+    this.identity = this.identityStore.load()
   },
 
   data () {
+    const identityStore = new LocalStorage('jwt')
     return {
       hello: hello,
-      identity: Identity.makeNull(),
+      identityStore: identityStore,
+      identity: Identity.makeNull(identityStore),
       snackbar: {
         visible: false,
         color: 'success',
@@ -119,8 +121,9 @@ export default {
 
   methods: {
     logoutUser () {
-      this.identity = Identity.makeNull()
-      Identity.clearLocalStorage()
+      const identityStore = new LocalStorage('jwt')
+      this.identity = Identity.makeNull(identityStore)
+      identityStore.clear()
       this.$store.commit('setIdentity', this.identity)
     },
     startLogin () {
@@ -138,7 +141,7 @@ export default {
     },
     onLoginSuccessful: function (identity) {
       this.identity = identity
-      this.identity.persistToLocalStorage()
+      this.identity.persist()
       this.$store.commit('setIdentity', this.identity)
     },
     onSnackRequested: function (payload) {

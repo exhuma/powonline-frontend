@@ -66,7 +66,7 @@
 
 <script>
 
-import {Identity} from '@/identity'
+import {Identity, LocalStorage} from '@/identity'
 
 const LOG = window.console
 
@@ -80,7 +80,8 @@ export default {
   data: () => ({
     activeLoginTab: 0,
     username: '',
-    password: ''
+    password: '',
+    identityStore: new LocalStorage('jwt')
   }),
   watch: {
     activeLoginTab: function (newTab) {
@@ -101,7 +102,7 @@ export default {
       let prm = this.localAuth.loginUser(this.username, this.password)
         .then((data) => {
           LOG.debug({msg: 'Received data from login', data: data})
-          let identity = Identity.fromToken(data.token)
+          let identity = Identity.fromToken(this.identityStore, data.token)
           this.$emit('loginSuccessful', identity)
 
           // Reset text fields

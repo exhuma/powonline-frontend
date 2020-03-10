@@ -400,6 +400,10 @@ class Proxy extends FakeProxy {
       axios.post(this.baseUrl + '/login/renew', {
         'token': token
       }).then(response => {
+        LOG.error(response)
+        if (response.status !== 200) {
+          reject(response)
+        }
         let data = {
           status: response.status,
           token: response.data.token

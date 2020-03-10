@@ -9,14 +9,17 @@ const LOG = window.console
  *
  * A JWT token for this class must have the keys:
  *
- *   * username: the login-name as string
- *   * roles: A list of strings representing the users roles
- *   * iat: The standard JWT iat key
- *   * exp: The standard JWT exp key
+ * @param persistence A helper class for persistent storage of identity
+ *    information
+ * @param username the login-name as string
+ * @param roles A list of strings representing the users roles
+ * @param iat The standard JWT iat key
+ * @param exp The standard JWT exp key
  */
 class Identity {
 
-  constructor (username, roles, iat, exp, token) {
+  constructor (persistence, username, roles, iat, exp, token) {
+    this.persistence = persistence
     this.username = username
     this.roles = roles
     this.iat = iat
@@ -27,21 +30,27 @@ class Identity {
 
   /**
    * Creates a new empty, invalid identity
+   *
+   * @param persistence A helper class for persistent storage of identity
+   *    information
    */
-  static makeNull () {
-    const instance = new Identity('', [], 0, 0, '')
+  static makeNull (persistence) {
+    const instance = new Identity(persistence, '', [], 0, 0, '')
     return instance
   }
 
   /**
    * Creates a new identity from a JWT token
    *
+   * @param persistence A helper class for persistent storage of identity
+   *    information
    * @param token: The JWT token as string
    * @return str returns a new "Identity" instance
    */
-  static fromToken (token) {
+  static fromToken (persistence, token) {
     const decoded = jwt_decode(token)
     const instance = new Identity(
+      persistence,
       decoded.username,
       decoded.roles,
       decoded.iat || null,
@@ -55,63 +64,8 @@ class Identity {
    * Persists the identity token into local storage to be able to retrieve it
    * later.
    */
-  persistToLocalStorage () {
-    localStorage.setItem('jwt', this.token)
-  }
-
-  /**
-   * Removes all identity related keys from local-storage
-   */
-  static clearLocalStorage () {
-    localStorage.removeItem('jwt')
-  }
-
-
-  /**
-   * Creates an identity object from local storage. If it does not exist, this
-   * will return null.
-   */
-  static fromLocalStorage () {
-    const token = localStorage.getItem('jwt') || ''
-    if (token === '') {
-      LOG.debug(
-        'No identity available in local-storage, returning a dummy entry')
-      return new Identity.makeNull()
-    }
-    const instance = Identity.fromToken(token)
-    return instance
-  }
-
-
-  /**
-   * Performs a local login against the system back-end
-   *
-   * @param username The login name for the user
-   * @param password The password name for the user
-   * @param backend An optional injection point for back-end communications
-   */
-  static login(username, password, backend) {
-    const prm = new Promise((resolve, reject) => {
-      backend.loginUser(username, password).then(data => {
-        if (data.status === 200) {
-          const instance = Identity.fromToken(data.token)
-          resolve(instance)
-        } else {
-          reject({
-            message: 'Unexpected remote response (' + data.status + ')'
-          })
-        }
-      }).catch(e => {
-        let message = 'Unknown Error'
-        if (e.response) {
-          message = e.response.data
-        } else {
-          message = e.message
-        }
-        reject({message: message})
-      })
-    })
-    return prm
+  persist () {
+    this.persistence.save(this)
   }
 
   /**
@@ -162,28 +116,35 @@ class Identity {
    * @param backend An optional injection point for back-end communications
    */
   renew (backend) {
-    const prm = new Promise((resolve, reject) => {
-      if (this.token === '') {
-        resolve()
-      } else if (this.failedRenewals > 5) {
-        this.invalidate()
-        reject({message: 'Too many retries!'})
-      } else {
-        backend.renewToken(this.token).then(data => {
-          // XXX TODO ENDLESS LOOP
-          // if (data.status < 300) {
-          //   this.token = data.token
-          //   this.failedRenewals = 0
-          //   resolve()
-          // } else {
-          //   LOG.error('Unable to renew the token!')
-          //   this.failedRenewals += 1
-          //   resolve()
-          // }
-        })
-      }
-    })
-    return prm
+    LOG.debug('Refreshing token. Failed renewals=' + this.failedRenewals)
+    if (this.token === '') {
+      return true
+    }
+    if (this.failedRenewals > 5) {
+      this.clear()
+      LOG.error('Too many retries!')
+      return false
+    }
+    backend.renewToken(this.token)
+      .then(data => {
+        if (data.status < 300) {
+          this.token = data.token
+          this.failedRenewals = 0
+          this.persist()
+          return
+        } else {
+          LOG.error('Unable to renew the token!')
+          this.failedRenewals += 1
+          this.persist()
+          return
+        }
+      })
+      .catch(error => {
+        LOG.error(error)
+        this.failedRenewals += 1
+        this.persist()
+        return false
+      })
   }
 
   /**
@@ -199,10 +160,57 @@ class Identity {
     if (resetFailedRenewals) {
       this.failedRenewals = 0
     }
+    this.persistence.save(this)
+  }
+
+}
+
+/**
+ * A persistence helper for the Identity class
+ *
+ * @param keyName The name under which the identity information is stored
+ */
+class LocalStorage {
+  constructor (keyName) {
+    this.keyName = keyName
+  }
+
+  /**
+   * Loads an identity instance from local storage
+   *
+   * @return Identity An identity instance
+   */
+  load () {
+    const token = localStorage.getItem(this.keyName) || ''
+    if (token === '') {
+      LOG.debug(
+        'No identity available in local-storage, returning a dummy entry')
+      return new Identity.makeNull(this)
+    }
+    const failedRenewals = localStorage.getItem('failedRenewals') || 0
+    const instance = Identity.fromToken(this, token)
+    instance.failedRenewals = failedRenewals
+    return instance
+  }
+
+  /**
+   * Stores an identity to the persistent storage
+   *
+   * @param identity An identity instance
+   */
+  save (identity) {
+    localStorage.setItem(this.keyName, identity.token)
+    localStorage.setItem('failedRenewals', identity.failedRenewals)
+  }
+
+  clear() {
+    localStorage.removeItem(this.keyName)
+    localStorage.removeItem('failedRenewals')
   }
 
 }
 
 export {
-  Identity
+  Identity,
+  LocalStorage,
 }

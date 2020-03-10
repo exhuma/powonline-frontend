@@ -2,7 +2,7 @@ import App from './App.vue'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
-import {Identity} from '@/identity.js'
+import {Identity, LocalStorage} from '@/identity.js'
 import axios from 'axios'
 import development from "@/config/development"
 import hello from 'hellojs'
@@ -31,11 +31,11 @@ const store = storeFactory.makeStore(remoteProxy)
  * Inject the JWT token into each outgoing request if it's available
  */
 axios.interceptors.request.use(config => {
-  const identity = Identity.fromLocalStorage()
+  const identityStore = new LocalStorage('jwt')
+  const identity = identityStore.load()
   if (identity.isUsable()) {
     if (identity.isExpired()) {
-      // XXX identity.renew(remoteProxy)
-      identity.clear()
+      identity.renew(remoteProxy)
     }
     config.headers['Authorization'] = 'Bearer ' + identity.token
     LOG.debug('Intercepted and set auth token to ' + identity.token)
@@ -69,6 +69,8 @@ const router = new VueRouter({
   routes: getRoutes()
 })
 
+const identityStore = new LocalStorage('jwt')
+
 new Vue({
   vuetify,
   router,
@@ -94,7 +96,7 @@ new Vue({
 
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
-    const identity = Identity.fromLocalStorage()
+    const identity = identityStore.load()
     this.$store.commit('setIdentity', identity)
     const tokenCleared = identity.clear()
     if (tokenCleared) {
@@ -165,7 +167,8 @@ hello.on('auth.login', function (ath) {
       userInfo.id,
       ath.authResponse.access_token
     ).then(data => {
-      let identity = Identity.fromToken(data.token)
+      let identityStore = new LocalStorage('jwt')
+      let identity = Identity.fromToken(identityStore, data.token)
       store.commit('setIdentity', identity)
     }).catch(e => {
       // TODO show message as snack-text
