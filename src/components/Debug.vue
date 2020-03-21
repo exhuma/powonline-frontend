@@ -12,13 +12,47 @@
       </tr>
       <tr>
         <td>Identity</td>
-        <td>{{ identity || 'N/A'}}</td>
+        <td><pre>{{ identity || 'N/A'}}</pre></td>
+      </tr>
+      <tr>
+        <td>Config</td>
+        <td><pre>{{ $config || 'N/A'}}</pre></td>
+      </tr>
+      <tr>
+        <td>Token timestamps</td>
+        <td>
+          <table>
+            <tr>
+              <th>exp</th>
+              <td>{{ this.tokenTimes.exp }}</td>
+            </tr>
+            <tr>
+              <th>iat</th>
+              <td>{{ this.tokenTimes.iat }}</td>
+            </tr>
+            <tr>
+              <th>expires in</th>
+              <td :class="(this.tokenTimes.expiresIn <= 0 ? 'expired' : 'fresh')">{{ this.tokenTimes.expiresIn }}s</td>
+            </tr>
+          </table>
+        </td>
       </tr>
     </table>
   </div>
 </template>
 
+<style scoped>
+TD.fresh {
+  background: #afa;
+}
+TD.expired {
+  background: #f00;
+}
+</style>
+
 <script>
+import jwt_decode from 'jwt-decode' // eslint-disable-line camelcase
+
 export default {
   name: 'Debug',
   props: [
@@ -27,6 +61,15 @@ export default {
   computed: {
     storeIdentity: function () {
       return this.$store.state.identity
+    },
+    tokenTimes: function () {
+      let data = jwt_decode(this.identity.token)
+      let output = {
+        exp: new Date(data.exp * 1000),
+        iat: new Date(data.iat * 1000),
+        expiresIn: Math.floor(data.exp - (Date.now() / 1000))
+      }
+      return output
     }
   }
 };

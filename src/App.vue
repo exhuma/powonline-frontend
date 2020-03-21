@@ -1,5 +1,9 @@
 <template>
   <v-app dark>
+    <v-system-bar app color="orange" v-if="$config.debug === true">
+      <v-icon>mdi-key</v-icon> {{ tokenExpires }}
+    </v-system-bar>
+
     <v-slide-y-transition>
       <TitleBar
         :title="pageTitle"
@@ -157,6 +161,13 @@ export default {
   computed: {
     pageTitle: function () {
       return this.$config.title
+    },
+    tokenExpires: function () {
+      let expiration = Math.floor(this.identity.exp - (Date.now() / 1000))
+      if (expiration <= 0) {
+        return 'expired!'
+      }
+      return `${expiration}s`
     }
   },
 

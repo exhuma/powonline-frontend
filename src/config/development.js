@@ -1,3 +1,4 @@
 export default {
-  title: "Site Title"
+  title: "Site Title",
+  debug: true
 }
