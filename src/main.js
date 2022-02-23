@@ -19,7 +19,12 @@ Vue.use(Vuex)
 
 const LOG = window.console
 LOG.debug(Identity)
-const remoteIsFake = false
+
+let remoteIsFake = true
+if (process.env.NODE_ENV === "production") {
+  remoteIsFake = false
+}
+
 const remoteProxy = makeRemoteProxy(
   remoteIsFake,
   'https://localhost:5000',
