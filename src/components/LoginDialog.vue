@@ -19,7 +19,7 @@
 
           <v-tab-item key="0">
             <v-card flat>
-              <v-card-text>
+              <v-card-text class="d-flex align-center justify-space-around">
                 <v-btn class="mt-5 mb-5" @click="hello.login('google')">Google</v-btn>
                 <v-btn class="mt-5 mb-5" @click="hello.login('facebook')">Facebook</v-btn>
               </v-card-text>
