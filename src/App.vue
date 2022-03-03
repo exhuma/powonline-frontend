@@ -1,9 +1,5 @@
 <template>
   <v-app dark>
-    <v-system-bar app color="orange" v-if="$config.debug === true">
-      <v-icon>mdi-key</v-icon> {{ tokenExpires }}
-    </v-system-bar>
-
     <v-slide-y-transition>
       <TitleBar
         :title="pageTitle"
@@ -32,6 +28,7 @@
     <ProgressIndicator :model="activity"></ProgressIndicator>
 
     <v-content>
+      <DebugBar v-if="$config.debug === true" :identity="identity"></DebugBar>
       <LoginDialog
         :isVisible="loginDialogVisible"
         :hello="hello"
@@ -80,6 +77,7 @@ import ProgressIndicator from './components/ProgressIndicator'
 import LoginDialog from './components/LoginDialog'
 import EventBus from '@/eventBus'
 import {Identity, LocalStorage} from '@/identity'
+import DebugBar from './components/DebugBar.vue'
 
 export default {
   name: 'App',
@@ -162,19 +160,13 @@ export default {
     pageTitle: function () {
       return this.$config.title
     },
-    tokenExpires: function () {
-      let expiration = Math.floor(this.identity.exp - (Date.now() / 1000))
-      if (expiration <= 0) {
-        return 'expired!'
-      }
-      return `${expiration}s`
-    }
   },
 
   components: {
     BottomNavigation,
     LoginDialog,
     MainNavigation,
+    DebugBar,
     ProgressIndicator,
     TitleBar,
   }
