@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer permanent app>
+  <v-navigation-drawer bottom app :value="isVisible" @input="onToggle">
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">
@@ -39,8 +39,14 @@ import {accessibleRoutes} from '@/router'
 export default {
   name: 'MainNavigation',
   props: [
-    'identity'
+    'identity',
+    'isVisible',
   ],
+  methods: {
+    onToggle (value) {
+      this.$emit('toggled', value)
+    }
+  },
   computed: {
     routes () {
       const output = accessibleRoutes(this.identity.roles)

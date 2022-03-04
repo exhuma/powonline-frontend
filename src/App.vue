@@ -6,6 +6,7 @@
         :version="version"
         :isTitleBarVisible="isTitleBarVisible"
         :identity="identity"
+        @menuClicked="onMenuClicked"
         >
         <template v-slot:loginButton>
           <v-btn
@@ -24,6 +25,7 @@
     <MainNavigation
       :isVisible="sideMenuVisible"
       :identity="identity"
+      @toggled="this.onNavToggled"
       ></MainNavigation>
     <ProgressIndicator :model="activity"></ProgressIndicator>
 
@@ -42,10 +44,6 @@
         @changeActivity="onActivityChange"
         @fullScreenRequested="setFullscreen"
         @snackRequested="onSnackRequested"></router-view>
-      <BottomNavigation
-        :isVisible="isBottomNavVisible"
-        :identity="identity"
-        ></BottomNavigation>
     </v-content>
 
     <v-snackbar
@@ -72,7 +70,6 @@ const LOG = window.console
 import hello from 'hellojs'
 import TitleBar from './components/TitleBar'
 import MainNavigation from './components/MainNavigation'
-import BottomNavigation from './components/BottomNavigation'
 import ProgressIndicator from './components/ProgressIndicator'
 import LoginDialog from './components/LoginDialog'
 import EventBus from '@/eventBus'
@@ -122,6 +119,12 @@ export default {
   },
 
   methods: {
+    onNavToggled(value) {
+      this.sideMenuVisible = value;
+    },
+    onMenuClicked() {
+      this.sideMenuVisible = !this.sideMenuVisible;
+    },
     logoutUser () {
       const identityStore = new LocalStorage('jwt')
       this.identity = Identity.makeNull(identityStore)
@@ -163,7 +166,6 @@ export default {
   },
 
   components: {
-    BottomNavigation,
     LoginDialog,
     MainNavigation,
     DebugBar,
