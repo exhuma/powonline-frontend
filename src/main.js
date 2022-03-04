@@ -102,10 +102,13 @@ new Vue({
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
     const identity = identityStore.load()
-    this.$store.commit('setIdentity', identity)
-    const tokenCleared = identity.clear()
-    if (tokenCleared) {
-      this.$store.commit('clearUserData')
+    if (identity.isExpired()) {
+      const tokenCleared = identity.clear()
+      if (tokenCleared) {
+        this.$store.commit('clearUserData')
+      }
+    } else {
+      this.$store.commit('setIdentity', identity)
     }
 
     this.$store.dispatch('fetchSiteConfig')
