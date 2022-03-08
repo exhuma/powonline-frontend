@@ -1,7 +1,7 @@
 <template>
 
-  <div>
-    <h1>{{ route.name }}</h1>
+  <div class="pl-5 pr-5">
+    <h2>{{ route.name }}</h2>
     <v-data-table
       :style="'border-left: 3px solid ' + routeColor"
       hide-default-footer
