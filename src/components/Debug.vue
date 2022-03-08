@@ -8,15 +8,19 @@
       </tr>
       <tr>
         <td>Store Identity</td>
-        <td>{{ storeIdentity || 'N/A' }}</td>
+        <td>{{ storeIdentity || "N/A" }}</td>
       </tr>
       <tr>
         <td>Identity</td>
-        <td><pre>{{ identity || 'N/A'}}</pre></td>
+        <td>
+          <pre>{{ identity || "N/A" }}</pre>
+        </td>
       </tr>
       <tr>
         <td>Config</td>
-        <td><pre>{{ $config || 'N/A'}}</pre></td>
+        <td>
+          <pre>{{ $config || "N/A" }}</pre>
+        </td>
       </tr>
       <tr>
         <td>Token timestamps</td>
@@ -32,7 +36,9 @@
             </tr>
             <tr>
               <th>expires in</th>
-              <td :class="(this.tokenTimes.expiresIn <= 0 ? 'expired' : 'fresh')">{{ this.tokenTimes.expiresIn }}s</td>
+              <td :class="this.tokenTimes.expiresIn <= 0 ? 'expired' : 'fresh'">
+                {{ this.tokenTimes.expiresIn }}s
+              </td>
             </tr>
           </table>
         </td>
@@ -42,34 +48,32 @@
 </template>
 
 <style scoped>
-TD.fresh {
+td.fresh {
   background: #afa;
 }
-TD.expired {
+td.expired {
   background: #f00;
 }
 </style>
 
 <script>
-import jwt_decode from 'jwt-decode' // eslint-disable-line camelcase
+import jwt_decode from "jwt-decode"; // eslint-disable-line camelcase
 
 export default {
-  name: 'Debug',
-  props: [
-    "identity"
-  ],
+  name: "Debug",
+  props: ["identity"],
   computed: {
-    storeIdentity: function () {
-      return this.$store.state.identity
+    storeIdentity: function() {
+      return this.$store.state.identity;
     },
-    tokenTimes: function () {
-      let data = jwt_decode(this.identity.token)
+    tokenTimes: function() {
+      let data = jwt_decode(this.identity.token);
       let output = {
         exp: new Date(data.exp * 1000),
         iat: new Date(data.iat * 1000),
-        expiresIn: Math.floor(data.exp - (Date.now() / 1000))
-      }
-      return output
+        expiresIn: Math.floor(data.exp - Date.now() / 1000)
+      };
+      return output;
     }
   }
 };

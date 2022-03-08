@@ -1,139 +1,146 @@
 <template>
-
   <div class="pl-5 pr-5">
     <h2>{{ route.name }}</h2>
     <v-data-table
       :style="'border-left: 3px solid ' + routeColor"
       hide-default-footer
       :headers="tableHeaders"
-      :items="tableItems">
+      :items="tableItems"
+    >
       <template slot="items" slot-scope="props">
-        <td 
-          :class="props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'"
-          >{{props.item.team}}</td>
+        <td
+          :class="
+            props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'
+          "
+        >
+          {{ props.item.team }}
+        </td>
         <td
           v-for="cell in props.item.stations"
           :key="props.item.team + cell.station"
-          ><v-icon
+        >
+          <v-icon
             :title="props.item.team + '@' + cell.station"
             v-if="cell.state !== 'unreachable'"
-            >{{ getStateIcon(cell.state) }}</v-icon>
+            >{{ getStateIcon(cell.state) }}</v-icon
+          >
         </td>
       </template>
     </v-data-table>
   </div>
-
 </template>
 
 <style scoped>
-  .cancelled {
-    text-decoration: line-through;
-    color: #888;
-  }
+.cancelled {
+  text-decoration: line-through;
+  color: #888;
+}
 </style>
 
 <script>
-import util from '@/util'
+import util from "@/util";
 
 export default {
-  name: 'route-dashboard',
+  name: "route-dashboard",
   props: {
-    'route': {
+    route: {
       type: Object,
       default: null
     }
   },
   computed: {
-    routeColor () {
+    routeColor() {
       if (this.route.color) {
-        return this.route.color
+        return this.route.color;
       } else {
-        return '#000000'
+        return "#000000";
       }
     },
-    assignedStations () {
-      const output = this.$store.state.route_station_map[this.route.name] || []
+    assignedStations() {
+      const output = this.$store.state.route_station_map[this.route.name] || [];
       output.sort((a, b) => {
-        return a.order - b.order
-      })
-      return output
+        return a.order - b.order;
+      });
+      return output;
     },
-    tableHeaders () {
-      let output = [{
-        text: 'Team',
-        align: 'left',
-        value: 'team',
-        sortable: false,
-      }]
-      const assignedStations = this.assignedStations
+    tableHeaders() {
+      let output = [
+        {
+          text: "Team",
+          align: "left",
+          value: "team",
+          sortable: false
+        }
+      ];
+      const assignedStations = this.assignedStations;
       if (this.assignedStations) {
         assignedStations.forEach(station => {
           output.push({
             text: station.name,
-            align: 'center',
-            value: 'state',
+            align: "center",
+            value: "state",
             sortable: false
-          })
-        })
+          });
+        });
       }
-      return output
+      return output;
     },
-    stateMapping () {
+    stateMapping() {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
-      const output = {}
-      const global_dashboard = this.$store.state.global_dashboard
+      const output = {};
+      const global_dashboard = this.$store.state.global_dashboard;
       global_dashboard.forEach(teamState => {
         teamState.stations.forEach(stationState => {
           if (output[stationState.name] === undefined) {
-            output[stationState.name] = {}
+            output[stationState.name] = {};
           }
-          if (stationState.state !== 'unreachable') {
-            output[stationState.name][teamState.team] = stationState
+          if (stationState.state !== "unreachable") {
+            output[stationState.name][teamState.team] = stationState;
           }
-        })
-      })
-      return output
+        });
+      });
+      return output;
     },
-    tableItems () {
-      const rows = []
-      const mapping = this.stateMapping
-      const routeTeams = this.$store.state.route_team_map
-      const assignedStations = this.assignedStations
+    tableItems() {
+      const rows = [];
+      const mapping = this.stateMapping;
+      const routeTeams = this.$store.state.route_team_map;
+      const assignedStations = this.assignedStations;
 
       for (const teamName in routeTeams) {
         if (routeTeams.hasOwnProperty(teamName)) {
-          const route = routeTeams[teamName]
+          const route = routeTeams[teamName];
           if (this.route.name !== route) {
-            continue
+            continue;
           }
-          let teamDetails = this.$store.getters.findTeam(teamName)
+          let teamDetails = this.$store.getters.findTeam(teamName);
           let row = {
             stations: [],
             team: teamName,
             cancelled: teamDetails.cancelled
-          }
+          };
           assignedStations.forEach(station => {
-            const stationData = mapping[station.name]
+            const stationData = mapping[station.name];
             if (!stationData) {
-              return
+              return;
             }
-            const state = stationData[teamName]
+            const state = stationData[teamName];
             row.stations.push({
               state: state.state,
               score: state.score,
               station: state.name
-            })
-          })
-          rows.push(row)
+            });
+          });
+          rows.push(row);
         }
       }
-      return rows
+      return rows;
     }
   },
   methods: {
-    getStateIcon (state) {
-      return util.getStateIcon(state)
+    getStateIcon(state) {
+      return util.getStateIcon(state);
     }
   }
-}
+};
 </script>

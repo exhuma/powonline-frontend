@@ -1,46 +1,45 @@
 <template>
-    <v-system-bar color="orange">
-      <v-icon>mdi-key</v-icon> Auth token expires in: {{ tokenExpires }}
-    </v-system-bar>
+  <v-system-bar color="orange">
+    <v-icon>mdi-key</v-icon> Auth token expires in: {{ tokenExpires }}
+  </v-system-bar>
 </template>
 
 <script>
-import moment from 'moment'
+import moment from "moment";
 
 export default {
-  name: 'DebugBar',
+  name: "DebugBar",
   props: {
     identity: {
-        type: Object,
-        required: true
+      type: Object,
+      required: true
     }
   },
-  data () {
+  data() {
     return {
       intervalId: null,
       tokenExpires: "unknown"
-    }
+    };
   },
-  created () {
+  created() {
     this.intervalId = setInterval(() => {
-      this.refresh()
-    }, 1000)
-    this.refresh()
+      this.refresh();
+    }, 1000);
+    this.refresh();
   },
-  beforeDestroy () {
-    clearInterval(this.intervalId)
+  beforeDestroy() {
+    clearInterval(this.intervalId);
   },
   methods: {
-    refresh () {
-      let expiration = Math.floor(this.identity.exp - (Date.now() / 1000))
+    refresh() {
+      let expiration = Math.floor(this.identity.exp - Date.now() / 1000);
       if (expiration <= 0) {
-        this.tokenExpires = 'expired!'
+        this.tokenExpires = "expired!";
       } else {
-          let duration = moment.duration(expiration, 'seconds')
-        this.tokenExpires = duration.humanize()
+        let duration = moment.duration(expiration, "seconds");
+        this.tokenExpires = duration.humanize();
       }
     }
-  },
-
-}
+  }
+};
 </script>

@@ -10,6 +10,6 @@
 
 <script>
 export default {
-  name: 'CenterCol'
-}
+  name: "CenterCol"
+};
 </script>

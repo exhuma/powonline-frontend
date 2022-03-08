@@ -5,20 +5,21 @@
         <span>Login with Username/Password</span>
       </v-card-title>
       <v-card-text>
-
         <v-text-field
-          type='text'
+          type="text"
           @keyup.enter.native="localLogin"
-          v-model='username'
+          v-model="username"
           autofocus
           outlined
-          label='Username' />
+          label="Username"
+        />
         <v-text-field
           @keyup.enter.native="localLogin"
-          type='password'
+          type="password"
           outlined
-          v-model='password'
-          label='Password' />
+          v-model="password"
+          label="Password"
+        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -30,8 +31,12 @@
         <span>Login via Social Network</span>
       </v-card-title>
       <v-card-text class="d-flex justify-space-around">
-        <v-btn fab class="ma-5" @click="hello.login('google')"><v-icon>mdi-google</v-icon></v-btn>
-        <v-btn fab class="ma-5" @click="hello.login('facebook')"><v-icon>mdi-facebook</v-icon></v-btn>
+        <v-btn fab class="ma-5" @click="hello.login('google')"
+          ><v-icon>mdi-google</v-icon></v-btn
+        >
+        <v-btn fab class="ma-5" @click="hello.login('facebook')"
+          ><v-icon>mdi-facebook</v-icon></v-btn
+        >
       </v-card-text>
       <v-footer class="pa-3">
         <v-spacer></v-spacer>
@@ -42,65 +47,65 @@
 </template>
 
 <script>
+import { Identity, LocalStorage } from "@/identity";
 
-import {Identity, LocalStorage} from '@/identity'
-
-const LOG = window.console
+const LOG = window.console;
 
 export default {
-  name: 'LoginDialog',
+  name: "LoginDialog",
   props: [
-    'isVisible',
-    'hello', // injection point for "hellojs"
-    'localAuth' // injectio point for the local auth lib
+    "isVisible",
+    "hello", // injection point for "hellojs"
+    "localAuth" // injectio point for the local auth lib
   ],
   data: () => ({
-    username: '',
-    password: '',
-    identityStore: new LocalStorage('jwt')
+    username: "",
+    password: "",
+    identityStore: new LocalStorage("jwt")
   }),
   methods: {
-    localLogin: function () {
-      LOG.debug(`Requesting login for ${this.username}`)
-      let prm = this.localAuth.loginUser(this.username, this.password)
-        .then((data) => {
-          LOG.debug({msg: 'Received data from login', data: data})
-          let identity = Identity.fromToken(this.identityStore, data.token)
-          this.$emit('loginSuccessful', identity)
+    localLogin: function() {
+      LOG.debug(`Requesting login for ${this.username}`);
+      let prm = this.localAuth
+        .loginUser(this.username, this.password)
+        .then(data => {
+          LOG.debug({ msg: "Received data from login", data: data });
+          let identity = Identity.fromToken(this.identityStore, data.token);
+          this.$emit("loginSuccessful", identity);
 
           // Reset text fields
-          this.username = ''
-          this.password = ''
+          this.username = "";
+          this.password = "";
 
-          this.closeDialog()
+          this.closeDialog();
         })
-        .catch((error) => {
-          this.hello.logout('facebook')
-          this.hello.logout('google')
-          this.$emit('snackRequested', {
+        .catch(error => {
+          this.hello.logout("facebook");
+          this.hello.logout("google");
+          this.$emit("snackRequested", {
             text: error,
-            color: 'error',
+            color: "error",
             error: error
-          })
-          this.$store.commit('clearUserData')
-          this.closeDialog()
-        })
-      return prm
+          });
+          this.$store.commit("clearUserData");
+          this.closeDialog();
+        });
+      return prm;
     },
-    closeDialog: function () {
-      this.username = ''
-      this.password = ''
-      this.$emit('dialogDismissed')
+    closeDialog: function() {
+      this.username = "";
+      this.password = "";
+      this.$emit("dialogDismissed");
     },
-    cancelLogin: function () {
-      this.closeDialog()
+    cancelLogin: function() {
+      this.closeDialog();
     },
-    login (provider) {
+    login(provider) {
       this.hello(provider).login({
-        'scope': 'basic, email'
-      })
-      this.$emit('dialogDismissed')
+        scope: "basic, email"
+      });
+      this.$emit("dialogDismissed");
     }
   }
-}
+};
 </script>

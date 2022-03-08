@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="isDialogVisible" hide-overlay max-width="40em">
-    <template v-slot:activator="{on}">
+    <template v-slot:activator="{ on }">
       <v-btn primary v-on="on">{{ buttonText }}</v-btn>
     </template>
     <v-card>
@@ -17,25 +17,21 @@
 
 <script>
 export default {
-  name: 'ConfirmationDialog',
-  data () {
+  name: "ConfirmationDialog",
+  data() {
     return {
       isDialogVisible: false
-    }
+    };
   },
-  props: [
-    'actionArgument',
-    'actionName',
-    'buttonText'
-  ],
+  props: ["actionArgument", "actionName", "buttonText"],
   methods: {
-    discardAction () {
-      this.isDialogVisible = false
+    discardAction() {
+      this.isDialogVisible = false;
     },
-    acceptAction () {
-      this.$store.dispatch(this.actionName, this.actionArgument)
-      this.isDialogVisible = false
+    acceptAction() {
+      this.$store.dispatch(this.actionName, this.actionArgument);
+      this.isDialogVisible = false;
     }
   }
-}
+};
 </script>
