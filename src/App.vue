@@ -46,6 +46,10 @@
         @snackRequested="onSnackRequested"></router-view>
     </v-content>
 
+    <v-bottom-navigation grow>
+      <v-btn @click="onNavToggled">Menu <v-icon>mdi-menu</v-icon></v-btn>
+    </v-bottom-navigation>
+
     <v-snackbar
       :top="true"
       :color="snackbar.color"
