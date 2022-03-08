@@ -62,7 +62,8 @@ export default {
       let output = [{
         text: 'Team',
         align: 'left',
-        value: 'team'
+        value: 'team',
+        sortable: false,
       }]
       const assignedStations = this.assignedStations
       if (this.assignedStations) {
