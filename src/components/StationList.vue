@@ -26,6 +26,7 @@
       <StationBlock
         v-for="station in stations"
         @openEditDialog="onOpenEditDialog(station)"
+        :identity="identity"
         :station="station"
         :key="station.name"
       ></StationBlock>
