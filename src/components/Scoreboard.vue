@@ -8,13 +8,14 @@
       <v-list-item
         v-for="row in leaderboard"
         :key="row.team"
+        style="padding: 0; margin: 0"
         >
         <v-list-item-content>
-          <v-layout row :class="row[3]">
-            <v-flex xs1>{{ row[0] }}</v-flex>
-            <v-flex xs9>{{ row[2] }}</v-flex>
-            <v-flex xs2 text-xs-right>{{ row[1] }} points</v-flex>
-          </v-layout>
+          <div class="tablerow">
+            <div class="positionCell">{{ row[0] }}</div>
+            <div class="nameCell">{{ row[2] }}</div>
+            <div class="scoreCell">{{ row[1] }} points</div>
+          </div>
         </v-list-item-content>
       </v-list-item>
     </v-list>
@@ -26,6 +27,22 @@
     text-decoration: line-through;
     color: #888;
   }
+
+  .tablerow {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .positionCell {
+  }
+  .nameCell {
+    flex-grow: 99;
+  }
+  .scoreCell {
+  }
+
+
 </style>
 
 <script>
