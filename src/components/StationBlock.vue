@@ -8,7 +8,7 @@
     </v-list-item-action>
     <v-list-item-action>
       <v-btn icon ripple @click.native="openDashBoard(station)">
-        <v-icon>mdi-pencil-box-multiple</v-icon>
+        <v-icon>mdi-table-eye</v-icon>
       </v-btn>
     </v-list-item-action>
     <v-list-item-action class="ml-3" v-if="identity.hasRole('admin')">
