@@ -87,10 +87,10 @@ export default {
   name: "user_list",
   props: ["identity"],
   methods: {
-    refresh: function() {
+    refresh: function () {
       this.$store.dispatch("refreshUsers");
     },
-    onDialogConfirmed: function() {
+    onDialogConfirmed: function () {
       const user = this.selectedUser;
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
@@ -107,7 +107,7 @@ export default {
       this.isAddBlockVisible = false;
     },
 
-    openCreateDialog: function() {
+    openCreateDialog: function () {
       const newUser = model.user.makeEmpty();
 
       this.selectedUser = newUser;
@@ -120,7 +120,7 @@ export default {
     },
     hasRole(roleName) {
       return this.identity.hasRole(roleName);
-    }
+    },
   },
   created() {
     this.$store.commit("changeTitle", "User List");
@@ -135,27 +135,27 @@ export default {
         {
           text: "Login",
           align: "start",
-          value: "name"
+          value: "name",
         },
         {
           text: "Actions",
           value: "action",
           align: "end",
-          sortable: false
-        }
-      ]
+          sortable: false,
+        },
+      ],
     };
   },
   computed: {
     users() {
       return this.$store.state.users;
-    }
+    },
   },
   components: {
     CenterCol,
     ConfirmationDialog,
-    PopupDialog
-  }
+    PopupDialog,
+  },
 };
 </script>
 

@@ -36,7 +36,7 @@ const store = storeFactory.makeStore(remoteProxy);
  * Inject the JWT token into each outgoing request if it's available
  */
 axios.interceptors.request.use(
-  config => {
+  (config) => {
     const identityStore = new LocalStorage("jwt");
     const identity = identityStore.load();
     if (identity.isUsable()) {
@@ -50,7 +50,7 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  error => {
+  (error) => {
     // nothing to do
     return Promise.reject(error);
   }
@@ -59,11 +59,11 @@ axios.interceptors.request.use(
 axios.defaults.withCredentials = true;
 
 axios.interceptors.response.use(
-  response => {
+  (response) => {
     // nothing to do on successful response
     return response;
   },
-  error => {
+  (error) => {
     LOG.error({ msg: error.message, error: error });
     return Promise.reject(error);
   }
@@ -77,7 +77,7 @@ if (process.env.NODE_ENV === "production") {
 
 const router = new VueRouter({
   mode: "history",
-  routes: getRoutes()
+  routes: getRoutes(),
 });
 
 const identityStore = new LocalStorage("jwt");
@@ -87,12 +87,12 @@ new Vue({
   router,
   store,
   remoteProxy,
-  render: h => h(App),
-  created: function() {
+  render: (h) => h(App),
+  created: function () {
     // Configure social login providers
     remoteProxy
       .fetchConfig()
-      .then(result => {
+      .then((result) => {
         if (!result.hello) {
           LOG.warn("No config for hellojs found. Social logins will not work!");
         } else {
@@ -100,7 +100,7 @@ new Vue({
           LOG.debug("Social logins initialised.");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         LOG.error("Unable to fetch config!");
         LOG.error(error);
       });
@@ -126,38 +126,38 @@ new Vue({
       PusherClient.logToConsole = process.env.PUSHER_DEBUG;
       var pusher = new PusherClient(process.env.PUSHER_KEY, {
         cluster: "eu",
-        encrypted: true
+        encrypted: true,
       });
       var teamChannel = pusher.subscribe(process.env.PUSHER_TEAM_CHANNEL);
       let that = this;
-      teamChannel.bind("state-change", function(data) {
+      teamChannel.bind("state-change", function (data) {
         that.$store.commit("updateTeamState", data);
       });
-      teamChannel.bind("score-change", function(data) {
+      teamChannel.bind("score-change", function (data) {
         that.$store.commit("updateTeamState", data);
       });
-      teamChannel.bind("questionnaire-score-change", function(data) {
+      teamChannel.bind("questionnaire-score-change", function (data) {
         that.$store.commit("setQuestionnaireScore", data);
       });
-      teamChannel.bind("team-details-change", function(data) {
-        that.$remoteProxy.fetchTeam(data.name).then(newData => {
+      teamChannel.bind("team-details-change", function (data) {
+        that.$remoteProxy.fetchTeam(data.name).then((newData) => {
           that.$store.commit("updateTeam", {
             team: data.name,
-            newData: newData
+            newData: newData,
           });
         });
       });
-      teamChannel.bind("team-deleted", function(data) {
+      teamChannel.bind("team-deleted", function (data) {
         that.$store.commit("deleteTeam", data.name);
       });
 
       var fileChannel = pusher.subscribe(process.env.PUSHER_FILE_CHANNEL);
-      fileChannel.bind("file-added", function(data) {
+      fileChannel.bind("file-added", function (data) {
         that.$store.dispatch("refreshUploads");
         that.$store.dispatch("refreshGallery");
         that.$store.commit("addImageToLiveQueue", data);
       });
-      fileChannel.bind("file-deleted", function(data) {
+      fileChannel.bind("file-deleted", function (data) {
         LOG.debug({ msg: "File was deleted remotely", data: data });
         that.$store.dispatch("refreshUploads");
         that.$store.dispatch("refreshGallery");
@@ -165,7 +165,7 @@ new Vue({
     } else {
       LOG.warn("Pusher key not specified. Pusher disabled!");
     }
-  }
+  },
 }).$mount("#app");
 
 /**
@@ -174,11 +174,11 @@ new Vue({
  * After a user successfully logs in using a social identity provider, post
  * that message to the backend to retrieve a corresponding JWT token.
  */
-hello.on("auth.login", function(ath) {
+hello.on("auth.login", function (ath) {
   // Fetch user details from the selected network
   hello(ath.network)
     .api("me")
-    .then(function(userInfo) {
+    .then(function (userInfo) {
       // Now we can autheticate with the powonline backend
       remoteProxy
         .socialLogin(
@@ -186,12 +186,12 @@ hello.on("auth.login", function(ath) {
           userInfo.id,
           ath.authResponse.access_token
         )
-        .then(data => {
+        .then((data) => {
           let identityStore = new LocalStorage("jwt");
           let identity = Identity.fromToken(identityStore, data.token);
           store.commit("setIdentity", identity);
         })
-        .catch(e => {
+        .catch((e) => {
           // TODO show message as snack-text
           store.commit("clearUserData");
           LOG.error(e);

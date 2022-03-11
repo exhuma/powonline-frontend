@@ -12,7 +12,7 @@ export default {
   props: ["user", "station", "label"],
   data() {
     return {
-      checked: false
+      checked: false,
     };
   },
   methods: {
@@ -22,17 +22,17 @@ export default {
       } else {
         this.$remoteProxy.removeStationFromUser(this.user, this.station);
       }
-    }
+    },
   },
   created() {
     this.$remoteProxy
       .fetchAssignedStationState(this.user, this.station)
-      .then(data => {
+      .then((data) => {
         this.checked = data;
       })
-      .catch(e => {
+      .catch((e) => {
         this.$store.commit("logError", e);
       });
-  }
+  },
 };
 </script>

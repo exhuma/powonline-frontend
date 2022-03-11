@@ -9,7 +9,7 @@
       :style="{
         backgroundImage: 'url(' + image.thumbnail + ')',
         width: '300px',
-        height: '200px'
+        height: '200px',
       }"
     ></div>
   </div>
@@ -33,17 +33,17 @@ export default {
     this.$store.dispatch("refreshGallery");
   },
   components: {
-    gallery: VueGallery
+    gallery: VueGallery,
   },
   data() {
     return {
-      index: null
+      index: null,
     };
   },
   computed: {
     images() {
       return this.$store.state.gallery;
-    }
-  }
+    },
+  },
 };
 </script>

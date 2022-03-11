@@ -10,7 +10,7 @@ test("Fetching stations from the remote", () => {
       phone: "12345",
       is_start: true,
       is_end: false,
-      order: 0
+      order: 0,
     },
     {
       name: "station-1-1",
@@ -18,7 +18,7 @@ test("Fetching stations from the remote", () => {
       phone: "12345",
       is_start: false,
       is_end: false,
-      order: 100
+      order: 100,
     },
     {
       name: "station-2-1",
@@ -26,10 +26,10 @@ test("Fetching stations from the remote", () => {
       phone: "12345",
       is_start: false,
       is_end: false,
-      order: 100
-    }
+      order: 100,
+    },
   ];
-  const prm = proxy.fetchStations().then(data => {
+  const prm = proxy.fetchStations().then((data) => {
     expect(data).toEqual(expected);
   });
   return prm;
@@ -39,11 +39,11 @@ test("Deleting stations should remove them from the remote", () => {
   const proxy = makeRemoteProxy(true, "https://foo/bar");
   const prm = proxy
     .deleteStation("station-1-1")
-    .then(data => {
+    .then((data) => {
       expect(data).toBe(undefined);
       return proxy.fetchStations();
     })
-    .then(result2 => {
+    .then((result2) => {
       expect(result2.length).toEqual(2);
     });
   return prm;
@@ -57,15 +57,15 @@ test("Updating stations should update data on the remote", () => {
     phone: "23456",
     is_start: true,
     is_end: true,
-    order: 200
+    order: 200,
   };
   const prm = proxy
     .updateStation("station-1-1", newData)
-    .then(data => {
+    .then((data) => {
       expect(data).toBe(undefined);
       return proxy.fetchStation("station-1-1");
     })
-    .then(result2 => {
+    .then((result2) => {
       expect(result2).toEqual(newData);
     });
   return prm;

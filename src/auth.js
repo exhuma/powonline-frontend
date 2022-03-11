@@ -5,9 +5,9 @@ import hello from "hellojs";
 
 function socialLogin(backend, provider) {
   backend = backend || hello;
-  const prm = new Promise(resolve => {
+  const prm = new Promise((resolve) => {
     backend(provider).login({
-      scope: "basic, email"
+      scope: "basic, email",
     });
     resolve();
   });
@@ -15,7 +15,7 @@ function socialLogin(backend, provider) {
 }
 
 function logoutUser(social) {
-  const prm = new Promise(resolve => {
+  const prm = new Promise((resolve) => {
     social.logout("facebook");
     social.logout("google");
     resolve();
@@ -25,5 +25,5 @@ function logoutUser(social) {
 
 export default {
   socialLogin: socialLogin,
-  logoutUser: logoutUser
+  logoutUser: logoutUser,
 };

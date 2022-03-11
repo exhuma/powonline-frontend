@@ -100,7 +100,7 @@ class Identity {
    * @param roleName the role name to check
    */
   hasRole(roleName) {
-    const idx = this.roles.findIndex(item => {
+    const idx = this.roles.findIndex((item) => {
       return item === roleName;
     });
     const output = idx > -1;
@@ -125,7 +125,7 @@ class Identity {
     }
     backend
       .renewToken(this.token)
-      .then(data => {
+      .then((data) => {
         if (data.status < 300) {
           this.token = data.token;
           this.failedRenewals = 0;
@@ -138,7 +138,7 @@ class Identity {
           return;
         }
       })
-      .catch(error => {
+      .catch((error) => {
         LOG.error(error);
         this.failedRenewals += 1;
         this.persist();

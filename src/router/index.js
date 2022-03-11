@@ -14,7 +14,7 @@ function getRoutes() {
       component: NotFound,
       // TODO component: TeamPanel
       inMenu: false,
-      availableToAnonymous: true
+      availableToAnonymous: true,
     },
     {
       path: "/debug",
@@ -23,13 +23,13 @@ function getRoutes() {
       component: Debug,
       inMenu: true,
       availableToAnonymous: false,
-      needsRole: "admin"
+      needsRole: "admin",
     },
     {
       path: "/station/:stationName",
       component: StationDashboard,
       inMenu: false,
-      availableToAnonymous: true
+      availableToAnonymous: true,
     },
     {
       path: "/matrix",
@@ -37,7 +37,7 @@ function getRoutes() {
       icon: "mdi-border-all",
       component: Dashboard,
       inMenu: true,
-      availableToAnonymous: true
+      availableToAnonymous: true,
     },
     {
       path: "/scoreboard",
@@ -45,7 +45,7 @@ function getRoutes() {
       icon: "mdi-format-list-numbered",
       component: Scoreboard,
       inMenu: true,
-      availableToAnonymous: true
+      availableToAnonymous: true,
     },
     {
       path: "/gallery",
@@ -53,7 +53,7 @@ function getRoutes() {
       icon: "mdi-image",
       component: Gallery,
       inMenu: true,
-      availableToAnonymous: true
+      availableToAnonymous: true,
     },
     {
       path: "/station",
@@ -61,7 +61,7 @@ function getRoutes() {
       icon: "mdi-map-marker",
       component: StationList,
       inMenu: true,
-      availableToAnonymous: false
+      availableToAnonymous: false,
     },
     {
       path: "/team",
@@ -69,7 +69,7 @@ function getRoutes() {
       icon: "mdi-group",
       component: NotFound,
       inMenu: true,
-      availableToAnonymous: false
+      availableToAnonymous: false,
     },
     {
       path: "/uploads",
@@ -77,7 +77,7 @@ function getRoutes() {
       icon: "mdi-file-upload",
       component: NotFound,
       inMenu: true,
-      availableToAnonymous: false
+      availableToAnonymous: false,
     },
     {
       path: "/route",
@@ -86,7 +86,7 @@ function getRoutes() {
       component: NotFound,
       inMenu: true,
       availableToAnonymous: false,
-      needsRole: "admin"
+      needsRole: "admin",
     },
     {
       path: "/user",
@@ -95,7 +95,7 @@ function getRoutes() {
       component: UserList,
       inMenu: true,
       availableToAnonymous: false,
-      needsRole: "admin"
+      needsRole: "admin",
     },
     {
       path: "/auditlog",
@@ -104,7 +104,7 @@ function getRoutes() {
       component: NotFound,
       inMenu: true,
       availableToAnonymous: false,
-      needsRole: "admin"
+      needsRole: "admin",
     },
     {
       path: "/changelog",
@@ -112,8 +112,8 @@ function getRoutes() {
       icon: "mdi-playlist-check",
       component: NotFound,
       inMenu: true,
-      availableToAnonymous: false
-    }
+      availableToAnonymous: false,
+    },
   ];
   return output;
 }
@@ -132,7 +132,7 @@ function accessibleRoutes(roles) {
     if (needsRole === undefined || needsRole === null) {
       return true;
     }
-    let idx = roles.findIndex(haveRole => {
+    let idx = roles.findIndex((haveRole) => {
       return haveRole === needsRole;
     });
     return idx > -1;

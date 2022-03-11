@@ -27,7 +27,7 @@ Vue.mixin({
     } else if (options.parent && options.parent.$remoteProxy) {
       this.$remoteProxy = options.parent.$remoteProxy;
     }
-  }
+  },
 });
 
 /**
@@ -39,11 +39,11 @@ class FakeProxy {
     this.eventBus = eventBus || null;
     this.users = [
       {
-        name: "John Doe"
+        name: "John Doe",
       },
       {
-        name: "Jane Doe"
-      }
+        name: "Jane Doe",
+      },
     ];
     this.stations = [
       {
@@ -52,7 +52,7 @@ class FakeProxy {
         phone: "12345",
         is_start: true,
         is_end: false,
-        order: 0
+        order: 0,
       },
       {
         name: "station-1-1",
@@ -60,7 +60,7 @@ class FakeProxy {
         phone: "12345",
         is_start: false,
         is_end: false,
-        order: 100
+        order: 100,
       },
       {
         name: "station-2-1",
@@ -68,7 +68,7 @@ class FakeProxy {
         phone: "12345",
         is_start: false,
         is_end: false,
-        order: 100
+        order: 100,
       },
       {
         name: "station-end",
@@ -76,14 +76,14 @@ class FakeProxy {
         phone: "12345",
         is_start: false,
         is_end: true,
-        order: 100
-      }
+        order: 100,
+      },
     ];
   }
 
   fetchAssignedStationState(userName, stationName) {
     LOG.debug(`Fetching states for ${userName} @ ${stationName}`);
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve([]);
     });
     return output;
@@ -91,7 +91,7 @@ class FakeProxy {
 
   getUserRole(userName, roleName) {
     LOG.debug(`Determining if ${userName} has role ${roleName}`);
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let user = this.users.find(({ name }) => name === userName);
       let output = false;
       if (user) {
@@ -104,7 +104,7 @@ class FakeProxy {
   }
 
   deleteStation(stationName) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let idx = this.stations.findIndex(({ name }) => name == stationName);
       if (idx == -1) {
         resolve();
@@ -117,7 +117,7 @@ class FakeProxy {
   }
 
   updateStation(stationName, newData) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let idx = this.stations.findIndex(({ name }) => name == stationName);
       if (idx == -1) {
         resolve();
@@ -130,7 +130,7 @@ class FakeProxy {
   }
 
   addStation(station) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       this.stations.push(station);
       resolve(station);
     });
@@ -142,21 +142,21 @@ class FakeProxy {
    */
   fetchQuestionnaireScores() {
     LOG.debug({ msg: "Fetching Questionnaire scores" });
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve({
         team1: {
           station1: {
             name: "questionnaire-1",
-            score: 10
-          }
-        }
+            score: 10,
+          },
+        },
       });
     });
     return output;
   }
 
   fetchTeams() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve([
         {
           name: "team-1",
@@ -177,7 +177,7 @@ class FakeProxy {
           planned_start_time: "2999-10-10 19:20",
           effective_start_time: "2999-10-10 19:20",
           finish_time: "2999-10-10 22:20",
-          route_name: ""
+          route_name: "",
         },
         {
           name: "team-2",
@@ -198,33 +198,33 @@ class FakeProxy {
           planned_start_time: "2999-10-10 19:20",
           effective_start_time: "2999-10-10 19:20",
           finish_time: "2999-10-10 22:20",
-          route_name: ""
-        }
+          route_name: "",
+        },
       ]);
     });
     return output;
   }
 
   fetchConfig() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve({
-        hello: null
+        hello: null,
       });
     });
     return output;
   }
 
   fetchAssignments() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let data = {
         stations: {
           "Route 1": [{ name: "station-start" }, { name: "station-1-1" }],
-          "Route 2": [{ name: "station-2-2" }]
+          "Route 2": [{ name: "station-2-2" }],
         },
         teams: {
           "Route 1": [{ name: "team-1" }],
-          "Route 2": [{ name: "team-2" }]
-        }
+          "Route 2": [{ name: "team-2" }],
+        },
       };
       resolve(data);
     });
@@ -232,7 +232,7 @@ class FakeProxy {
   }
 
   fetchStations() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve(this.stations);
     });
     return output;
@@ -242,7 +242,7 @@ class FakeProxy {
    * fetch one station by name
    */
   fetchStation(stationName) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let item = this.stations.find(({ name }) => name == stationName);
       resolve(item);
     });
@@ -251,16 +251,16 @@ class FakeProxy {
 
   fetchRoutes() {
     LOG.debug("Fetching routes");
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve([
         {
           name: "Route 1",
-          color: "#ff0000"
+          color: "#ff0000",
         },
         {
           name: "Route 2",
-          color: "#ffaa00"
-        }
+          color: "#ffaa00",
+        },
       ]);
     });
     return output;
@@ -268,10 +268,10 @@ class FakeProxy {
 
   renewToken(token) {
     LOG.debug({ msg: "Refreshing token", token: token });
-    let promise = new Promise(resolve => {
+    let promise = new Promise((resolve) => {
       let data = {
         status: 200,
-        token: FAKE_TOKEN
+        token: FAKE_TOKEN,
       };
       resolve(data);
     });
@@ -283,13 +283,13 @@ class FakeProxy {
       msg: "Performing social login",
       network: network,
       userId: userId,
-      token: token
+      token: token,
     });
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let responseData = {
         token: FAKE_TOKEN,
         roles: ["admin", "role1"],
-        user: "fake-user"
+        user: "fake-user",
       };
       resolve(responseData);
     });
@@ -300,15 +300,15 @@ class FakeProxy {
     LOG.debug({
       msg: "Performing local login",
       username: username,
-      password: password
+      password: password,
     });
     let data = {
       status: 200,
       roles: ["admin", "role1"],
       token: FAKE_TOKEN,
-      user: username
+      user: username,
     };
-    let promise = new Promise(function(resolve) {
+    let promise = new Promise(function (resolve) {
       resolve(data);
     });
     return promise;
@@ -320,18 +320,18 @@ class FakeProxy {
       msg: "Setting station score",
       stationName: stationName,
       teamName: teamName,
-      score: score
+      score: score,
     });
   }
 
   setQuestionnaireScore(stationName, teamName, score) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       // no-op
       LOG.debug({
         msg: "Setting questionnaire score",
         stationName: stationName,
         teamName: teamName,
-        score: score
+        score: score,
       });
       resolve({});
     });
@@ -339,27 +339,27 @@ class FakeProxy {
   }
 
   advanceState(stationName, teamName) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve({
         team: teamName,
         station: stationName,
-        new_state: "arrived"
+        new_state: "arrived",
       });
     });
     return output;
   }
 
   fetchDashboard() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let data = [
         {
           team: "team-1",
-          stations: [{ name: "station-1", score: 10, state: "arrived" }]
+          stations: [{ name: "station-1", score: 10, state: "arrived" }],
         },
         {
           team: "team-2",
-          stations: [{ name: "station-1", score: 20, state: "unknown" }]
-        }
+          stations: [{ name: "station-1", score: 20, state: "unknown" }],
+        },
       ];
       resolve(data);
     });
@@ -367,14 +367,14 @@ class FakeProxy {
   }
 
   setRouteColor(routeName, newColor) {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve(newColor);
     });
     return output;
   }
 
   getPublicImages() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       let output = [];
       resolve(output);
     });
@@ -382,7 +382,7 @@ class FakeProxy {
   }
 
   fetchUsers() {
-    let output = new Promise(resolve => {
+    let output = new Promise((resolve) => {
       resolve(this.users);
     });
     return output;
@@ -397,10 +397,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/questionnaire-scores")
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -414,20 +414,20 @@ class Proxy extends FakeProxy {
     let promise = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + "/login/renew", {
-          token: token
+          token: token,
         })
-        .then(response => {
+        .then((response) => {
           LOG.error(response);
           if (response.status !== 200) {
             reject(response);
           }
           let data = {
             status: response.status,
-            token: response.data.token
+            token: response.data.token,
           };
           resolve(data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -451,9 +451,9 @@ class Proxy extends FakeProxy {
         .post(this.baseUrl + "/login", {
           social_provider: network,
           user_id: userId,
-          token: token
+          token: token,
         })
-        .then(response => {
+        .then((response) => {
           if (response.status === 200) {
             resolve(response.data);
           } else {
@@ -462,7 +462,7 @@ class Proxy extends FakeProxy {
             );
           }
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -477,17 +477,17 @@ class Proxy extends FakeProxy {
       axios
         .post(this.baseUrl + "/login", {
           username: username,
-          password: password
+          password: password,
         })
-        .then(response => {
+        .then((response) => {
           resolve({
             status: response.status,
             roles: response.data["roles"],
             token: response.data["token"],
-            user: response.data["user"]
+            user: response.data["user"],
           });
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -500,8 +500,8 @@ class Proxy extends FakeProxy {
       args: {
         station_name: stationName,
         team_name: teamName,
-        score: score
-      }
+        score: score,
+      },
     });
   }
 
@@ -511,8 +511,8 @@ class Proxy extends FakeProxy {
       args: {
         station_name: stationName,
         team_name: teamName,
-        score: score
-      }
+        score: score,
+      },
     };
     let output = new Promise((resolve, reject) => {
       axios
@@ -521,10 +521,10 @@ class Proxy extends FakeProxy {
           resolve({
             stationName: stationName,
             teamName: teamName,
-            score: parseInt(score, 10)
+            score: parseInt(score, 10),
           });
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -536,24 +536,24 @@ class Proxy extends FakeProxy {
       action: "advance",
       args: {
         station_name: stationName,
-        team_name: teamName
-      }
+        team_name: teamName,
+      },
     };
     let output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + "/job", payload)
-        .then(response => {
+        .then((response) => {
           // The server assigned a new state, so we must update our local
           // values
           const newState = response.data.result.state;
           let data = {
             team: teamName,
             station: stationName,
-            new_state: newState
+            new_state: newState,
           };
           resolve(data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -564,10 +564,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/dashboard")
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -581,7 +581,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve(user);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -595,7 +595,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve(team);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -609,7 +609,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve(route);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -623,7 +623,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve(station);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -634,10 +634,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/user")
-        .then(response => {
+        .then((response) => {
           resolve(response.data.items);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -648,10 +648,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/user/" + userName + "/stations")
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -662,10 +662,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/user/" + userName + "/roles")
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -676,12 +676,12 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + "/user/" + userName + "/roles", {
-          name: roleName
+          name: roleName,
         })
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -692,10 +692,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + "/user/" + userName + "/roles/" + roleName)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -706,10 +706,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/user/" + userName + "/roles/" + roleName)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -720,10 +720,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/team")
-        .then(response => {
+        .then((response) => {
           resolve(response.data.items);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -734,10 +734,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/team/" + teamName)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -748,12 +748,12 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + "/user/" + userName + "/stations", {
-          name: stationName
+          name: stationName,
         })
-        .then(response => {
+        .then((response) => {
           resolve(response);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -764,10 +764,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + "/user/" + userName + "/stations/" + stationName)
-        .then(response => {
+        .then((response) => {
           resolve(response);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -778,10 +778,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/user/" + userName + "/stations/" + stationName)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -792,10 +792,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get("/config/config.json")
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -807,10 +807,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/route")
-        .then(response => {
+        .then((response) => {
           resolve(response.data.items);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -821,10 +821,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/station")
-        .then(response => {
+        .then((response) => {
           resolve(response.data.items);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -835,10 +835,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/assignments")
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -852,7 +852,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -866,7 +866,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -880,7 +880,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -896,7 +896,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -910,7 +910,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -924,7 +924,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -938,7 +938,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -952,7 +952,7 @@ class Proxy extends FakeProxy {
         .then(() => {
           resolve();
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -963,10 +963,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/station/" + stationName + "/teams/" + teamName)
-        .then(response => {
+        .then((response) => {
           resolve(response.data.state);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -977,10 +977,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + "/team/" + teamName + "/stations")
-        .then(response => {
+        .then((response) => {
           resolve(response.data.items);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -991,10 +991,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .put(this.baseUrl + "/station/" + stationName, newData)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1005,10 +1005,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .put(this.baseUrl + "/team/" + teamName, newData)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1019,10 +1019,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .put(`${this.baseUrl}/route/${routeName}/color`, { color: newColor })
-        .then(response => {
+        .then((response) => {
           resolve(response.data.color);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1036,9 +1036,9 @@ class Proxy extends FakeProxy {
       axios
         .post(`${this.baseUrl}/upload`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data"
+            "Content-Type": "multipart/form-data",
           },
-          onUploadProgress: progressEvent => {
+          onUploadProgress: (progressEvent) => {
             if (!this.eventBus) {
               return;
             }
@@ -1051,15 +1051,15 @@ class Proxy extends FakeProxy {
             this.eventBus.$emit("fileUploadProgress", {
               visible: true,
               progress: progress,
-              text: "Uploading..."
+              text: "Uploading...",
             });
-          }
+          },
         })
-        .then(response => {
+        .then((response) => {
           LOG.debug(response);
           resolve({});
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1070,10 +1070,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .delete(`${this.baseUrl}/upload/${uuid}`)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1084,10 +1084,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(`${this.baseUrl}/upload`)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1098,10 +1098,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(`${this.baseUrl}/upload?public=1`)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });
@@ -1112,10 +1112,10 @@ class Proxy extends FakeProxy {
     let output = new Promise((resolve, reject) => {
       axios
         .get(`${this.baseUrl}/auditlog`)
-        .then(response => {
+        .then((response) => {
           resolve(response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           reject(e);
         });
     });

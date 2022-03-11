@@ -28,12 +28,12 @@ export default {
   methods: {
     onMenuClicked() {
       this.$emit("menuClicked");
-    }
+    },
   },
   computed: {
-    loggedIn: function() {
+    loggedIn: function () {
       return this.identity !== null && this.identity.isUsable();
-    }
-  }
+    },
+  },
 };
 </script>

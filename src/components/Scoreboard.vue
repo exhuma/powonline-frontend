@@ -46,7 +46,7 @@ export default {
   name: "Scoreboard",
   data() {
     return {
-      intervalId: null
+      intervalId: null,
     };
   },
   created() {
@@ -60,7 +60,7 @@ export default {
     refresh() {
       this.$store.dispatch("refreshGlobalDashboard");
       this.$store.dispatch("fetchQuestionnaireScores");
-    }
+    },
   },
   beforeDestroy() {
     clearInterval(this.intervalId);
@@ -82,8 +82,8 @@ export default {
           }
         }
       }
-      this.$store.state.global_dashboard.forEach(function(item) {
-        let score = item.stations.reduce(function(accu, current) {
+      this.$store.state.global_dashboard.forEach(function (item) {
+        let score = item.stations.reduce(function (accu, current) {
           return accu + current.score;
         }, 0);
         let position = 0;
@@ -92,13 +92,13 @@ export default {
         let cancelled = teamData.cancelled ? "cancelled" : "";
         teamScores.push([position, score + tmp, item.team, cancelled]);
       });
-      teamScores.sort(function(a, b) {
+      teamScores.sort(function (a, b) {
         return b[1] - a[1];
       });
       let effectivePosition = 0;
       let realPosition = 0;
       let lastScore = 0;
-      teamScores.forEach(function(item) {
+      teamScores.forEach(function (item) {
         realPosition += 1;
         if (lastScore !== item[1]) {
           effectivePosition = realPosition;
@@ -107,10 +107,10 @@ export default {
         lastScore = item[1];
       });
       return teamScores;
-    }
+    },
   },
   components: {
-    CenterCol
-  }
+    CenterCol,
+  },
 };
 </script>

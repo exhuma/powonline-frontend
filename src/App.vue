@@ -84,13 +84,13 @@ import DebugBar from "./components/DebugBar.vue";
 export default {
   name: "App",
   mounted() {
-    EventBus.$on("activityEvent", payload => {
+    EventBus.$on("activityEvent", (payload) => {
       this.onActivityChange(payload);
     });
-    EventBus.$on("fileUploadProgress", payload => {
+    EventBus.$on("fileUploadProgress", (payload) => {
       this.onActivityChange(payload);
     });
-    EventBus.$on("snackRequested", payload => {
+    EventBus.$on("snackRequested", (payload) => {
       this.onSnackRequested(payload);
     });
   },
@@ -108,7 +108,7 @@ export default {
       snackbar: {
         visible: false,
         color: "success",
-        text: ""
+        text: "",
       },
       loginDialogVisible: false,
       sideMenuVisible: false,
@@ -118,8 +118,8 @@ export default {
       activity: {
         visible: false,
         progress: -1,
-        text: ""
-      }
+        text: "",
+      },
     };
   },
 
@@ -143,31 +143,31 @@ export default {
       this.isBottomNavVisible = !state;
       this.isTitleBarVisible = !state;
     },
-    closeLoginDialog: function() {
+    closeLoginDialog: function () {
       this.loginDialogVisible = false;
     },
     onActivityChange(state) {
       this.activity = state;
     },
-    onLoginSuccessful: function(identity) {
+    onLoginSuccessful: function (identity) {
       this.identity = identity;
       this.identity.persist();
       this.$store.commit("setIdentity", this.identity);
     },
-    onSnackRequested: function(payload) {
+    onSnackRequested: function (payload) {
       if (payload.error !== undefined) {
         LOG.error(payload.error);
       }
       this.snackbar.visible = true;
       this.snackbar.text = payload.text;
       this.snackbar.color = payload.color || "success";
-    }
+    },
   },
 
   computed: {
-    pageTitle: function() {
+    pageTitle: function () {
       return this.$config.title;
-    }
+    },
   },
 
   components: {
@@ -175,7 +175,7 @@ export default {
     MainNavigation,
     DebugBar,
     ProgressIndicator,
-    TitleBar
-  }
+    TitleBar,
+  },
 };
 </script>

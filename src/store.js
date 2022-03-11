@@ -22,7 +22,7 @@ function makeStore(remoteProxy) {
       uploads: {},
       gallery: [],
       liveImageQueue: [],
-      siteConfig: {}
+      siteConfig: {},
     },
     mutations: {
       /**
@@ -225,7 +225,7 @@ function makeStore(remoteProxy) {
         for (const routeName in assignments.teams) {
           if (assignments.teams.hasOwnProperty(routeName)) {
             const teams = assignments.teams[routeName];
-            teams.forEach(team => {
+            teams.forEach((team) => {
               state.route_team_map[team.name] = routeName;
             });
           }
@@ -236,7 +236,7 @@ function makeStore(remoteProxy) {
         for (const routeName in assignments.stations) {
           if (assignments.stations.hasOwnProperty(routeName)) {
             const stations = assignments.stations[routeName];
-            stations.forEach(station => {
+            stations.forEach((station) => {
               const container = state.route_station_map[routeName] || [];
               container.push(station);
               state.route_station_map[routeName] = container;
@@ -317,7 +317,7 @@ function makeStore(remoteProxy) {
        */
       deleteRoute(state, routeName) {
         let idx = -1; // TODO REDDIT there must be a better way than the following loop
-        state.routes.forEach(item => {
+        state.routes.forEach((item) => {
           if (item.name === routeName) {
             idx = state.routes.indexOf(item);
           }
@@ -334,7 +334,7 @@ function makeStore(remoteProxy) {
        * :param stationName (str): The name of the station to remove.
        */
       deleteStation(state, stationName) {
-        let idx = state.stations.findIndex(name => name == stationName);
+        let idx = state.stations.findIndex((name) => name == stationName);
         if (idx > -1) {
           state.stations.splice(idx, 1);
         }
@@ -347,7 +347,7 @@ function makeStore(remoteProxy) {
        */
       deleteTeam(state, teamName) {
         let idx = -1; // TODO there must be a better way than the following loop
-        state.teams.forEach(item => {
+        state.teams.forEach((item) => {
           if (item.name === teamName) {
             idx = state.teams.indexOf(item);
           }
@@ -365,7 +365,7 @@ function makeStore(remoteProxy) {
        */
       deleteUser(state, userName) {
         let idx = -1; // TODO there must be a better way than the following loop
-        state.users.forEach(item => {
+        state.users.forEach((item) => {
           if (item.name === userName) {
             idx = state.users.indexOf(item);
           }
@@ -384,7 +384,7 @@ function makeStore(remoteProxy) {
        *    * newData: The new team data
        */
       updateTeam(state, payload) {
-        state.teams.forEach(item => {
+        state.teams.forEach((item) => {
           if (item.name === payload.team) {
             Object.assign(item, payload.newData);
           }
@@ -401,9 +401,9 @@ function makeStore(remoteProxy) {
        *    * new_score: The new score (optional)
        */
       updateTeamState(state, payload) {
-        state.global_dashboard.forEach(item => {
+        state.global_dashboard.forEach((item) => {
           if (item.team === payload.team) {
-            item.stations.forEach(stationState => {
+            item.stations.forEach((stationState) => {
               if (stationState.name === payload.station) {
                 if (payload.new_state !== undefined) {
                   stationState.state = payload.new_state;
@@ -439,7 +439,7 @@ function makeStore(remoteProxy) {
           let bdt = moment.utc(b.when);
           return bdt - adt;
         });
-        data.forEach(item => {
+        data.forEach((item) => {
           LOG.log(item.when, item.name);
         });
         state.gallery = data;
@@ -456,32 +456,32 @@ function makeStore(remoteProxy) {
       updateConfig(state, payload) {
         LOG.log("Committing site config", payload);
         state.siteConfig = payload;
-      }
+      },
     },
     actions: {
       fetchSiteConfig(context) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         LOG.log("Updating site config");
         remoteProxy
           .fetchConfig()
-          .then(data => {
+          .then((data) => {
             context.commit("updateConfig", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -490,25 +490,25 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .getPublicImages()
-          .then(data => {
+          .then((data) => {
             LOG.log(data);
             context.commit("replaceGallery", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -517,24 +517,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchUploads()
-          .then(data => {
+          .then((data) => {
             context.commit("replaceUploads", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -543,22 +543,22 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .setStationScore(payload.stationName, payload.teamName, payload.score)
-          .then(payload => {
+          .then((payload) => {
             LOG.debug({ msg: "Station score saved", payload: payload });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             EventBus.$emit("snackRequested", {
-              message: "Update successful"
+              message: "Update successful",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             let message = "Unknown Error";
             if (e.response.status < 500) {
@@ -567,12 +567,12 @@ function makeStore(remoteProxy) {
             EventBus.$emit("snackRequested", {
               message: message,
               color: "red",
-              error: e
+              error: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -581,7 +581,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .setQuestionnaireScore(
@@ -589,18 +589,18 @@ function makeStore(remoteProxy) {
             payload.teamName,
             payload.score
           )
-          .then(data => {
+          .then((data) => {
             context.commit("setQuestionnaireScore", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             EventBus.$emit("snackRequested", {
-              message: "Update successful"
+              message: "Update successful",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             let message = "Unknown Error";
             if (e.response.status < 500) {
               message = e.response.data;
@@ -608,12 +608,12 @@ function makeStore(remoteProxy) {
             EventBus.$emit("snackRequested", {
               message: message,
               color: "red",
-              error: e
+              error: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -629,22 +629,22 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .advanceState(payload.stationName, payload.teamName)
-          .then(data => {
+          .then((data) => {
             store.commit("updateTeamState", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             EventBus.$emit("snackRequested", {
-              message: "Update successful"
+              message: "Update successful",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             let message = "Unknown Error";
             if (e.response.status < 500) {
               message = e.response.data;
@@ -652,12 +652,12 @@ function makeStore(remoteProxy) {
             EventBus.$emit("snackRequested", {
               message: message,
               color: "red",
-              error: e
+              error: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -669,24 +669,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchQuestionnaireScores()
-          .then(data => {
+          .then((data) => {
             context.commit("updateQuestionnaireScores", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -700,25 +700,25 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .addUser(user)
-          .then(data => {
+          .then((data) => {
             LOG.debug({ msg: "Adding user", data: data });
             context.commit("addUser", user);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error({ msg: "Failed adding user", error: e });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -732,24 +732,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .addRoute(route)
-          .then(route => {
+          .then((route) => {
             context.commit("addRoute", route);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -763,26 +763,26 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .addStation(station)
-          .then(station => {
+          .then((station) => {
             LOG.debug(`Inserting station ${station.name} into local state`);
             // TODO - This caused a duplicate entry when adding a new station
             //        context.commit('addStation', station)
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error({ msg: "Failed adding station", error: e });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -809,24 +809,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchUsers()
-          .then(users => {
+          .then((users) => {
             context.commit("replaceUsers", users);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -838,24 +838,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchTeams()
-          .then(teams => {
+          .then((teams) => {
             context.commit("replaceTeams", teams);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error({ msg: "Failed fetching teams", error: e });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -867,24 +867,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchRoutes()
-          .then(routes => {
+          .then((routes) => {
             context.commit("replaceRoutes", routes);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error({ msg: "Failed fetching routes", error: e });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -896,24 +896,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchStations()
-          .then(stations => {
+          .then((stations) => {
             context.commit("replaceStations", stations);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -925,24 +925,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchAssignments()
-          .then(assignments => {
+          .then((assignments) => {
             context.commit("replaceAssignments", assignments);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error({ msg: "Failed fetching assignments", error: e });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -954,24 +954,24 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .fetchDashboard()
-          .then(data => {
+          .then((data) => {
             context.commit("updateGlobalDashboard", data);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -987,12 +987,12 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         // first, let's find the team object corresponding to this name (yes, I
         // know, a map would be better...)
         let team = null;
-        context.state.teams.forEach(item => {
+        context.state.teams.forEach((item) => {
           if (item.name === data.teamName) {
             team = item;
           }
@@ -1002,24 +1002,24 @@ function makeStore(remoteProxy) {
           .then(() => {
             context.commit("assignTeamToRoute", {
               routeName: data.routeName,
-              team: team
+              team: team,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             context.dispatch("refreshRemote"); // TODO Why is this not happening automatically?
           })
-          .catch(e => {
+          .catch((e) => {
             window.console.error({
               msg: "Unable to assign team to route",
-              exc: e
+              exc: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1035,7 +1035,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .unassignTeamFromRoute(data.routeName, data.teamName)
@@ -1044,19 +1044,19 @@ function makeStore(remoteProxy) {
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             context.dispatch("refreshRemote"); // TODO Why is this not happening automatically?
           })
-          .catch(e => {
+          .catch((e) => {
             window.console.error({
               msg: "Unable to unassign team from route",
-              exc: e
+              exc: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1072,12 +1072,12 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         // first, let's find the station object corresponding to this name (yes, I
         // know, a map would be better...)
         let station = null;
-        context.state.stations.forEach(item => {
+        context.state.stations.forEach((item) => {
           if (item.name === data.stationName) {
             station = item;
           }
@@ -1087,24 +1087,24 @@ function makeStore(remoteProxy) {
           .then(() => {
             context.commit("assignStationToRoute", {
               routeName: data.routeName,
-              station: station
+              station: station,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             context.dispatch("refreshRemote"); // TODO Something causes a non-rective change which is why this is needed. Investigate!
           })
-          .catch(e => {
+          .catch((e) => {
             window.console.error({
               msg: "Unable to assign station to route",
-              exc: e
+              exc: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1120,7 +1120,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .unassignStationFromRoute(data.routeName, data.stationName)
@@ -1129,19 +1129,19 @@ function makeStore(remoteProxy) {
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
             context.dispatch("refreshRemote"); // TODO Something causes a non-rective change which is why this is needed. Investigate!
           })
-          .catch(e => {
+          .catch((e) => {
             window.console.error({
               msg: "Unable to unassign station from route",
-              exc: e
+              exc: e,
             });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1155,7 +1155,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .deleteRoute(routeName)
@@ -1164,18 +1164,18 @@ function makeStore(remoteProxy) {
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
           .then(() => {
             context.dispatch("refreshAssignments");
           })
-          .catch(e => {
+          .catch((e) => {
             window.console.error({ msg: "Unable to delete route", exc: e });
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1189,7 +1189,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .deleteStation(stationName)
@@ -1198,18 +1198,18 @@ function makeStore(remoteProxy) {
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
           .then(() => {
             context.dispatch("refreshAssignments");
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1223,7 +1223,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .deleteUser(userName)
@@ -1232,18 +1232,18 @@ function makeStore(remoteProxy) {
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .then(function() {
+          .then(function () {
             context.dispatch("refreshAssignments");
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
       },
@@ -1257,7 +1257,7 @@ function makeStore(remoteProxy) {
         EventBus.$emit("activityEvent", {
           visible: true,
           progress: -1,
-          text: ""
+          text: "",
         });
         remoteProxy
           .deleteTeam(teamName)
@@ -1266,21 +1266,21 @@ function makeStore(remoteProxy) {
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           })
-          .then(function() {
+          .then(function () {
             context.dispatch("refreshAssignments");
           })
-          .catch(e => {
+          .catch((e) => {
             LOG.error(e);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
-              text: ""
+              text: "",
             });
           });
-      }
+      },
     },
     getters: {
       /**
@@ -1298,7 +1298,7 @@ function makeStore(remoteProxy) {
 
         // now create a list of teams which are *not* in the assigned list
         const output = [];
-        state.teams.forEach(team => {
+        state.teams.forEach((team) => {
           if (assignedTeams.indexOf(team.name) === -1) {
             output.push(team.name);
           }
@@ -1314,7 +1314,7 @@ function makeStore(remoteProxy) {
        *     assigned users.
        * :returns: A list of strings
        */
-      assignedTeams: state => routeName => {
+      assignedTeams: (state) => (routeName) => {
         const assignedTeams = [];
         const map = state.route_team_map;
         for (const teamName in map) {
@@ -1333,18 +1333,18 @@ function makeStore(remoteProxy) {
        *     unassigned stations.
        * :returns: a list of strings
        */
-      unassignedStations: state => routeName => {
+      unassignedStations: (state) => (routeName) => {
         const unassignedStations = [];
         const tmp = state.route_station_map[routeName] || [];
         tmp.sort((a, b) => {
           return a.order - b.order;
         });
         const assignedStations = [];
-        tmp.forEach(item => {
+        tmp.forEach((item) => {
           assignedStations.push(item.name);
         });
 
-        state.stations.forEach(item => {
+        state.stations.forEach((item) => {
           if (assignedStations.indexOf(item.name) === -1) {
             unassignedStations.push(item.name);
           }
@@ -1360,14 +1360,14 @@ function makeStore(remoteProxy) {
        *     assigned stations.
        * :returns: a list of strings
        */
-      assignedStations: state => routeName => {
+      assignedStations: (state) => (routeName) => {
         const tmp = state.route_station_map[routeName] || [];
         tmp.sort((a, b) => {
           return a.order - b.order;
         });
 
         const assignedStations = [];
-        tmp.forEach(item => {
+        tmp.forEach((item) => {
           assignedStations.push(item.name);
         });
         return assignedStations;
@@ -1380,20 +1380,20 @@ function makeStore(remoteProxy) {
        * :param teamName: The name of the team
        * :returns: Either an object with the team details or null
        */
-      findTeam: state => teamName => {
-        let filtered = state.teams.filter(item => {
+      findTeam: (state) => (teamName) => {
+        let filtered = state.teams.filter((item) => {
           return item.name === teamName;
         });
         if (filtered.length === 1) {
           return filtered[0];
         }
         return null;
-      }
-    }
+      },
+    },
   });
   return store;
 }
 
 export default {
-  makeStore: makeStore
+  makeStore: makeStore,
 };

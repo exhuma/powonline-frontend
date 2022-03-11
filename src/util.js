@@ -1,5 +1,5 @@
 export default {
-  getStateIcon: function(stateName) {
+  getStateIcon: function (stateName) {
     switch (stateName) {
       case "unknown":
         return "radio_button_unchecked";
@@ -12,5 +12,5 @@ export default {
       default:
         return "radio_button_unchecked";
     }
-  }
+  },
 };

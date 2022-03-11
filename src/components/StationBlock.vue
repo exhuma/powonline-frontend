@@ -46,13 +46,13 @@ export default {
   props: {
     station: {
       type: Object,
-      default: function() {
+      default: function () {
         return model.station.makeEmpty();
-      }
+      },
     },
     identity: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
     openDashBoard(station) {
@@ -60,10 +60,10 @@ export default {
     },
     openEditDialog() {
       this.$emit("openEditDialog");
-    }
+    },
   },
   components: {
-    ConfirmationDialog
-  }
+    ConfirmationDialog,
+  },
 };
 </script>

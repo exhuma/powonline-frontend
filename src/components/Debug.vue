@@ -63,18 +63,18 @@ export default {
   name: "Debug",
   props: ["identity"],
   computed: {
-    storeIdentity: function() {
+    storeIdentity: function () {
       return this.$store.state.identity;
     },
-    tokenTimes: function() {
+    tokenTimes: function () {
       let data = jwt_decode(this.identity.token);
       let output = {
         exp: new Date(data.exp * 1000),
         iat: new Date(data.iat * 1000),
-        expiresIn: Math.floor(data.exp - Date.now() / 1000)
+        expiresIn: Math.floor(data.exp - Date.now() / 1000),
       };
       return output;
-    }
-  }
+    },
+  },
 };
 </script>

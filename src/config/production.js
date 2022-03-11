@@ -1,3 +1,3 @@
 export default {
-  title: "PowOnline"
+  title: "PowOnline",
 };

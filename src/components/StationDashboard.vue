@@ -61,7 +61,7 @@ export default {
       teamFilter: "",
       showPending: true,
       showArrived: true,
-      showFinished: false
+      showFinished: false,
     };
   },
   computed: {
@@ -80,8 +80,8 @@ export default {
     },
     allTeams() {
       const output = [];
-      this.$store.state.global_dashboard.forEach(teamInfo => {
-        teamInfo.stations.forEach(stationState => {
+      this.$store.state.global_dashboard.forEach((teamInfo) => {
+        teamInfo.stations.forEach((stationState) => {
           if (stationState.name !== this.$route.params.stationName) {
             return; // skip states from other stations
           }
@@ -93,7 +93,7 @@ export default {
             team: teamInfo.team,
             station: this.$route.params.stationName,
             state: stationState.state,
-            score: stationState.score
+            score: stationState.score,
           });
         });
       });
@@ -101,11 +101,11 @@ export default {
       return filtered;
     },
     teamsWithSelectedState() {
-      const teams = this.allTeams.filter(item => {
+      const teams = this.allTeams.filter((item) => {
         return this.selectedStates.includes(item.state);
       });
       return teams;
-    }
+    },
   },
   created() {
     this.$store.commit(
@@ -118,12 +118,12 @@ export default {
     onFilterCleared() {
       this.teamFilter = "";
     },
-    filteredTeams: function(teams) {
+    filteredTeams: function (teams) {
       let all = teams;
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return all;
       }
-      let filtered = all.filter(item => {
+      let filtered = all.filter((item) => {
         let fltr = this.teamFilter.toLowerCase();
         let teamData = this.$store.getters.findTeam(item.team);
         let contactMatches = teamData.contact.toLowerCase().includes(fltr);
@@ -132,38 +132,38 @@ export default {
       });
       return filtered;
     },
-    onStateAdvanced: function(state) {
+    onStateAdvanced: function (state) {
       this.$store.dispatch("advanceState", {
         teamName: state.team,
-        stationName: this.$route.params.stationName
+        stationName: this.$route.params.stationName,
       });
     },
-    onScoreUpdated: function(state, newScore) {
+    onScoreUpdated: function (state, newScore) {
       this.$store
         .dispatch("setStationScore", {
           teamName: state.team,
           stationName: this.$route.params.stationName,
-          score: newScore
+          score: newScore,
         })
         .then(() => {});
     },
-    onQuestionnaireScoreUpdated: function(payload) {
+    onQuestionnaireScoreUpdated: function (payload) {
       const data = {
         teamName: payload.team,
         stationName: this.$route.params.stationName,
-        score: payload.score
+        score: payload.score,
       };
       this.$store.dispatch("setQuestionnaireScore", data);
     },
-    onSaveClicked: function() {
+    onSaveClicked: function () {
       this.snacktext = "Changes saved";
       this.snackColor = "success";
       this.snackbar = true;
-    }
+    },
   },
   components: {
-    CenterCol
-  }
+    CenterCol,
+  },
 };
 </script>
 

@@ -32,8 +32,8 @@ export default {
   name: "StationForm",
   props: {
     station: {
-      type: Object
-    }
-  }
+      type: Object,
+    },
+  },
 };
 </script>

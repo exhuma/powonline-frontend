@@ -2,11 +2,11 @@ class LostTrackerAPI {
   static fetchRoutes() {
     return [
       {
-        name: "Fake Route 1"
+        name: "Fake Route 1",
       },
       {
-        name: "Fake Route 2"
-      }
+        name: "Fake Route 2",
+      },
     ];
   }
 
@@ -16,12 +16,12 @@ class LostTrackerAPI {
     return [
       {
         name: "station-2",
-        order: 100
+        order: 100,
       },
       {
         name: "station-start",
-        order: 50
-      }
+        order: 50,
+      },
     ];
   }
 
@@ -33,14 +33,14 @@ class LostTrackerAPI {
           {
             name: "station-start",
             score: 10,
-            state: "finished"
+            state: "finished",
           },
           {
             name: "station-2",
             score: null,
-            state: "unknown"
-          }
-        ]
+            state: "unknown",
+          },
+        ],
       },
       {
         team: "team-2",
@@ -48,15 +48,15 @@ class LostTrackerAPI {
           {
             name: "station-start",
             score: null,
-            state: "unknown"
+            state: "unknown",
           },
           {
             name: "station-2",
             score: null,
-            state: "unknown"
-          }
-        ]
-      }
+            state: "unknown",
+          },
+        ],
+      },
     ];
     return output;
   }

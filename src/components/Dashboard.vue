@@ -18,17 +18,17 @@ import RouteDashboard from "@/components/RouteDashboard";
 export default {
   name: "Dashboard",
   components: {
-    RouteDashboard
+    RouteDashboard,
   },
   computed: {
     routes() {
       return this.$store.state.routes;
-    }
+    },
   },
   created() {
     this.$store.dispatch("refreshGlobalDashboard");
     this.$store.dispatch("fetchQuestionnaireScores");
     this.$store.commit("changeTitle", "Global Dashboard");
-  }
+  },
 };
 </script>

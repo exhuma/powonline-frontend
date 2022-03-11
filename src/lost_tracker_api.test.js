@@ -5,11 +5,11 @@ test("test-title", () => {
   const result = LostTrackerAPI.fetchRoutes();
   const expected = [
     {
-      name: "Fake Route 1"
+      name: "Fake Route 1",
     },
     {
-      name: "Fake Route 2"
-    }
+      name: "Fake Route 2",
+    },
   ];
   expect(result).toEqual(expected);
 });

@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode"; // eslint-disable-line camelcase
 
 test("Logging in onto the backend should be initialised with a valid token", () => {
   const proxy = makeRemoteProxy(true, "https://foo.bar");
-  const prm = Identity.login("username", "password", proxy).then(identity => {
+  const prm = Identity.login("username", "password", proxy).then((identity) => {
     const now = new Date().getTime() / 1000;
     expect(identity.username).toEqual("john.doe");
     expect(identity.roles).toEqual(["admin"]);

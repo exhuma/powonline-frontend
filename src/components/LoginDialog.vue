@@ -56,19 +56,19 @@ export default {
   props: [
     "isVisible",
     "hello", // injection point for "hellojs"
-    "localAuth" // injectio point for the local auth lib
+    "localAuth", // injectio point for the local auth lib
   ],
   data: () => ({
     username: "",
     password: "",
-    identityStore: new LocalStorage("jwt")
+    identityStore: new LocalStorage("jwt"),
   }),
   methods: {
-    localLogin: function() {
+    localLogin: function () {
       LOG.debug(`Requesting login for ${this.username}`);
       let prm = this.localAuth
         .loginUser(this.username, this.password)
-        .then(data => {
+        .then((data) => {
           LOG.debug({ msg: "Received data from login", data: data });
           let identity = Identity.fromToken(this.identityStore, data.token);
           this.$emit("loginSuccessful", identity);
@@ -79,33 +79,33 @@ export default {
 
           this.closeDialog();
         })
-        .catch(error => {
+        .catch((error) => {
           this.hello.logout("facebook");
           this.hello.logout("google");
           this.$emit("snackRequested", {
             text: error,
             color: "error",
-            error: error
+            error: error,
           });
           this.$store.commit("clearUserData");
           this.closeDialog();
         });
       return prm;
     },
-    closeDialog: function() {
+    closeDialog: function () {
       this.username = "";
       this.password = "";
       this.$emit("dialogDismissed");
     },
-    cancelLogin: function() {
+    cancelLogin: function () {
       this.closeDialog();
     },
     login(provider) {
       this.hello(provider).login({
-        scope: "basic, email"
+        scope: "basic, email",
       });
       this.$emit("dialogDismissed");
-    }
-  }
+    },
+  },
 };
 </script>

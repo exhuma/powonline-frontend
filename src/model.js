@@ -8,40 +8,40 @@
 export default {
   SEND_MODE: {
     CREATE: "create",
-    UPDATE: "update"
+    UPDATE: "update",
   },
 
   route: {
-    makeEmpty: function() {
+    makeEmpty: function () {
       return {
         name: "",
-        color: ""
+        color: "",
       };
-    }
+    },
   },
 
   user: {
-    makeEmpty: function() {
+    makeEmpty: function () {
       return {
         name: "",
-        password: ""
+        password: "",
       };
-    }
+    },
   },
 
   station: {
-    makeEmpty: function() {
+    makeEmpty: function () {
       return {
         name: "",
         order: 500,
         is_start: false,
-        is_end: false
+        is_end: false,
       };
-    }
+    },
   },
 
   team: {
-    makeEmpty: function() {
+    makeEmpty: function () {
       return {
         name: "",
         email: "nobody@example.com", // TODO we should make this optional
@@ -61,8 +61,8 @@ export default {
         planned_start_time: null,
         effective_start_time: null,
         finish_time: null,
-        route_name: ""
+        route_name: "",
       };
-    }
-  }
+    },
+  },
 };

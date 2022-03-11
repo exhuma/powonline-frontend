@@ -12,13 +12,13 @@ export default {
   props: {
     identity: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       intervalId: null,
-      tokenExpires: "unknown"
+      tokenExpires: "unknown",
     };
   },
   created() {
@@ -39,7 +39,7 @@ export default {
         let duration = moment.duration(expiration, "seconds");
         this.tokenExpires = duration.humanize();
       }
-    }
-  }
+    },
+  },
 };
 </script>

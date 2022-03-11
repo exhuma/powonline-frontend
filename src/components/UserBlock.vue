@@ -51,21 +51,21 @@ export default {
   methods: {
     hasRole(roleName) {
       return this.identity.hasRole(roleName);
-    }
+    },
   },
   props: {
     identity: {
-      type: Object
+      type: Object,
     },
     name: {
       type: String,
-      default: "Unknown User"
-    }
+      default: "Unknown User",
+    },
   },
   components: {
     ConfirmationDialog,
     UserRoleCheckbox,
-    UserStationCheckbox
-  }
+    UserStationCheckbox,
+  },
 };
 </script>

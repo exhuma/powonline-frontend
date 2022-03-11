@@ -23,7 +23,7 @@ export default {
   name: "ConfirmationDialog",
   data() {
     return {
-      isDialogVisible: false
+      isDialogVisible: false,
     };
   },
   props: {
@@ -31,7 +31,7 @@ export default {
     actionName: { required: true },
     buttonText: { required: false, default: "buttonText" },
     icon: { required: false, default: "" },
-    iconColor: { required: false, default: "" }
+    iconColor: { required: false, default: "" },
   },
   methods: {
     discardAction() {
@@ -40,7 +40,7 @@ export default {
     acceptAction() {
       this.$store.dispatch(this.actionName, this.actionArgument);
       this.isDialogVisible = false;
-    }
-  }
+    },
+  },
 };
 </script>

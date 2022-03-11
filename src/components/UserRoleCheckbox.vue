@@ -14,7 +14,7 @@ export default {
   props: ["user", "role", "label"],
   data() {
     return {
-      checked: false
+      checked: false,
     };
   },
   methods: {
@@ -25,11 +25,11 @@ export default {
           .then(() => {
             this.checked = true;
           })
-          .catch(error => {
+          .catch((error) => {
             EventBus.$emit("snackRequested", {
               text: `Unable to change user role (${error})`,
               color: "error",
-              error: error
+              error: error,
             });
             this.checked = false;
           });
@@ -39,30 +39,30 @@ export default {
           .then(() => {
             this.checked = false;
           })
-          .catch(error => {
+          .catch((error) => {
             EventBus.$emit("snackRequested", {
               text: `Unable to change user role (${error})`,
               color: "error",
-              error: error
+              error: error,
             });
             this.checked = true;
           });
       }
-    }
+    },
   },
   created() {
     this.$remoteProxy
       .getUserRole(this.user, this.role)
-      .then(data => {
+      .then((data) => {
         this.checked = data;
       })
-      .catch(e => {
+      .catch((e) => {
         EventBus.$emit("snackRequested", {
           text: `Unable to fetch user-roles (${e})`,
           color: "error",
-          error: e
+          error: e,
         });
       });
-  }
+  },
 };
 </script>

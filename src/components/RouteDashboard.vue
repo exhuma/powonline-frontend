@@ -45,8 +45,8 @@ export default {
   props: {
     route: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
   },
   computed: {
     routeColor() {
@@ -69,17 +69,17 @@ export default {
           text: "Team",
           align: "left",
           value: "team",
-          sortable: false
-        }
+          sortable: false,
+        },
       ];
       const assignedStations = this.assignedStations;
       if (this.assignedStations) {
-        assignedStations.forEach(station => {
+        assignedStations.forEach((station) => {
           output.push({
             text: station.name,
             align: "center",
             value: "state",
-            sortable: false
+            sortable: false,
           });
         });
       }
@@ -89,8 +89,8 @@ export default {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
       const output = {};
       const global_dashboard = this.$store.state.global_dashboard;
-      global_dashboard.forEach(teamState => {
-        teamState.stations.forEach(stationState => {
+      global_dashboard.forEach((teamState) => {
+        teamState.stations.forEach((stationState) => {
           if (output[stationState.name] === undefined) {
             output[stationState.name] = {};
           }
@@ -117,9 +117,9 @@ export default {
           let row = {
             stations: [],
             team: teamName,
-            cancelled: teamDetails.cancelled
+            cancelled: teamDetails.cancelled,
           };
-          assignedStations.forEach(station => {
+          assignedStations.forEach((station) => {
             const stationData = mapping[station.name];
             if (!stationData) {
               return;
@@ -128,19 +128,19 @@ export default {
             row.stations.push({
               state: state.state,
               score: state.score,
-              station: state.name
+              station: state.name,
             });
           });
           rows.push(row);
         }
       }
       return rows;
-    }
+    },
   },
   methods: {
     getStateIcon(state) {
       return util.getStateIcon(state);
-    }
-  }
+    },
+  },
 };
 </script>

@@ -21,6 +21,6 @@
 <script>
 export default {
   name: "ProgressIndicator",
-  props: ["model"]
+  props: ["model"],
 };
 </script>

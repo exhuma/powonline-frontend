@@ -29,13 +29,13 @@ export default {
   name: "PopupDialog",
   props: ["title", "dialogVisible", "customActionButtons", "editMode"],
   methods: {
-    confirm: function() {
+    confirm: function () {
       this.$emit("dialogConfirmed");
     },
     dismiss() {
       this.$emit("dialogDismissed");
-    }
-  }
+    },
+  },
 };
 </script>
 

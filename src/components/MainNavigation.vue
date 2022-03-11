@@ -2,12 +2,8 @@
   <v-navigation-drawer bottom app :value="isVisible" @input="onToggle">
     <v-list-item>
       <v-list-item-content>
-        <v-list-item-title class="title">
-          Application
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          subtext
-        </v-list-item-subtitle>
+        <v-list-item-title class="title"> Application </v-list-item-title>
+        <v-list-item-subtitle> subtext </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
 
@@ -35,13 +31,13 @@ export default {
   methods: {
     onToggle(value) {
       this.$emit("toggled", value);
-    }
+    },
   },
   computed: {
     routes() {
       const output = accessibleRoutes(this.identity.roles);
       return output;
-    }
-  }
+    },
+  },
 };
 </script>
