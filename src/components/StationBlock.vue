@@ -1,7 +1,11 @@
 <template>
   <v-list-item>
     <v-list-item-content>
-      <v-list-item-title>{{ station.name }}</v-list-item-title>
+      <v-list-item-title>
+        {{ station.name }}
+        <v-icon v-if="station.is_end">mdi-flag-checkered</v-icon>
+        <v-icon v-if="station.is_start">mdi-walk</v-icon>
+      </v-list-item-title>
     </v-list-item-content>
     <v-list-item-action v-if="identity.hasRole('admin')">
       <v-btn @click="openEditDialog" icon><v-icon>mdi-pencil</v-icon></v-btn>
@@ -11,11 +15,13 @@
         <v-icon>mdi-table-eye</v-icon>
       </v-btn>
     </v-list-item-action>
-    <v-list-item-action class="ml-3" v-if="identity.hasRole('admin')">
+    <v-list-item-action class="ml-1" v-if="identity.hasRole('admin')">
       <ConfirmationDialog
         buttonText="Delete"
         :actionArgument="station.name"
         actionName="deleteStationRemote"
+        icon="mdi-delete-forever"
+        iconColor="red"
       >
         <span slot="title"
           >Do you want to delete the station "{{ station.name }}"?</span
