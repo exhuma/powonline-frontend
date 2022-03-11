@@ -1,7 +1,10 @@
 <template>
   <v-dialog v-model="isDialogVisible" hide-overlay max-width="40em">
     <template v-slot:activator="{ on }">
-      <v-btn primary v-on="on">{{ buttonText }}</v-btn>
+      <v-btn v-if="icon !== ''" icon primary v-on="on" :color="iconColor"
+        ><v-icon>{{ icon }}</v-icon></v-btn
+      >
+      <v-btn v-if="icon === ''" primary v-on="on">{{ buttonText }}</v-btn>
     </template>
     <v-card>
       <v-card-title><slot name="title">Confirm Action</slot></v-card-title>
@@ -23,7 +26,13 @@ export default {
       isDialogVisible: false
     };
   },
-  props: ["actionArgument", "actionName", "buttonText"],
+  props: {
+    actionArgument: { required: true },
+    actionName: { required: true },
+    buttonText: { required: false, default: "buttonText" },
+    icon: { required: false, default: "" },
+    iconColor: { required: false, default: "" }
+  },
   methods: {
     discardAction() {
       this.isDialogVisible = false;
