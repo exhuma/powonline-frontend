@@ -69,6 +69,14 @@ class FakeProxy {
         is_start: false,
         is_end: false,
         order: 100
+      },
+      {
+        name: "station-end",
+        contact: "Example Contact",
+        phone: "12345",
+        is_start: false,
+        is_end: true,
+        order: 100
       }
     ];
   }
