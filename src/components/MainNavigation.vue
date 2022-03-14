@@ -1,5 +1,10 @@
 <template>
-  <v-navigation-drawer bottom app :value="isVisible" @input="onToggle">
+  <v-navigation-drawer
+    :bottom="$vuetify.breakpoint.xs"
+    app
+    :value="isVisible"
+    @input="onToggle"
+  >
     <v-list-item>
       <v-list-item-content>
         <v-list-item-title class="title"> Application </v-list-item-title>
