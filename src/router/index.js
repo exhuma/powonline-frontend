@@ -3,6 +3,7 @@ import NotFound from "@/components/NotFound";
 import Gallery from "@/components/Gallery";
 import Scoreboard from "@/components/Scoreboard";
 import StationList from "@/components/StationList";
+import TeamList from "@/components/TeamList";
 import StationDashboard from "@/components/StationDashboard";
 import UserList from "@/components/UserList";
 import Debug from "@/components/Debug";
@@ -67,7 +68,7 @@ function getRoutes() {
       path: "/team",
       label: "Teams",
       icon: "mdi-group",
-      component: NotFound,
+      component: TeamList,
       inMenu: true,
       availableToAnonymous: false,
     },

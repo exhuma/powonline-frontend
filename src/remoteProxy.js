@@ -79,6 +79,50 @@ class FakeProxy {
         order: 100,
       },
     ];
+    this.teams = [
+      {
+        name: "team-1",
+        email: "team1@example.com",
+        order: 100,
+        cancelled: false,
+        contact: "John Doe",
+        phone: "+352 1234567890",
+        comments: "No comments",
+        is_confirmed: true,
+        confirmation_key: "",
+        accepted: true,
+        completed: false,
+        inserted: "2010-01-01",
+        updated: null,
+        num_vegetarians: 1,
+        num_participants: 7,
+        planned_start_time: "2999-10-10 19:20",
+        effective_start_time: "2999-10-10 19:20",
+        finish_time: "2999-10-10 22:20",
+        route_name: "",
+      },
+      {
+        name: "team-2",
+        email: "team1@example.com",
+        order: 100,
+        cancelled: false,
+        contact: "John Doe",
+        phone: "+352 1234567890",
+        comments: "No comments",
+        is_confirmed: true,
+        confirmation_key: "",
+        accepted: true,
+        completed: false,
+        inserted: "2010-01-01",
+        updated: null,
+        num_vegetarians: 1,
+        num_participants: 7,
+        planned_start_time: "2999-10-10 19:20",
+        effective_start_time: "2999-10-10 19:20",
+        finish_time: "2999-10-10 22:20",
+        route_name: "",
+      },
+    ]
   }
 
   fetchAssignedStationState(userName, stationName) {
@@ -157,50 +201,7 @@ class FakeProxy {
 
   fetchTeams() {
     let output = new Promise((resolve) => {
-      resolve([
-        {
-          name: "team-1",
-          email: "team1@example.com",
-          order: 100,
-          cancelled: false,
-          contact: "John Doe",
-          phone: "+352 1234567890",
-          comments: "No comments",
-          is_confirmed: true,
-          confirmation_key: "",
-          accepted: true,
-          completed: false,
-          inserted: "2010-01-01",
-          updated: null,
-          num_vegetarians: 1,
-          num_participants: 7,
-          planned_start_time: "2999-10-10 19:20",
-          effective_start_time: "2999-10-10 19:20",
-          finish_time: "2999-10-10 22:20",
-          route_name: "",
-        },
-        {
-          name: "team-2",
-          email: "team1@example.com",
-          order: 100,
-          cancelled: false,
-          contact: "John Doe",
-          phone: "+352 1234567890",
-          comments: "No comments",
-          is_confirmed: true,
-          confirmation_key: "",
-          accepted: true,
-          completed: false,
-          inserted: "2010-01-01",
-          updated: null,
-          num_vegetarians: 1,
-          num_participants: 7,
-          planned_start_time: "2999-10-10 19:20",
-          effective_start_time: "2999-10-10 19:20",
-          finish_time: "2999-10-10 22:20",
-          route_name: "",
-        },
-      ]);
+      resolve(this.teams);
     });
     return output;
   }
@@ -262,6 +263,44 @@ class FakeProxy {
           color: "#ffaa00",
         },
       ]);
+    });
+    return output;
+  }
+
+  addTeam(team) {
+    LOG.debug("Adding new team")
+    this.teams.forEach(item => {
+      if (item.name === team.name) {
+        throw new Error(`Team name "${team.name}" already exists!`);
+      }
+    });
+    this.teams.push(team);
+    let output = new Promise((resolve) => {
+      resolve(team);
+    });
+    return output;
+  }
+
+  updateTeam(teamName, newData) {
+    this.teams.forEach((item) => {
+      if (item.name === teamName) {
+        Object.keys(item).forEach((key) => {
+          item[key] = newData[key];
+        });
+      }
+    });
+    let output = new Promise((resolve) => {
+      resolve(newData);
+    });
+    return output;
+  }
+
+  deleteTeam(teamName) {
+    this.teams = this.teams.filter(item => {
+      item.name !== teamName
+    });
+    let output = new Promise((resolve) => {
+      resolve()
     });
     return output;
   }

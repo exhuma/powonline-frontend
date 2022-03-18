@@ -33,16 +33,19 @@ import { accessibleRoutes } from "@/router";
 export default {
   name: "MainNavigation",
   props: ["identity", "isVisible"],
+  created() {
+    console.log(this.$vuetify); // eslint-disable-line
+  },
   methods: {
     onToggle(value) {
       this.$emit("toggled", value);
-    },
+    }
   },
   computed: {
     routes() {
       const output = accessibleRoutes(this.identity.roles);
       return output;
-    },
-  },
+    }
+  }
 };
 </script>

@@ -726,6 +726,37 @@ function makeStore(remoteProxy) {
       /**
        * Add a team to the backend store
        *
+       * :param team: The team object to add
+       */
+      addTeamRemote(context, team) {
+        EventBus.$emit("activityEvent", {
+          visible: true,
+          progress: -1,
+          text: "",
+        });
+        remoteProxy
+          .addTeam(team)
+          .then(() => {
+            // XXX context.commit("addTeam", team);  This line caused unexpected data-duplication
+            EventBus.$emit("activityEvent", {
+              visible: false,
+              progress: -1,
+              text: "",
+            });
+          })
+          .catch((e) => {
+            LOG.error(e);
+            EventBus.$emit("activityEvent", {
+              visible: false,
+              progress: -1,
+              text: "",
+            });
+          });
+      },
+
+      /**
+       * Add a route to the backend store
+       *
        * :param route: The route object to add
        */
       addRouteRemote(context, route) {

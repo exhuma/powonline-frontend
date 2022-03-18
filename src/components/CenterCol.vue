@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-layout row wrap justify-center>
-      <v-flex xs12 md8 lg6 xl4>
+      <v-flex xs11 md8 lg6 xl4>
         <slot>Centered content</slot>
       </v-flex>
     </v-layout>
@@ -10,6 +10,6 @@
 
 <script>
 export default {
-  name: "CenterCol",
+  name: "CenterCol"
 };
 </script>

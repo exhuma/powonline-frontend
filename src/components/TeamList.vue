@@ -1,5 +1,5 @@
 <template>
-  <CenterCol id="StationList">
+  <CenterCol id="TeamList">
     <v-dialog v-model="errorDialog">
       <v-card>
         <v-card-title>Error</v-card-title>
@@ -18,22 +18,22 @@
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
       :editMode="this.sendMode == this.SEND_MODE.UPDATE"
-      title="Add New Station"
+      title="Add New Team"
     >
-      <StationForm :station="selectedStation" />
+      <TeamForm :team="selectedTeam" />
     </PopupDialog>
     <v-list two-line>
-      <StationBlock
-        v-for="station in stations"
-        @openEditDialog="onOpenEditDialog(station)"
+      <TeamBlock
+        v-for="team in teams"
+        @openEditDialog="onOpenEditDialog(team)"
         :identity="identity"
-        :station="station"
-        :key="station.name"
-      ></StationBlock>
+        :team="team"
+        :key="team.name"
+      ></TeamBlock>
       <v-list-item>
         <v-spacer />
         <v-btn @click="openCreateDialog" v-if="identity.hasRole('admin')"
-          >Add new Station</v-btn
+          >Add new Team</v-btn
         >
       </v-list-item>
     </v-list>
@@ -46,31 +46,31 @@ const LOG = window.console.log;
 import model from "@/model";
 import CenterCol from "@/components/CenterCol";
 import PopupDialog from "@/components/PopupDialog";
-import StationBlock from "@/components/StationBlock";
-import StationForm from "@/components/StationForm";
+import TeamBlock from "@/components/TeamBlock";
+import TeamForm from "@/components/TeamForm";
 
 export default {
-  name: "StationList",
+  name: "TeamList",
   props: {
     identity: {
       type: Object
     }
   },
   methods: {
-    onOpenEditDialog: function(station) {
-      this.selectedStation = station;
+    onOpenEditDialog: function(team) {
+      this.selectedTeam = team;
       this.isAddBlockVisible = true;
       this.sendMode = model.SEND_MODE.UPDATE;
     },
     onDialogConfirmed: function() {
-      const station = this.selectedStation;
+      const team = this.selectedTeam;
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
-        this.$store.dispatch("addStationRemote", station);
+        this.$store.dispatch("addTeamRemote", team);
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        station.contact = station.contact || "";
-        station.phone = station.phone || "";
-        this.$remoteProxy.updateStation(station.name, station).catch(error => {
+        team.contact = team.contact || "";
+        team.phone = team.phone || "";
+        this.$remoteProxy.updateTeam(team.name, team).catch(error => {
           this.errorDialog = true;
           this.errorText = error.response.data;
         });
@@ -78,8 +78,8 @@ export default {
         LOG.error("Invalid send mode: " + this.sendMode);
       }
 
-      this.$emit("stationSaved", station);
-      this.selectedStation = model.station.makeEmpty();
+      this.$emit("teamSaved", team);
+      this.selectedTeam = model.team.makeEmpty();
 
       this.isAddBlockVisible = false;
     },
@@ -87,20 +87,20 @@ export default {
       this.isAddBlockVisible = false;
     },
     openCreateDialog: function() {
-      const newStation = model.station.makeEmpty();
+      const newTeam = model.team.makeEmpty();
 
-      this.selectedStation = newStation;
+      this.selectedTeam = newTeam;
       this.isAddBlockVisible = true;
       this.sendMode = model.SEND_MODE.CREATE;
     }
   },
   created() {
-    this.$store.commit("changeTitle", "Station List");
+    this.$store.commit("changeTitle", "Team List");
   },
   data() {
     return {
       isAddBlockVisible: false,
-      selectedStation: model.station.makeEmpty(),
+      selectedTeam: model.team.makeEmpty(),
       sendMode: model.SEND_MODE.CREATE,
       errorDialog: false,
       errorText: "",
@@ -108,8 +108,8 @@ export default {
     };
   },
   computed: {
-    stations() {
-      let copy = this.$store.state.stations.concat();
+    teams() {
+      let copy = this.$store.state.teams.concat();
       copy.sort((a, b) => {
         return parseInt(a.order, 10) - parseInt(b.order, 10);
       });
@@ -119,14 +119,14 @@ export default {
   components: {
     CenterCol,
     PopupDialog,
-    StationBlock,
-    StationForm
+    TeamBlock,
+    TeamForm
   }
 };
 </script>
 
 <style scoped>
-#StationList {
+#TeamList {
   padding-bottom: 5em;
 }
 
