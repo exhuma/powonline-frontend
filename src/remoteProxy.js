@@ -122,7 +122,7 @@ class FakeProxy {
         finish_time: "2999-10-10 22:20",
         route_name: "",
       },
-    ]
+    ];
   }
 
   fetchAssignedStationState(userName, stationName) {
@@ -268,8 +268,8 @@ class FakeProxy {
   }
 
   addTeam(team) {
-    LOG.debug("Adding new team")
-    this.teams.forEach(item => {
+    LOG.debug("Adding new team");
+    this.teams.forEach((item) => {
       if (item.name === team.name) {
         throw new Error(`Team name "${team.name}" already exists!`);
       }
@@ -296,11 +296,11 @@ class FakeProxy {
   }
 
   deleteTeam(teamName) {
-    this.teams = this.teams.filter(item => {
-      item.name !== teamName
+    this.teams = this.teams.filter((item) => {
+      item.name !== teamName;
     });
     let output = new Promise((resolve) => {
-      resolve()
+      resolve();
     });
     return output;
   }

@@ -39,13 +39,13 @@ export default {
   methods: {
     onToggle(value) {
       this.$emit("toggled", value);
-    }
+    },
   },
   computed: {
     routes() {
       const output = accessibleRoutes(this.identity.roles);
       return output;
-    }
-  }
+    },
+  },
 };
 </script>

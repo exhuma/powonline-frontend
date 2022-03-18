@@ -112,8 +112,8 @@ export default {
   name: "TeamForm",
   props: {
     team: {
-      type: Object
-    }
-  }
+      type: Object,
+    },
+  },
 };
 </script>

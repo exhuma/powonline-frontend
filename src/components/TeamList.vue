@@ -53,16 +53,16 @@ export default {
   name: "TeamList",
   props: {
     identity: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
-    onOpenEditDialog: function(team) {
+    onOpenEditDialog: function (team) {
       this.selectedTeam = team;
       this.isAddBlockVisible = true;
       this.sendMode = model.SEND_MODE.UPDATE;
     },
-    onDialogConfirmed: function() {
+    onDialogConfirmed: function () {
       const team = this.selectedTeam;
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
@@ -70,7 +70,7 @@ export default {
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
         team.contact = team.contact || "";
         team.phone = team.phone || "";
-        this.$remoteProxy.updateTeam(team.name, team).catch(error => {
+        this.$remoteProxy.updateTeam(team.name, team).catch((error) => {
           this.errorDialog = true;
           this.errorText = error.response.data;
         });
@@ -86,13 +86,13 @@ export default {
     closeAddBlock() {
       this.isAddBlockVisible = false;
     },
-    openCreateDialog: function() {
+    openCreateDialog: function () {
       const newTeam = model.team.makeEmpty();
 
       this.selectedTeam = newTeam;
       this.isAddBlockVisible = true;
       this.sendMode = model.SEND_MODE.CREATE;
-    }
+    },
   },
   created() {
     this.$store.commit("changeTitle", "Team List");
@@ -104,7 +104,7 @@ export default {
       sendMode: model.SEND_MODE.CREATE,
       errorDialog: false,
       errorText: "",
-      SEND_MODE: model.SEND_MODE
+      SEND_MODE: model.SEND_MODE,
     };
   },
   computed: {
@@ -114,14 +114,14 @@ export default {
         return parseInt(a.order, 10) - parseInt(b.order, 10);
       });
       return copy;
-    }
+    },
   },
   components: {
     CenterCol,
     PopupDialog,
     TeamBlock,
-    TeamForm
-  }
+    TeamForm,
+  },
 };
 </script>
 

@@ -46,13 +46,13 @@ export default {
   props: {
     team: {
       type: Object,
-      default: function() {
+      default: function () {
         return model.team.makeEmpty();
-      }
+      },
     },
     identity: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
     openDashBoard(team) {
@@ -60,10 +60,10 @@ export default {
     },
     openEditDialog() {
       this.$emit("openEditDialog");
-    }
+    },
   },
   components: {
-    ConfirmationDialog
-  }
+    ConfirmationDialog,
+  },
 };
 </script>
