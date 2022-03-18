@@ -53,16 +53,16 @@ export default {
   name: "StationList",
   props: {
     identity: {
-      type: Object,
-    },
+      type: Object
+    }
   },
   methods: {
-    onOpenEditDialog: function (station) {
+    onOpenEditDialog: function(station) {
       this.selectedStation = station;
       this.isAddBlockVisible = true;
       this.sendMode = model.SEND_MODE.UPDATE;
     },
-    onDialogConfirmed: function () {
+    onDialogConfirmed: function() {
       const station = this.selectedStation;
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
@@ -70,12 +70,10 @@ export default {
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
         station.contact = station.contact || "";
         station.phone = station.phone || "";
-        this.$remoteProxy
-          .updateStation(station.name, station)
-          .catch((error) => {
-            this.errorDialog = true;
-            this.errorText = error.response.data;
-          });
+        this.$remoteProxy.updateStation(station.name, station).catch(error => {
+          this.errorDialog = true;
+          this.errorText = error.response.data;
+        });
       } else {
         LOG.error("Invalid send mode: " + this.sendMode);
       }
@@ -88,13 +86,13 @@ export default {
     closeAddBlock() {
       this.isAddBlockVisible = false;
     },
-    openCreateDialog: function () {
+    openCreateDialog: function() {
       const newStation = model.station.makeEmpty();
 
       this.selectedStation = newStation;
       this.isAddBlockVisible = true;
       this.sendMode = model.SEND_MODE.CREATE;
-    },
+    }
   },
   created() {
     this.$store.commit("changeTitle", "Station List");
@@ -106,7 +104,7 @@ export default {
       sendMode: model.SEND_MODE.CREATE,
       errorDialog: false,
       errorText: "",
-      SEND_MODE: model.SEND_MODE,
+      SEND_MODE: model.SEND_MODE
     };
   },
   computed: {
@@ -116,14 +114,14 @@ export default {
         return parseInt(a.order, 10) - parseInt(b.order, 10);
       });
       return copy;
-    },
+    }
   },
   components: {
     CenterCol,
     PopupDialog,
     StationBlock,
-    StationForm,
-  },
+    StationForm
+  }
 };
 </script>
 

@@ -268,20 +268,6 @@ class FakeProxy {
     return output;
   }
 
-  addTeam(team) {
-    LOG.debug("Adding new team");
-    this.teams.forEach((item) => {
-      if (item.name === team.name) {
-        throw new Error(`Team name "${team.name}" already exists!`);
-      }
-    });
-    this.teams.push(team);
-    let output = new Promise((resolve) => {
-      resolve(team);
-    });
-    return output;
-  }
-
   updateTeam(teamName, newData) {
     this.teams.forEach((item) => {
       if (item.name === teamName) {
@@ -340,6 +326,20 @@ class FakeProxy {
     });
     let output = new Promise((resolve) => {
       resolve();
+    });
+    return output;
+  }
+
+  addTeam(team) {
+    LOG.debug("Adding new team");
+    this.teams.forEach((item) => {
+      if (item.name === team.name) {
+        throw new Error(`Team name "${team.name}" already exists!`);
+      }
+    });
+    this.teams.push(team);
+    let output = new Promise((resolve) => {
+      resolve(team);
     });
     return output;
   }
