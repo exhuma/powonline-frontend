@@ -123,6 +123,16 @@ class FakeProxy {
         route_name: "",
       },
     ];
+    this.routes = [
+      {
+        name: "Route 1",
+        color: "#ff0000",
+      },
+      {
+        name: "Route 2",
+        color: "#ffaa00",
+      },
+    ];
   }
 
   fetchAssignedStationState(userName, stationName) {
@@ -253,16 +263,7 @@ class FakeProxy {
   fetchRoutes() {
     LOG.debug("Fetching routes");
     let output = new Promise((resolve) => {
-      resolve([
-        {
-          name: "Route 1",
-          color: "#ff0000",
-        },
-        {
-          name: "Route 2",
-          color: "#ffaa00",
-        },
-      ]);
+      resolve(this.routes);
     });
     return output;
   }
@@ -298,6 +299,44 @@ class FakeProxy {
   deleteTeam(teamName) {
     this.teams = this.teams.filter((item) => {
       item.name !== teamName;
+    });
+    let output = new Promise((resolve) => {
+      resolve();
+    });
+    return output;
+  }
+
+  addRoute(route) {
+    LOG.debug("Adding new route");
+    this.routes.forEach((item) => {
+      if (item.name === route.name) {
+        throw new Error(`Route name "${route.name}" already exists!`);
+      }
+    });
+    this.routes.push(route);
+    let output = new Promise((resolve) => {
+      resolve(route);
+    });
+    return output;
+  }
+
+  updateRoute(routeName, newData) {
+    this.routes.forEach((item) => {
+      if (item.name === routeName) {
+        Object.keys(item).forEach((key) => {
+          item[key] = newData[key];
+        });
+      }
+    });
+    let output = new Promise((resolve) => {
+      resolve(newData);
+    });
+    return output;
+  }
+
+  deleteRoute(routeName) {
+    this.routes = this.routes.filter((item) => {
+      item.name !== routeName;
     });
     let output = new Promise((resolve) => {
       resolve();
@@ -647,6 +686,20 @@ class Proxy extends FakeProxy {
         .post(this.baseUrl + "/route", route)
         .then(() => {
           resolve(route);
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+    return output;
+  }
+
+  updateRoute(routeName, newData) {
+    let output = new Promise((resolve, reject) => {
+      axios
+        .put(this.baseUrl + "/route/" + routeName, newData)
+        .then((response) => {
+          resolve(response.data);
         })
         .catch((e) => {
           reject(e);

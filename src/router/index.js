@@ -5,6 +5,7 @@ import Scoreboard from "@/components/Scoreboard";
 import StationList from "@/components/StationList";
 import TeamList from "@/components/TeamList";
 import StationDashboard from "@/components/StationDashboard";
+import RouteList from "@/components/RouteList";
 import UserList from "@/components/UserList";
 import Debug from "@/components/Debug";
 
@@ -84,7 +85,7 @@ function getRoutes() {
       path: "/route",
       label: "Routes",
       icon: "mdi-gesture",
-      component: NotFound,
+      component: RouteList,
       inMenu: true,
       availableToAnonymous: false,
       needsRole: "admin",
