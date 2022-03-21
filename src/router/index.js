@@ -68,7 +68,7 @@ function getRoutes() {
     {
       path: "/team",
       label: "Teams",
-      icon: "mdi-group",
+      icon: "mdi-account-group",
       component: TeamList,
       inMenu: true,
       availableToAnonymous: false,
@@ -93,7 +93,7 @@ function getRoutes() {
     {
       path: "/user",
       label: "Users",
-      icon: "mdi-face",
+      icon: "mdi-account",
       component: UserList,
       inMenu: true,
       availableToAnonymous: false,
