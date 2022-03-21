@@ -13,7 +13,7 @@ function makeStore(remoteProxy) {
       teams: [],
       routes: [],
       questionnaireScores: {}, // map: team -> station -> questionnaireScore
-      route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
+      route_station_map: {}, // map stations to routes (key=routeName, value=list of station-names)
       route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
       global_dashboard: [],
       teamStates: [],
@@ -308,6 +308,32 @@ function makeStore(remoteProxy) {
         } else {
           // TODO implement
         }
+      },
+
+      /**
+       * Sets new assignments for station routes
+       *
+       * :param payload (object): An object with the following keys:
+       *    * stationName: The name of the station
+       *    * routeNames: A list of route names
+       */
+      setStationRoutes(state, payload) {
+        // As we are replacing assignments, let's first remove this station from all routes.
+        for (const [routeName, stationNames] of Object.entries(
+          state.route_station_map
+        )) {
+          state.route_station_map[routeName] = stationNames.filter(
+            (item) => item !== payload.stationName
+          );
+        }
+        // Now we can add the station to all routes defined in the payload
+        payload.routeNames.forEach((routeName) => {
+          const current = state.route_station_map[routeName];
+          if (current === undefined) {
+            state.route_station_map[routeName] = [];
+          }
+          state.route_station_map[routeName].push(payload.stationName);
+        });
       },
 
       /**
@@ -800,8 +826,7 @@ function makeStore(remoteProxy) {
           .addStation(station)
           .then((station) => {
             LOG.debug(`Inserting station ${station.name} into local state`);
-            // TODO - This caused a duplicate entry when adding a new station
-            //        context.commit('addStation', station)
+            context.commit("addStation", station);
             EventBus.$emit("activityEvent", {
               visible: false,
               progress: -1,
@@ -1167,6 +1192,43 @@ function makeStore(remoteProxy) {
           .catch((e) => {
             window.console.error({
               msg: "Unable to unassign station from route",
+              exc: e,
+            });
+            EventBus.$emit("activityEvent", {
+              visible: false,
+              progress: -1,
+              text: "",
+            });
+          });
+      },
+
+      /**
+       * Set the assigned routes for a given station
+       *
+       * :param data (object): An object with the following keys:
+       *     * stationName: The name of the station
+       *     * routeNames: An array of route names to which the station should be assigned to
+       */
+      setStationRoutesRemote(context, data) {
+        EventBus.$emit("activityEvent", {
+          visible: true,
+          progress: -1,
+          text: "",
+        });
+        remoteProxy
+          .setStationRoutes(data.stationName, data.routeNames)
+          .then(() => {
+            context.commit("setStationRoutes", data);
+            EventBus.$emit("activityEvent", {
+              visible: false,
+              progress: -1,
+              text: "",
+            });
+            context.dispatch("refreshRemote"); // TODO Something causes a non-rective change which is why this is needed. Investigate!
+          })
+          .catch((e) => {
+            window.console.error({
+              msg: "Unable to set new station route assignments",
               exc: e,
             });
             EventBus.$emit("activityEvent", {

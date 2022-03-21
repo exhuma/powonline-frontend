@@ -995,6 +995,20 @@ class Proxy extends FakeProxy {
     return output;
   }
 
+  setStationRoutes(stationName, routeNames) {
+    let output = new Promise((resolve, reject) => {
+      axios
+        .put(this.baseUrl + "/routeStations", { stationName, routeNames })
+        .then(() => {
+          resolve();
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+    return output;
+  }
+
   deleteRoute(routeName) {
     let output = new Promise((resolve, reject) => {
       axios
