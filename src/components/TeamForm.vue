@@ -70,13 +70,11 @@
       label="Finish Time"
       hint="The time when the team arrived at the end"
     />
-    <v-text-field
-      name="route_name"
-      type="text"
+    <v-select
+      :items="availableRoutes"
+      label="Route"
       v-model="team.route_name"
-      label="Route Name"
-      hint="The name of the route where this team is assigned to"
-    />
+    ></v-select>
     <v-text-field
       name="comments"
       type="text"
@@ -113,6 +111,11 @@ export default {
   props: {
     team: {
       type: Object,
+    },
+  },
+  computed: {
+    availableRoutes() {
+      return this.$store.state.routes.map((item) => item.name);
     },
   },
 };

@@ -3,6 +3,15 @@
     <v-list-item-content>
       <v-list-item-title>
         {{ team.name }}
+        <span v-if="team.route_name === ''"
+          ><v-icon color="red" style="vertical-align: text-bottom"
+            >mdi-alert</v-icon
+          >
+          (no route assigned)</span
+        >
+        <span v-if="team.route_name !== ''"
+          >(Route: {{ team.route_name }})</span
+        >
         <v-icon v-if="team.is_end">mdi-flag-checkered</v-icon>
         <v-icon v-if="team.is_start">mdi-walk</v-icon>
       </v-list-item-title>

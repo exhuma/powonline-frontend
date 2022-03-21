@@ -13,6 +13,11 @@
       hint="Color to use for this route"
       label="Route color"
     />
+    <v-divider class="ma-5"></v-divider>
+    <h3>Tams on this Route</h3>
+    <ul>
+      <li v-for="item in teams" :key="item">{{ item }}</li>
+    </ul>
   </v-container>
 </template>
 
@@ -22,6 +27,11 @@ export default {
   props: {
     route: {
       type: Object,
+    },
+  },
+  computed: {
+    teams() {
+      return this.$store.getters.assignedTeams(this.route.name);
     },
   },
 };
