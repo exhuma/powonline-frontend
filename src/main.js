@@ -37,10 +37,16 @@ const store = storeFactory.makeStore(remoteProxy);
  */
 axios.interceptors.request.use(
   (config) => {
+    if (config.url.match(/\/login.*/)) {
+      // We don't want to inject authentication into auth-URLs. Otherwise we
+      // will get an endless loop
+      LOG.info(`Not injecting authentication into ${config.url}`)
+      return config
+    }
     const identityStore = new LocalStorage("jwt");
     const identity = identityStore.load();
     if (identity.isUsable()) {
-      if (identity.isExpired()) {
+      if (identity.needsRenewal()) {
         identity.renew(remoteProxy);
       }
       config.headers["Authorization"] = "Bearer " + identity.token;

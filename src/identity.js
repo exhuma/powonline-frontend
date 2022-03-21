@@ -95,6 +95,24 @@ class Identity {
   }
 
   /**
+   * Check if the token will soon expire, indicating that we should renew as
+   * soon as possible.
+   * @returns Whether the token needs to be renewed on the next request
+   */
+  needsRenewal() {
+    if (this.isExpired()) {
+      return true;
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const remainingSeconds = this.exp - now;
+    if (remainingSeconds < 30*60) {
+      LOG.debug("Token will expire soon. Renewal advised!");
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Check if the current identity has a given role
    *
    * @param roleName the role name to check
