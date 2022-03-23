@@ -153,6 +153,7 @@ export default {
       this.identity = identity;
       this.identity.persist();
       this.$store.commit("setIdentity", this.identity);
+      this.$store.dispatch("refreshRemote");
     },
     onSnackRequested: function (payload) {
       if (payload.error !== undefined) {
