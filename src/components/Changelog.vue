@@ -1,6 +1,6 @@
 <template>
-  <center-col id="ChangeLog">
-    <div class="white--text text-xs-left">
+  <div class="changelog">
+    <div class="text-xs-left">
       <h1>v2019.05.9 <small>Released on 2019-05-10</small></h1>
       <h2>Bugfixes</h2>
       <ul>
@@ -8,7 +8,7 @@
       </ul>
     </div>
 
-    <div class="white--text text-xs-left">
+    <div class="text-xs-left">
       <h1>v2019.05.8 <small>Released on 2019-05-10</small></h1>
       <h2>Bugfixes</h2>
       <ul>
@@ -16,7 +16,7 @@
       </ul>
     </div>
 
-    <div class="white--text text-xs-left">
+    <div class="text-xs-left">
       <h1>v2019.05.7 <small>Released on 2019-05-10</small></h1>
       <h2>Highlights</h2>
       <ul>
@@ -116,15 +116,24 @@
         <v-spacer></v-spacer>
         <router-link to="/privacy-policy">Privacy Policy</router-link>
     </v-footer>
-  </center-col>
+  </div>
 </template>
 
 <style scoped>
+.changelog {
+  padding: 0 2em;
+}
 H1 {
+    font-size: 120%;
+    margin-top: 2em;
+    border-bottom: 1px solid black;
+}
+H2 {
+    font-size: 100%;
     margin-top: 1em;
 }
 LI {
-    margin-left: 2em;
+    margin-left: 0;
 }
 H1 SMALL {
   font-size: 50%;

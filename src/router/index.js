@@ -8,6 +8,7 @@ import StationDashboard from "@/components/StationDashboard";
 import RouteList from "@/components/RouteList";
 import UserList from "@/components/UserList";
 import Debug from "@/components/Debug";
+import Changelog from "@/components/Changelog";
 
 function getRoutes() {
   const output = [
@@ -112,7 +113,7 @@ function getRoutes() {
       path: "/changelog",
       label: "Changelog",
       icon: "mdi-playlist-check",
-      component: NotFound,
+      component: Changelog,
       inMenu: true,
       availableToAnonymous: false,
     },
