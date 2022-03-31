@@ -13,11 +13,16 @@
       <confirmation-dialog
         buttonText="Delete"
         :actionArgument="name"
-        actionName="deleteTeamRemote">
-        <span slot="title">Do you want to delete the team "{{ team.name }}"?</span>
+        actionName="deleteTeamRemote"
+      >
+        <span slot="title"
+          >Do you want to delete the team "{{ team.name }}"?</span
+        >
         <div slot="text">
-          <p>this will delete the team with the name "{{ team.name }}" and all
-            related information!</p>
+          <p>
+            this will delete the team with the name "{{ team.name }}" and all
+            related information!
+          </p>
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
@@ -26,62 +31,62 @@
 </template>
 
 <script>
-import model from '@/model'
+import model from "@/model";
 export default {
-  name: 'team-block',
-  data () {
+  name: "team-block",
+  data() {
     return {
-      stations: []
-    }
+      stations: [],
+    };
   },
   props: {
-    'team': {
+    team: {
       type: Object,
-      default: model.team.makeEmpty()
-    }
+      default: model.team.makeEmpty(),
+    },
   },
 
   computed: {
-    routeColor () {
-      let selectedTeam = null
-      this.$store.state.teams.forEach(team => {
+    routeColor() {
+      let selectedTeam = null;
+      this.$store.state.teams.forEach((team) => {
         if (team.name !== this.team.name) {
-          return
+          return;
         }
-        selectedTeam = team
-      })
+        selectedTeam = team;
+      });
 
-      let selectedRoute = null
-      this.$store.state.routes.forEach(route => {
+      let selectedRoute = null;
+      this.$store.state.routes.forEach((route) => {
         if (route.name !== selectedTeam.route_name) {
-          return
+          return;
         }
-        selectedRoute = route
-      })
+        selectedRoute = route;
+      });
 
       if (selectedRoute === null) {
-        return null
+        return null;
       }
       if (selectedRoute.color) {
-        return `color: ${selectedRoute.color};`
+        return `color: ${selectedRoute.color};`;
       } else {
-        return 'color: #000000;'
+        return "color: #000000;";
       }
-    }
+    },
   },
 
-  created () {
-    this.$remoteProxy.fetchTeamStations(this.team.name).then(items => {
-      this.stations = items
-    })
+  created() {
+    this.$remoteProxy.fetchTeamStations(this.team.name).then((items) => {
+      this.stations = items;
+    });
   },
   methods: {
-    hasRole (roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+    hasRole(roleName) {
+      return this.$store.state.roles.indexOf(roleName) > -1;
     },
-    openEditDialog () {
-      this.$emit('openEditDialog')
-    }
-  }
-}
+    openEditDialog() {
+      this.$emit("openEditDialog");
+    },
+  },
+};
 </script>

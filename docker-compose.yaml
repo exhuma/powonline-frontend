@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 services:
   database:
@@ -30,5 +30,5 @@ networks:
     external: true
 
 volumes:
-    powonline-api-config:
-    powonline-db-data:
+  powonline-api-config:
+  powonline-db-data:

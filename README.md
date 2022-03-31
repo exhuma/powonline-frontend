@@ -6,7 +6,7 @@ This repository serves as frontend for [powonline](https://github.com/exhuma/pow
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 npm install
 
@@ -39,7 +39,6 @@ npm test
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
-
 ## Deployment
 
 We use the Python task runner "invoke" to automate deployment. You need to
@@ -51,14 +50,14 @@ pip install --user -U invoke fabric patchwork
 
 To build the docker container run:
 
-* `inv build_docker -e prod`
+- `inv build_docker -e prod`
 
 This will build the JS package for production, send it to the remote server and
 build the docker image on that host. Building remotely is necessary as I
 currently have a slow connection which makes building locally and uploading the
 image to a registry unfeasible.
 
-* Create copies of `api.env.dist` and `frontend.env.dist` (removing the `.dist`
+- Create copies of `api.env.dist` and `frontend.env.dist` (removing the `.dist`
   suffix). Modify the values as necessary.
 
 Once this is done, run `inv deploy -e prod`

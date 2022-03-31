@@ -7,10 +7,8 @@
       label="Filter"
       @click:clear="onFilterCleared"
       hint="Filter entries"
-      ></v-text-field>
-    <v-data-table
-      :headers="headers"
-      :items="filteredEntries">
+    ></v-text-field>
+    <v-data-table :headers="headers" :items="filteredEntries">
       <template v-slot:items="props">
         <td>{{ format_ts(props.item.timestamp) }}</td>
         <td>{{ props.item.username }}</td>
@@ -23,63 +21,64 @@
 </template>
 
 <script>
-import moment from 'moment'
+import moment from "moment";
 export default {
-  name: 'auditlog',
-  data () {
+  name: "auditlog",
+  data() {
     return {
       entries: [],
-      entryFilter: '',
+      entryFilter: "",
       headers: [
-        {text: 'Timestamp', sortable: false},
-        {text: 'User', sortable: false},
-        {text: 'Type', sortable: false},
-        {text: 'Message', sortable: false}
-      ]
-    }
+        { text: "Timestamp", sortable: false },
+        { text: "User", sortable: false },
+        { text: "Type", sortable: false },
+        { text: "Message", sortable: false },
+      ],
+    };
   },
   computed: {
-    filteredEntries () {
-      let all = this.entries
-      let filtered = null
+    filteredEntries() {
+      let all = this.entries;
+      let filtered = null;
       if (!this.entryFilter || this.entryFilter.length < 3) {
-        filtered = all
+        filtered = all;
       } else {
         filtered = all.filter((item) => {
-          let fltr = this.entryFilter.toLowerCase()
-          let userMatches = item.username.toLowerCase().includes(fltr)
-          let typeMatches = item.type.toLowerCase().includes(fltr)
-          let msgMatches = item.message.toLowerCase().includes(fltr)
-          return userMatches || typeMatches || msgMatches
-        })
+          let fltr = this.entryFilter.toLowerCase();
+          let userMatches = item.username.toLowerCase().includes(fltr);
+          let typeMatches = item.type.toLowerCase().includes(fltr);
+          let msgMatches = item.message.toLowerCase().includes(fltr);
+          return userMatches || typeMatches || msgMatches;
+        });
       }
-      return filtered
-    }
+      return filtered;
+    },
   },
   methods: {
-    format_ts (ts) {
-      let obj = moment(ts)
-      return obj.format('YYYY-MM-DD HH:mm:ss')
+    format_ts(ts) {
+      let obj = moment(ts);
+      return obj.format("YYYY-MM-DD HH:mm:ss");
     },
-    refresh () {
-      this.$remoteProxy.fetchAuditLog()
-        .then(result => {
-          this.entries = result
+    refresh() {
+      this.$remoteProxy
+        .fetchAuditLog()
+        .then((result) => {
+          this.entries = result;
         })
-        .catch(e => {
-          console.error(e)
-          this.$emit('snackRequested', {
+        .catch((e) => {
+          console.error(e);
+          this.$emit("snackRequested", {
             message: `Unable to update audit-log (${e.response.data})`,
-            color: 'red'
-          })
-        })
+            color: "red",
+          });
+        });
     },
-    onFilterCleared (e) {
-      this.entryFilter = ''
-    }
+    onFilterCleared(e) {
+      this.entryFilter = "";
+    },
   },
-  created () {
-    this.refresh()
-  }
-}
+  created() {
+    this.refresh();
+  },
+};
 </script>

@@ -8,6 +8,6 @@
 
 <script>
 export default {
-  name: 'center-col'
-}
+  name: "center-col",
+};
 </script>

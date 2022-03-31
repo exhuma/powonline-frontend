@@ -1,13 +1,25 @@
 <template>
   <div class="imgbox">
     <div v-if="!fullScreen" class="white--text">{{ counter }}</div>
-    <div v-if="this.queuelength" class="white--text">{{queuelength}} images in queue</div>
+    <div v-if="this.queuelength" class="white--text">
+      {{ queuelength }} images in queue
+    </div>
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
-    <v-slider v-if="!fullScreen" label="Timeout (s)" thumb-label ticks min="1" max="30" v-model="timeout"></v-slider>
-    <v-btn v-if="!fullScreen" class="fab-high" fab
-      @click="toggleFullScreen"><v-icon>fullscreen</v-icon></v-btn>
-    <v-btn v-else class="fab-low" fab
-      @click="toggleFullScreen"><v-icon>fullscreen_exit</v-icon></v-btn>
+    <v-slider
+      v-if="!fullScreen"
+      label="Timeout (s)"
+      thumb-label
+      ticks
+      min="1"
+      max="30"
+      v-model="timeout"
+    ></v-slider>
+    <v-btn v-if="!fullScreen" class="fab-high" fab @click="toggleFullScreen"
+      ><v-icon>fullscreen</v-icon></v-btn
+    >
+    <v-btn v-else class="fab-low" fab @click="toggleFullScreen"
+      ><v-icon>fullscreen_exit</v-icon></v-btn
+    >
   </div>
 </template>
 
@@ -39,53 +51,53 @@
 
 <script>
 export default {
-  created () {
+  created() {
     this.intervalId = setInterval(() => {
-      this.countdown()
-    }, 1000)
+      this.countdown();
+    }, 1000);
   },
-  beforeDestroy () {
-    clearInterval(this.intervalId)
+  beforeDestroy() {
+    clearInterval(this.intervalId);
   },
   watch: {
     timeout: function (val) {
-      this.counter = val
-    }
+      this.counter = val;
+    },
   },
-  data () {
+  data() {
     return {
       latestImage: null,
       intervalId: null,
       timeout: 10,
       counter: 10,
-      fullScreen: false
-    }
+      fullScreen: false,
+    };
   },
   computed: {
-    queuelength () {
-      return this.$store.state.liveImageQueue.length
-    }
+    queuelength() {
+      return this.$store.state.liveImageQueue.length;
+    },
   },
   methods: {
-    toggleFullScreen () {
-      this.$emit('fullScreenRequested', !this.fullScreen)
-      this.fullScreen = !this.fullScreen
+    toggleFullScreen() {
+      this.$emit("fullScreenRequested", !this.fullScreen);
+      this.fullScreen = !this.fullScreen;
     },
-    countdown () {
-      this.counter -= 1
+    countdown() {
+      this.counter -= 1;
       if (this.counter === 0) {
-        this.loadNextImage()
-        this.counter = this.timeout
+        this.loadNextImage();
+        this.counter = this.timeout;
       }
     },
-    loadNextImage () {
+    loadNextImage() {
       if (!this.$store.state.liveImageQueue.length) {
-        return
+        return;
       }
-      let nextImage = this.$store.state.liveImageQueue[0]
-      this.latestImage = nextImage
-      this.$store.commit('consumeImage')
-    }
-  }
-}
+      let nextImage = this.$store.state.liveImageQueue[0];
+      this.latestImage = nextImage;
+      this.$store.commit("consumeImage");
+    },
+  },
+};
 </script>

@@ -1,6 +1,8 @@
 <template>
   <v-card class="mt-3">
-    <v-card-title><span>User: "{{ name }}"</span></v-card-title>
+    <v-card-title
+      ><span>User: "{{ name }}"</span></v-card-title
+    >
     <v-card-text>
       <h2>Roles</h2>
       <user-role-checkbox
@@ -8,23 +10,31 @@
         :key="role[0]"
         :user="name"
         :label="role[0]"
-        :role="role[0]"></user-role-checkbox>
+        :role="role[0]"
+      ></user-role-checkbox>
       <h2>Stations</h2>
       <user-station-checkbox
         v-for="station in stations"
         :key="station[0]"
         :user="name"
         :label="station[0]"
-        :station="station[0]"></user-station-checkbox>
+        :station="station[0]"
+      ></user-station-checkbox>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
       <v-spacer />
-      <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteUserRemote">
+      <confirmation-dialog
+        buttonText="Delete"
+        :actionArgument="name"
+        actionName="deleteUserRemote"
+      >
         <span slot="title">Do you want to delete the user "{{ name }}"?</span>
         <div slot="text">
-          <p>this will delete the user with the name "{{ name }}" and all
-            related information!</p>
+          <p>
+            this will delete the user with the name "{{ name }}" and all related
+            information!
+          </p>
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
@@ -34,45 +44,47 @@
 
 <script>
 export default {
-  name: 'user-block',
-  data () {
+  name: "user-block",
+  data() {
     return {
       roles: [],
-      stations: []
-    }
+      stations: [],
+    };
   },
   methods: {
-    refreshStations () {
-      this.$remoteProxy.fetchUserStations(this.name)
-        .then(items => {
-          this.stations = items
+    refreshStations() {
+      this.$remoteProxy
+        .fetchUserStations(this.name)
+        .then((items) => {
+          this.stations = items;
         })
-        .catch(e => {
-          this.$store.commit('logError', e)
-        })
+        .catch((e) => {
+          this.$store.commit("logError", e);
+        });
     },
-    refreshRoles () {
-      this.$remoteProxy.fetchUserRoles(this.name)
-        .then(items => {
-          this.roles = items
+    refreshRoles() {
+      this.$remoteProxy
+        .fetchUserRoles(this.name)
+        .then((items) => {
+          this.roles = items;
         })
-        .catch(e => {
-          this.$store.commit('logError', e)
-        })
+        .catch((e) => {
+          this.$store.commit("logError", e);
+        });
     },
-    hasRole (roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
-    }
+    hasRole(roleName) {
+      return this.$store.state.roles.indexOf(roleName) > -1;
+    },
   },
-  created () {
-    this.refreshRoles()
-    this.refreshStations()
+  created() {
+    this.refreshRoles();
+    this.refreshStations();
   },
   props: {
-    'name': {
+    name: {
       type: String,
-      default: 'Unknown User'
-    }
-  }
-}
+      default: "Unknown User",
+    },
+  },
+};
 </script>

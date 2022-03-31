@@ -15,25 +15,21 @@
 
 <script>
 export default {
-  name: 'confirmation-dialog',
-  data () {
+  name: "confirmation-dialog",
+  data() {
     return {
-      isDialogVisible: false
-    }
+      isDialogVisible: false,
+    };
   },
-  props: [
-    'actionArgument',
-    'actionName',
-    'buttonText'
-  ],
+  props: ["actionArgument", "actionName", "buttonText"],
   methods: {
-    discardAction () {
-      this.isDialogVisible = false
+    discardAction() {
+      this.isDialogVisible = false;
     },
-    acceptAction () {
-      this.$store.dispatch(this.actionName, this.actionArgument)
-      this.isDialogVisible = false
-    }
-  }
-}
+    acceptAction() {
+      this.$store.dispatch(this.actionName, this.actionArgument);
+      this.isDialogVisible = false;
+    },
+  },
+};
 </script>

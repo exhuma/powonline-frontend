@@ -1,20 +1,16 @@
 <template>
   <center-col id="TeamList">
-    <v-dialog
-      v-model="errorDialog">
+    <v-dialog v-model="errorDialog">
       <v-card>
         <v-card-title>Error</v-card-title>
       </v-card>
       <v-card-text class="white--text">
-        {{errorText}}
+        {{ errorText }}
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          @click="errorDialog = false"
-        >OK</v-btn>
+        <v-btn color="primary" @click="errorDialog = false">OK</v-btn>
       </v-card-actions>
     </v-dialog>
     <popup-dialog
@@ -22,11 +18,9 @@
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
       :editMode="this.sendMode == this.SEND_MODE.UPDATE"
-      title="Add New Team">
-      <team-form
-        :send-mode='sendMode'
-        :team='selectedTeam'
-        />
+      title="Add New Team"
+    >
+      <team-form :send-mode="sendMode" :team="selectedTeam" />
     </popup-dialog>
     <v-text-field
       v-model="teamFilter"
@@ -35,14 +29,14 @@
       label="Filter"
       @click:clear="onFilterCleared"
       hint="Filter list of teams by name and/or contact"
-      ></v-text-field>
+    ></v-text-field>
     <v-list>
       <v-list-group
         :key="item.title"
         :value="item.active"
         v-for="item in listItems"
-        no-action>
-
+        no-action
+      >
         <v-list-tile slot="item" no-action>
           <v-list-tile-content>
             <v-list-tile-title>{{ item.data.name }}</v-list-tile-title>
@@ -52,9 +46,12 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.contact" :key="item.data.name + 'contact'">
+        <v-list-tile
+          v-if="hasRole(['admin', 'staff']) && item.data.contact"
+          :key="item.data.name + 'contact'"
+        >
           <v-list-tile-content>
-            <v-list-tile-title>{{item.data.contact}}</v-list-tile-title>
+            <v-list-tile-title>{{ item.data.contact }}</v-list-tile-title>
             <v-list-tile-sub-title>Contact</v-list-tile-sub-title>
           </v-list-tile-content>
           <v-list-tile-action>
@@ -62,44 +59,64 @@
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.phone" :key="item.data.name + 'phone'">
+        <v-list-tile
+          v-if="hasRole(['admin', 'staff']) && item.data.phone"
+          :key="item.data.name + 'phone'"
+        >
           <v-list-tile-content>
             <v-list-tile-title>
-              <a class="yellow--text" :href="`tel:${item.data.phone}`">{{item.data.phone}}</a>
+              <a class="yellow--text" :href="`tel:${item.data.phone}`">{{
+                item.data.phone
+              }}</a>
             </v-list-tile-title>
             <v-list-tile-sub-title>Phone</v-list-tile-sub-title>
           </v-list-tile-content>
           <v-list-tile-action>
             <a :href="`tel:${item.data.phone}`">
-              <v-btn icon flat class="yellow--text"><v-icon>phone</v-icon></v-btn></a>
+              <v-btn icon flat class="yellow--text"
+                ><v-icon>phone</v-icon></v-btn
+              ></a
+            >
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.email" :key="item.data.name + 'email'">
+        <v-list-tile
+          v-if="hasRole(['admin', 'staff']) && item.data.email"
+          :key="item.data.name + 'email'"
+        >
           <v-list-tile-content>
             <v-list-tile-title>
-              <a class="yellow--text" :href="`mailto:${item.data.email}`">{{item.data.email}}</a>
+              <a class="yellow--text" :href="`mailto:${item.data.email}`">{{
+                item.data.email
+              }}</a>
             </v-list-tile-title>
             <v-list-tile-sub-title>e-mail</v-list-tile-sub-title>
           </v-list-tile-content>
           <v-list-tile-action>
             <a :href="`mailto:${item.data.email}`">
-              <v-btn icon flat class="yellow--text"><v-icon>email</v-icon></v-btn></a>
+              <v-btn icon flat class="yellow--text"
+                ><v-icon>email</v-icon></v-btn
+              ></a
+            >
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-if="hasRole(['admin'])" :key="item.data.name + 'info'" no-action>
+        <v-list-tile
+          v-if="hasRole(['admin'])"
+          :key="item.data.name + 'info'"
+          no-action
+        >
           <v-list-tile-content>
             <v-list-tile-content>
               <v-btn :to="`/team/${item.data.name}`">Open Team Panel</v-btn>
             </v-list-tile-content>
           </v-list-tile-content>
         </v-list-tile>
-
       </v-list-group>
     </v-list>
 
-    <v-list-tile v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-tile here -->
+    <v-list-tile v-if="hasRole(['admin'])">
+      <!-- TODO: should not use v-list-tile here -->
       <v-spacer />
       <v-list-tile-action>
         <v-btn @click="openCreateDialog">Add new Team</v-btn>
@@ -109,160 +126,162 @@
 </template>
 
 <script>
-import model from '@/model'
+import model from "@/model";
 
 export default {
-  name: 'team_list',
-  data () {
+  name: "team_list",
+  data() {
     return {
       isAddBlockVisible: false,
       selectedTeam: model.team.makeEmpty(),
       sendMode: model.SEND_MODE.CREATE,
       errorDialog: false,
-      errorText: '',
+      errorText: "",
       SEND_MODE: model.SEND_MODE,
-      teamFilter: ''
-    }
+      teamFilter: "",
+    };
   },
   methods: {
-    onFilterCleared (e) {
-      this.teamFilter = ''
+    onFilterCleared(e) {
+      this.teamFilter = "";
     },
-    onTeamSelected (team) {
-      this.selectedTeam = team
+    onTeamSelected(team) {
+      this.selectedTeam = team;
     },
     openCreateDialog: function () {
-      const newTeam = model.team.makeEmpty()
+      const newTeam = model.team.makeEmpty();
 
       // The new team is automatically accepted and confirmed
       // because it's added via the admin interface
-      newTeam.accepted = true
-      newTeam.is_confirmed = true
+      newTeam.accepted = true;
+      newTeam.is_confirmed = true;
 
-      this.selectedTeam = newTeam
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.CREATE
+      this.selectedTeam = newTeam;
+      this.isAddBlockVisible = true;
+      this.sendMode = model.SEND_MODE.CREATE;
     },
-    onDialogConfirmed () {
-      const team = this.selectedTeam
+    onDialogConfirmed() {
+      const team = this.selectedTeam;
       if (!team.route_name) {
-        this.$emit('snackRequested', {
-          message: 'You must select a route!',
-          color: 'red'
-        })
-        return false
+        this.$emit("snackRequested", {
+          message: "You must select a route!",
+          color: "red",
+        });
+        return false;
       }
 
       if (!team.name) {
-        this.$emit('snackRequested', {
-          message: 'The team must have a name!',
-          color: 'red'
-        })
-        return false
+        this.$emit("snackRequested", {
+          message: "The team must have a name!",
+          color: "red",
+        });
+        return false;
       }
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
-        this.$remoteProxy.addTeam(team)
-          .then(team => {
-            this.$store.commit('addTeam', team)
-            this.$emit('snackRequested', {
-              message: 'Save successful'
-            })
+        this.$remoteProxy
+          .addTeam(team)
+          .then((team) => {
+            this.$store.commit("addTeam", team);
+            this.$emit("snackRequested", {
+              message: "Save successful",
+            });
           })
-          .catch(error => {
-            this.errorDialog = true
-            this.errorText = error.response.data
-            console.error(error)
-          })
+          .catch((error) => {
+            this.errorDialog = true;
+            this.errorText = error.response.data;
+            console.error(error);
+          });
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        this.$remoteProxy.updateTeam(team.name, team)
-          .then(team => {
-            this.$emit('snackRequested', {
-              message: 'Save successful'
-            })
+        this.$remoteProxy
+          .updateTeam(team.name, team)
+          .then((team) => {
+            this.$emit("snackRequested", {
+              message: "Save successful",
+            });
           })
-          .catch(error => {
-            this.errorDialog = true
-            this.errorText = error.response.data
-          })
+          .catch((error) => {
+            this.errorDialog = true;
+            this.errorText = error.response.data;
+          });
       } else {
-        console.error('Invalid send mode: ' + this.sendMode)
+        console.error("Invalid send mode: " + this.sendMode);
       }
 
-      this.$emit('teamSaved', team)
-      this.selectedTeam = model.team.makeEmpty()
+      this.$emit("teamSaved", team);
+      this.selectedTeam = model.team.makeEmpty();
 
-      this.isAddBlockVisible = false
+      this.isAddBlockVisible = false;
     },
-    closeAddBlock () {
-      this.isAddBlockVisible = false
+    closeAddBlock() {
+      this.isAddBlockVisible = false;
     },
-    hasRole (roleNames) {
-      let output = false
-      roleNames.forEach(role => {
-        output |= this.$store.state.roles.includes(role)
-      })
-      return output
+    hasRole(roleNames) {
+      let output = false;
+      roleNames.forEach((role) => {
+        output |= this.$store.state.roles.includes(role);
+      });
+      return output;
     },
     onOpenEditDialog: function (team) {
-      this.selectedTeam = team
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.UPDATE
-    }
+      this.selectedTeam = team;
+      this.isAddBlockVisible = true;
+      this.sendMode = model.SEND_MODE.UPDATE;
+    },
   },
 
-  created () {
-    this.$store.commit('changeTitle', 'Team List')
+  created() {
+    this.$store.commit("changeTitle", "Team List");
   },
 
   computed: {
-    listItems () {
-      let all = this.$store.state.teams
-      let filtered = null
+    listItems() {
+      let all = this.$store.state.teams;
+      let filtered = null;
       if (!this.teamFilter || this.teamFilter.length < 3) {
-        filtered = all
+        filtered = all;
       } else {
         filtered = all.filter((item) => {
-          let fltr = this.teamFilter.toLowerCase()
-          let nameMatches = item.name.toLowerCase().includes(fltr)
-          let contactMatches = item.contact.toLowerCase().includes(fltr)
-          return nameMatches || contactMatches
-        })
+          let fltr = this.teamFilter.toLowerCase();
+          let nameMatches = item.name.toLowerCase().includes(fltr);
+          let contactMatches = item.contact.toLowerCase().includes(fltr);
+          return nameMatches || contactMatches;
+        });
       }
-      const output = []
+      const output = [];
       filtered.forEach((item) => {
         output.push({
           active: false,
-          data: item
-        })
-      })
-      return output
+          data: item,
+        });
+      });
+      return output;
     },
-    teams () {
-      let all = this.$store.state.teams
+    teams() {
+      let all = this.$store.state.teams;
       if (!this.teamFilter || this.teamFilter.length < 3) {
-        return all
+        return all;
       }
       let filtered = all.filter((item) => {
-        let fltr = this.teamFilter.toLowerCase()
-        let nameMatches = item.name.toLowerCase().includes(fltr)
-        let contactMatches = item.contact.toLowerCase().includes(fltr)
-        return nameMatches || contactMatches
-      })
-      return filtered
-    }
-  }
-}
+        let fltr = this.teamFilter.toLowerCase();
+        let nameMatches = item.name.toLowerCase().includes(fltr);
+        let contactMatches = item.contact.toLowerCase().includes(fltr);
+        return nameMatches || contactMatches;
+      });
+      return filtered;
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 #TeamList {
   padding-bottom: 5em;
 }
 
-.slide-enter-active, .slide-leave-active {
-  transition: all .3s
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
 }
 .slide-enter {
   transform: translateY(-100px);

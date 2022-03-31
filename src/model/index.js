@@ -1,51 +1,50 @@
 export default {
-
   SEND_MODE: {
-    CREATE: 'create',
-    UPDATE: 'update'
+    CREATE: "create",
+    UPDATE: "update",
   },
 
   route: {
     makeEmpty: function () {
       return {
-        name: '',
-        color: ''
-      }
-    }
+        name: "",
+        color: "",
+      };
+    },
   },
 
   user: {
     makeEmpty: function () {
       return {
-        name: '',
-        password: ''
-      }
-    }
+        name: "",
+        password: "",
+      };
+    },
   },
 
   station: {
     makeEmpty: function () {
       return {
-        name: '',
+        name: "",
         order: 500,
         is_start: false,
-        is_end: false
-      }
-    }
+        is_end: false,
+      };
+    },
   },
 
   team: {
     makeEmpty: function () {
       return {
-        name: '',
-        email: 'nobody@example.com', // TODO we should make this optional
+        name: "",
+        email: "nobody@example.com", // TODO we should make this optional
         order: 500,
         cancelled: false,
-        contact: '',
-        phone: '',
-        comments: '',
+        contact: "",
+        phone: "",
+        comments: "",
         is_confirmed: false,
-        confirmation_key: '',
+        confirmation_key: "",
         accepted: false,
         completed: false,
         inserted: null,
@@ -55,8 +54,8 @@ export default {
         planned_start_time: null,
         effective_start_time: null,
         finish_time: null,
-        route_name: ''
-      }
-    }
-  }
-}
+        route_name: "",
+      };
+    },
+  },
+};

@@ -6,41 +6,44 @@
       v-for="(image, imageIndex) in images"
       :key="imageIndex"
       @click="index = imageIndex"
-      :style="{ backgroundImage: 'url(' + image.thumbnail + ')', width: '300px', height: '200px' }"
-      ></div>
+      :style="{
+        backgroundImage: 'url(' + image.thumbnail + ')',
+        width: '300px',
+        height: '200px',
+      }"
+    ></div>
   </div>
 </template>
 
 <style scoped>
-  .image {
-    float: left;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    border: 1px solid #ebebeb;
-    margin: 5px;
-  }
+.image {
+  float: left;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border: 1px solid #ebebeb;
+  margin: 5px;
+}
 </style>
 
 <script>
-import VueGallery from 'vue-gallery'
+import VueGallery from "vue-gallery";
 export default {
-
-  created () {
-    this.$store.dispatch('refreshGallery')
+  created() {
+    this.$store.dispatch("refreshGallery");
   },
   components: {
-    'gallery': VueGallery
+    gallery: VueGallery,
   },
-  data () {
+  data() {
     return {
-      index: null
-    }
+      index: null,
+    };
   },
   computed: {
-    images () {
-      return this.$store.state.gallery
-    }
-  }
-}
+    images() {
+      return this.$store.state.gallery;
+    },
+  },
+};
 </script>

@@ -4,19 +4,19 @@
 
 <script>
 export default {
-  name: 'state-icon',
-  props: ['state'],
+  name: "state-icon",
+  props: ["state"],
   computed: {
-    stateIcon () {
+    stateIcon() {
       switch (this.state) {
-        case 'unknown':
-          return 'radio_button_unchecked'
-        case 'arrived':
-          return 'radio_button_checked'
-        case 'finished':
-          return 'check'
+        case "unknown":
+          return "radio_button_unchecked";
+        case "arrived":
+          return "radio_button_checked";
+        case "finished":
+          return "check";
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>

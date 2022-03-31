@@ -6,10 +6,10 @@
     scrollable
     fullscreen
     max-width="100em"
-    >
+  >
     <v-card>
       <v-toolbar card>
-        <v-toolbar-title>{{title}}</v-toolbar-title>
+        <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-spacer />
         <v-btn @click="dismiss" icon><v-icon>close</v-icon></v-btn>
       </v-toolbar>
@@ -19,7 +19,7 @@
       <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
         <v-btn flat @click="dismiss">Cancel</v-btn>
-        <v-btn @click="confirm">{{(editMode === true ? 'Save' : 'Add')}}</v-btn>
+        <v-btn @click="confirm">{{ editMode === true ? "Save" : "Add" }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -27,27 +27,23 @@
 
 <script>
 export default {
-  name: 'popup-dialog',
-  props: [
-    'title',
-    'dialogVisible',
-    'customActionButtons',
-    'editMode'
-  ],
+  name: "popup-dialog",
+  props: ["title", "dialogVisible", "customActionButtons", "editMode"],
   methods: {
     confirm: function (event) {
-      this.$emit('dialogConfirmed')
+      this.$emit("dialogConfirmed");
     },
-    dismiss () {
-      this.$emit('dialogDismissed')
-    }
-  }
-}
+    dismiss() {
+      this.$emit("dialogDismissed");
+    },
+  },
+};
 </script>
 
 <style scoped>
-.slide-enter-active, .slide-leave-active {
-  transition: all .3s
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
 }
 .slide-enter {
   transform: translateY(-100px);

@@ -1,5 +1,5 @@
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -7,9 +7,9 @@
 }
 
 DIV.card__title {
-    background-color: rgba(100, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-    margin-bottom: 1em;
+  background-color: rgba(100, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  margin-bottom: 1em;
 }
 .clickable {
   cursor: pointer;
