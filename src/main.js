@@ -40,8 +40,8 @@ axios.interceptors.request.use(
     if (config.url.match(/\/login.*/)) {
       // We don't want to inject authentication into auth-URLs. Otherwise we
       // will get an endless loop
-      LOG.info(`Not injecting authentication into ${config.url}`)
-      return config
+      LOG.info(`Not injecting authentication into ${config.url}`);
+      return config;
     }
     const identityStore = new LocalStorage("jwt");
     const identity = identityStore.load();

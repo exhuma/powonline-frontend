@@ -105,7 +105,7 @@ class Identity {
     }
     const now = Math.floor(Date.now() / 1000);
     const remainingSeconds = this.exp - now;
-    if (remainingSeconds < 30*60) {
+    if (remainingSeconds < 30 * 60) {
       LOG.debug("Token will expire soon. Renewal advised!");
       return true;
     }
