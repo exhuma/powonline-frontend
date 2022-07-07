@@ -16,7 +16,7 @@
     "axios": "^0.17.1",
     "hellojs": "^1.18.1",
     "jwt-decode": "^2.2.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "vue": "^2.6.10",
     "vue-gallery": "^2.0.0",
     "vue-router": "^3.0.6",
