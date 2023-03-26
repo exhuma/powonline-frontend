@@ -1,5 +1,5 @@
 <template>
-  <center-col id="UserList">
+  <div>
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
@@ -23,18 +23,30 @@
       />
     </popup-dialog>
 
-    <user-block
-      v-for="user in users"
-      :name="user.name"
-      :key="user.name"
-    ></user-block>
+    <v-data-table
+      :headers="headers"
+      :items="users"
+      :pagination.sync="pagination"
+      :loading="loading"
+      item-key="name"
+      class="elevation-1"
+    >
+      <template v-slot:items="props">
+        <td class="text-xs-left">{{ props.item.name }}</td>
+        <td class="text-xs-left">{{ props.item.email }}</td>
+        <td class="text-xs-left">{{ props.item.active }}</td>
+        <td class="text-xs-left">{{ props.item.inserted }}</td>
+        <td class="text-xs-left">{{ props.item.confirmed_at }}</td>
+        <td class="text-xs-left">{{ props.item.updated }}</td>
+      </template>
+    </v-data-table>
 
     <div v-if="hasRole('admin')">
       <v-btn @click="openCreateDialog" v-if="hasRole('admin')"
         >Add new User</v-btn
       >
     </div>
-  </center-col>
+  </div>
 </template>
 
 <script>
@@ -43,7 +55,7 @@ import model from '@/model'
 export default {
   name: 'user_list',
   methods: {
-    onDialogConfirmed: function(event) {
+    onDialogConfirmed: function (event) {
       const user = this.selectedUser
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
@@ -60,7 +72,7 @@ export default {
       this.isAddBlockVisible = false
     },
 
-    openCreateDialog: function() {
+    openCreateDialog: function () {
       const newUser = model.user.makeEmpty()
 
       this.selectedUser = newUser
@@ -68,27 +80,68 @@ export default {
       this.sendMode = model.SEND_MODE.CREATE
     },
 
-    closeAddBlock() {
+    closeAddBlock () {
       this.isAddBlockVisible = false
     },
-    hasRole(roleName) {
+    hasRole (roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
-  created() {
+  async created () {
     this.$store.commit('changeTitle', 'User List')
-    this.$store.dispatch('refreshUsers')
+    this.loading = true
+    let users = await this.$remoteProxy.fetchUsers()
+    this.users = users
+    this.loading = false
   },
-  data() {
+  data () {
     return {
       isAddBlockVisible: false,
       selectedUser: model.user.makeEmpty(),
-      sendMode: model.SEND_MODE.CREATE
-    }
-  },
-  computed: {
-    users() {
-      return this.$store.state.users
+      sendMode: model.SEND_MODE.CREATE,
+      users: [],
+      loading: false,
+      pagination: {
+        rowsPerPage: 12
+      },
+      headers: [
+        {
+          text: 'Name',
+          align: 'start',
+          sortable: true,
+          value: 'name'
+        },
+        {
+          text: 'e-mail',
+          align: 'start',
+          sortable: true,
+          value: 'email'
+        },
+        {
+          text: 'Is Active',
+          align: 'start',
+          sortable: true,
+          value: 'active'
+        },
+        {
+          text: 'Created at',
+          align: 'start',
+          sortable: true,
+          value: 'inserted'
+        },
+        {
+          text: 'Confirmed at',
+          align: 'start',
+          sortable: true,
+          value: 'confirmed_at'
+        },
+        {
+          text: 'Last Modified',
+          align: 'start',
+          sortable: true,
+          value: 'updated'
+        }
+      ]
     }
   }
 }
