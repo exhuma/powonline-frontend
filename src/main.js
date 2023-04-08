@@ -23,6 +23,7 @@ import UserStationCheckbox from './components/UserStationCheckbox'
 import SmallStationDashboardItem from './components/SmallStationDashboardItem'
 import PopupDialog from './components/PopupDialog'
 import RouteDashboard from './components/RouteDashboard'
+import RouteDashboardIcons from './components/RouteDashboardIcons'
 import TeamForm from './components/forms/TeamForm'
 import RouteAssignments from './components/forms/RouteAssignments'
 import OptionalTeamRow from './components/OptionalTeamRow'
@@ -75,6 +76,7 @@ Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('center-col', CenterCol)
 Vue.component('global-dashboard', GlobalDashboard)
 Vue.component('route-dashboard', RouteDashboard)
+Vue.component('route-dashboard-icons', RouteDashboardIcons)
 Vue.component('mini-status', MiniStatus)
 Vue.component('route-block', RouteBlock)
 Vue.component('state-icon', StateIcon)
