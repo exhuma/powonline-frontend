@@ -23,6 +23,10 @@
       />
     </popup-dialog>
 
+    <v-dialog max-width="500px" v-model="isEditDialogVisible">
+      <user-block ref="userDialog" :name="selectedUserName"></user-block>
+    </v-dialog>
+
     <v-data-table
       :headers="headers"
       :items="users"
@@ -32,7 +36,7 @@
       class="elevation-1"
     >
       <template v-slot:items="props">
-        <td class="text-xs-left">{{ props.item.name }}</td>
+        <td class="text-xs-left"><a @click="() => openUserDialog(props.item.name)">{{ props.item.name }}</a></td>
         <td class="text-xs-left">{{ props.item.email }}</td>
         <td class="text-xs-left">{{ props.item.active }}</td>
         <td class="text-xs-left">{{ props.item.inserted }}</td>
@@ -51,10 +55,19 @@
 
 <script>
 import model from '@/model'
+import UserBlock from './UserBlock.vue'
 
 export default {
+  components: { UserBlock },
   name: 'user_list',
   methods: {
+    openUserDialog: function (userName) {
+      this.selectedUserName = userName
+      this.isEditDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.userDialog.refresh()
+      });
+    },
     onDialogConfirmed: function (event) {
       const user = this.selectedUser
 
@@ -97,6 +110,8 @@ export default {
   data () {
     return {
       isAddBlockVisible: false,
+      selectedUserName: '',
+      isEditDialogVisible: false,
       selectedUser: model.user.makeEmpty(),
       sendMode: model.SEND_MODE.CREATE,
       users: [],

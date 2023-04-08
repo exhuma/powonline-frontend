@@ -1,18 +1,24 @@
 <template>
   <v-card class="mt-3">
-    <v-card-title><span>User: "{{ name }}"</span></v-card-title>
+    <v-card-title class="mb-0"><span>User: "{{ name }}"</span></v-card-title>
+    <v-progress-linear
+      v-show="refreshingItems.size > 0"
+      indeterminate
+      class="mt-0"
+      :key="spinnerKey"
+    ></v-progress-linear>
     <v-card-text>
       <h2>Roles</h2>
       <user-role-checkbox
         v-for="role in roles"
-        :key="role[0]"
+        :key="`${name}-${role[0]}`"
         :user="name"
         :label="role[0]"
         :role="role[0]"></user-role-checkbox>
       <h2>Stations</h2>
       <user-station-checkbox
         v-for="station in stations"
-        :key="station[0]"
+        :key="`${name}-${station[0]}`"
         :user="name"
         :label="station[0]"
         :station="station[0]"></user-station-checkbox>
@@ -38,26 +44,52 @@ export default {
   data () {
     return {
       roles: [],
-      stations: []
+      stations: [],
+      refreshingItems: new Set(),
+      spinnerKey: 0
     }
   },
   methods: {
+    refresh () {
+      this.refreshRoles()
+      this.refreshStations()
+    },
     refreshStations () {
+      const refreshKey = 'stations'
+      if (this.refreshingItems.has(refreshKey)) {
+        return
+      }
+      this.refreshingItems.add(refreshKey)
+      this.spinnerKey += 1
       this.$remoteProxy.fetchUserStations(this.name)
         .then(items => {
           this.stations = items
+          this.refreshingItems.delete(refreshKey)
+          this.spinnerKey += 1
         })
         .catch(e => {
           this.$store.commit('logError', e)
+          this.refreshingItems.delete(refreshKey)
+          this.spinnerKey += 1
         })
     },
     refreshRoles () {
+      const refreshKey = 'roles'
+      if (this.refreshingItems.has(refreshKey)) {
+        return
+      }
+      this.refreshingItems.add(refreshKey)
+      this.spinnerKey += 1
       this.$remoteProxy.fetchUserRoles(this.name)
         .then(items => {
           this.roles = items
+          this.refreshingItems.delete(refreshKey)
+          this.spinnerKey += 1
         })
         .catch(e => {
           this.$store.commit('logError', e)
+          this.refreshingItems.delete(refreshKey)
+          this.spinnerKey += 1
         })
     },
     hasRole (roleName) {
