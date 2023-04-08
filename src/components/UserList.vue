@@ -1,45 +1,94 @@
 <template>
-  <center-col id="UserList">
-
+  <center-col>
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
-      title="Add new User">
+      title="Add new User"
+    >
       <v-text-field
         name="user-input"
         id="UserNameImput"
         @keyup.enter.native="onDialogConfirmed"
-        type='text'
-        v-model='selectedUser.name'
-        label='Enter a new username' />
+        type="text"
+        v-model="selectedUser.name"
+        label="Enter a new username"
+      />
       <v-text-field
         name="password"
         @keyup.enter.native="onDialogConfirmed"
-        type='password'
-        v-model='selectedUser.password'
-        label='Password' />
+        type="password"
+        v-model="selectedUser.password"
+        label="Password"
+      />
     </popup-dialog>
 
-    <user-block
-      v-for="user in users"
-      :name="user.name"
-      :key="user.name"></user-block>
+    <v-dialog max-width="500px" v-model="isEditDialogVisible">
+      <user-block ref="userDialog" :name="selectedUserName"></user-block>
+    </v-dialog>
+
+    <v-alert :value="errorMessage !== ''" type="error">
+      {{ errorMessage }}
+    </v-alert>
+
+    <v-text-field
+      outline
+      v-model="userFilterText"
+      placeholder="Filter..."></v-text-field>
+    <v-list two-line>
+      <template v-for="item in filteredUsers">
+        <v-list-tile
+          :key="item.name"
+          avatar
+          @click="() => openUserDialog(item.name)"
+        >
+          <v-list-tile-avatar v-if="item.avatar_url">
+            <img :src="item.avatar_url">
+          </v-list-tile-avatar>
+          <v-list-tile-avatar v-else>
+            <v-icon>account_circle</v-icon>
+          </v-list-tile-avatar>
+
+          <v-list-tile-content>
+            <v-list-tile-title>{{ item.name }}</v-list-tile-title>
+            <v-list-tile-sub-title>{{ item.email }}</v-list-tile-sub-title>
+          </v-list-tile-content>
+        </v-list-tile>
+      </template>
+    </v-list>
 
     <div v-if="hasRole('admin')">
-      <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new User</v-btn>
+      <v-btn @click="openCreateDialog" v-if="hasRole('admin')"
+        >Add new User</v-btn
+      >
     </div>
-
   </center-col>
 </template>
 
 <script>
 import model from '@/model'
+import UserBlock from './UserBlock.vue'
+import CenterCol from './CenterCol.vue'
 
 export default {
+  components: { UserBlock, CenterCol },
   name: 'user_list',
+  computed: {
+    filteredUsers: function () {
+      if (this.userFilterText.trim() === '') {
+        return this.users
+      }
+      return this.users.filter(item => item.name.toLowerCase().search(this.userFilterText.trim().toLowerCase()) >= 0)
+    }
+  },
   methods: {
-
+    openUserDialog: function (userName) {
+      this.selectedUserName = userName
+      this.isEditDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.userDialog.refresh()
+      });
+    },
     onDialogConfirmed: function (event) {
       const user = this.selectedUser
 
@@ -72,32 +121,36 @@ export default {
       return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
-  created () {
+  async created () {
     this.$store.commit('changeTitle', 'User List')
-    this.$store.dispatch('refreshUsers')
+    let users = []
+    try {
+      users = await this.$remoteProxy.fetchUsers()
+      this.errorMessage = ''
+    } catch (error) {
+      this.errorMessage = 'Unable to fetch users (are you logged in?)'
+    }
+    this.users = users
   },
   data () {
     return {
+      userFilterText: '',
+      errorMessage: '',
       isAddBlockVisible: false,
+      selectedUserName: '',
+      isEditDialogVisible: false,
       selectedUser: model.user.makeEmpty(),
-      sendMode: model.SEND_MODE.CREATE
-    }
-  },
-  computed: {
-    users () {
-      return this.$store.state.users
+      sendMode: model.SEND_MODE.CREATE,
+      users: []
     }
   }
 }
 </script>
 
 <style scoped>
-#UserList {
-  padding-bottom: 5em;
-}
-
-.slide-enter-active, .slide-leave-active {
-  transition: all .3s
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
 }
 .slide-enter {
   transform: translateY(-100px);
