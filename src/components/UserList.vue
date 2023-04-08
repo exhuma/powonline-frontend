@@ -87,7 +87,7 @@ export default {
       this.isEditDialogVisible = true
       this.$nextTick(() => {
         this.$refs.userDialog.refresh()
-      });
+      })
     },
     onDialogConfirmed: function (event) {
       const user = this.selectedUser
