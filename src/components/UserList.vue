@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <center-col>
     <popup-dialog
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
@@ -27,38 +27,43 @@
       <user-block ref="userDialog" :name="selectedUserName"></user-block>
     </v-dialog>
 
-    <v-data-table
-      :headers="headers"
-      :items="users"
-      :pagination.sync="pagination"
-      :loading="loading"
-      item-key="name"
-      class="elevation-1"
-    >
-      <template v-slot:items="props">
-        <td class="text-xs-left"><a @click="() => openUserDialog(props.item.name)">{{ props.item.name }}</a></td>
-        <td class="text-xs-left">{{ props.item.email }}</td>
-        <td class="text-xs-left">{{ props.item.active }}</td>
-        <td class="text-xs-left">{{ props.item.inserted }}</td>
-        <td class="text-xs-left">{{ props.item.confirmed_at }}</td>
-        <td class="text-xs-left">{{ props.item.updated }}</td>
+    <v-list two-line>
+      <template v-for="item in users">
+        <v-list-tile
+          :key="item.name"
+          avatar
+          @click="() => openUserDialog(item.name)"
+        >
+          <v-list-tile-avatar v-if="item.avatar_url">
+            <img :src="item.avatar_url">
+          </v-list-tile-avatar>
+          <v-list-tile-avatar v-else>
+            <v-icon>account_circle</v-icon>
+          </v-list-tile-avatar>
+
+          <v-list-tile-content>
+            <v-list-tile-title>{{ item.name }}</v-list-tile-title>
+            <v-list-tile-sub-title>{{ item.email }}</v-list-tile-sub-title>
+          </v-list-tile-content>
+        </v-list-tile>
       </template>
-    </v-data-table>
+    </v-list>
 
     <div v-if="hasRole('admin')">
       <v-btn @click="openCreateDialog" v-if="hasRole('admin')"
         >Add new User</v-btn
       >
     </div>
-  </div>
+  </center-col>
 </template>
 
 <script>
 import model from '@/model'
 import UserBlock from './UserBlock.vue'
+import CenterCol from './CenterCol.vue'
 
 export default {
-  components: { UserBlock },
+  components: { UserBlock, CenterCol },
   name: 'user_list',
   methods: {
     openUserDialog: function (userName) {
@@ -102,10 +107,8 @@ export default {
   },
   async created () {
     this.$store.commit('changeTitle', 'User List')
-    this.loading = true
     let users = await this.$remoteProxy.fetchUsers()
     this.users = users
-    this.loading = false
   },
   data () {
     return {
@@ -114,59 +117,13 @@ export default {
       isEditDialogVisible: false,
       selectedUser: model.user.makeEmpty(),
       sendMode: model.SEND_MODE.CREATE,
-      users: [],
-      loading: false,
-      pagination: {
-        rowsPerPage: 12
-      },
-      headers: [
-        {
-          text: 'Name',
-          align: 'start',
-          sortable: true,
-          value: 'name'
-        },
-        {
-          text: 'e-mail',
-          align: 'start',
-          sortable: true,
-          value: 'email'
-        },
-        {
-          text: 'Is Active',
-          align: 'start',
-          sortable: true,
-          value: 'active'
-        },
-        {
-          text: 'Created at',
-          align: 'start',
-          sortable: true,
-          value: 'inserted'
-        },
-        {
-          text: 'Confirmed at',
-          align: 'start',
-          sortable: true,
-          value: 'confirmed_at'
-        },
-        {
-          text: 'Last Modified',
-          align: 'start',
-          sortable: true,
-          value: 'updated'
-        }
-      ]
+      users: []
     }
   }
 }
 </script>
 
 <style scoped>
-#UserList {
-  padding-bottom: 5em;
-}
-
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s;
