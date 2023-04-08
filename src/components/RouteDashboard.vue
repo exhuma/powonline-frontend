@@ -1,20 +1,34 @@
 <template>
 
   <div>
-    <h1 class="white--text">{{ route.name }}</h1>
-    <v-container>
-      <v-layout row v-for="row in progressItems" :key="row.team">
-        <v-flex xs2 class="white--text mr-3">
-          {{ row.team }} {{ row.cancelled }}
-        </v-flex>
-        <v-flex xs10>
-          <v-progress-linear
-            :value="row.pct_finished"
-            :buffer-value="row.pct_finished + row.pct_waiting"
-          ></v-progress-linear>
-        </v-flex>
-      </v-layout>
-    </v-container>
+    <v-card>
+      <v-card-title class="mb-0">
+        {{ route.name }}
+      </v-card-title>
+      <v-progress-linear
+        style="background: rgba(0, 0, 0, 0.15)"
+        height="3"
+        class="mt-0"
+        :value="overall_pct_finished"
+        :buffer-value="overall_pct_finished + overall_pct_waiting"
+      ></v-progress-linear>
+      <v-card-text>
+        <v-container>
+          <v-layout row v-for="row in progressItems" :key="row.team">
+            <v-flex xs2 :class="{'white--text': true, 'mr-3': true, 'text-xs-left': true, 'cancelled': row.cancelled}">
+              {{ row.team }}
+            </v-flex>
+            <v-flex xs10>
+              <v-progress-linear
+                style="background: rgba(0, 0, 0, 0.20)"
+                :value="row.pct_finished"
+                :buffer-value="row.pct_finished + row.pct_waiting"
+              ></v-progress-linear>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card-text>
+    </v-card>
   </div>
 
 </template>
@@ -22,7 +36,7 @@
 <style scoped>
   .cancelled {
     text-decoration: line-through;
-    color: #888;
+    color: #888 !important;
   }
 </style>
 
@@ -36,6 +50,30 @@ export default {
     }
   },
   computed: {
+    overall_pct_finished () {
+      let pending = 0
+      let waiting = 0
+      let finished = 0
+      this.progressItems.forEach(item => {
+        pending += item.pending
+        waiting += item.waiting
+        finished += item.finished
+      })
+      let total = pending + waiting + finished
+      return finished / total * 100
+    },
+    overall_pct_waiting () {
+      let pending = 0
+      let waiting = 0
+      let finished = 0
+      this.progressItems.forEach(item => {
+        pending += item.pending
+        waiting += item.waiting
+        finished += item.finished
+      })
+      let total = pending + waiting + finished
+      return waiting / total * 100
+    },
     assignedStations () {
       const output = this.$store.state.route_station_map[this.route.name] || []
       output.sort((a, b) => {
