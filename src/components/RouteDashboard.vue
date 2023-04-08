@@ -2,18 +2,19 @@
 
   <div>
     <h1 class="white--text">{{ route.name }}</h1>
-    <v-data-table
-      :style="'border-left: 3px solid ' + routeColor"
-      hide-actions
-      :headers="tableHeaders"
-      :items="tableItems">
-      <template slot="items" slot-scope="props">
-        <td :class="props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'">{{props.item.team}}</td>
-        <td v-for="cell in props.item.stations" :key="props.item.team + cell.station">
-          <v-icon :title="props.item.team + '@' + cell.station" v-if="cell.state !== 'unreachable'"> {{ getStateIcon(cell.state) }}</v-icon>
-        </td>
-      </template>
-    </v-data-table>
+    <v-container>
+      <v-layout row v-for="row in progressItems" :key="row.team">
+        <v-flex xs2 class="white--text mr-3">
+          {{ row.team }} {{ row.cancelled }}
+        </v-flex>
+        <v-flex xs10>
+          <v-progress-linear
+            :value="row.pct_finished"
+            :buffer-value="row.pct_finished + row.pct_waiting"
+          ></v-progress-linear>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </div>
 
 </template>
@@ -26,8 +27,6 @@
 </style>
 
 <script>
-import util from '@/util'
-
 export default {
   name: 'route-dashboard',
   props: {
@@ -37,39 +36,11 @@ export default {
     }
   },
   computed: {
-    routeColor () {
-      if (this.route.color) {
-        return this.route.color
-      } else {
-        return '#000000'
-      }
-    },
     assignedStations () {
       const output = this.$store.state.route_station_map[this.route.name] || []
       output.sort((a, b) => {
         return a.order - b.order
       })
-      return output
-    },
-    tableHeaders () {
-      let output = [{
-        text: 'Team',
-        align: 'left',
-        value: 'team'
-      }]
-      const assignedStations = this.assignedStations
-      // (not really a side-effect, I think)
-      // eslint-disable-next-line
-      if (this.assignedStations) {
-        assignedStations.forEach(station => {
-          output.push({
-            text: station.name,
-            align: 'center',
-            value: 'state',
-            sortable: false
-          })
-        })
-      }
       return output
     },
     stateMapping () {
@@ -87,12 +58,11 @@ export default {
       })
       return output
     },
-    tableItems () {
+    progressItems () {
       const rows = []
       const mapping = this.stateMapping
       const routeTeams = this.$store.state.route_team_map
       const assignedStations = this.assignedStations
-
       for (const teamName in routeTeams) {
         if (routeTeams.hasOwnProperty(teamName)) {
           const route = routeTeams[teamName]
@@ -101,7 +71,9 @@ export default {
           }
           let teamDetails = this.$store.getters.findTeam(teamName)
           let row = {
-            stations: [],
+            pending: 0,
+            waiting: 0,
+            finished: 0,
             team: teamName,
             cancelled: teamDetails.cancelled
           }
@@ -111,21 +83,28 @@ export default {
               return
             }
             const state = stationData[teamName]
-            row.stations.push({
-              state: state.state,
-              score: state.score,
-              station: state.name
-            })
+            switch (state.state) {
+              case 'arrived':
+                row.waiting += 1
+                break
+              case 'finished':
+                row.finished += 1
+                break
+              case 'unknown':
+                row.pending += 1
+                break
+              default:
+                console.warn(`Unknown state: ${JSON.stringify(state)}`)
+            }
           })
+          let total = row.pending + row.waiting + row.finished
+          row.pct_pending = row.pending / total * 100
+          row.pct_waiting = row.waiting / total * 100
+          row.pct_finished = row.finished / total * 100
           rows.push(row)
         }
       }
       return rows
-    }
-  },
-  methods: {
-    getStateIcon (state) {
-      return util.getStateIcon(state)
     }
   }
 }
