@@ -39,17 +39,14 @@
     <v-list>
       <v-list-group
         :key="item.title"
-        :value="item.active"
+        v-model="item.active"
         v-for="item in listItems"
         no-action>
 
-        <v-list-tile slot="item" no-action>
+        <v-list-tile slot="activator" no-action>
           <v-list-tile-content>
             <v-list-tile-title>{{ item.data.name }}</v-list-tile-title>
           </v-list-tile-content>
-          <v-list-tile-action>
-            <v-icon>keyboard_arrow_down</v-icon>
-          </v-list-tile-action>
         </v-list-tile>
 
         <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.contact" :key="item.data.name + 'contact'">
