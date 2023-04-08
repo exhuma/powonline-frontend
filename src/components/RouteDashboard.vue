@@ -9,6 +9,7 @@
         style="background: rgba(0, 0, 0, 0.15)"
         height="3"
         class="mt-0"
+        :color="route.color"
         :value="overall_pct_finished"
         :buffer-value="overall_pct_finished + overall_pct_waiting"
       ></v-progress-linear>
@@ -21,6 +22,7 @@
             <v-flex xs10>
               <v-progress-linear
                 style="background: rgba(0, 0, 0, 0.20)"
+                :color="route.color"
                 :value="row.pct_finished"
                 :buffer-value="row.pct_finished + row.pct_waiting"
               ></v-progress-linear>
