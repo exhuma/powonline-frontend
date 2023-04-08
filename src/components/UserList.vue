@@ -27,6 +27,10 @@
       <user-block ref="userDialog" :name="selectedUserName"></user-block>
     </v-dialog>
 
+    <v-alert :value="errorMessage !== ''" type="error">
+      {{ errorMessage }}
+    </v-alert>
+
     <v-list two-line>
       <template v-for="item in users">
         <v-list-tile
@@ -107,11 +111,18 @@ export default {
   },
   async created () {
     this.$store.commit('changeTitle', 'User List')
-    let users = await this.$remoteProxy.fetchUsers()
+    let users = []
+    try {
+      users = await this.$remoteProxy.fetchUsers()
+      this.errorMessage = ''
+    } catch (error) {
+      this.errorMessage = 'Unable to fetch users (are you logged in?)'
+    }
     this.users = users
   },
   data () {
     return {
+      errorMessage: '',
       isAddBlockVisible: false,
       selectedUserName: '',
       isEditDialogVisible: false,
