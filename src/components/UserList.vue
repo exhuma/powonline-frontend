@@ -31,8 +31,12 @@
       {{ errorMessage }}
     </v-alert>
 
+    <v-text-field
+      outline
+      v-model="userFilterText"
+      placeholder="Filter..."></v-text-field>
     <v-list two-line>
-      <template v-for="item in users">
+      <template v-for="item in filteredUsers">
         <v-list-tile
           :key="item.name"
           avatar
@@ -69,6 +73,14 @@ import CenterCol from './CenterCol.vue'
 export default {
   components: { UserBlock, CenterCol },
   name: 'user_list',
+  computed: {
+    filteredUsers: function () {
+      if (this.userFilterText.trim() === '') {
+        return this.users
+      }
+      return this.users.filter(item => item.name.toLowerCase().search(this.userFilterText.trim().toLowerCase()) >= 0)
+    }
+  },
   methods: {
     openUserDialog: function (userName) {
       this.selectedUserName = userName
@@ -122,6 +134,7 @@ export default {
   },
   data () {
     return {
+      userFilterText: '',
       errorMessage: '',
       isAddBlockVisible: false,
       selectedUserName: '',
