@@ -1,5 +1,11 @@
 <template>
   <div class="text-xs-center">
+    <v-container>
+      <image-upload
+        @uploadStarted="onUploadStarted"
+        @uploadFailed="onUploadFailed"
+        @uploadFinished="onUploadDone"></image-upload>
+    </v-container>
     <gallery :images="images" :index="index" @close="index = null"></gallery>
     <div
       class="image"
@@ -27,7 +33,7 @@ import VueGallery from 'vue-gallery'
 export default {
 
   created () {
-    this.$store.dispatch('refreshGallery')
+    this.refreshImages()
   },
   components: {
     'gallery': VueGallery
@@ -37,9 +43,48 @@ export default {
       index: null
     }
   },
+  methods: {
+    refreshImages () {
+      this.$store.dispatch('refreshGallery')
+    },
+    onUploadStarted () {
+      this.$emit('changeActivity', {
+        visible: true,
+        progress: -1,
+        text: 'Uploading...'
+      })
+    },
+    onUploadDone () {
+      this.$emit('snackRequested', {
+        message: 'Upload successful'
+      })
+      this.refreshImages()
+      this.$emit('changeActivity', {
+        visible: false,
+        progress: -1,
+        text: ''
+      })
+    },
+    onUploadFailed (event) {
+      this.$emit('snackRequested', {
+        'message': `Unable to upload image (${event.message})`,
+        'color': 'red'
+      })
+      this.$emit('changeActivity', {
+        visible: false,
+        progress: -1,
+        text: ''
+      })
+    }
+  },
   computed: {
     images () {
       return this.$store.state.gallery
+    },
+    tokenIsAvailable () {
+      const token = this.$store.state.jwt
+      const result = token !== ''
+      return result
     }
   }
 }

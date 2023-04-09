@@ -1,12 +1,13 @@
 <template>
   <center-col id="ChangeLog">
-    <input v-show="false"
-      @change="sendUpload"
-      ref="fileInput"
-      type="file"
-      name="file"
-      accept="image/*;capture=camera" />
-
+    <image-upload
+      @uploadStarted="onUploadStarted"
+      @uploadFailed="onUploadFailed"
+      @uploadFinished="onUploadDone"></image-upload>
+    <v-btn
+      @click="refreshImages"
+      dark
+      >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
     <div v-for="(idx, username) in files" :key="username">
       <h1 v-if="username !== 'self'"
         class="white--text">Files for {{username}}</h1>
@@ -42,14 +43,6 @@
         </v-list-tile>
       </v-list>
     </div>
-    <v-btn
-      @click="refreshImages"
-      dark
-      >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
-    <v-btn
-      @click="$refs.fileInput.click()"
-      dark
-      >Upload&nbsp;<v-icon>cloud_upload</v-icon></v-btn>
   </center-col>
 </template>
 
@@ -73,6 +66,35 @@ export default {
     refreshImages () {
       this.$store.dispatch('refreshUploads')
     },
+    onUploadStarted () {
+      this.$emit('changeActivity', {
+        visible: true,
+        progress: -1,
+        text: 'Uploading...'
+      })
+    },
+    onUploadDone () {
+      this.$emit('snackRequested', {
+        message: 'Upload successful'
+      })
+      this.refreshImages()
+      this.$emit('changeActivity', {
+        visible: false,
+        progress: -1,
+        text: ''
+      })
+    },
+    onUploadFailed (event) {
+      this.$emit('snackRequested', {
+        'message': `Unable to upload image (${event.message})`,
+        'color': 'red'
+      })
+      this.$emit('changeActivity', {
+        visible: false,
+        progress: -1,
+        text: ''
+      })
+    },
     deleteFile (uuid) {
       this.deleteDialogVisible = false
       this.$remoteProxy.deleteFile(uuid)
@@ -90,41 +112,6 @@ export default {
             'color': 'red'
           })
           this.confirmDelete = ''
-        })
-    },
-    sendUpload () {
-      this.$emit('changeActivity', {
-        visible: true,
-        progress: -1,
-        text: 'Uploading...'
-      })
-      this.$remoteProxy.sendUpload(this.$refs.fileInput.files[0])
-        .then((data) => {
-          this.$emit('snackRequested', {
-            message: 'Upload successful'
-          })
-          this.refreshImages()
-          this.$emit('changeActivity', {
-            visible: false,
-            progress: -1,
-            text: ''
-          })
-        })
-        .catch((e) => {
-          console.error(e)
-          let message = 'Unknown Error'
-          if (e.response.status < 500) {
-            message = e.response.data
-          }
-          this.$emit('snackRequested', {
-            'message': `Unable to upload image (${message})`,
-            'color': 'red'
-          })
-          this.$emit('changeActivity', {
-            visible: false,
-            progress: -1,
-            text: ''
-          })
         })
     }
   }

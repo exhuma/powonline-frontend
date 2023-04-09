@@ -27,6 +27,7 @@ import RouteDashboardIcons from './components/RouteDashboardIcons'
 import TeamForm from './components/forms/TeamForm'
 import RouteAssignments from './components/forms/RouteAssignments'
 import OptionalTeamRow from './components/OptionalTeamRow'
+import ImageUpload from './components/ImageUpload'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -90,6 +91,7 @@ Vue.component('popup-dialog', PopupDialog)
 Vue.component('team-form', TeamForm)
 Vue.component('route-assignments', RouteAssignments)
 Vue.component('optional-team-row', OptionalTeamRow)
+Vue.component('image-upload', ImageUpload)
 
 /* eslint-disable no-new */
 new Vue({
