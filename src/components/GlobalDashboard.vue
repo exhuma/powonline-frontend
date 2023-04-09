@@ -1,19 +1,7 @@
 <template>
-
   <v-container id="GlobalDashboard">
-    <v-layout row wrap>
-      <v-flex xs12>
-
-        <route-dashboard
-          v-for="route in routes"
-          class="mb-5"
-          :route="route"
-          :key="route.name"></route-dashboard>
-
-      </v-flex>
-    </v-layout>
+    <combined-dashboard :routes="routes"></combined-dashboard>
   </v-container>
-
 </template>
 
 <script>
