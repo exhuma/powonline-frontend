@@ -1,6 +1,6 @@
 <template>
   <div class="text-xs-center">
-    <v-container>
+    <v-container v-if="tokenIsAvailable">
       <image-upload
         @uploadStarted="onUploadStarted"
         @uploadFailed="onUploadFailed"
@@ -14,6 +14,17 @@
       @click="index = imageIndex"
       :style="{ backgroundImage: 'url(' + image.thumbnail + ')', width: '300px', height: '200px' }"
       ></div>
+    <v-snackbar
+      v-if="!tokenIsAvailable"
+      top
+      absolute
+      color="blue"
+      timeout="5000"
+      v-model="showUploadSnack"
+      >
+      <v-icon>info</v-icon>
+      <strong>Tip:</strong> Login to upload
+      </v-snackbar>
   </div>
 </template>
 
@@ -40,7 +51,8 @@ export default {
   },
   data () {
     return {
-      index: null
+      index: null,
+      showUploadSnack: true
     }
   },
   methods: {
