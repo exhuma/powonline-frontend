@@ -15,7 +15,7 @@
       ></v-progress-linear>
       <v-card-text>
         <v-container>
-          <dashboard-progress-line row v-for="row in progressItems" :key="row.team" :line="row" :route="route"></dashboard-progress-line>
+          <dashboard-progress-line row v-for="row in progressItems" :key="row.team" :data="row" :color="route.color"></dashboard-progress-line>
         </v-container>
       </v-card-text>
     </v-card>
