@@ -32,9 +32,11 @@
     </v-alert>
 
     <v-text-field
-      outline
+      label="Filter"
       v-model="userFilterText"
-      placeholder="Filter..."></v-text-field>
+      append-icon="search"
+      hint="Filter list of teams by name and/or contact"
+      ></v-text-field>
     <v-list two-line>
       <template v-for="item in filteredUsers">
         <v-list-tile
