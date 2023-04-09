@@ -1,10 +1,10 @@
 <template>
     <v-layout>
-        <v-flex xs2 :class="{'white--text': true, 'mr-3': true, 'text-xs-left': true, 'cancelled': line.cancelled}">
+        <v-flex xs8 sm5 md3 lg2 :class="{'white--text': true, 'mr-3': true, 'text-xs-left': true, 'cancelled': line.cancelled}">
             {{ line.team }}
         </v-flex>
-        <v-flex xs10>
-            <v-progress-linear
+        <v-flex xs4 sm7 md9 lg10>
+          <v-progress-linear
             style="background: rgba(0, 0, 0, 0.20)"
             :color="route.color"
             :value="line.pct_finished"
