@@ -6,7 +6,7 @@
         <v-flex xs4 sm7 md9 lg10>
           <v-progress-linear
             style="background: rgba(0, 0, 0, 0.20)"
-            :color="color"
+            :color="dynamicColor"
             :value="data.pct_finished"
             :buffer-value="data.pct_finished + data.pct_waiting"
             ></v-progress-linear>
@@ -14,9 +14,24 @@
     </v-layout>
 </template>
 
+<style scoped>
+  .cancelled {
+    text-decoration: line-through;
+    color: #888 !important;
+  }
+</style>
+
 <script>
 export default {
   name: 'dashboard-progress-line',
+  computed: {
+    dynamicColor () {
+      if (this.data.cancelled) {
+        return '#444'
+      }
+      return this.color
+    }
+  },
   props: {
     color: {
       required: true
