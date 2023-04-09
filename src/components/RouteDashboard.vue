@@ -15,19 +15,7 @@
       ></v-progress-linear>
       <v-card-text>
         <v-container>
-          <v-layout row v-for="row in progressItems" :key="row.team">
-            <v-flex xs2 :class="{'white--text': true, 'mr-3': true, 'text-xs-left': true, 'cancelled': row.cancelled}">
-              {{ row.team }}
-            </v-flex>
-            <v-flex xs10>
-              <v-progress-linear
-                style="background: rgba(0, 0, 0, 0.20)"
-                :color="route.color"
-                :value="row.pct_finished"
-                :buffer-value="row.pct_finished + row.pct_waiting"
-              ></v-progress-linear>
-            </v-flex>
-          </v-layout>
+          <dashboard-progress-line row v-for="row in progressItems" :key="row.team" :line="row" :route="route"></dashboard-progress-line>
         </v-container>
       </v-card-text>
     </v-card>

@@ -28,6 +28,7 @@ import TeamForm from './components/forms/TeamForm'
 import RouteAssignments from './components/forms/RouteAssignments'
 import OptionalTeamRow from './components/OptionalTeamRow'
 import ImageUpload from './components/ImageUpload'
+import DashboardProgressLine from './components/DashboardProgressLine'
 require('./assets/css/main.css')
 
 Vue.config.productionTip = false
@@ -92,6 +93,7 @@ Vue.component('team-form', TeamForm)
 Vue.component('route-assignments', RouteAssignments)
 Vue.component('optional-team-row', OptionalTeamRow)
 Vue.component('image-upload', ImageUpload)
+Vue.component('dashboard-progress-line', DashboardProgressLine)
 
 /* eslint-disable no-new */
 new Vue({
