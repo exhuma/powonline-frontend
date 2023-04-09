@@ -88,6 +88,7 @@
             </v-card>
           </v-dialog>
           <router-view
+            class="mt-0"
             @changeActivity="onActivityChange"
             @fullScreenRequested="setFullscreen"
             @snackRequested="onSnackRequested"></router-view>
