@@ -47,47 +47,44 @@
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
-              <v-card-title>
+              <v-card-title class="primary">
                 <span>Login</span>
               </v-card-title>
               <v-card-text>
-
-                <v-tabs v-model="activeLoginTab" grow slider-color="accent">
-                  <v-tab href="#socialLogin" key="socialLogin" ripple>Social Login</v-tab>
-                  <v-tab href="#localLogin" key="localLogin" ripple>Local Login</v-tab>
-                  <v-tab-item key="socialLogin" value="socialLogin">
-                    <v-btn class="mt-5 mb-5" @click="login('google')">Google</v-btn>
-                    <v-btn class="mt-5 mb-5" @click="login('facebook')">Facebook</v-btn>
-                    <v-card-actions>
-                      <v-spacer />
-                      <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
-                    </v-card-actions>
-                  </v-tab-item>
-                  <v-tab-item key="localLogin" value="localLogin">
-                    <v-text-field
-                      type='text'
-                      @keyup.enter.native="loginUser"
-                      v-model='username'
-                      ref="LoginDialogUsername"
-                      label='Enter a new username' />
-                    <v-text-field
-                      @keyup.enter.native="loginUser"
-                      type='password'
-                      v-model='password'
-                      label='Password' />
-                    <v-card-actions>
-                      <v-spacer />
-                      <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
-                      <v-btn @click.native="loginUser">Login</v-btn>
-                    </v-card-actions>
-                  </v-tab-item>
-                </v-tabs>
-                <v-footer class="pa-3">
-                  <v-spacer></v-spacer>
-                  <router-link to="/privacy-policy">Privacy Policy</router-link>
-                </v-footer>
-
+                <v-text-field
+                  type='text'
+                  @keyup.enter.native="loginUser"
+                  v-model='username'
+                  ref="LoginDialogUsername"
+                  label='Enter a new username' />
+                <v-text-field
+                  @keyup.enter.native="loginUser"
+                  type='password'
+                  v-model='password'
+                  label='Password' />
+                <v-divider class="mt-4 mb-4"></v-divider>
+                <v-layout row wrap align-center>
+                  <v-flex>
+                    Or login with:
+                  </v-flex>
+                  <v-flex>
+                    <v-btn @click="login('google')">Google</v-btn>
+                  </v-flex>
+                  <v-flex>
+                    <v-btn @click="login('facebook')">Facebook</v-btn>
+                  </v-flex>
+                </v-layout>
+                <v-divider class="mt-4 mb-4"></v-divider>
               </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
+                <v-btn @click.native="loginUser">Login</v-btn>
+              </v-card-actions>
+              <v-footer class="pa-3 ma-0">
+                <v-spacer></v-spacer>
+                <router-link to="/privacy-policy">Privacy Policy</router-link>
+              </v-footer>
             </v-card>
           </v-dialog>
           <router-view
