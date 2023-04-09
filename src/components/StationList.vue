@@ -60,7 +60,7 @@
       <v-list-tile>
         <v-spacer />
         <v-list-tile-action v-if="hasRole('admin')">
-          <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Station</v-btn>
+          <v-btn class="pa-3" @click="openCreateDialog" v-if="hasRole('admin')">Add new Station</v-btn>
         </v-list-tile-action>
       </v-list-tile>
     </v-list>
