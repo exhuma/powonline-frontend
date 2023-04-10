@@ -55,9 +55,13 @@ export default {
       let finished = 0
       let activeTeams = this.rows.filter(item => !item.cancelled)
       activeTeams.forEach(item => {
-        pending += item.pending
-        waiting += item.waiting
-        finished += item.finished
+        if (isFinished(item)) {
+          finished += item.pending + item.waiting + item.finished
+        } else {
+          pending += item.pending
+          waiting += item.waiting
+          finished += item.finished
+        }
       })
       let total = pending + waiting + finished
       return finished / total * 100
@@ -68,9 +72,13 @@ export default {
       let finished = 0
       let activeTeams = this.rows.filter(item => !item.cancelled)
       activeTeams.forEach(item => {
-        pending += item.pending
-        waiting += item.waiting
-        finished += item.finished
+        if (isFinished(item)) {
+          finished += item.pending + item.waiting + item.finished
+        } else {
+          pending += item.pending
+          waiting += item.waiting
+          finished += item.finished
+        }
       })
       let total = pending + waiting + finished
       return waiting / total * 100
