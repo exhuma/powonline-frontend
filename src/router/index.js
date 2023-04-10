@@ -49,6 +49,14 @@ export default new Router({
       component: TeamPanel
     },
     {
+      path: '/dashboard',
+      component: GlobalDashboard
+    },
+    {
+      path: '/',
+      component: GlobalDashboard
+    },
+    {
       path: '/matrix',
       component: GlobalDashboard
     },

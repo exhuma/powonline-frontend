@@ -228,7 +228,7 @@ export default {
     },
     routes () {
       const output = [
-        { label: 'Dashboard', to: '/matrix', icon: 'border_all' },
+        { label: 'Dashboard', to: '/dashboard', icon: 'border_all' },
         { label: 'Scoreboard', to: '/scoreboard', icon: 'format_list_numbered' },
         { label: 'Photos', to: '/gallery', icon: 'image' }
       ]
