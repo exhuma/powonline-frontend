@@ -53,7 +53,8 @@ export default {
       let pending = 0
       let waiting = 0
       let finished = 0
-      this.rows.forEach(item => {
+      let activeTeams = this.rows.filter(item => !item.cancelled)
+      activeTeams.forEach(item => {
         pending += item.pending
         waiting += item.waiting
         finished += item.finished
@@ -65,7 +66,8 @@ export default {
       let pending = 0
       let waiting = 0
       let finished = 0
-      this.rows.forEach(item => {
+      let activeTeams = this.rows.filter(item => !item.cancelled)
+      activeTeams.forEach(item => {
         pending += item.pending
         waiting += item.waiting
         finished += item.finished
