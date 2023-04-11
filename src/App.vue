@@ -3,7 +3,7 @@
     <v-app dark>
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
       <v-slide-y-transition>
-        <v-toolbar v-if="isTitleBarVisible" app>
+        <v-toolbar v-if="isTitleBarVisible">
           <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
           <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
           <v-spacer></v-spacer>
