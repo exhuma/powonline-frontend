@@ -45,7 +45,6 @@ export default {
       return {
         pct_finished: this.overall_pct_finished,
         pct_waiting: this.overall_pct_waiting,
-        cancelled: false,
         team: 'Overall Progress'
       }
     },
