@@ -132,8 +132,11 @@ new Vue({
     this.$store.dispatch('fetchSiteConfig')
     this.$store.dispatch('refreshRemote')
 
+    // eslint-disable-next-line
     if (process.env.PUSHER_KEY && Pusher) {
+      // eslint-disable-next-line
       Pusher.logToConsole = process.env.PUSHER_DEBUG
+      // eslint-disable-next-line
       var pusher = new Pusher(process.env.PUSHER_KEY, {
         cluster: 'eu',
         encrypted: true
@@ -169,6 +172,7 @@ new Vue({
         that.$store.dispatch('refreshUploads')
         that.$store.dispatch('refreshGallery')
       })
+    // eslint-disable-next-line
     } else if (!Pusher) {
       console.error('No pusher-client found. Auto-updates will be disabled')
     } else {
