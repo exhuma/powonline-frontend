@@ -24,14 +24,24 @@
         class="grey darken-4 white--text">{{ activity.text }}</div>
       <v-progress-linear
         v-if="!activity.visible"
-        class="mt-0"
+        class="mt-0 mb-0"
         height="2"></v-progress-linear>
       <v-progress-linear
         v-if="activity.visible"
-        class="mt-0"
+        class="mt-0 mb-0"
         height="2"
         v-model="activity.progress"
         :indeterminate="activity.progress === -1"></v-progress-linear>
+      <v-progress-linear
+        v-show="!refreshProgress.visible"
+        class="mt-0"
+        height="2"></v-progress-linear>
+      <v-progress-linear
+        v-show="refreshProgress.visible"
+        class="mt-0"
+        height="2"
+        v-model="refreshProgress.progress"
+        ></v-progress-linear>
 
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
@@ -91,7 +101,9 @@
             class="mt-0"
             @changeActivity="onActivityChange"
             @fullScreenRequested="setFullscreen"
-            @snackRequested="onSnackRequested"></router-view>
+            @snackRequested="onSnackRequested"
+            @refresh-progress-updated="onRefreshProgressUpdated"
+            ></router-view>
         </v-container>
         <v-bottom-nav
           app
@@ -130,6 +142,9 @@ export default {
     EventBus.$on('snackRequested', (payload) => {
       this.onSnackRequested(payload)
     })
+    EventBus.$on('refresh-progress-updated', (payload) => {
+      this.onRefreshProgressUpdated(payload)
+    })
   },
   data () {
     return {
@@ -148,6 +163,10 @@ export default {
         visible: false,
         progress: -1,
         text: ''
+      },
+      refreshProgress: {
+        visible: false,
+        progress: -1
       }
     }
   },
@@ -158,6 +177,15 @@ export default {
     },
     onActivityChange (state) {
       this.activity = state
+    },
+    onRefreshProgressUpdated (data) {
+      if (data.progress > 0) {
+        this.refreshProgress.progress = data.progress
+        this.refreshProgress.visible = true
+      } else {
+        this.refreshProgress.progress = 0
+        this.refreshProgress.visible = false
+      }
     },
     onSnackRequested (data) {
       this.globalSnack = true
