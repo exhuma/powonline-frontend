@@ -1,9 +1,9 @@
 <template>
     <v-layout>
-        <v-flex xs8 sm5 md3 lg2 :class="{'white--text': true, 'mr-3': true, 'text-xs-left': true, 'cancelled': data.cancelled}">
+        <v-flex xs5 sm4 md2 :class="{'d-flex': true, 'align-center': true, 'justify-end': true, 'white--text': true, 'mr-3': true, 'text-xs-left': true, 'cancelled': data.cancelled}">
             {{ data.team }}
         </v-flex>
-        <v-flex xs4 sm7 md9 lg10>
+        <v-flex class="d-flex align-center" xs7 sm8 md10>
           <v-progress-linear
             style="background: rgba(0, 0, 0, 0.20)"
             :color="dynamicColor"
