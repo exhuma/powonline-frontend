@@ -1,14 +1,5 @@
 <template>
   <v-container>
-    <image-upload
-      @uploadStarted="onUploadStarted"
-      @uploadFailed="onUploadFailed"
-      @uploadFinished="onUploadDone"></image-upload>
-    <v-btn
-      @click="refreshImages"
-      dark
-      >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
-
     <v-dialog v-model="dialog" fullscreen>
       <v-card>
         <v-card-text>
@@ -48,6 +39,21 @@
     <v-data-table
       :headers="headers"
       :items="files">
+      <template v-slot:top>
+        <v-toolbar flat>
+          <v-spacer></v-spacer>
+          <image-upload
+            class="mr-1"
+            @uploadStarted="onUploadStarted"
+            @uploadFailed="onUploadFailed"
+            @uploadFinished="onUploadDone"></image-upload>
+          <v-btn
+            class="secondary"
+            @click="refreshImages"
+            dark
+            >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
+        </v-toolbar>
+      </template>
       <template v-slot:item="props">
         <tr>
           <td><v-img @click="() => openPreview(props.item)" :src="props.item.thumbnail" /></td>
