@@ -11,11 +11,13 @@
     <v-data-table
       :headers="headers"
       :items="filteredEntries">
-      <template v-slot:items="props">
-        <td>{{ format_ts(props.item.timestamp) }}</td>
-        <td>{{ props.item.username }}</td>
-        <td>{{ props.item.type }}</td>
-        <td>{{ props.item.message }}</td>
+      <template v-slot:item="props">
+        <tr>
+          <td>{{ format_ts(props.item.timestamp) }}</td>
+          <td>{{ props.item.username }}</td>
+          <td>{{ props.item.type }}</td>
+          <td>{{ props.item.message }}</td>
+        </tr>
       </template>
     </v-data-table>
     <v-btn @click="refresh()">Refresh</v-btn>

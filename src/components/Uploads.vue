@@ -48,26 +48,28 @@
     <v-data-table
       :headers="headers"
       :items="files">
-      <template v-slot:items="props">
-        <td><v-img @click="() => openPreview(props.item)" :src="props.item.thumbnail" /></td>
-        <td>{{ props.item.username }}</td>
-        <td><a :href="props.item.href">{{ props.item.name }}</a></td>
-        <td>{{ props.item.formattedDate }}</td>
-        <td>
-          <template v-if="confirmDelete === props.item.uuid">
-            <v-btn icon @click.native="deleteFile(props.item.uuid)">
-              <v-icon>check</v-icon>
-            </v-btn>
-            <v-btn icon @click.native="confirmDelete = ''">
-              <v-icon>clear</v-icon>
-            </v-btn>
-          </template>
-          <template v-else>
-            <v-btn
-              @click.native="confirmDelete = props.item.uuid"
-              icon><v-icon>delete</v-icon></v-btn>
-          </template>
-        </td>
+      <template v-slot:item="props">
+        <tr>
+          <td><v-img @click="() => openPreview(props.item)" :src="props.item.thumbnail" /></td>
+          <td>{{ props.item.username }}</td>
+          <td><a :href="props.item.href">{{ props.item.name }}</a></td>
+          <td>{{ props.item.formattedDate }}</td>
+          <td>
+            <template v-if="confirmDelete === props.item.uuid">
+              <v-btn icon @click.native="deleteFile(props.item.uuid)">
+                <v-icon>check</v-icon>
+              </v-btn>
+              <v-btn icon @click.native="confirmDelete = ''">
+                <v-icon>clear</v-icon>
+              </v-btn>
+            </template>
+            <template v-else>
+              <v-btn
+                @click.native="confirmDelete = props.item.uuid"
+                icon><v-icon>delete</v-icon></v-btn>
+            </template>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </v-container>
