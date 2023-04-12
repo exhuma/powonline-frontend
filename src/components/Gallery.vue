@@ -7,13 +7,15 @@
         @uploadFinished="onUploadDone"></image-upload>
     </v-container>
     <gallery :images="images" :index="index" @close="index = null"></gallery>
-    <div
+    <v-img
       class="image"
       v-for="(image, imageIndex) in images"
       :key="imageIndex"
+      :src="image.thumbnail"
+      :lazy-src="image.thumbnail"
       @click="index = imageIndex"
-      :style="{ backgroundImage: 'url(' + image.thumbnail + ')', width: '300px', height: '200px' }"
-      ></div>
+    >
+    </v-img>
     <v-snackbar
       v-if="!tokenIsAvailable"
       top

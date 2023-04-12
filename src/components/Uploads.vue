@@ -56,7 +56,9 @@
       </template>
       <template v-slot:item="props">
         <tr>
-          <td><v-img @click="() => openPreview(props.item)" :src="props.item.thumbnail" /></td>
+          <td><v-img @click="() => openPreview(props.item)"
+            :lazy-src="props.item.tiny"
+            :src="props.item.thumbnail" /></td>
           <td>{{ props.item.username }}</td>
           <td><a :href="props.item.href">{{ props.item.name }}</a></td>
           <td>{{ props.item.formattedDate }}</td>
