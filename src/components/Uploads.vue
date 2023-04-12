@@ -26,7 +26,6 @@
                   Open Image in new Tab
                 </v-btn>
                 <v-btn color="primary" @click="dialog = false">
-
                   Close Preview
                 </v-btn>
               </v-flex>
