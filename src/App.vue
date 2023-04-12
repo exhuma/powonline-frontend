@@ -23,30 +23,6 @@
         </v-app-bar>
       </v-slide-y-transition>
 
-      <div
-        v-if="activity.visible && activity.text"
-        class="grey darken-4 white--text">{{ activity.text }}</div>
-      <v-progress-linear
-        v-if="!activity.visible"
-        class="mt-0 mb-0"
-        height="2"></v-progress-linear>
-      <v-progress-linear
-        v-if="activity.visible"
-        class="mt-0 mb-0"
-        height="2"
-        v-model="activity.progress"
-        :indeterminate="activity.progress === -1"></v-progress-linear>
-      <v-progress-linear
-        v-show="!refreshProgress.visible"
-        class="mt-0"
-        height="2"></v-progress-linear>
-      <v-progress-linear
-        v-show="refreshProgress.visible"
-        class="mt-0"
-        height="2"
-        v-model="refreshProgress.progress"
-        ></v-progress-linear>
-
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
           <v-list-item v-for="route in routes" :to="route.to" :key="route.to">
@@ -58,6 +34,31 @@
         </v-list>
       </v-navigation-drawer>
       <v-main>
+
+        <div
+          v-if="activity.visible && activity.text"
+          class="grey darken-4 white--text">{{ activity.text }}</div>
+        <v-progress-linear
+          v-if="!activity.visible"
+          class="mt-0 mb-0"
+          height="2"></v-progress-linear>
+        <v-progress-linear
+          v-if="activity.visible"
+          class="mt-0 mb-0"
+          height="2"
+          v-model="activity.progress"
+          :indeterminate="activity.progress === -1"></v-progress-linear>
+        <v-progress-linear
+          v-show="!refreshProgress.visible"
+          class="mt-0"
+          height="2"></v-progress-linear>
+        <v-progress-linear
+          v-show="refreshProgress.visible"
+          class="mt-0"
+          height="2"
+          v-model="refreshProgress.progress"
+          ></v-progress-linear>
+
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
