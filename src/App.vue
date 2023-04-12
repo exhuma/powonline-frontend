@@ -1,22 +1,26 @@
 <template>
   <div id="app">
-    <v-app dark>
-      <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn flat @click="globalSnack = false">Close</v-btn></v-snackbar>
+    <v-app>
+      <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn text @click="globalSnack = false">Close</v-btn></v-snackbar>
       <v-slide-y-transition>
-        <v-toolbar v-if="isTitleBarVisible">
+        <v-app-bar v-if="isTitleBarVisible">
           <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
           <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
           <v-spacer></v-spacer>
           <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
           <v-tooltip bottom v-if="tokenIsAvailable">
-            <v-btn slot="activator" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
+            </template>
             <span>Logout</span>
           </v-tooltip>
           <v-tooltip bottom v-else>
-            <v-btn slot="activator" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
+            </template>
             <span>Login</span>
           </v-tooltip>
-        </v-toolbar>
+        </v-app-bar>
       </v-slide-y-transition>
 
       <div
@@ -45,15 +49,15 @@
 
       <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
-          <v-list-tile v-for="route in routes" :to="route.to" :key="route.to">
-            <v-list-tile-action><v-icon>{{ route.icon }}</v-icon></v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ route.label }}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
+          <v-list-item v-for="route in routes" :to="route.to" :key="route.to">
+            <v-list-item-action><v-icon>{{ route.icon }}</v-icon></v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>{{ route.label }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-content>
+      <v-main>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
@@ -88,7 +92,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn flat @click.native="cancelLogin">Cancel</v-btn>
+                <v-btn text @click.native="cancelLogin">Cancel</v-btn>
                 <v-btn @click.native="loginUser">Login</v-btn>
               </v-card-actions>
               <v-footer class="pa-3 ma-0">
@@ -105,17 +109,17 @@
             @refresh-progress-updated="onRefreshProgressUpdated"
             ></router-view>
         </v-container>
-        <v-bottom-nav
+        <v-bottom-navigation
           app
           transition="slide-y-transition"
           class="hidden-xs-only"
           :value="isBottomNavVisible">
-          <v-btn v-for="route in routes" :to="route.to" :key="route.to" flat :value="here === route.to">
+          <v-btn v-for="route in routes" :to="route.to" :key="route.to" text :value="here === route.to">
             <span>{{ route.label }}</span>
             <v-icon>{{route.icon}}</v-icon>
           </v-btn>
-        </v-bottom-nav>
-      </v-content>
+        </v-bottom-navigation>
+      </v-main>
     </v-app>
   </div>
 </template>

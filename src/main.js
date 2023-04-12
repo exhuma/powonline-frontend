@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
 import axios from 'axios'
 import auth from './auth'
 import hello from 'hellojs'
@@ -30,17 +28,18 @@ import OptionalTeamRow from './components/OptionalTeamRow'
 import ImageUpload from './components/ImageUpload'
 import CombinedDashboard from './components/CombinedDashboard'
 import DashboardProgressLine from './components/DashboardProgressLine'
+import vuetify from './plugins/vuetify'
 require('./assets/css/main.css')
 
-Vue.config.productionTip = false
-Vue.use(Vuetify, {
-  theme: {
-    primary: '#ce0000',
-    accent: '#d8ee00',
-    error: '#b71c1c',
-    success: '#00ce00'
-  }
-})
+// XXX Vue.config.productionTip = false
+// XXX Vue.use(Vuetify, {
+// XXX   theme: {
+// XXX     primary: '#ce0000',
+// XXX     accent: '#d8ee00',
+// XXX     error: '#b71c1c',
+// XXX     success: '#00ce00'
+// XXX   }
+// XXX })
 
 const remoteProxy = makeRemoteProxy(false, process.env.BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
@@ -103,6 +102,7 @@ new Vue({
   router,
   store,
   remoteProxy,
+  vuetify,
   render: h => h(App),
   created: function () {
     // If the token has expired, remove it completely.

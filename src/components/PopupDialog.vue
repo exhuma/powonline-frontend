@@ -8,17 +8,17 @@
     max-width="100em"
     >
     <v-card>
-      <v-toolbar card>
+      <v-app-bar flat>
         <v-toolbar-title>{{title}}</v-toolbar-title>
         <v-spacer />
         <v-btn @click="dismiss" icon><v-icon>close</v-icon></v-btn>
-      </v-toolbar>
+      </v-app-bar>
       <v-card-text>
         <slot>Dialog Content</slot>
       </v-card-text>
       <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
-        <v-btn flat @click="dismiss">Cancel</v-btn>
+        <v-btn text @click="dismiss">Cancel</v-btn>
         <v-btn @click="confirm">{{(editMode === true ? 'Save' : 'Add')}}</v-btn>
       </v-card-actions>
     </v-card>

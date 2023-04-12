@@ -1,12 +1,14 @@
 <template>
   <v-dialog v-model="isDialogVisible" hide-overlay max-width="40em">
-    <v-btn primary slot="activator">{{ buttonText }}</v-btn>
+    <template v-slot:activator="{ on }">
+      <v-btn primary v-on="on">{{ buttonText }}</v-btn>
+    </template>
     <v-card>
       <v-card-title><slot name="title">Confirm Action</slot></v-card-title>
       <v-card-text><slot name="text">Are you sure?</slot></v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn flat @click.native="discardAction">No</v-btn>
+        <v-btn text @click.native="discardAction">No</v-btn>
         <v-btn class="error" @click.native="acceptAction">Yes</v-btn>
       </v-card-actions>
     </v-card>
