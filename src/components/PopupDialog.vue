@@ -8,7 +8,7 @@
     max-width="100em"
     >
     <v-card>
-      <v-app-bar flat>
+      <v-app-bar app flat>
         <v-toolbar-title>{{title}}</v-toolbar-title>
         <v-spacer />
         <v-btn @click="dismiss" icon><v-icon>close</v-icon></v-btn>
