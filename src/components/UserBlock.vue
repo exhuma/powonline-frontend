@@ -156,8 +156,7 @@ export default {
     }
   },
   created () {
-    this.refreshRoles()
-    this.refreshStations()
+    this.refresh()
   },
   props: {
     'name': {
