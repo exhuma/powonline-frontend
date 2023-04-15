@@ -42,6 +42,7 @@
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
+      <v-btn @click="closeDialog">Close</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -61,6 +62,9 @@ export default {
     }
   },
   methods: {
+    closeDialog () {
+      this.$emit('closeButtonClicked')
+    },
     onRolesChanged (newRoles) {
       this.roles.forEach(roleName => {
         if (newRoles.includes(roleName)) {
