@@ -2,28 +2,49 @@
   <div id="app">
     <v-app>
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn text @click="globalSnack = false">Close</v-btn></v-snackbar>
-      <v-slide-y-transition>
-        <v-app-bar app v-if="isTitleBarVisible">
-          <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>mdi-menu</v-icon></v-btn>
-          <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
-          <v-spacer></v-spacer>
-          <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
-          <v-tooltip bottom v-if="tokenIsAvailable">
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" @click.native.stop="logoutUser" icon><v-icon>mdi-logout</v-icon></v-btn>
-            </template>
-            <span>Logout</span>
-          </v-tooltip>
-          <v-tooltip bottom v-else>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" @click.native.stop="showLoginDialog" icon><v-icon>mdi-account-outline</v-icon></v-btn>
-            </template>
-            <span>Login</span>
-          </v-tooltip>
-        </v-app-bar>
-      </v-slide-y-transition>
+      <v-app-bar app v-if="isTitleBarVisible" extension-height="0">
+        <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>mdi-menu</v-icon></v-btn>
+        <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
+        <v-spacer></v-spacer>
+        <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
+        <v-tooltip bottom v-if="tokenIsAvailable">
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" @click.native.stop="logoutUser" icon><v-icon>mdi-logout</v-icon></v-btn>
+          </template>
+          <span>Logout</span>
+        </v-tooltip>
+        <v-tooltip bottom v-else>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" @click.native.stop="showLoginDialog" icon><v-icon>mdi-account-outline</v-icon></v-btn>
+          </template>
+          <span>Login</span>
+        </v-tooltip>
+        <template slot="extension">
+          <div style="display: flex; align-self: flex-end; flex-direction: column; flex-grow: 1;">
+            <div v-if="activity.text" class="text-center">
+              {{ activity.text }}
+            </div>
+            <v-progress-linear
+              v-show="!refreshProgress.visible"
+              height="1"></v-progress-linear>
+            <v-progress-linear
+              v-show="refreshProgress.visible"
+              height="1"
+              v-model="refreshProgress.progress"
+              ></v-progress-linear>
+            <v-progress-linear
+              v-if="!activity.visible"
+              height="1"></v-progress-linear>
+            <v-progress-linear
+              v-if="activity.visible"
+              height="1"
+              v-model="activity.progress"
+              :indeterminate="activity.progress === -1"></v-progress-linear>
+          </div>
+        </template>
+      </v-app-bar>
 
-      <v-navigation-drawer temporary absolute app v-model="sideMenuVisible" class="hidden-sm-and-up">
+      <v-navigation-drawer temporary app v-model="sideMenuVisible" class="hidden-sm-and-up">
         <v-list>
           <v-list-item v-for="route in routes" :to="route.to" :key="route.to">
             <v-list-item-action><v-icon>{{ route.icon }}</v-icon></v-list-item-action>
@@ -33,32 +54,8 @@
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
+
       <v-main>
-
-        <div
-          v-if="activity.visible && activity.text"
-          class="grey darken-4 white--text">{{ activity.text }}</div>
-        <v-progress-linear
-          v-if="!activity.visible"
-          class="mt-0 mb-0"
-          height="2"></v-progress-linear>
-        <v-progress-linear
-          v-if="activity.visible"
-          class="mt-0 mb-0"
-          height="2"
-          v-model="activity.progress"
-          :indeterminate="activity.progress === -1"></v-progress-linear>
-        <v-progress-linear
-          v-show="!refreshProgress.visible"
-          class="mt-0"
-          height="2"></v-progress-linear>
-        <v-progress-linear
-          v-show="refreshProgress.visible"
-          class="mt-0"
-          height="2"
-          v-model="refreshProgress.progress"
-          ></v-progress-linear>
-
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
