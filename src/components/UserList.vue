@@ -47,7 +47,7 @@
             <img :src="item.avatar_url">
           </v-list-item-avatar>
           <v-list-item-avatar v-else>
-            <v-icon>account_circle</v-icon>
+            <v-icon>mdi-face-man</v-icon>
           </v-list-item-avatar>
 
           <v-list-item-content>

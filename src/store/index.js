@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
-import EventBus from '@/eventBus'
+import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
 
 Vue.use(Vuex)
@@ -21,7 +21,7 @@ function makeStore (auth, remoteProxy) {
       jwt: auth.get_token(),
       roles: auth.get_roles(),
       userName: auth.get_username(),
-      baseUrl: process.env.BACKEND_URL,
+      baseUrl: import.meta.env.VITE_BACKEND_URL,
       pageTitle: 'Powonline',
       uploads: {},
       gallery: [],

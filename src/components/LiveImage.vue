@@ -5,9 +5,9 @@
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
     <v-slider v-if="!fullScreen" label="Timeout (s)" thumb-label ticks min="1" max="30" v-model="timeout"></v-slider>
     <v-btn v-if="!fullScreen" class="fab-high" fab
-      @click="toggleFullScreen"><v-icon>fullscreen</v-icon></v-btn>
+      @click="toggleFullScreen"><v-icon>mdi-fullscreen</v-icon></v-btn>
     <v-btn v-else class="fab-low" fab
-      @click="toggleFullScreen"><v-icon>fullscreen_exit</v-icon></v-btn>
+      @click="toggleFullScreen"><v-icon>mdi-fullscreen-exit</v-icon></v-btn>
   </div>
 </template>
 

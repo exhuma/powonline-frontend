@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import App from './App'
+
+import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import auth from './auth'
@@ -7,39 +8,31 @@ import hello from 'hellojs'
 import makeRemoteProxy from './remote'
 import storeFactory from './store'
 
-import ConfirmationDialog from './components/ConfirmationDialog'
-import CenterCol from './components/CenterCol'
-import GlobalDashboard from './components/GlobalDashboard'
-import MiniStatus from './components/MiniStatus'
-import RouteBlock from './components/RouteBlock'
-import StateIcon from './components/StateIcon'
-import StationBlock from './components/StationBlock'
-import TeamBlock from './components/TeamBlock'
-import UserBlock from './components/UserBlock'
-import SmallStationDashboardItem from './components/SmallStationDashboardItem'
-import PopupDialog from './components/PopupDialog'
-import RouteDashboard from './components/RouteDashboard'
-import RouteDashboardIcons from './components/RouteDashboardIcons'
-import TeamForm from './components/forms/TeamForm'
-import RouteAssignments from './components/forms/RouteAssignments'
-import OptionalTeamRow from './components/OptionalTeamRow'
-import ImageUpload from './components/ImageUpload'
-import CombinedDashboard from './components/CombinedDashboard'
-import DashboardProgressLine from './components/DashboardProgressLine'
+import ConfirmationDialog from './components/ConfirmationDialog.vue'
+import CenterCol from './components/CenterCol.vue'
+import GlobalDashboard from './components/GlobalDashboard.vue'
+import MiniStatus from './components/MiniStatus.vue'
+import RouteBlock from './components/RouteBlock.vue'
+import StateIcon from './components/StateIcon.vue'
+import StationBlock from './components/StationBlock.vue'
+import TeamBlock from './components/TeamBlock.vue'
+import UserBlock from './components/UserBlock.vue'
+import SmallStationDashboardItem from './components/SmallStationDashboardItem.vue'
+import PopupDialog from './components/PopupDialog.vue'
+import RouteDashboard from './components/RouteDashboard.vue'
+import RouteDashboardIcons from './components/RouteDashboardIcons.vue'
+import TeamForm from './components/forms/TeamForm.vue'
+import RouteAssignments from './components/forms/RouteAssignments.vue'
+import OptionalTeamRow from './components/OptionalTeamRow.vue'
+import ImageUpload from './components/ImageUpload.vue'
+import CombinedDashboard from './components/CombinedDashboard.vue'
+import DashboardProgressLine from './components/DashboardProgressLine.vue'
+
 import vuetify from './plugins/vuetify'
-require('./assets/css/main.css')
 
-// XXX Vue.config.productionTip = false
-// XXX Vue.use(Vuetify, {
-// XXX   theme: {
-// XXX     primary: '#ce0000',
-// XXX     accent: '#d8ee00',
-// XXX     error: '#b71c1c',
-// XXX     success: '#00ce00'
-// XXX   }
-// XXX })
+import './assets/main.css'
 
-const remoteProxy = makeRemoteProxy(false, process.env.BACKEND_URL)
+const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
 
 /**
@@ -94,12 +87,11 @@ Vue.component('dashboard-progress-line', DashboardProgressLine)
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
   router,
   store,
   remoteProxy,
   vuetify,
-  render: h => h(App),
+  render: (h) => h(App),
   created: function () {
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
@@ -129,15 +121,15 @@ new Vue({
     this.$store.dispatch('refreshRemote')
 
     // eslint-disable-next-line
-    if (process.env.PUSHER_KEY && Pusher) {
+    if (import.meta.env.VITE_PUSHER_KEY && Pusher) {
       // eslint-disable-next-line
-      Pusher.logToConsole = process.env.PUSHER_DEBUG
+      Pusher.logToConsole = import.meta.env.VITE_PUSHER_DEBUG
       // eslint-disable-next-line
-      var pusher = new Pusher(process.env.PUSHER_KEY, {
+      var pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
         cluster: 'eu',
         encrypted: true
       })
-      var teamChannel = pusher.subscribe(process.env.PUSHER_TEAM_CHANNEL)
+      var teamChannel = pusher.subscribe(import.meta.env.VITE_PUSHER_TEAM_CHANNEL)
       let that = this
       teamChannel.bind('state-change', function (data) {
         that.$store.commit('updateTeamState', data)
@@ -158,7 +150,7 @@ new Vue({
         that.$store.commit('deleteTeam', data.name)
       })
 
-      var fileChannel = pusher.subscribe(process.env.PUSHER_FILE_CHANNEL)
+      var fileChannel = pusher.subscribe(import.meta.env.VITE_PUSHER_FILE_CHANNEL)
       fileChannel.bind('file-added', function (data) {
         that.$store.dispatch('refreshUploads')
         that.$store.dispatch('refreshGallery')
@@ -175,7 +167,7 @@ new Vue({
       console.warn('Pusher key not specified. Pusher disabled!')
     }
   }
-})
+}).$mount('#app')
 
 /**
  * Register callback for social logins

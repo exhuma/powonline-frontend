@@ -3,7 +3,7 @@
  */
 import axios from 'axios'
 import Vue from 'vue'
-import EventBus from '@/eventBus'
+import EventBus from '@/plugins/eventBus'
 
 Vue.mixin({
   beforeCreate () {

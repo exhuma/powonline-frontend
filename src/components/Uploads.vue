@@ -22,7 +22,7 @@
             <v-layout row align-center justify-center>
               <v-flex>
                 <v-btn target="_blank" :href="previewImage.href">
-                  <v-icon left dark>open_in_new</v-icon>
+                  <v-icon left>mdi-open-in-new</v-icon>
                   Open Image in new Tab
                 </v-btn>
                 <v-btn color="primary" @click="dialog = false">
@@ -50,7 +50,7 @@
             class="secondary"
             @click="refreshImages"
             dark
-            >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
+            >Refresh&nbsp;<v-icon>mdi-refresh</v-icon></v-btn>
         </v-toolbar>
       </template>
       <template v-slot:item="props">
@@ -64,16 +64,16 @@
           <td>
             <template v-if="confirmDelete === props.item.uuid">
               <v-btn icon @click.native="deleteFile(props.item.uuid)">
-                <v-icon>check</v-icon>
+                <v-icon>mdi-check</v-icon>
               </v-btn>
               <v-btn icon @click.native="confirmDelete = ''">
-                <v-icon>clear</v-icon>
+                <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
             <template v-else>
               <v-btn
                 @click.native="confirmDelete = props.item.uuid"
-                icon><v-icon>delete</v-icon></v-btn>
+                icon><v-icon>mdi-delete-forever</v-icon></v-btn>
             </template>
           </td>
         </tr>

@@ -5,7 +5,7 @@
         <v-app-bar flat>
           <v-toolbar-title>Assignments for "{{ route.name }}"</v-toolbar-title>
           <v-spacer />
-          <v-btn @click="dismissDialog" icon><v-icon>close</v-icon></v-btn>
+          <v-btn @click="dismissDialog" icon><v-icon>mdi-close</v-icon></v-btn>
         </v-app-bar>
         <v-card-text>
           <route-assignments :route="route" />
@@ -29,7 +29,7 @@
         swatch-size="30"/>
     </v-list-item-action>
     <v-list-item-action v-if="hasRole('admin')">
-      <v-btn class="mr-2" icon @click="dialogVisible = true"><v-icon>extension</v-icon></v-btn>
+      <v-btn class="mr-2" icon @click="dialogVisible = true"><v-icon>mdi-puzzle</v-icon></v-btn>
     </v-list-item-action>
     <v-list-item-action v-if="hasRole('admin')">
       <confirmation-dialog buttonText="Delete" :actionArgument="route.name" actionName="deleteRouteRemote">

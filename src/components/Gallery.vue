@@ -24,7 +24,7 @@
       timeout="5000"
       v-model="showUploadSnack"
       >
-      <v-icon>info</v-icon>
+      <v-icon>mdi-information</v-icon>
       <strong>Tip:</strong> Login to upload
       </v-snackbar>
   </div>

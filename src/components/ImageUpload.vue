@@ -9,7 +9,7 @@
       <v-btn
         class="secondary"
         @click="$refs.fileInput.click()"
-        >Upload&nbsp;<v-icon>cloud_upload</v-icon></v-btn>
+        >Upload&nbsp;<v-icon>mdi-cloud-upload</v-icon></v-btn>
     </span>
 </template>
 

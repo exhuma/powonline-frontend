@@ -3,7 +3,7 @@
 
     <v-text-field
       v-model="teamFilter"
-      append-icon="search"
+      append-icon="mdi-magnify"
       clearable
       label="Filter"
       @click:clear="onFilterCleared"

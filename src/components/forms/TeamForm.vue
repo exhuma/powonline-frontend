@@ -145,7 +145,7 @@
 <script>
 import model from '@/model'
 import moment from 'moment'
-import DateTimePicker from '@/components/DateTimePicker'
+import DateTimePicker from '@/components/DateTimePicker.vue'
 
 export default {
   name: 'team-form',

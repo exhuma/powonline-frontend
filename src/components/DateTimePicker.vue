@@ -9,7 +9,7 @@
           <v-text-field
             :label="label"
             v-model="innerDateValue"
-            prepend-icon="event"
+            prepend-icon="mdi-calendar"
             readonly
             v-on="on">
           </v-text-field>
@@ -37,7 +37,7 @@
           <v-text-field
             :label="label"
             v-model="innerTimeValue"
-            prepend-icon="schedule"
+            prepend-icon="mdi-clock"
             readonly
             v-on="on">
           </v-text-field>

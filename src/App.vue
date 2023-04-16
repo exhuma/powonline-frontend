@@ -4,19 +4,19 @@
       <v-snackbar :top="true" :color="globalSnackColor" :timeout="2000" v-model="globalSnack"> {{globalSnackText}} <v-btn text @click="globalSnack = false">Close</v-btn></v-snackbar>
       <v-slide-y-transition>
         <v-app-bar app v-if="isTitleBarVisible">
-          <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>menu</v-icon></v-btn>
+          <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"><v-icon>mdi-menu</v-icon></v-btn>
           <v-toolbar-title>{{ pageTitle }} <small>v{{version}}</small></v-toolbar-title>
           <v-spacer></v-spacer>
           <span v-if="tokenIsAvailable">Logged in as <span class="accent--text">{{ appUserName }}</span></span>
           <v-tooltip bottom v-if="tokenIsAvailable">
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" @click.native.stop="logoutUser" icon><v-icon>exit_to_app</v-icon></v-btn>
+              <v-btn v-on="on" @click.native.stop="logoutUser" icon><v-icon>mdi-logout</v-icon></v-btn>
             </template>
             <span>Logout</span>
           </v-tooltip>
           <v-tooltip bottom v-else>
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" @click.native.stop="showLoginDialog" icon><v-icon>perm_identity</v-icon></v-btn>
+              <v-btn v-on="on" @click.native.stop="showLoginDialog" icon><v-icon>mdi-account-outline</v-icon></v-btn>
             </template>
             <span>Login</span>
           </v-tooltip>
@@ -133,7 +133,7 @@
 
 <script>
 import hello from 'hellojs'
-import EventBus from '@/eventBus'
+import EventBus from '@/plugins/eventBus'
 
 export default {
   name: 'App',
@@ -261,22 +261,22 @@ export default {
     },
     routes () {
       const output = [
-        { label: 'Dashboard', to: '/dashboard', icon: 'border_all' },
-        { label: 'Scoreboard', to: '/scoreboard', icon: 'format_list_numbered' },
-        { label: 'Photos', to: '/gallery', icon: 'image' }
+        { label: 'Dashboard', to: '/dashboard', icon: 'mdi-border-all' },
+        { label: 'Scoreboard', to: '/scoreboard', icon: 'mdi-format-list-numbered' },
+        { label: 'Photos', to: '/gallery', icon: 'mdi-image' }
       ]
       if (this.tokenIsAvailable) {
-        output.push({ label: 'Stations', to: '/station', icon: 'place' })
-        output.push({ label: 'Teams', to: '/team', icon: 'group' })
-        output.push({ label: 'Uploads', to: '/uploads', icon: 'cloud_upload' })
+        output.push({ label: 'Stations', to: '/station', icon: 'mdi-map-marker' })
+        output.push({ label: 'Teams', to: '/team', icon: 'mdi-account-group' })
+        output.push({ label: 'Uploads', to: '/uploads', icon: 'mdi-cloud-upload' })
       }
       const roles = this.$store.state.roles
       if (roles && roles.indexOf('admin') > -1) {
-        output.push({ label: 'Routes', to: '/route', icon: 'gesture' })
-        output.push({ label: 'Users', to: '/user', icon: 'face' })
-        output.push({ label: 'Audit', to: '/auditlog', icon: 'receipt' })
+        output.push({ label: 'Routes', to: '/route', icon: 'mdi-gesture' })
+        output.push({ label: 'Users', to: '/user', icon: 'mdi-face-man' })
+        output.push({ label: 'Audit', to: '/auditlog', icon: 'mdi-receipt-text' })
       }
-      output.push({ label: 'Changelog', to: '/changelog', icon: 'info' })
+      output.push({ label: 'Changelog', to: '/changelog', icon: 'mdi-information' })
       return output
     },
     pageTitle () {

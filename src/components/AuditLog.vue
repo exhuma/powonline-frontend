@@ -2,7 +2,7 @@
   <div>
     <v-text-field
       v-model="entryFilter"
-      append-icon="search"
+      append-icon="mdi-magnify"
       clearable
       label="Filter"
       @click:clear="onFilterCleared"
@@ -16,7 +16,7 @@
           <v-spacer></v-spacer>
           <v-btn class="secondary" @click="refresh()">
             Refresh
-            <v-icon>loop</v-icon>
+            <v-icon>mdi-refresh</v-icon>
           </v-btn>
         </v-toolbar>
       </template>

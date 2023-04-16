@@ -30,7 +30,7 @@
     </popup-dialog>
     <v-text-field
       v-model="teamFilter"
-      append-icon="search"
+      append-icon="mdi-magnify"
       clearable
       label="Filter"
       @click:clear="onFilterCleared"
@@ -53,7 +53,7 @@
             <v-list-item-subtitle>Contact</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-icon>face</v-icon>
+            <v-icon>mdi-contacts</v-icon>
           </v-list-item-action>
         </v-list-item>
 
@@ -66,7 +66,7 @@
           </v-list-item-content>
           <v-list-item-action>
             <a :href="`tel:${item.data.phone}`">
-              <v-btn icon text class="yellow--text"><v-icon>phone</v-icon></v-btn></a>
+              <v-btn icon text class="yellow--text"><v-icon>mdi-card-account-phone</v-icon></v-btn></a>
           </v-list-item-action>
         </v-list-item>
 
@@ -79,7 +79,7 @@
           </v-list-item-content>
           <v-list-item-action>
             <a :href="`mailto:${item.data.email}`">
-              <v-btn icon text class="yellow--text"><v-icon>email</v-icon></v-btn></a>
+              <v-btn icon text class="yellow--text"><v-icon>mdi-card-account-mail</v-icon></v-btn></a>
           </v-list-item-action>
         </v-list-item>
 
