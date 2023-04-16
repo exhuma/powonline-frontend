@@ -1,15 +1,15 @@
 <template>
-  <v-list-tile>
-    <v-list-tile-content>
-      <v-list-tile-title>{{ team.name }}</v-list-tile-title>
-    </v-list-tile-content>
-    <v-list-tile-action>
+  <v-list-item>
+    <v-list-item-content>
+      <v-list-item-title>{{ team.name }}</v-list-item-title>
+    </v-list-item-content>
+    <v-list-item-action>
       <v-icon v-show="routeColor !== null" :style="routeColor">gesture</v-icon>
-    </v-list-tile-action>
-    <v-list-tile-action v-if="hasRole('admin')">
+    </v-list-item-action>
+    <v-list-item-action v-if="hasRole('admin')">
       <v-btn @click="openEditDialog" icon><v-icon>edit</v-icon></v-btn>
-    </v-list-tile-action>
-    <v-list-tile-action class="ml-3" v-if="hasRole('admin')">
+    </v-list-item-action>
+    <v-list-item-action class="ml-3" v-if="hasRole('admin')">
       <confirmation-dialog
         buttonText="Delete"
         :actionArgument="name"
@@ -21,8 +21,8 @@
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
-    </v-list-tile-action>
-  </v-list-tile>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 
 <script>

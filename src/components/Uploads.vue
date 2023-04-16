@@ -1,14 +1,5 @@
 <template>
   <v-container>
-    <image-upload
-      @uploadStarted="onUploadStarted"
-      @uploadFailed="onUploadFailed"
-      @uploadFinished="onUploadDone"></image-upload>
-    <v-btn
-      @click="refreshImages"
-      dark
-      >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
-
     <v-dialog v-model="dialog" fullscreen>
       <v-card>
         <v-card-text>
@@ -35,7 +26,6 @@
                   Open Image in new Tab
                 </v-btn>
                 <v-btn color="primary" @click="dialog = false">
-
                   Close Preview
                 </v-btn>
               </v-flex>
@@ -48,26 +38,45 @@
     <v-data-table
       :headers="headers"
       :items="files">
-      <template v-slot:items="props">
-        <td><v-img @click="() => openPreview(props.item)" :src="props.item.thumbnail" /></td>
-        <td>{{ props.item.username }}</td>
-        <td><a :href="props.item.href">{{ props.item.name }}</a></td>
-        <td>{{ props.item.formattedDate }}</td>
-        <td>
-          <template v-if="confirmDelete === props.item.uuid">
-            <v-btn icon @click.native="deleteFile(props.item.uuid)">
-              <v-icon>check</v-icon>
-            </v-btn>
-            <v-btn icon @click.native="confirmDelete = ''">
-              <v-icon>clear</v-icon>
-            </v-btn>
-          </template>
-          <template v-else>
-            <v-btn
-              @click.native="confirmDelete = props.item.uuid"
-              icon><v-icon>delete</v-icon></v-btn>
-          </template>
-        </td>
+      <template v-slot:top>
+        <v-toolbar flat>
+          <v-spacer></v-spacer>
+          <image-upload
+            class="mr-1"
+            @uploadStarted="onUploadStarted"
+            @uploadFailed="onUploadFailed"
+            @uploadFinished="onUploadDone"></image-upload>
+          <v-btn
+            class="secondary"
+            @click="refreshImages"
+            dark
+            >Refresh&nbsp;<v-icon>loop</v-icon></v-btn>
+        </v-toolbar>
+      </template>
+      <template v-slot:item="props">
+        <tr>
+          <td><v-img @click="() => openPreview(props.item)"
+            :lazy-src="props.item.tiny"
+            :src="props.item.thumbnail" /></td>
+          <td>{{ props.item.username }}</td>
+          <td><a :href="props.item.href">{{ props.item.name }}</a></td>
+          <td>{{ props.item.formattedDate }}</td>
+          <td>
+            <template v-if="confirmDelete === props.item.uuid">
+              <v-btn icon @click.native="deleteFile(props.item.uuid)">
+                <v-icon>check</v-icon>
+              </v-btn>
+              <v-btn icon @click.native="confirmDelete = ''">
+                <v-icon>clear</v-icon>
+              </v-btn>
+            </template>
+            <template v-else>
+              <v-btn
+                @click.native="confirmDelete = props.item.uuid"
+                icon><v-icon>delete</v-icon></v-btn>
+            </template>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </v-container>

@@ -8,7 +8,7 @@
           <div v-for="team in assignedTeams" :key="team.name">
             <v-flex xs6>{{ team }}</v-flex>
             <v-flex xs6>
-              <v-btn @click="unassignTeam(team)" flat><v-icon>arrow_downward</v-icon></v-btn>
+              <v-btn @click="unassignTeam(team)" text><v-icon>arrow_downward</v-icon></v-btn>
             </v-flex>
           </div>
         </v-card>
@@ -19,7 +19,7 @@
           <div v-for="station in assignedStations" :key="station.name">
             <v-flex xs6>{{ station }}</v-flex>
             <v-flex xs6>
-              <v-btn @click="unassignStation(station)" flat><v-icon>arrow_downward</v-icon></v-btn>
+              <v-btn @click="unassignStation(station)" text><v-icon>arrow_downward</v-icon></v-btn>
             </v-flex>
           </div>
         </v-card>
@@ -31,7 +31,7 @@
           <div v-for="team in unassignedTeams" :key="team.name">
             <v-flex xs6>{{ team }}</v-flex>
             <v-flex xs6>
-              <v-btn @click="assignTeam(team)" flat><v-icon>arrow_upward</v-icon></v-btn>
+              <v-btn @click="assignTeam(team)" text><v-icon>arrow_upward</v-icon></v-btn>
             </v-flex>
           </div>
         </v-card>
@@ -42,7 +42,7 @@
           <div v-for="station in unassignedStations" :key="station.name">
             <v-flex xs6>{{ station }}</v-flex>
             <v-flex xs6>
-              <v-btn @click="assignStation(station)" flat><v-icon>arrow_upward</v-icon></v-btn>
+              <v-btn @click="assignStation(station)" text><v-icon>arrow_upward</v-icon></v-btn>
             </v-flex>
           </div>
         </v-card>

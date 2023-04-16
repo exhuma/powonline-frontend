@@ -39,23 +39,22 @@
       ></v-text-field>
     <v-list two-line>
       <template v-for="item in filteredUsers">
-        <v-list-tile
+        <v-list-item
           :key="item.name"
-          avatar
           @click="() => openUserDialog(item.name)"
         >
-          <v-list-tile-avatar v-if="item.avatar_url">
+          <v-list-item-avatar v-if="item.avatar_url">
             <img :src="item.avatar_url">
-          </v-list-tile-avatar>
-          <v-list-tile-avatar v-else>
+          </v-list-item-avatar>
+          <v-list-item-avatar v-else>
             <v-icon>account_circle</v-icon>
-          </v-list-tile-avatar>
+          </v-list-item-avatar>
 
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.name }}</v-list-tile-title>
-            <v-list-tile-sub-title>{{ item.email }}</v-list-tile-sub-title>
-          </v-list-tile-content>
-        </v-list-tile>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
+            <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
       </template>
     </v-list>
 

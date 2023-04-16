@@ -4,14 +4,16 @@
     <h1 class="white--text">{{ route.name }}</h1>
     <v-data-table
       :style="'border-left: 3px solid ' + routeColor"
-      hide-actions
+      hide-default-footer
       :headers="tableHeaders"
       :items="tableItems">
-      <template slot="items" slot-scope="props">
-        <td :class="props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'">{{props.item.team}}</td>
-        <td v-for="cell in props.item.stations" :key="props.item.team + cell.station">
-          <v-icon :title="props.item.team + '@' + cell.station" v-if="cell.state !== 'unreachable'"> {{ getStateIcon(cell.state) }}</v-icon>
-        </td>
+      <template slot="item" slot-scope="props">
+        <tr>
+          <td :class="props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'">{{props.item.team}}</td>
+          <td v-for="cell in props.item.stations" :key="props.item.team + cell.station">
+            <v-icon :title="props.item.team + '@' + cell.station" v-if="cell.state !== 'unreachable'"> {{ getStateIcon(cell.state) }}</v-icon>
+          </td>
+        </tr>
       </template>
     </v-data-table>
   </div>

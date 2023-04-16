@@ -7,8 +7,8 @@
         name="file"
         accept="image/*;capture=camera" />
       <v-btn
+        class="secondary"
         @click="$refs.fileInput.click()"
-        dark
         >Upload&nbsp;<v-icon>cloud_upload</v-icon></v-btn>
     </span>
 </template>
