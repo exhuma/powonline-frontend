@@ -16,8 +16,6 @@ import StateIcon from './components/StateIcon'
 import StationBlock from './components/StationBlock'
 import TeamBlock from './components/TeamBlock'
 import UserBlock from './components/UserBlock'
-import UserRoleCheckbox from './components/UserRoleCheckbox'
-import UserStationCheckbox from './components/UserStationCheckbox'
 import SmallStationDashboardItem from './components/SmallStationDashboardItem'
 import PopupDialog from './components/PopupDialog'
 import RouteDashboard from './components/RouteDashboard'
@@ -85,8 +83,6 @@ Vue.component('state-icon', StateIcon)
 Vue.component('station-block', StationBlock)
 Vue.component('team-block', TeamBlock)
 Vue.component('user-block', UserBlock)
-Vue.component('user-role-checkbox', UserRoleCheckbox)
-Vue.component('user-station-checkbox', UserStationCheckbox)
 Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
 Vue.component('popup-dialog', PopupDialog)
 Vue.component('team-form', TeamForm)

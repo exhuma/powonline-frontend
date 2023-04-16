@@ -24,7 +24,7 @@
     </popup-dialog>
 
     <v-dialog max-width="500px" v-model="isEditDialogVisible">
-      <user-block ref="userDialog" :name="selectedUserName"></user-block>
+      <user-block ref="userDialog" :name="selectedUserName" @closeButtonClicked="closeUserDialog"></user-block>
     </v-dialog>
 
     <v-alert :value="errorMessage !== ''" type="error">
@@ -83,6 +83,10 @@ export default {
     }
   },
   methods: {
+    closeUserDialog: function () {
+      this.selectedUserName = ''
+      this.isEditDialogVisible = false
+    },
     openUserDialog: function (userName) {
       this.selectedUserName = userName
       this.isEditDialogVisible = true
