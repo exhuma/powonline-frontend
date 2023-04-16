@@ -8,11 +8,9 @@
     max-width="100em"
     >
     <v-card>
-      <v-app-bar app flat>
-        <v-toolbar-title>{{title}}</v-toolbar-title>
-        <v-spacer />
-        <v-btn @click="dismiss" icon><v-icon>close</v-icon></v-btn>
-      </v-app-bar>
+      <v-card-title color="primary">
+        {{ title }}
+      </v-card-title>
       <v-card-text>
         <slot>Dialog Content</slot>
       </v-card-text>
