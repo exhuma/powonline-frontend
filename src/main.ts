@@ -93,6 +93,7 @@ new Vue({
   vuetify,
   render: (h) => h(App),
   created: function () {
+    document.title = import.meta.env.VITE_PAGE_TITLE || "powonline";
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
 
