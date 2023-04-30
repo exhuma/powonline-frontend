@@ -737,6 +737,19 @@ class Proxy extends FakeProxy {
     })
     return output
   }
+
+  async fetchRelatedTeams (localStationName, relation) {
+    let response = await axios.get(`${this.baseUrl}/station/${localStationName}/${relation}/dashboard`);
+    const statePrecedence = {
+      unknown: 10,
+      arrived: 20,
+      finished: 30
+    }
+    response.data.sort(
+      (a, b) => (statePrecedence[a.state] || 0) > (statePrecedence[b.state] || 0)
+    )
+    return response.data
+  }
 }
 
 export default function makeRemoteProxy (fake, backendUrl) {

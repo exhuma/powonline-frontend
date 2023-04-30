@@ -1,7 +1,12 @@
 <template>
-  <v-container>
+  <v-container class="pa-0">
     <v-row justify="center">
-      <v-col cols="1" class="quick-stat-column">
+      <v-col cols="1" class="quick-stat-column left">
+        <state-icon
+          v-for="state in previousStates"
+          :state="state.state"
+          :key="`${state.team}-previous`"
+        ></state-icon>
       </v-col>
       <v-col cols="10" md="4">
         <v-text-field
@@ -31,7 +36,12 @@
             :key="'small' + idx"></small-station-dashboard-item>
         <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn text @click="snackbar = false">Close</v-btn></v-snackbar>
       </v-col>
-      <v-col cols="1" class="quick-stat-column">
+      <v-col cols="1" class="quick-stat-column right">
+        <state-icon
+          v-for="state in nextStates"
+          :state="state.state"
+          :key="`${state.team}-next`"
+        ></state-icon>
       </v-col>
     </v-row>
   </v-container>
@@ -49,7 +59,9 @@ export default {
       teamFilter: '',
       showPending: true,
       showArrived: true,
-      showFinished: false
+      showFinished: false,
+      previousStates: {},
+      nextStates: {}
     }
   },
   computed: {
@@ -92,6 +104,7 @@ export default {
   created () {
     this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
     this.$store.dispatch('fetchQuestionnaireScores')
+    this.refresh()
   },
   methods: {
     onFilterCleared (e) {
@@ -135,12 +148,40 @@ export default {
       this.snacktext = 'Changes saved'
       this.snackColor = 'success'
       this.snackbar = true
+    },
+    async refresh () {
+      const previousStates = await this.$remoteProxy.fetchRelatedTeams(
+        this.$route.params.stationName,
+        'previous'
+      )
+      this.previousStates = previousStates
+
+      const nextStates = await this.$remoteProxy.fetchRelatedTeams(
+        this.$route.params.stationName,
+        'next'
+      )
+      this.nextStates = nextStates
     }
   }
 }
 </script>
 
 <style scoped>
+.quick-stat-column {
+  padding: 0;
+  padding-top: 1em;
+  background-color: #151515;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+}
+.quick-stat-column.left {
+  border-right: 1px solid #272727;
+}
+.quick-stat-column.right {
+  border-left: 1px solid #272727;
+}
+
 .bigrow {
   padding: 1em 0;
 }
