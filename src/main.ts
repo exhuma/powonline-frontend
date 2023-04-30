@@ -30,8 +30,6 @@ import DashboardProgressLine from './components/DashboardProgressLine.vue'
 
 import vuetify from './plugins/vuetify'
 
-import './assets/main.css'
-
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
 
