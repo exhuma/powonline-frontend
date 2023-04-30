@@ -9,6 +9,7 @@
         ></state-icon>
       </v-col>
       <v-col cols="10" md="4">
+        <h1 style="text-align: center">{{ stationName }}</h1>
         <v-text-field
         v-model="teamFilter"
         append-icon="mdi-magnify"
@@ -78,11 +79,14 @@ export default {
       }
       return output
     },
+    stationName() {
+      return this.$route.params.stationName
+    },
     allTeams () {
       const output = []
       this.$store.state.global_dashboard.forEach(teamInfo => {
         teamInfo.stations.forEach(stationState => {
-          if (stationState.name !== this.$route.params.stationName) {
+          if (stationState.name !== this.stationName) {
             return // skip states from other stations
           }
           if (stationState.state === 'unreachable') {
@@ -91,7 +95,7 @@ export default {
           }
           output.push({
             team: teamInfo.team,
-            station: this.$route.params.stationName,
+            station: this.stationName,
             state: stationState.state,
             score: stationState.score
           })
@@ -102,7 +106,7 @@ export default {
     }
   },
   created () {
-    this.$store.commit('changeTitle', 'Dashboard for ' + this.$route.params.stationName)
+    this.$store.commit('changeTitle', 'Dashboard for ' + this.stationName)
     this.$store.dispatch('fetchQuestionnaireScores')
     this.refresh()
   },
@@ -127,19 +131,19 @@ export default {
     onStateAdvanced: function (state) {
       this.$store.dispatch('advanceState', {
         teamName: state.team,
-        stationName: this.$route.params.stationName})
+        stationName: this.stationName})
     },
     onScoreUpdated: function (state, newScore) {
       this.$store.dispatch('setStationScore', {
         teamName: state.team,
-        stationName: this.$route.params.stationName,
+        stationName: this.stationName,
         score: newScore}).then(evt => {
       })
     },
     onQuestionnaireScoreUpdated: function (payload) {
       const data = {
         teamName: payload.team,
-        stationName: this.$route.params.stationName,
+        stationName: this.stationName,
         score: payload.score
       }
       this.$store.dispatch('setQuestionnaireScore', data)
@@ -151,13 +155,13 @@ export default {
     },
     async refresh () {
       const previousStates = await this.$remoteProxy.fetchRelatedTeams(
-        this.$route.params.stationName,
+        this.stationName,
         'previous'
       )
       this.previousStates = previousStates
 
       const nextStates = await this.$remoteProxy.fetchRelatedTeams(
-        this.$route.params.stationName,
+        this.stationName,
         'next'
       )
       this.nextStates = nextStates
