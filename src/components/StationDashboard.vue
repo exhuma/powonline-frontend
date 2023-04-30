@@ -154,17 +154,29 @@ export default {
       this.snackbar = true
     },
     async refresh () {
-      const previousStates = await this.$remoteProxy.fetchRelatedTeams(
-        this.stationName,
-        'previous'
-      )
-      this.previousStates = previousStates
+      try {
+        const previousStates = await this.$remoteProxy.fetchRelatedTeams(
+          this.stationName,
+          'previous'
+        )
+        this.previousStates = previousStates
+      } catch (error) {
+        console.error(
+          `Unable to fetch 'next' station states for ${this.stationName}`
+        )
+      }
 
-      const nextStates = await this.$remoteProxy.fetchRelatedTeams(
-        this.stationName,
-        'next'
-      )
-      this.nextStates = nextStates
+      try {
+        const nextStates = await this.$remoteProxy.fetchRelatedTeams(
+          this.stationName,
+          'next'
+        )
+        this.nextStates = nextStates
+      } catch (error) {
+        console.error(
+          `Unable to fetch 'next' station states for ${this.stationName}`
+        )
+      }
     }
   }
 }
