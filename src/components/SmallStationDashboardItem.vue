@@ -1,7 +1,7 @@
 <template>
   <v-card>
-    <v-card-title>
-      <span :class="hasCancelled ? 'cancelled' : ''"><h1>{{ state.team }}</h1></span>
+    <v-card-title class="primary darken-3 pa-1 pl-3 pr-3">
+      <span :class="hasCancelled ? 'cancelled' : ''"><h4>{{ state.team }}</h4></span>
       <span class="cancelledHeader" v-if="hasCancelled">Cancelled</span>
     </v-card-title>
     <v-card-text>
@@ -51,7 +51,7 @@
   .cancelledHeader {
     color: #fa0;
     margin-left: 1em;
-    font-size: 120%;
+    font-size: 100%;
     font-weight: bold;
   }
 
