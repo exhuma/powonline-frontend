@@ -14,7 +14,7 @@
         v-model="teamFilter"
         append-icon="mdi-magnify"
         clearable
-        label="Filter"
+        label="Find a team by name/contact"
         @click:clear="onFilterCleared"
         hint="Filter list of teams by name and/or contact"
         ></v-text-field>
