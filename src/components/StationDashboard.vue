@@ -1,7 +1,9 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" md="6">
+      <v-col cols="1" class="quick-stat-column">
+      </v-col>
+      <v-col cols="10" md="4">
         <v-text-field
         v-model="teamFilter"
         append-icon="mdi-magnify"
@@ -11,30 +13,25 @@
         hint="Filter list of teams by name and/or contact"
         ></v-text-field>
 
-      <v-layout row>
-        <v-flex xs-4>
-          <v-checkbox name="showPending" label="Pending" v-model="showPending" />
-        </v-flex>
-        <v-flex xs-4>
-          <v-checkbox name="showArrived" label="Arrived" v-model="showArrived" />
-        </v-flex>
-        <v-flex xs-4>
-          <v-checkbox name="showFinished" label="Finished" v-model="showFinished" />
-        </v-flex>
-      </v-layout>
+        <v-layout row>
+          <v-flex xs-4>
+            <v-checkbox class="ml-4" name="showFinished" label="Show finished teams" v-model="showFinished" />
+          </v-flex>
+        </v-layout>
 
-      <small-station-dashboard-item
-          v-for="(state, idx) in allTeams"
-          class="mb-4"
-          @scoreUpdated="onScoreUpdated"
-          @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
-          @saveClicked="onSaveClicked"
-          @stateAdvanced="onStateAdvanced"
-          v-if="selectedStates.includes(state.state)"
-          :state="state"
-          :key="'small' + idx"></small-station-dashboard-item>
-
-      <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn text @click="snackbar = false">Close</v-btn></v-snackbar>
+        <small-station-dashboard-item
+            v-for="(state, idx) in allTeams"
+            class="mb-4"
+            @scoreUpdated="onScoreUpdated"
+            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+            @saveClicked="onSaveClicked"
+            @stateAdvanced="onStateAdvanced"
+            v-if="selectedStates.includes(state.state)"
+            :state="state"
+            :key="'small' + idx"></small-station-dashboard-item>
+        <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn text @click="snackbar = false">Close</v-btn></v-snackbar>
+      </v-col>
+      <v-col cols="1" class="quick-stat-column">
       </v-col>
     </v-row>
   </v-container>
