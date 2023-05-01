@@ -58,6 +58,7 @@
       <template v-slot:item="props">
         <tr>
           <td><v-img @click="() => openPreview(props.item)"
+            max-height="150"
             :lazy-src="props.item.tiny"
             :src="props.item.thumbnail" /></td>
           <td>{{ props.item.username }}</td>
