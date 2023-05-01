@@ -5,6 +5,7 @@
         <state-icon
           v-for="state in previousStates"
           :state="state.state"
+          :class="state.ageClass"
           :key="`${state.team}-previous`"
         ></state-icon>
       </v-col>
@@ -45,6 +46,7 @@
       <v-col cols="1" class="quick-stat-column right" v-ripple @click="goTo('next')">
         <state-icon
           v-for="state in nextStates"
+          :class="state.ageClass"
           :state="state.state"
           :key="`${state.team}-next`"
         ></state-icon>
@@ -54,6 +56,29 @@
 </template>
 
 <script>
+function applyAgeClasses(data) {
+  data.map((item) => {
+    if (item.updateAge > 60 * 60 || !item.updateAge) {
+      item.ageClass = { ancient: true }
+    } else if (item.updateAge > 30 * 60) {
+      item.ageClass = { old: true }
+    } else {
+      item.ageClass = { recent: true }
+    }
+  })
+  data.sort((a, b) => {
+    if (a) {
+      return 1
+    }
+    if (a.updateAge > b.updateAge) {
+      return -1
+    }
+    if (a.updateAge < b.updateAge) {
+      return 1
+    }
+    return 0
+  })
+}
 export default {
   name: 'station_dashboard',
   data () {
@@ -192,6 +217,7 @@ export default {
           this.stationName,
           'previous'
         )
+        applyAgeClasses(previousStates)
         this.previousStates = previousStates
       } catch (error) {
         console.error(
@@ -204,6 +230,7 @@ export default {
           this.stationName,
           'next'
         )
+        applyAgeClasses(nextStates)
         this.nextStates = nextStates
       } catch (error) {
         console.error(
@@ -297,5 +324,16 @@ export default {
 
 .bigrow {
   padding: 1em 0;
+}
+
+.old {
+  opacity: 0.7;
+}
+
+.ancient {
+  opacity: 0.3;
+}
+.recent {
+  opacity: 1;
 }
 </style>
