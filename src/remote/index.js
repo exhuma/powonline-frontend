@@ -750,6 +750,13 @@ class Proxy extends FakeProxy {
     )
     return response.data
   }
+
+  async fetchRelatedStation (localStationName, relation) {
+    const response = await axios.get(
+      `${this.baseUrl}/station/${localStationName}/related/${relation}`
+    )
+    return response.data
+  }
 }
 
 export default function makeRemoteProxy (fake, backendUrl) {

@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0">
     <v-row justify="center">
-      <v-col cols="1" class="quick-stat-column left">
+      <v-col cols="1" class="quick-stat-column left" v-ripple @click="goTo('previous')">
         <state-icon
           v-for="state in previousStates"
           :state="state.state"
@@ -37,7 +37,7 @@
             :key="'small' + idx"></small-station-dashboard-item>
         <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn text @click="snackbar = false">Close</v-btn></v-snackbar>
       </v-col>
-      <v-col cols="1" class="quick-stat-column right">
+      <v-col cols="1" class="quick-stat-column right" v-ripple @click="goTo('next')">
         <state-icon
           v-for="state in nextStates"
           :state="state.state"
@@ -62,7 +62,9 @@ export default {
       showArrived: true,
       showFinished: false,
       previousStates: {},
-      nextStates: {}
+      nextStates: {},
+      previousStation: '',
+      nextStation: ''
     }
   },
   computed: {
@@ -111,6 +113,28 @@ export default {
     this.refresh()
   },
   methods: {
+    goTo(relation) {
+      switch (relation) {
+        case 'previous':
+          if (this.previousStation !== '') {
+            this.$router.push(`/station/${this.previousStation}`)
+            this.refresh();
+          } else {
+            console.warn(`No station "before" ${this.stationName}`);
+          }
+          break;
+        case 'next':
+          if (this.nextStation !== '') {
+            this.$router.push(`/station/${this.nextStation}`)
+            this.refresh();
+          } else {
+            console.warn(`No station "after" ${this.stationName}`);
+          }
+          break;
+        default:
+          throw new Error(`Unknown relation: ${relation}`)
+      }
+    },
     onFilterCleared (e) {
       this.teamFilter = ''
     },
@@ -154,6 +178,8 @@ export default {
       this.snackbar = true
     },
     async refresh () {
+      this.previousStates = []
+      this.nextStates = []
       try {
         const previousStates = await this.$remoteProxy.fetchRelatedTeams(
           this.stationName,
@@ -162,7 +188,7 @@ export default {
         this.previousStates = previousStates
       } catch (error) {
         console.error(
-          `Unable to fetch 'next' station states for ${this.stationName}`
+          `Unable to fetch 'previous' station states for ${this.stationName} (${error})`
         )
       }
 
@@ -174,7 +200,29 @@ export default {
         this.nextStates = nextStates
       } catch (error) {
         console.error(
-          `Unable to fetch 'next' station states for ${this.stationName}`
+          `Unable to fetch 'next' station states for ${this.stationName} (${error})`
+        )
+      }
+
+      try {
+        this.previousStation = await this.$remoteProxy.fetchRelatedStation(
+          this.stationName,
+          'previous'
+        )
+      } catch (error) {
+        console.error(
+          `Unable to fetch 'previous' station for ${this.stationName} (${error})`
+        )
+      }
+
+      try {
+        this.nextStation = await this.$remoteProxy.fetchRelatedStation(
+          this.stationName,
+          'next'
+        )
+      } catch (error) {
+        console.error(
+          `Unable to fetch 'next' station for ${this.stationName} (${error})`
         )
       }
     }
@@ -190,6 +238,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-items: center;
+  cursor: pointer;
+}
+.quick-stat-column:hover {
+  background-color: #181818;
 }
 .quick-stat-column.left {
   border-right: 1px solid #272727;
