@@ -8,8 +8,12 @@
           :key="`${state.team}-previous`"
         ></state-icon>
       </v-col>
-      <v-col cols="10" md="4">
-        <h1 style="text-align: center">{{ stationName }}</h1>
+      <v-col cols="10" md="4" class="pa-0">
+        <div class="related-stations">
+          <div class="left" v-ripple @click="goTo('previous')">{{ previousStation }}</div>
+          <h2 class="stationName">{{ stationName }}</h2>
+          <div class="right" v-ripple @click="goTo('next')">{{ nextStation }}</div>
+        </div>
         <v-text-field
         v-model="teamFilter"
         append-icon="mdi-magnify"
@@ -17,9 +21,10 @@
         label="Find a team by name/contact"
         @click:clear="onFilterCleared"
         hint="Filter list of teams by name and/or contact"
+        class="ml-5 mr-5"
         ></v-text-field>
 
-        <v-layout row>
+        <v-layout row class="pl-5 pr-5">
           <v-flex xs-4>
             <v-checkbox class="ml-4" name="showFinished" label="Show finished teams" v-model="showFinished" />
           </v-flex>
@@ -27,7 +32,7 @@
 
         <small-station-dashboard-item
             v-for="(state, idx) in allTeams"
-            class="mb-4"
+            class="mb-4 ml-5 mr-5"
             @scoreUpdated="onScoreUpdated"
             @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
             @saveClicked="onSaveClicked"
@@ -180,6 +185,8 @@ export default {
     async refresh () {
       this.previousStates = []
       this.nextStates = []
+      this.previousStation = ''
+      this.nextStation = ''
       try {
         const previousStates = await this.$remoteProxy.fetchRelatedTeams(
           this.stationName,
@@ -231,6 +238,43 @@ export default {
 </script>
 
 <style scoped>
+
+.stationName {
+  text-align: center;
+  color: #c0c0c0;
+}
+
+.related-stations {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+.related-stations > DIV {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #272727;
+  border-bottom: 1px solid #272727;
+  color: #c0c0c0;
+  font-size: 80%;
+  font-weight: bold;
+  background-color: #151515;
+}
+.related-stations > DIV.left {
+  padding-right: 1.5em;
+  padding-left: 0.7em;
+  border-right: 1px solid #272727;
+}
+.related-stations > DIV.right {
+  padding-left: 1.5em;
+  padding-right: 0.7em;
+  border-left: 1px solid #272727;
+}
+
 .quick-stat-column {
   padding: 0;
   padding-top: 1em;
@@ -238,10 +282,11 @@ export default {
   display: flex;
   flex-direction: column;
   justify-items: center;
-  cursor: pointer;
 }
-.quick-stat-column:hover {
+.quick-stat-column:hover,
+.related-stations:hover > DIV {
   background-color: #181818;
+  cursor: pointer;
 }
 .quick-stat-column.left {
   border-right: 1px solid #272727;
