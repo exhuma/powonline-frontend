@@ -14,12 +14,12 @@
     "hellojs": "^1.18.1",
     "jwt-decode": "^2.2.0",
     "moment": "^2.24.0",
-    "vue-gallery": "^2.0.0",
-    "vue-swatches": "^1.0.3",
-    "vuex": "^3.1.1",
     "vue": "^2.7.7",
+    "vue-it-bigger": "^0.3.2",
     "vue-router": "^3.5.4",
-    "vuetify": "^2.6.15"
+    "vue-swatches": "^1.0.3",
+    "vuetify": "^2.6.15",
+    "vuex": "^3.1.1"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",

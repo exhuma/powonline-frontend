@@ -1,21 +1,22 @@
 <template>
   <div class="text-xs-center">
-    <v-container v-if="tokenIsAvailable">
-      <image-upload
-        @uploadStarted="onUploadStarted"
-        @uploadFailed="onUploadFailed"
-        @uploadFinished="onUploadDone"></image-upload>
-    </v-container>
-    <gallery :images="images" :index="index" @close="index = null"></gallery>
+    <LightBox :media="media" :showLightBox="false" ref="lightBox"></LightBox>
     <v-img
       class="image"
       v-for="(image, imageIndex) in images"
       :key="imageIndex"
       :src="image.thumbnail"
       :lazy-src="image.thumbnail"
-      @click="index = imageIndex"
-    >
-    </v-img>
+      @click="() => showLightbox(imageIndex)"
+    ></v-img>
+    <br clear="both" />
+    <v-container v-if="tokenIsAvailable">
+      <image-upload
+        @uploadStarted="onUploadStarted"
+        @uploadFailed="onUploadFailed"
+        @uploadFinished="onUploadDone"></image-upload>
+    </v-container>
+
     <v-snackbar
       v-if="!tokenIsAvailable"
       top
@@ -38,18 +39,20 @@
     background-position: center center;
     border: 1px solid #ebebeb;
     margin: 5px;
+    cursor: pointer;
   }
 </style>
 
 <script>
-// import VueGallery from 'vue-gallery'
+import LightBox from 'vue-it-bigger'
+import('vue-it-bigger/dist/vue-it-bigger.min.css')
 export default {
 
   created () {
     this.refreshImages()
   },
   components: {
-    // 'gallery': VueGallery
+    LightBox,
   },
   data () {
     return {
@@ -58,6 +61,9 @@ export default {
     }
   },
   methods: {
+    showLightbox(index) {
+      this.$refs.lightBox.showImage(index)
+    },
     refreshImages () {
       this.$store.dispatch('refreshGallery')
     },
@@ -93,8 +99,18 @@ export default {
   },
   computed: {
     images () {
-      console.log(this.$store.state.gallery)
       return this.$store.state.gallery
+    },
+    media () {
+      const output = this.$store.state.gallery.map((item) => {
+        return {
+          type: 'image',
+          thumb: item.thumbnail,
+          src: item.href,
+          caption: ''
+        }
+      })
+      return output;
     },
     tokenIsAvailable () {
       const token = this.$store.state.jwt
