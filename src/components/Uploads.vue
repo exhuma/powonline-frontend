@@ -43,6 +43,8 @@
           <v-spacer></v-spacer>
           <image-upload
             class="mr-1"
+            :fab="false"
+            label="Upload"
             @uploadStarted="onUploadStarted"
             @uploadFailed="onUploadFailed"
             @uploadFinished="onUploadDone"></image-upload>
