@@ -4,6 +4,7 @@
 import axios from 'axios'
 import Vue from 'vue'
 import EventBus from '@/plugins/eventBus'
+import moment from 'moment'
 
 Vue.mixin({
   beforeCreate () {
@@ -747,6 +748,19 @@ class Proxy extends FakeProxy {
     }
     response.data.sort(
       (a, b) => (statePrecedence[a.state] || 0) > (statePrecedence[b.state] || 0)
+    )
+    response.data.map((item) => {
+      item.updatedParsed = item.updated ? moment(item.updated) : null
+      if (item.updatedParsed) {
+        item.updateAge = moment().diff(item.updatedParsed, 'seconds')
+      }
+    })
+    return response.data
+  }
+
+  async fetchRelatedStation (localStationName, relation) {
+    const response = await axios.get(
+      `${this.baseUrl}/station/${localStationName}/related/${relation}`
     )
     return response.data
   }
