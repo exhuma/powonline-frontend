@@ -473,9 +473,6 @@ function makeStore (auth, remoteProxy) {
           let bdt = moment.utc(b.when)
           return bdt - adt
         })
-        data.forEach(item => {
-          console.log(item.when, item.name)
-        })
         state.gallery = data
       },
 
@@ -529,7 +526,6 @@ function makeStore (auth, remoteProxy) {
         })
         remoteProxy.getPublicImages()
           .then(data => {
-            console.log(data)
             context.commit('replaceGallery', data)
             EventBus.$emit('activityEvent', {
               visible: false,
