@@ -17,6 +17,15 @@
         ></route-dashboard>
       </v-tab-item>
       <v-tab-item>
+        <div class="grey--text text-right">
+          <strong class="mr-3">Legend:</strong>
+          <state-icon state="unknown"></state-icon>
+          Not arrived yet
+          <state-icon state="arrived"></state-icon>
+          Arrived/Playing
+          <state-icon state="finished"></state-icon>
+          Finished
+        </div>
         <route-dashboard-legacy
           v-for="route in routes()"
           :key="route.name"
