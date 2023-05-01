@@ -512,7 +512,7 @@ function makeStore (auth, remoteProxy) {
             })
           })
           .catch((e) => {
-            console.error(e)
+            console.warn(`Store was unable to fetch the application config (${e})`)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,

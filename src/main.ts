@@ -59,7 +59,7 @@ axios.interceptors.response.use(response => {
   // nothing to do on successful response
   return response
 }, error => {
-  console.error({msg: 'Remote error', error: error})
+  console.warn(`Unhandled remote error: ${error}`)
   return Promise.reject(error)
 })
 
@@ -107,7 +107,7 @@ new Vue({
         }
       })
       .catch(e => {
-        console.error(e)
+        console.warn(`Unable to fetch application config (${e})`)
       })
 
     // Logout user if JWT token has expired.

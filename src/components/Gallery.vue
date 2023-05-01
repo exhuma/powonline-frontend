@@ -93,6 +93,7 @@ export default {
   },
   computed: {
     images () {
+      console.log(this.$store.state.gallery)
       return this.$store.state.gallery
     },
     tokenIsAvailable () {
