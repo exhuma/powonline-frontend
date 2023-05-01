@@ -1,5 +1,9 @@
 <template>
   <div class="text-xs-center">
+    <v-alert v-if="images.length === 0" outlined text type="info" elevation="2">
+      <p><strong>No images yet.</strong></p>
+      <p>Click on the upload button on the bottom right to add new images.</p>
+    </v-alert>
     <LightBox :media="media" :showLightBox="false" ref="lightBox"></LightBox>
     <v-img
       class="image"
