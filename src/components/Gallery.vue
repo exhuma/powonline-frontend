@@ -42,14 +42,14 @@
 </style>
 
 <script>
-import VueGallery from 'vue-gallery'
+// import VueGallery from 'vue-gallery'
 export default {
 
   created () {
     this.refreshImages()
   },
   components: {
-    'gallery': VueGallery
+    // 'gallery': VueGallery
   },
   data () {
     return {

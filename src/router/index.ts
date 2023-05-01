@@ -10,7 +10,7 @@ import UserList from '@/components/UserList.vue'
 import TeamPanel from '@/components/TeamPanel.vue'
 import Changelog from '@/components/Changelog.vue'
 import Uploads from '@/components/Uploads.vue'
-// import Gallery from '@/components/Gallery.vue'
+import Gallery from '@/components/Gallery.vue'
 import LiveImage from '@/components/LiveImage.vue'
 import PrivacyPolicy from '@/components/PrivacyPolicy.vue'
 import AuditLog from '@/components/AuditLog.vue'
@@ -41,10 +41,10 @@ const router = new VueRouter({
       path: '/live-image',
       component: LiveImage
     },
-    // {
-    //   path: '/gallery',
-    //   component: Gallery
-    // },
+    {
+      path: '/gallery',
+      component: Gallery
+    },
     {
       path: '/uploads',
       component: Uploads
