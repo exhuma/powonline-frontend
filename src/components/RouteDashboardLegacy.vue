@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="white--text">{{ route.name }}</h1>
+    <h2 class="grey--text mt-2">{{ route.name }}</h2>
     <v-data-table
       :style="'border-left: 3px solid ' + routeColor"
       hide-default-footer
