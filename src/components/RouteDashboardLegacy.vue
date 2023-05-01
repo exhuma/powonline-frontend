@@ -10,7 +10,11 @@
         <tr>
           <td :class="props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'">{{props.item.team}}</td>
           <td v-for="cell in props.item.stations" :key="props.item.team + cell.station">
-            <v-icon :title="props.item.team + '@' + cell.station" v-if="cell.state !== 'unreachable'"> {{ getStateIcon(cell.state) }}</v-icon>
+            <state-icon
+              :title="props.item.team + '@' + cell.station"
+              :state="cell.state"
+              v-if="cell.state !== 'unreachable'"
+            ></state-icon>
           </td>
         </tr>
       </template>
@@ -27,8 +31,6 @@
 </style>
 
 <script>
-import util from '@/util'
-
 export default {
   name: 'route-dashboard-legacy',
   props: {
@@ -122,11 +124,6 @@ export default {
         }
       }
       return rows
-    }
-  },
-  methods: {
-    getStateIcon (state) {
-      return util.getStateIcon(state)
     }
   }
 }
