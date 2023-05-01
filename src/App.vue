@@ -19,29 +19,6 @@
           </template>
           <span>Login</span>
         </v-tooltip>
-        <template slot="extension">
-          <div style="display: flex; align-self: flex-end; flex-direction: column; flex-grow: 1;">
-            <div v-if="activity.text" class="text-center">
-              {{ activity.text }}
-            </div>
-            <v-progress-linear
-              v-show="!refreshProgress.visible"
-              height="1"></v-progress-linear>
-            <v-progress-linear
-              v-show="refreshProgress.visible"
-              height="1"
-              v-model="refreshProgress.progress"
-              ></v-progress-linear>
-            <v-progress-linear
-              v-if="!activity.visible"
-              height="1"></v-progress-linear>
-            <v-progress-linear
-              v-if="activity.visible"
-              height="1"
-              v-model="activity.progress"
-              :indeterminate="activity.progress === -1"></v-progress-linear>
-          </div>
-        </template>
       </v-app-bar>
 
       <v-navigation-drawer temporary app v-model="sideMenuVisible" class="hidden-sm-and-up">
@@ -56,6 +33,25 @@
       </v-navigation-drawer>
 
       <v-main>
+        <div v-if="activity.text" class="text-center activity-text">
+          {{ activity.text }}
+        </div>
+        <v-progress-linear
+          v-show="!refreshProgress.visible"
+          height="1"></v-progress-linear>
+        <v-progress-linear
+          v-show="refreshProgress.visible"
+          height="1"
+          v-model="refreshProgress.progress"
+          ></v-progress-linear>
+        <v-progress-linear
+          v-if="!activity.visible"
+          height="1"></v-progress-linear>
+        <v-progress-linear
+          v-if="activity.visible"
+          height="1"
+          v-model="activity.progress"
+          :indeterminate="activity.progress === -1"></v-progress-linear>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
@@ -123,6 +119,10 @@
 </template>
 
 <style scoped>
+  .activity-text {
+   font-size: 60%; 
+   background-color: var(--v-primary-darken4);
+  }
   SMALL {
     font-size: 60%;
   }

@@ -34,7 +34,7 @@
     <v-text-field
       label="Filter"
       v-model="userFilterText"
-      append-icon="search"
+      append-icon="mdi-magnify"
       hint="Filter list of teams by name and/or contact"
       ></v-text-field>
     <v-list two-line>
@@ -58,11 +58,13 @@
       </template>
     </v-list>
 
-    <div v-if="hasRole('admin')">
-      <v-btn @click="openCreateDialog" v-if="hasRole('admin')"
-        >Add new User</v-btn
-      >
-    </div>
+    <v-list-item v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-item here -->
+      <v-spacer />
+      <v-list-item-action>
+        <v-btn @click="openCreateDialog">Add new User</v-btn>
+      </v-list-item-action>
+    </v-list-item>
+
   </center-col>
 </template>
 

@@ -11,7 +11,7 @@
         :data="row"
         :color="row.color"></dashboard-progress-line>
       <v-divider class="ma-3"></v-divider>
-      <h1 class="primary--text">Finished Teams</h1>
+      <h1 class="primary--text text-center">Finished Teams</h1>
       <dashboard-progress-line
         row
         v-for="row in finishedTeams"

@@ -57,13 +57,16 @@
         @openEditDialog="onOpenEditDialog(station)"
         :station="station"
         :key="station.name"></station-block>
-      <v-list-item>
-        <v-spacer />
-        <v-list-item-action v-if="hasRole('admin')">
-          <v-btn class="pa-3" @click="openCreateDialog" v-if="hasRole('admin')">Add new Station</v-btn>
-        </v-list-item-action>
-      </v-list-item>
     </v-list>
+
+    <v-list-item v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-item here -->
+      <v-spacer />
+      <v-list-item-action>
+        <v-btn class="pa-3" @click="openCreateDialog">Add new Station</v-btn>
+      </v-list-item-action>
+    </v-list-item>
+
+
   </center-col>
 </template>
 
