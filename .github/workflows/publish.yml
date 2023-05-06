@@ -10,18 +10,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Add dependencies
-        run: apt-get install -y jq
+        run: sudo apt-get install -y jq
       - name: Get Version
-        run: jq -r .version package.json
-      # - name: Build Image
-      #   run: "docker build -t \"registry.digitalocean.com/michel-albert/\
-      #         powonline-frontend:2025.05.05\""
-      # - name: Install doctl
-      #   uses: digitalocean/action-doctl@v2
-      #   with:
-      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      # - name: Log in to DO container Registry
-      #   run: doctl registry login --expiry-seconds 600
-      # - name: Push
-      #   run: "docker push \"registry.digitalocean.com/michel-albert/\
-      #         powonline-frontend:2025.05.05\""
+        run: echo "PROJECT_VERSION=$(jq -r .version package.json)"
+             >> "${GITHUB_ENV}"
+      - name: Materialise .env file
+        run: echo "${{vars.ENV_FILE_PLAIN}}" > .env.local
+      - name: Add secrets to .env file
+        run: echo "VITE_PUSHER_KEY=${{secrets.VITE_PUSHER_KEY}}"
+             >> .env.local
+      - name: Build Image
+        run: "docker build \
+              -t \"registry.digitalocean.com/michel-albert/\
+                   powonline-frontend:${PROJECT_VERSION}\"
+              ."
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Log in to DO container Registry
+        run: doctl registry login --expiry-seconds 600
+      - name: Push
+        run: "docker push \"registry.digitalocean.com/michel-albert/\
+              powonline-frontend:${PROJECT_VERSION}\""
