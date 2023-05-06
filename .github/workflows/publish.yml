@@ -1,0 +1,27 @@
+---
+name: Build and Publish
+on:
+  push: {}
+    # tags: ["v*"]
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Add dependencies
+        run: apt-get install -y jq
+      - name: Get Version
+        run: jq -r .version package.json
+      # - name: Build Image
+      #   run: "docker build -t \"registry.digitalocean.com/michel-albert/\
+      #         powonline-frontend:2025.05.05\""
+      # - name: Install doctl
+      #   uses: digitalocean/action-doctl@v2
+      #   with:
+      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      # - name: Log in to DO container Registry
+      #   run: doctl registry login --expiry-seconds 600
+      # - name: Push
+      #   run: "docker push \"registry.digitalocean.com/michel-albert/\
+      #         powonline-frontend:2025.05.05\""
