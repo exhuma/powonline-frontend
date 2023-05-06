@@ -18,7 +18,7 @@ def _get_tag():
 @task
 def build_docker(conn):  # type: ignore
     tag = _get_tag()
-    conn.run("docker build -t {tag} .", replace_env=False, pty=True)
+    conn.run(f"docker build -t {tag} .", replace_env=False, pty=True)
 
 
 @task
