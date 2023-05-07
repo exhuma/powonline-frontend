@@ -4,35 +4,48 @@
       @dialogConfirmed="onDialogConfirmed"
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
-      title="Add New Route">
+      title="Add New Route"
+    >
       <v-layout row class="text-xs-left">
         <v-flex xs12>
           <v-text-field
             name="route-input"
             @keyup.enter.native="onDialogConfirmed"
-            type='text'
-            v-model='selectedRoute.name'
-            label='Enter a new routename' />
+            type="text"
+            v-model="selectedRoute.name"
+            label="Enter a new routename"
+          />
         </v-flex>
       </v-layout>
       <v-layout row class="text-xs-left" style="min-height: 30em">
         <v-flex xs3>Color</v-flex>
         <v-flex xs9>
-          <swatches colors="text-advanced" v-model="selectedRoute.color"
+          <swatches
+            colors="text-advanced"
+            v-model="selectedRoute.color"
             shapes="circles"
-            swatch-size="30"/>
+            swatch-size="30"
+          />
         </v-flex>
       </v-layout>
     </popup-dialog>
 
     <!-- List all routes -->
     <v-list two-line>
-      <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
+      <route-block
+        v-for="route in routes"
+        :route="route"
+        :key="route.name"
+      ></route-block>
     </v-list>
 
-    <div v-if="hasRole('admin')">
-      <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Route</v-btn>
-    </div>
+    <v-list-item v-if="hasRole(['admin'])">
+      <!-- TODO: should not use v-list-item here -->
+      <v-spacer />
+      <v-list-item-action>
+        <v-btn @click="openCreateDialog">Add new Route</v-btn>
+      </v-list-item-action>
+    </v-list-item>
   </center-col>
 </template>
 
@@ -42,7 +55,7 @@ import 'vue-swatches/dist/vue-swatches.min.css'
 import model from '@/model'
 export default {
   name: 'route_list',
-  components: {Swatches},
+  components: { Swatches },
   methods: {
     onDialogConfirmed: function (event) {
       const route = this.selectedRoute
@@ -67,18 +80,18 @@ export default {
       this.isAddBlockVisible = true
       this.sendMode = model.SEND_MODE.CREATE
     },
-    closeAddBlock () {
+    closeAddBlock() {
       this.isAddBlockVisible = false
     },
-    hasRole (roleName) {
+    hasRole(roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
-  created () {
+  created() {
     this.$store.commit('changeTitle', 'Route List')
     this.$store.dispatch('refreshRemote')
   },
-  data () {
+  data() {
     return {
       isAddBlockVisible: false,
       selectedRoute: model.route.makeEmpty(),
@@ -86,7 +99,7 @@ export default {
     }
   },
   computed: {
-    routes () {
+    routes() {
       let output = this.$store.state.routes.concat()
       output.sort((a, b) => {
         if (a.name < b.name) {
@@ -108,8 +121,9 @@ export default {
   padding-bottom: 5em;
 }
 
-.slide-enter-active, .slide-leave-active {
-  transition: all .3s
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
 }
 .slide-enter {
   transform: translateY(-100px);

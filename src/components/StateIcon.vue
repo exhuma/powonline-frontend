@@ -1,21 +1,28 @@
 <template>
-  <v-icon>{{ stateIcon }}</v-icon>
+  <v-icon :color="adaptiveColor">{{ stateIcon() }}</v-icon>
 </template>
 
 <script>
+import util from '@/util'
+
 export default {
   name: 'state-icon',
   props: ['state'],
   computed: {
-    stateIcon () {
+    adaptiveColor() {
       switch (this.state) {
-        case 'unknown':
-          return 'radio_button_unchecked'
         case 'arrived':
-          return 'radio_button_checked'
+          return 'yellow'
         case 'finished':
-          return 'check'
+          return 'green'
+        default:
+          return 'white'
       }
+    }
+  },
+  methods: {
+    stateIcon() {
+      return util.getStateIcon(this.state)
     }
   }
 }

@@ -2,15 +2,15 @@ export default {
   getStateIcon: function (stateName) {
     switch (stateName) {
       case 'unknown':
-        return 'radio_button_unchecked'
+        return 'mdi-radiobox-blank'
       case 'arrived':
-        return 'radio_button_checked'
+        return 'mdi-radiobox-indeterminate-variant'
       case 'finished':
-        return 'check'
+        return 'mdi-radiobox-marked'
       case 'unreachable':
-        return 'clear'
+        return 'mdi-cancel'
       default:
-        return 'radio_button_unchecked'
+        return 'mdi-radiobox-blank'
     }
   }
 }

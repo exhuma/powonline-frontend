@@ -24,7 +24,11 @@
     </popup-dialog>
 
     <v-dialog max-width="500px" v-model="isEditDialogVisible">
-      <user-block ref="userDialog" :name="selectedUserName" @closeButtonClicked="closeUserDialog"></user-block>
+      <user-block
+        ref="userDialog"
+        :name="selectedUserName"
+        @closeButtonClicked="closeUserDialog"
+      ></user-block>
     </v-dialog>
 
     <v-alert :value="errorMessage !== ''" type="error">
@@ -34,20 +38,17 @@
     <v-text-field
       label="Filter"
       v-model="userFilterText"
-      append-icon="search"
+      append-icon="mdi-magnify"
       hint="Filter list of teams by name and/or contact"
-      ></v-text-field>
+    ></v-text-field>
     <v-list two-line>
       <template v-for="item in filteredUsers">
-        <v-list-item
-          :key="item.name"
-          @click="() => openUserDialog(item.name)"
-        >
+        <v-list-item :key="item.name" @click="() => openUserDialog(item.name)">
           <v-list-item-avatar v-if="item.avatar_url">
-            <img :src="item.avatar_url">
+            <img :src="item.avatar_url" />
           </v-list-item-avatar>
           <v-list-item-avatar v-else>
-            <v-icon>account_circle</v-icon>
+            <v-icon>mdi-face-man</v-icon>
           </v-list-item-avatar>
 
           <v-list-item-content>
@@ -58,11 +59,13 @@
       </template>
     </v-list>
 
-    <div v-if="hasRole('admin')">
-      <v-btn @click="openCreateDialog" v-if="hasRole('admin')"
-        >Add new User</v-btn
-      >
-    </div>
+    <v-list-item v-if="hasRole(['admin'])">
+      <!-- TODO: should not use v-list-item here -->
+      <v-spacer />
+      <v-list-item-action>
+        <v-btn @click="openCreateDialog">Add new User</v-btn>
+      </v-list-item-action>
+    </v-list-item>
   </center-col>
 </template>
 
@@ -79,7 +82,12 @@ export default {
       if (this.userFilterText.trim() === '') {
         return this.users
       }
-      return this.users.filter(item => item.name.toLowerCase().search(this.userFilterText.trim().toLowerCase()) >= 0)
+      return this.users.filter(
+        (item) =>
+          item.name
+            .toLowerCase()
+            .search(this.userFilterText.trim().toLowerCase()) >= 0
+      )
     }
   },
   methods: {
@@ -119,14 +127,14 @@ export default {
       this.sendMode = model.SEND_MODE.CREATE
     },
 
-    closeAddBlock () {
+    closeAddBlock() {
       this.isAddBlockVisible = false
     },
-    hasRole (roleName) {
+    hasRole(roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
-  async created () {
+  async created() {
     this.$store.commit('changeTitle', 'User List')
     let users = []
     try {
@@ -137,7 +145,7 @@ export default {
     }
     this.users = users
   },
-  data () {
+  data() {
     return {
       userFilterText: '',
       errorMessage: '',

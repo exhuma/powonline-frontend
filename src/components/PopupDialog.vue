@@ -6,7 +6,7 @@
     scrollable
     fullscreen
     max-width="100em"
-    >
+  >
     <v-card>
       <v-card-title color="primary">
         {{ title }}
@@ -17,7 +17,7 @@
       <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
         <v-btn text @click="dismiss">Cancel</v-btn>
-        <v-btn @click="confirm">{{(editMode === true ? 'Save' : 'Add')}}</v-btn>
+        <v-btn @click="confirm">{{ editMode === true ? 'Save' : 'Add' }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -26,17 +26,12 @@
 <script>
 export default {
   name: 'popup-dialog',
-  props: [
-    'title',
-    'dialogVisible',
-    'customActionButtons',
-    'editMode'
-  ],
+  props: ['title', 'dialogVisible', 'customActionButtons', 'editMode'],
   methods: {
     confirm: function (event) {
       this.$emit('dialogConfirmed')
     },
-    dismiss () {
+    dismiss() {
       this.$emit('dialogDismissed')
     }
   }
@@ -44,8 +39,9 @@ export default {
 </script>
 
 <style scoped>
-.slide-enter-active, .slide-leave-active {
-  transition: all .3s
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
 }
 .slide-enter {
   transform: translateY(-100px);

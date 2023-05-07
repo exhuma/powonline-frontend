@@ -2,21 +2,19 @@
   <div>
     <v-text-field
       v-model="entryFilter"
-      append-icon="search"
+      append-icon="mdi-magnify"
       clearable
       label="Filter"
       @click:clear="onFilterCleared"
       hint="Filter entries"
-      ></v-text-field>
-    <v-data-table
-      :headers="headers"
-      :items="filteredEntries">
+    ></v-text-field>
+    <v-data-table :headers="headers" :items="filteredEntries">
       <template v-slot:top>
         <v-toolbar flat>
           <v-spacer></v-spacer>
           <v-btn class="secondary" @click="refresh()">
             Refresh
-            <v-icon>loop</v-icon>
+            <v-icon>mdi-refresh</v-icon>
           </v-btn>
         </v-toolbar>
       </template>
@@ -36,20 +34,20 @@
 import moment from 'moment'
 export default {
   name: 'auditlog',
-  data () {
+  data() {
     return {
       entries: [],
       entryFilter: '',
       headers: [
-        {text: 'Timestamp', sortable: false},
-        {text: 'User', sortable: false},
-        {text: 'Type', sortable: false},
-        {text: 'Message', sortable: false}
+        { text: 'Timestamp', sortable: false },
+        { text: 'User', sortable: false },
+        { text: 'Type', sortable: false },
+        { text: 'Message', sortable: false }
       ]
     }
   },
   computed: {
-    filteredEntries () {
+    filteredEntries() {
       let all = this.entries
       let filtered = null
       if (!this.entryFilter || this.entryFilter.length < 3) {
@@ -67,16 +65,17 @@ export default {
     }
   },
   methods: {
-    format_ts (ts) {
+    format_ts(ts) {
       let obj = moment(ts)
       return obj.format('YYYY-MM-DD HH:mm:ss')
     },
-    refresh () {
-      this.$remoteProxy.fetchAuditLog()
-        .then(result => {
+    refresh() {
+      this.$remoteProxy
+        .fetchAuditLog()
+        .then((result) => {
           this.entries = result
         })
-        .catch(e => {
+        .catch((e) => {
           console.error(e)
           this.$emit('snackRequested', {
             message: `Unable to update audit-log (${e.response.data})`,
@@ -84,11 +83,11 @@ export default {
           })
         })
     },
-    onFilterCleared (e) {
+    onFilterCleared(e) {
       this.entryFilter = ''
     }
   },
-  created () {
+  created() {
     this.refresh()
   }
 }

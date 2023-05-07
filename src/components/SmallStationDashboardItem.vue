@@ -1,19 +1,22 @@
 <template>
   <v-card>
-    <v-card-title>
-      <span :class="hasCancelled ? 'cancelled' : ''"><h1>{{ state.team }}</h1></span>
+    <v-card-title class="primary darken-3 pa-1 pl-3 pr-3">
+      <span :class="hasCancelled ? 'cancelled' : ''"
+        ><h4>{{ state.team }}</h4></span
+      >
       <span class="cancelledHeader" v-if="hasCancelled">Cancelled</span>
     </v-card-title>
     <v-card-text>
-      <v-container pa-0>
+      <v-container>
         <v-layout row align-center>
           <v-flex xs12>
             <v-text-field
               @keyup.enter="onScoreEnter"
               @change="updateScore"
-              type='number'
-              v-model='state.score'
-              label='Score' />
+              type="number"
+              v-model="state.score"
+              label="Score"
+            />
           </v-flex>
         </v-layout>
         <v-layout row align-center>
@@ -21,19 +24,22 @@
             <v-text-field
               @keyup.enter="onQuestionnaireScoreEnter"
               @change="updateQuestionnaireScore"
-              type='number'
-              v-model='questionnaireScore.score'
-              :label='"Questionnaire Score (" + questionnaireScore.name + ")"' />
+              type="number"
+              v-model="questionnaireScore.score"
+              :label="'Questionnaire Score (' + questionnaireScore.name + ')'"
+            />
           </v-flex>
         </v-layout>
         <v-layout row align-center>
           <v-flex xs6>
-            <v-btn
-              style="height: 4em;"
-              @click="advanceState(state)"><state-icon :state="state.state"></state-icon></v-btn>
+            <v-btn class="action-button" @click="advanceState(state)"
+              ><state-icon :state="state.state"></state-icon
+            ></v-btn>
           </v-flex>
           <v-flex xs6>
-            <v-btn style="height: 4em;" @click="saveChanges" color="success"><v-icon>save</v-icon></v-btn>
+            <v-btn class="action-button" @click="saveChanges" color="success"
+              ><v-icon>mdi-content-save</v-icon></v-btn
+            >
           </v-flex>
         </v-layout>
       </v-container>
@@ -42,47 +48,48 @@
 </template>
 
 <style scoped>
-  .cancelledHeader {
-    color: #fa0;
-    margin-left: 1em;
-    font-size: 120%;
-    font-weight: bold;
-  }
+.action-button {
+  min-height: 4em;
+  width: 100%;
+}
+.cancelledHeader {
+  color: #fa0;
+  margin-left: 1em;
+  font-size: 100%;
+  font-weight: bold;
+}
 
-  .cancelled {
-    text-decoration: line-through;
-    color: #888;
-  }
+.cancelled {
+  text-decoration: line-through;
+  color: #888;
+}
 </style>
 
 <script>
 export default {
   name: 'small-station-dashboard-item',
-  props: [
-    'state',
-    'cancelled'
-  ],
+  props: ['state', 'cancelled'],
   computed: {
-    hasCancelled () {
+    hasCancelled() {
       let teamDetails = this.$store.getters.findTeam(this.state.team)
       if (teamDetails === null) {
         return false
       }
       return teamDetails.cancelled
     },
-    questionnaireScore () {
+    questionnaireScore() {
       const team = this.$store.state.questionnaireScores[this.state.team]
       if (!team) {
         return {
-          'name': 'unknown',
-          'score': 0
+          name: 'unknown',
+          score: 0
         }
       }
       const score = team[this.state.station]
       if (!score) {
         return {
-          'name': 'unknown',
-          'score': 0
+          name: 'unknown',
+          score: 0
         }
       }
       return score

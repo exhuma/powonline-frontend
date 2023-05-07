@@ -1,0 +1,35 @@
+---
+name: Build and Publish
+on:
+  push:
+    tags: ['v*']
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Add dependencies
+        run: sudo apt-get install -y jq
+      - name: Get Version
+        run: echo "PROJECT_VERSION=$(jq -r .version package.json)"
+          >> "${GITHUB_ENV}"
+      - name: Materialise .env file
+        run: echo "${{vars.ENV_FILE_PLAIN}}" > .env.local
+      - name: Add secrets to .env file
+        run: echo "VITE_PUSHER_KEY=${{secrets.VITE_PUSHER_KEY}}"
+          >> .env.local
+      - name: Build Image
+        run: "docker build \
+          -t \"${{secrets.DOCKER_REGISTRY}}/\
+          powonline-frontend:${PROJECT_VERSION}\"
+          ."
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Log in to DO container Registry
+        run: doctl registry login --expiry-seconds 600
+      - name: Push
+        run: "docker push \"${{secrets.DOCKER_REGISTRY}}/\
+          powonline-frontend:${PROJECT_VERSION}\""

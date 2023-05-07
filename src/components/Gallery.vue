@@ -1,21 +1,27 @@
 <template>
   <div class="text-xs-center">
-    <v-container v-if="tokenIsAvailable">
-      <image-upload
-        @uploadStarted="onUploadStarted"
-        @uploadFailed="onUploadFailed"
-        @uploadFinished="onUploadDone"></image-upload>
-    </v-container>
-    <gallery :images="images" :index="index" @close="index = null"></gallery>
+    <v-alert v-if="images.length === 0" outlined text type="info" elevation="2">
+      <p><strong>No images yet.</strong></p>
+      <p>Click on the upload button on the bottom right to add new images.</p>
+    </v-alert>
+    <LightBox :media="media" :showLightBox="false" ref="lightBox"></LightBox>
     <v-img
       class="image"
       v-for="(image, imageIndex) in images"
       :key="imageIndex"
       :src="image.thumbnail"
       :lazy-src="image.thumbnail"
-      @click="index = imageIndex"
-    >
-    </v-img>
+      @click="() => showLightbox(imageIndex)"
+    ></v-img>
+    <br clear="both" />
+    <v-container v-if="tokenIsAvailable">
+      <image-upload
+        @uploadStarted="onUploadStarted"
+        @uploadFailed="onUploadFailed"
+        @uploadFinished="onUploadDone"
+      ></image-upload>
+    </v-container>
+
     <v-snackbar
       v-if="!tokenIsAvailable"
       top
@@ -23,52 +29,56 @@
       color="blue"
       timeout="5000"
       v-model="showUploadSnack"
-      >
-      <v-icon>info</v-icon>
+    >
+      <v-icon>mdi-information</v-icon>
       <strong>Tip:</strong> Login to upload
-      </v-snackbar>
+    </v-snackbar>
   </div>
 </template>
 
 <style scoped>
-  .image {
-    float: left;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    border: 1px solid #ebebeb;
-    margin: 5px;
-  }
+.image {
+  float: left;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border: 1px solid #ebebeb;
+  margin: 5px;
+  cursor: pointer;
+}
 </style>
 
 <script>
-import VueGallery from 'vue-gallery'
+import LightBox from 'vue-it-bigger'
+import('vue-it-bigger/dist/vue-it-bigger.min.css')
 export default {
-
-  created () {
+  created() {
     this.refreshImages()
   },
   components: {
-    'gallery': VueGallery
+    LightBox
   },
-  data () {
+  data() {
     return {
       index: null,
       showUploadSnack: true
     }
   },
   methods: {
-    refreshImages () {
+    showLightbox(index) {
+      this.$refs.lightBox.showImage(index)
+    },
+    refreshImages() {
       this.$store.dispatch('refreshGallery')
     },
-    onUploadStarted () {
+    onUploadStarted() {
       this.$emit('changeActivity', {
         visible: true,
         progress: -1,
         text: 'Uploading...'
       })
     },
-    onUploadDone () {
+    onUploadDone() {
       this.$emit('snackRequested', {
         message: 'Upload successful'
       })
@@ -79,10 +89,10 @@ export default {
         text: ''
       })
     },
-    onUploadFailed (event) {
+    onUploadFailed(event) {
       this.$emit('snackRequested', {
-        'message': `Unable to upload image (${event.message})`,
-        'color': 'red'
+        message: `Unable to upload image (${event.message})`,
+        color: 'red'
       })
       this.$emit('changeActivity', {
         visible: false,
@@ -92,10 +102,21 @@ export default {
     }
   },
   computed: {
-    images () {
+    images() {
       return this.$store.state.gallery
     },
-    tokenIsAvailable () {
+    media() {
+      const output = this.$store.state.gallery.map((item) => {
+        return {
+          type: 'image',
+          thumb: item.thumbnail,
+          src: item.href,
+          caption: ''
+        }
+      })
+      return output
+    },
+    tokenIsAvailable() {
       const token = this.$store.state.jwt
       const result = token !== ''
       return result

@@ -1,59 +1,53 @@
 <template>
   <v-layout row wrap>
     <v-flex xs6>
-      <v-dialog
-        persistent
-        v-model="dateDialogVisible"
-        width="290px">
+      <v-dialog persistent v-model="dateDialogVisible" width="290px">
         <template v-slot:activator="{ on }">
           <v-text-field
             :label="label"
             v-model="innerDateValue"
-            prepend-icon="event"
+            prepend-icon="mdi-calendar"
             readonly
-            v-on="on">
+            v-on="on"
+          >
           </v-text-field>
         </template>
-        <v-date-picker
-          v-model="innerDateValue"
-          :hint="hint"
-          :label="label">
-            <template slot-scope="{ save, cancel }">
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn flat @click="cancel">Cancel</v-btn>
-                <v-btn @click="save">OK</v-btn>
-              </v-card-actions>
-            </template>
+        <v-date-picker v-model="innerDateValue" :hint="hint" :label="label">
+          <template slot-scope="{ save, cancel }">
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn flat @click="cancel">Cancel</v-btn>
+              <v-btn @click="save">OK</v-btn>
+            </v-card-actions>
+          </template>
         </v-date-picker>
       </v-dialog>
     </v-flex>
     <v-flex xs6>
-      <v-dialog
-        persistent
-        v-model="timeDialogVisible"
-        width="290px">
+      <v-dialog persistent v-model="timeDialogVisible" width="290px">
         <template v-slot:activator="{ on }">
           <v-text-field
             :label="label"
             v-model="innerTimeValue"
-            prepend-icon="schedule"
+            prepend-icon="mdi-clock"
             readonly
-            v-on="on">
+            v-on="on"
+          >
           </v-text-field>
         </template>
         <v-time-picker
           v-model="innerTimeValue"
           :hint="hint"
           format="24hr"
-          :label="label">
-            <template slot-scope="{ save, cancel }">
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text @click="cancel">Cancel</v-btn>
-                <v-btn @click="save">OK</v-btn>
-              </v-card-actions>
-            </template>
+          :label="label"
+        >
+          <template slot-scope="{ save, cancel }">
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text @click="cancel">Cancel</v-btn>
+              <v-btn @click="save">OK</v-btn>
+            </v-card-actions>
+          </template>
         </v-time-picker>
       </v-dialog>
     </v-flex>
@@ -64,11 +58,7 @@
 import moment from 'moment'
 export default {
   name: 'date-time-picker',
-  props: [
-    'label',
-    'hint',
-    'timeValue'
-  ],
+  props: ['label', 'hint', 'timeValue'],
   computed: {
     innerTimeValue: {
       get: function () {
@@ -90,7 +80,7 @@ export default {
         if (nw.isValid()) {
           this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
         } else {
-          console.error({'Cannot set date value to': nw})
+          console.error({ 'Cannot set date value to': nw })
         }
       }
     },
@@ -114,12 +104,12 @@ export default {
         if (nw.isValid()) {
           this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
         } else {
-          console.error({'Cannot set date value to': nw})
+          console.error({ 'Cannot set date value to': nw })
         }
       }
     }
   },
-  data () {
+  data() {
     return {
       timeDialogVisible: false,
       dateDialogVisible: false

@@ -1,13 +1,13 @@
 <template>
   <center-col>
     <v-list id="Scoreboard">
-      <v-list-item v-for="row in leaderboard" :key="row.team">
+      <v-list-item v-for="row in leaderboard" :key="row[2]">
         <v-list-item-content>
           <v-container>
             <v-layout row :class="row[3]">
               <v-flex xs1>{{ row[0] }}</v-flex>
-              <v-flex xs9>{{ row[2] }}</v-flex>
-              <v-flex xs2 text-xs-right>{{ row[1] }} points</v-flex>
+              <v-flex xs8>{{ row[2] }}</v-flex>
+              <v-flex xs3 class="text-right">{{ row[1] }} points</v-flex>
             </v-layout>
           </v-container>
         </v-list-item-content>
@@ -17,21 +17,21 @@
 </template>
 
 <style scoped>
-  .cancelled {
-    text-decoration: line-through;
-    color: #888;
-  }
+.cancelled {
+  text-decoration: line-through;
+  color: #888;
+}
 </style>
 
 <script>
 export default {
   name: 'Scoreboard',
-  data () {
+  data() {
     return {
       intervalId: null
     }
   },
-  created () {
+  created() {
     this.$store.commit('changeTitle', 'Scoreboard')
     this.refresh()
     this.intervalId = setInterval(() => {
@@ -39,16 +39,16 @@ export default {
     }, 15000)
   },
   methods: {
-    refresh () {
+    refresh() {
       this.$store.dispatch('refreshGlobalDashboard')
       this.$store.dispatch('fetchQuestionnaireScores')
     }
   },
-  beforeDestroy () {
+  beforeDestroy() {
     clearInterval(this.intervalId)
   },
   computed: {
-    leaderboard () {
+    leaderboard() {
       const teamQuestScores = {}
       const teamScores = []
       const qScores = this.$store.state.questionnaireScores
@@ -71,10 +71,12 @@ export default {
         let position = 0
         let tmp = teamQuestScores[item.team] || 0
         let teamData = that.$store.getters.findTeam(item.team)
-        let cancelled = (teamData.cancelled ? 'cancelled' : '')
+        let cancelled = teamData.cancelled ? 'cancelled' : ''
         teamScores.push([position, score + tmp, item.team, cancelled])
       })
-      teamScores.sort(function (a, b) { return b[1] - a[1] })
+      teamScores.sort(function (a, b) {
+        return b[1] - a[1]
+      })
       let effectivePosition = 0
       let realPosition = 0
       let lastScore = 0
