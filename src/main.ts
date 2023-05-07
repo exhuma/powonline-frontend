@@ -2,7 +2,6 @@ import Vue from 'vue'
 
 import App from './App.vue'
 import router from './router'
-import axios from 'axios'
 import auth from './auth'
 import makeRemoteProxy from './remote'
 import storeFactory from './store'
@@ -33,40 +32,6 @@ import vuetify from './plugins/vuetify'
 
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
-
-/**
- * Inject the JWT token into each outgoing request if it's available
- */
-axios.interceptors.request.use(
-  (config) => {
-    const jwt = auth.get_token()
-    if (jwt !== '') {
-      if (auth.token_expired(jwt)) {
-        auth.renewToken(remoteProxy, jwt)
-      }
-      config.headers['Authorization'] = 'Bearer ' + jwt
-      console.debug('Intercepted and set auth token to ' + jwt)
-    }
-    return config
-  },
-  (error) => {
-    // nothing to do
-    return Promise.reject(error)
-  }
-)
-
-axios.defaults.withCredentials = true
-
-axios.interceptors.response.use(
-  (response) => {
-    // nothing to do on successful response
-    return response
-  },
-  (error) => {
-    console.warn(`Unhandled remote error: ${error}`)
-    return Promise.reject(error)
-  }
-)
 
 Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('center-col', CenterCol)

@@ -28,19 +28,6 @@ function makeStore(auth, remoteProxy) {
     },
     mutations: {
       /**
-       * Sets a new JWT token
-       *
-       * :param data: An object with two keys:
-       *    * token - The JWT token (without "Bearer" prefix)
-       *    * roles - A list of role-names which the user has assigned to himself
-       */
-      setToken(state, data) {
-        state.jwt = data['token']
-        state.roles = data['roles']
-        state.userName = data['userName']
-      },
-
-      /**
        * Flag the user as "logged in".
        *
        * :param data: An object with two keys:
@@ -66,6 +53,7 @@ function makeStore(auth, remoteProxy) {
         localStorage.removeItem('userName')
         state.jwt = ''
         state.roles = []
+        state.userName = ''
         console.debug('Successfully logged out user & cleared state')
       },
 
