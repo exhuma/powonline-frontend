@@ -30,9 +30,13 @@
       <route-block v-for="route in routes" :route="route" :key="route.name"></route-block>
     </v-list>
 
-    <div v-if="hasRole('admin')">
-      <v-btn @click="openCreateDialog" v-if="hasRole('admin')">Add new Route</v-btn>
-    </div>
+    <v-list-item v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-item here -->
+      <v-spacer />
+      <v-list-item-action>
+        <v-btn @click="openCreateDialog">Add new Route</v-btn>
+      </v-list-item-action>
+    </v-list-item>
+
   </center-col>
 </template>
 

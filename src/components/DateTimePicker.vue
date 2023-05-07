@@ -4,16 +4,16 @@
       <v-dialog
         persistent
         v-model="dateDialogVisible"
-        lazy
-        full-width
         width="290px">
-        <v-text-field
-          :label="label"
-          v-model="innerDateValue"
-          prepend-icon="event"
-          readonly
-          slot="activator">
-        </v-text-field>
+        <template v-slot:activator="{ on }">
+          <v-text-field
+            :label="label"
+            v-model="innerDateValue"
+            prepend-icon="mdi-calendar"
+            readonly
+            v-on="on">
+          </v-text-field>
+        </template>
         <v-date-picker
           v-model="innerDateValue"
           :hint="hint"
@@ -32,16 +32,16 @@
       <v-dialog
         persistent
         v-model="timeDialogVisible"
-        lazy
-        full-width
         width="290px">
-        <v-text-field
-          :label="label"
-          v-model="innerTimeValue"
-          prepend-icon="schedule"
-          readonly
-          slot="activator">
-        </v-text-field>
+        <template v-slot:activator="{ on }">
+          <v-text-field
+            :label="label"
+            v-model="innerTimeValue"
+            prepend-icon="mdi-clock"
+            readonly
+            v-on="on">
+          </v-text-field>
+        </template>
         <v-time-picker
           v-model="innerTimeValue"
           :hint="hint"
@@ -50,7 +50,7 @@
             <template slot-scope="{ save, cancel }">
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn flat @click="cancel">Cancel</v-btn>
+                <v-btn text @click="cancel">Cancel</v-btn>
                 <v-btn @click="save">OK</v-btn>
               </v-card-actions>
             </template>

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
-import EventBus from '@/eventBus'
+import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
 
 Vue.use(Vuex)
@@ -21,7 +21,7 @@ function makeStore (auth, remoteProxy) {
       jwt: auth.get_token(),
       roles: auth.get_roles(),
       userName: auth.get_username(),
-      baseUrl: process.env.BACKEND_URL,
+      baseUrl: import.meta.env.VITE_BACKEND_URL,
       pageTitle: 'Powonline',
       uploads: {},
       gallery: [],
@@ -473,9 +473,6 @@ function makeStore (auth, remoteProxy) {
           let bdt = moment.utc(b.when)
           return bdt - adt
         })
-        data.forEach(item => {
-          console.log(item.when, item.name)
-        })
         state.gallery = data
       },
 
@@ -512,7 +509,7 @@ function makeStore (auth, remoteProxy) {
             })
           })
           .catch((e) => {
-            console.error(e)
+            console.warn(`Store was unable to fetch the application config (${e})`)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
@@ -529,7 +526,6 @@ function makeStore (auth, remoteProxy) {
         })
         remoteProxy.getPublicImages()
           .then(data => {
-            console.log(data)
             context.commit('replaceGallery', data)
             EventBus.$emit('activityEvent', {
               visible: false,

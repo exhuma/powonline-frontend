@@ -1,70 +1,70 @@
 # powonline
 
-> A Mobile & Web App for a local event
+Powonline is an application to track team-progress from a local game-event.
 
-This repository serves as frontend for [powonline](https://github.com/exhuma/powonline)
+# Maintenance
 
-## Build Setup
+The project targets a docker-container for deployment. The appropriate
+`Dockerfile` is included in the project root. During the build process, a few
+environment variables are used and baked into the code. The reference for these
+variables (with sample data) is located in the `.env` file. See the "vite"
+documentation for more information on how env-files are loaded.
 
-``` bash
-# install dependencies
+The project contains a GitHub workflow to automate the build and publish
+process. For this process, the requirement environment variables can be set
+using GitHub secrets.
+
+## Recommended IDE Setup
+
+[VSCode](https://code.visualstudio.com/) +
+[Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and
+disable Vetur) + [TypeScript Vue Plugin
+(Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we
+replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need
+[TypeScript Vue Plugin
+(Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin)
+to make the TypeScript language service aware of `.vue` types.
+
+If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has
+also implemented a [Take Over
+Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669)
+that is more performant. You can enable it by the following steps:
+
+1. Disable the built-in TypeScript Extension
+    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
+    2) Find `TypeScript and JavaScript Language Features`, right click and
+       select `Disable (Workspace)`
+2. Reload the VSCode window by running `Developer: Reload Window` from the
+   command palette.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vitejs.dev/config/).
+
+## Project Setup
+
+```sh
 npm install
+```
 
-# Create local config files
+### Compile and Hot-Reload for Development
 
-The folder "config" contain several `.dist` files (like `pusher.env.js.dist`).
-
-Copy those and remove the `.dist` extension and fill in your site-specific
-details. The files are:
-
-* `pusher.env.js` - Contains configuration values for pusher.com
-* `siteSettings.env.js` - Contains configuration values your current
-  development site.
-
-# serve with hot reload at localhost:8080
+```sh
 npm run dev
+```
 
-# build for production with minification
+### Type-Check, Compile and Minify for Production
+
+```sh
 npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run all tests
-npm test
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### Lint with [ESLint](https://eslint.org/)
 
-
-## Deployment
-
-We use the Python task runner "invoke" to automate deployment. You need to
-install `invoke`, `fabric` and `patchwork` for this to work:
-
+```sh
+npm run lint
 ```
-pip install --user -U invoke fabric patchwork
-```
-
-To build the docker container run:
-
-* `inv build_docker -e prod`
-
-This will build the JS package for production, send it to the remote server and
-build the docker image on that host. Building remotely is necessary as I
-currently have a slow connection which makes building locally and uploading the
-image to a registry unfeasible.
-
-* Create copies of `api.env.dist` and `frontend.env.dist` (removing the `.dist`
-  suffix). Modify the values as necessary.
-
-Once this is done, run `inv deploy -e prod`
-
-### Configuration & Social Logins
-
-The application keeps site-config in the `static/config` folder. This folder
-contains site-specific settings and can (and likely should) be mounted as
-volume in docker containers.

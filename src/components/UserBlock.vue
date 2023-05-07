@@ -1,21 +1,35 @@
 <template>
   <v-card class="mt-3">
-    <v-card-title><span>User: "{{ name }}"</span></v-card-title>
+    <v-card-title class="mb-0"><span>{{ name }}</span></v-card-title>
     <v-card-text>
-      <h2>Roles</h2>
-      <user-role-checkbox
-        v-for="role in roles"
-        :key="role[0]"
-        :user="name"
-        :label="role[0]"
-        :role="role[0]"></user-role-checkbox>
-      <h2>Stations</h2>
-      <user-station-checkbox
-        v-for="station in stations"
-        :key="station[0]"
-        :user="name"
-        :label="station[0]"
-        :station="station[0]"></user-station-checkbox>
+      <v-combobox
+        multiple
+        chips
+        deletable-chips
+        small-chips
+        label="Roles"
+        hint="Select one or more roles for the user in this system"
+        v-model="selectedRoles"
+        @change="onRolesChanged"
+        :items="roles"
+        :loading="loading"
+        :read-only="loading"
+        >
+      </v-combobox>
+      <v-combobox
+        multiple
+        chips
+        deletable-chips
+        small-chips
+        label="Stations"
+        hint="Select one or more stations for the user in this system"
+        v-model="selectedStations"
+        @change="onStationsChanged"
+        :items="stations"
+        :loading="loading"
+        :read-only="loading"
+        >
+      </v-combobox>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
@@ -28,6 +42,7 @@
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
+      <v-btn @click="closeDialog">Close</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -38,26 +53,106 @@ export default {
   data () {
     return {
       roles: [],
-      stations: []
+      selectedRoles: [],
+      stations: [],
+      selectedStations: [],
+      refreshingItems: new Set(),
+      spinnerKey: 0,
+      loading: false
     }
   },
   methods: {
+    closeDialog () {
+      this.$emit('closeButtonClicked')
+    },
+    onRolesChanged (newRoles) {
+      this.roles.forEach(roleName => {
+        if (newRoles.includes(roleName)) {
+          this.$remoteProxy.addUserRole(this.name, roleName)
+        } else {
+          this.$remoteProxy.removeUserRole(this.name, roleName)
+        }
+      })
+    },
+    onStationsChanged (newStations) {
+      this.stations.forEach(stationName => {
+        if (newStations.includes(stationName)) {
+          this.$remoteProxy.addStationToUser(this.name, stationName)
+        } else {
+          this.$remoteProxy.removeStationFromUser(this.name, stationName)
+        }
+      })
+    },
+    refresh () {
+      this.refreshRoles()
+      this.refreshStations()
+    },
     refreshStations () {
+      const refreshKey = 'stations'
+      if (this.refreshingItems.has(refreshKey)) {
+        return
+      }
+      this.refreshingItems.add(refreshKey)
+      this.loading = true
+      this.spinnerKey += 1
       this.$remoteProxy.fetchUserStations(this.name)
         .then(items => {
-          this.stations = items
+          this.selectedStations = []
+          items.forEach(([stationName, isActive]) => {
+            if (!this.stations.includes(stationName)) {
+              this.stations.push(stationName)
+            }
+            if (isActive) {
+              this.selectedStations.push(stationName)
+            }
+          })
+          this.refreshingItems.delete(refreshKey)
+          if (this.refreshingItems.size === 0) {
+            this.loading = false
+          }
+          this.spinnerKey += 1
         })
         .catch(e => {
           this.$store.commit('logError', e)
+          this.refreshingItems.delete(refreshKey)
+          if (this.refreshingItems.size === 0) {
+            this.loading = false
+          }
+          this.spinnerKey += 1
         })
     },
     refreshRoles () {
+      const refreshKey = 'roles'
+      if (this.refreshingItems.has(refreshKey)) {
+        return
+      }
+      this.refreshingItems.add(refreshKey)
+      this.loading = true
+      this.spinnerKey += 1
       this.$remoteProxy.fetchUserRoles(this.name)
         .then(items => {
-          this.roles = items
+          this.selectedRoles = []
+          items.forEach(([roleName, isActive]) => {
+            if (!this.roles.includes(roleName)) {
+              this.roles.push(roleName)
+            }
+            if (isActive) {
+              this.selectedRoles.push(roleName)
+            }
+          })
+          this.refreshingItems.delete(refreshKey)
+          if (this.refreshingItems.size === 0) {
+            this.loading = false
+          }
+          this.spinnerKey += 1
         })
         .catch(e => {
           this.$store.commit('logError', e)
+          this.refreshingItems.delete(refreshKey)
+          if (this.refreshingItems.size === 0) {
+            this.loading = false
+          }
+          this.spinnerKey += 1
         })
     },
     hasRole (roleName) {
@@ -65,8 +160,7 @@ export default {
     }
   },
   created () {
-    this.refreshRoles()
-    this.refreshStations()
+    this.refresh()
   },
   props: {
     'name': {

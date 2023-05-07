@@ -30,7 +30,7 @@
     </popup-dialog>
     <v-text-field
       v-model="teamFilter"
-      append-icon="search"
+      append-icon="mdi-magnify"
       clearable
       label="Filter"
       @click:clear="onFilterCleared"
@@ -39,72 +39,67 @@
     <v-list>
       <v-list-group
         :key="item.title"
-        :value="item.active"
+        v-model="item.active"
         v-for="item in listItems"
-        no-action>
+        >
 
-        <v-list-tile slot="item" no-action>
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.data.name }}</v-list-tile-title>
-          </v-list-tile-content>
-          <v-list-tile-action>
-            <v-icon>keyboard_arrow_down</v-icon>
-          </v-list-tile-action>
-        </v-list-tile>
+        <template v-slot:activator>
+          <v-list-item-title>{{ item.data.name }}</v-list-item-title>
+        </template>
 
-        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.contact" :key="item.data.name + 'contact'">
-          <v-list-tile-content>
-            <v-list-tile-title>{{item.data.contact}}</v-list-tile-title>
-            <v-list-tile-sub-title>Contact</v-list-tile-sub-title>
-          </v-list-tile-content>
-          <v-list-tile-action>
-            <v-icon>face</v-icon>
-          </v-list-tile-action>
-        </v-list-tile>
+        <v-list-item v-if="hasRole(['admin', 'staff']) && item.data.contact" :key="item.data.name + 'contact'">
+          <v-list-item-content>
+            <v-list-item-title>{{item.data.contact}}</v-list-item-title>
+            <v-list-item-subtitle>Contact</v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-icon>mdi-contacts</v-icon>
+          </v-list-item-action>
+        </v-list-item>
 
-        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.phone" :key="item.data.name + 'phone'">
-          <v-list-tile-content>
-            <v-list-tile-title>
+        <v-list-item v-if="hasRole(['admin', 'staff']) && item.data.phone" :key="item.data.name + 'phone'">
+          <v-list-item-content>
+            <v-list-item-title>
               <a class="yellow--text" :href="`tel:${item.data.phone}`">{{item.data.phone}}</a>
-            </v-list-tile-title>
-            <v-list-tile-sub-title>Phone</v-list-tile-sub-title>
-          </v-list-tile-content>
-          <v-list-tile-action>
+            </v-list-item-title>
+            <v-list-item-subtitle>Phone</v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
             <a :href="`tel:${item.data.phone}`">
-              <v-btn icon flat class="yellow--text"><v-icon>phone</v-icon></v-btn></a>
-          </v-list-tile-action>
-        </v-list-tile>
+              <v-btn icon text class="yellow--text"><v-icon>mdi-card-account-phone</v-icon></v-btn></a>
+          </v-list-item-action>
+        </v-list-item>
 
-        <v-list-tile v-if="hasRole(['admin', 'staff']) && item.data.email" :key="item.data.name + 'email'">
-          <v-list-tile-content>
-            <v-list-tile-title>
+        <v-list-item v-if="hasRole(['admin', 'staff']) && item.data.email" :key="item.data.name + 'email'">
+          <v-list-item-content>
+            <v-list-item-title>
               <a class="yellow--text" :href="`mailto:${item.data.email}`">{{item.data.email}}</a>
-            </v-list-tile-title>
-            <v-list-tile-sub-title>e-mail</v-list-tile-sub-title>
-          </v-list-tile-content>
-          <v-list-tile-action>
+            </v-list-item-title>
+            <v-list-item-subtitle>e-mail</v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
             <a :href="`mailto:${item.data.email}`">
-              <v-btn icon flat class="yellow--text"><v-icon>email</v-icon></v-btn></a>
-          </v-list-tile-action>
-        </v-list-tile>
+              <v-btn icon text class="yellow--text"><v-icon>mdi-card-account-mail</v-icon></v-btn></a>
+          </v-list-item-action>
+        </v-list-item>
 
-        <v-list-tile v-if="hasRole(['admin'])" :key="item.data.name + 'info'" no-action>
-          <v-list-tile-content>
-            <v-list-tile-content>
+        <v-list-item v-if="hasRole(['admin'])" :key="item.data.name + 'info'" no-action>
+          <v-list-item-content>
+            <v-list-item-content>
               <v-btn :to="`/team/${item.data.name}`">Open Team Panel</v-btn>
-            </v-list-tile-content>
-          </v-list-tile-content>
-        </v-list-tile>
+            </v-list-item-content>
+          </v-list-item-content>
+        </v-list-item>
 
       </v-list-group>
     </v-list>
 
-    <v-list-tile v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-tile here -->
+    <v-list-item v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-item here -->
       <v-spacer />
-      <v-list-tile-action>
+      <v-list-item-action>
         <v-btn @click="openCreateDialog">Add new Team</v-btn>
-      </v-list-tile-action>
-    </v-list-tile>
+      </v-list-item-action>
+    </v-list-item>
   </center-col>
 </template>
 

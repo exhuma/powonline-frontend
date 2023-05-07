@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import TeamForm from '@/components/forms/TeamForm'
+import TeamForm from '@/components/forms/TeamForm.vue'
 
 export default {
   name: 'team-panel',

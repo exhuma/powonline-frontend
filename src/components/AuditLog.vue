@@ -2,7 +2,7 @@
   <div>
     <v-text-field
       v-model="entryFilter"
-      append-icon="search"
+      append-icon="mdi-magnify"
       clearable
       label="Filter"
       @click:clear="onFilterCleared"
@@ -11,14 +11,24 @@
     <v-data-table
       :headers="headers"
       :items="filteredEntries">
-      <template v-slot:items="props">
-        <td>{{ format_ts(props.item.timestamp) }}</td>
-        <td>{{ props.item.username }}</td>
-        <td>{{ props.item.type }}</td>
-        <td>{{ props.item.message }}</td>
+      <template v-slot:top>
+        <v-toolbar flat>
+          <v-spacer></v-spacer>
+          <v-btn class="secondary" @click="refresh()">
+            Refresh
+            <v-icon>mdi-refresh</v-icon>
+          </v-btn>
+        </v-toolbar>
+      </template>
+      <template v-slot:item="props">
+        <tr>
+          <td>{{ format_ts(props.item.timestamp) }}</td>
+          <td>{{ props.item.username }}</td>
+          <td>{{ props.item.type }}</td>
+          <td>{{ props.item.message }}</td>
+        </tr>
       </template>
     </v-data-table>
-    <v-btn @click="refresh()">Refresh</v-btn>
   </div>
 </template>
 

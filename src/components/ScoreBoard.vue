@@ -1,17 +1,17 @@
 <template>
   <center-col>
     <v-list id="Scoreboard">
-      <v-list-tile v-for="row in leaderboard" :key="row.team">
-        <v-list-tile-content>
+      <v-list-item v-for="row in leaderboard" :key="row[2]">
+        <v-list-item-content>
           <v-container>
             <v-layout row :class="row[3]">
               <v-flex xs1>{{ row[0] }}</v-flex>
-              <v-flex xs9>{{ row[2] }}</v-flex>
-              <v-flex xs2 text-xs-right>{{ row[1] }} points</v-flex>
+              <v-flex xs8>{{ row[2] }}</v-flex>
+              <v-flex xs3 class="text-right">{{ row[1] }} points</v-flex>
             </v-layout>
           </v-container>
-        </v-list-tile-content>
-      </v-list-tile>
+        </v-list-item-content>
+      </v-list-item>
     </v-list>
   </center-col>
 </template>
