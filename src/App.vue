@@ -105,10 +105,18 @@
                 <v-layout row wrap align-center>
                   <v-flex> Or login with: </v-flex>
                   <v-flex>
-                    <v-btn @click="login('google')">Google</v-btn>
+                    <v-btn
+                      :disabled="!googleKeyAvailable"
+                      @click="login('google')"
+                      >Google</v-btn
+                    >
                   </v-flex>
                   <v-flex>
-                    <v-btn @click="login('facebook')">Facebook</v-btn>
+                    <v-btn
+                      :disabled="!facebookKeyAvailable"
+                      @click="login('facebook')"
+                      >Facebook</v-btn
+                    >
                   </v-flex>
                 </v-layout>
                 <v-divider class="mt-4 mb-4"></v-divider>
@@ -293,6 +301,12 @@ export default {
     }
   },
   computed: {
+    googleKeyAvailable() {
+      return Boolean(import.meta.env.VITE_GOOGLE_PUBLIC_KEY)
+    },
+    facebookKeyAvailable() {
+      return Boolean(import.meta.env.VITE_FACEBOOK_PUBLIC_KEY)
+    },
     pageTitle() {
       return import.meta.env.VITE_PAGE_TITLE
     },
