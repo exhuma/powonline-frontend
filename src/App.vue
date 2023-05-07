@@ -293,6 +293,9 @@ export default {
     }
   },
   computed: {
+    pageTitle() {
+      return import.meta.env.VITE_PAGE_TITLE
+    },
     appUserName() {
       return this.$store.state.userName
     },
@@ -335,9 +338,6 @@ export default {
         icon: 'mdi-information'
       })
       return output
-    },
-    pageTitle() {
-      return this.$store.state.siteConfig.title
     },
     tokenIsAvailable() {
       const token = this.$store.state.jwt

@@ -106,7 +106,6 @@ new Vue({
       this.$store.commit('clearUserData')
     }
 
-    this.$store.dispatch('fetchSiteConfig')
     this.$store.dispatch('refreshRemote')
 
     // eslint-disable-next-line

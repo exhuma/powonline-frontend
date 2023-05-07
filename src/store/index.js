@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import axios from 'axios'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
 
@@ -25,8 +24,7 @@ function makeStore(auth, remoteProxy) {
       pageTitle: 'Powonline',
       uploads: {},
       gallery: [],
-      liveImageQueue: [],
-      siteConfig: {}
+      liveImageQueue: []
     },
     mutations: {
       /**
@@ -485,43 +483,9 @@ function makeStore(auth, remoteProxy) {
 
       consumeImage(state) {
         state.liveImageQueue.splice(0, 1)
-      },
-
-      updateConfig(state, payload) {
-        console.log('Committing site config', payload)
-        state.siteConfig = payload
       }
     },
     actions: {
-      fetchSiteConfig(context) {
-        EventBus.$emit('activityEvent', {
-          visible: true,
-          progress: -1,
-          text: ''
-        })
-        console.log('Updating site config')
-        axios
-          .get('/static/config/config.json')
-          .then((response) => {
-            context.commit('updateConfig', response.data)
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
-          })
-          .catch((e) => {
-            console.warn(
-              `Store was unable to fetch the application config (${e})`
-            )
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
-          })
-      },
-
       refreshGallery(context) {
         EventBus.$emit('activityEvent', {
           visible: true,

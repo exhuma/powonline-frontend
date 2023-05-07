@@ -9,13 +9,13 @@ type HelloConfig = {
 
 export function init() {
   const helloConfig: HelloConfig = { google: '', facebook: '' }
-  if (import.meta.env.GOOGLE_PUBLIC_KEY) {
-    helloConfig['google'] = import.meta.env.GOOGLE_PUBLIC_KEY
+  if (import.meta.env.VITE_GOOGLE_PUBLIC_KEY) {
+    helloConfig['google'] = import.meta.env.VITE_GOOGLE_PUBLIC_KEY
   } else {
     console.info('No Google Public Key Set. Google Auth will not be available')
   }
-  if (import.meta.env.FACEBOOK_PUBLIC_KEY) {
-    helloConfig['facebook'] = import.meta.env.FACEBOOK_PUBLIC_KEY
+  if (import.meta.env.VITE_FACEBOOK_PUBLIC_KEY) {
+    helloConfig['facebook'] = import.meta.env.VITE_FACEBOOK_PUBLIC_KEY
   } else {
     console.info(
       'No Facebook Public Key Set. Facebook Auth will not be available'
