@@ -46,8 +46,6 @@ axios.interceptors.request.use(
       }
       config.headers['Authorization'] = 'Bearer ' + jwt
       console.debug('Intercepted and set auth token to ' + jwt)
-    } else {
-      console.debug('JWT was null!')
     }
     return config
   },
