@@ -28,6 +28,7 @@ import CombinedDashboard from './components/CombinedDashboard.vue'
 import DashboardProgressLine from './components/DashboardProgressLine.vue'
 
 import social from './auth/social'
+import events from './events'
 import vuetify from './plugins/vuetify'
 
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
@@ -105,60 +106,12 @@ new Vue({
     if (tokenCleared) {
       this.$store.commit('clearUserData')
     }
-
     this.$store.dispatch('refreshRemote')
-
-    // eslint-disable-next-line
-    if (import.meta.env.VITE_PUSHER_KEY && Pusher) {
-      // eslint-disable-next-line
-      Pusher.logToConsole = import.meta.env.VITE_PUSHER_DEBUG
-      // eslint-disable-next-line
-      var pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
-        cluster: 'eu',
-        encrypted: true
-      })
-      var teamChannel = pusher.subscribe(
-        import.meta.env.VITE_PUSHER_TEAM_CHANNEL
-      )
-      let that = this
-      teamChannel.bind('state-change', function (data) {
-        that.$store.commit('updateTeamState', data)
-      })
-      teamChannel.bind('score-change', function (data) {
-        that.$store.commit('updateTeamState', data)
-      })
-      teamChannel.bind('questionnaire-score-change', function (data) {
-        that.$store.commit('setQuestionnaireScore', data)
-      })
-      teamChannel.bind('team-details-change', function (data) {
-        that.$remoteProxy.fetchTeam(data.name).then((newData) => {
-          that.$store.commit('updateTeam', {
-            team: data.name,
-            newData: newData
-          })
-        })
-      })
-      teamChannel.bind('team-deleted', function (data) {
-        that.$store.commit('deleteTeam', data.name)
-      })
-
-      var fileChannel = pusher.subscribe(
-        import.meta.env.VITE_PUSHER_FILE_CHANNEL
-      )
-      fileChannel.bind('file-added', function (data) {
-        that.$store.dispatch('refreshUploads')
-        that.$store.dispatch('refreshGallery')
-        that.$store.commit('addImageToLiveQueue', data)
-      })
-      fileChannel.bind('file-deleted', function (data) {
-        that.$store.dispatch('refreshUploads')
-        that.$store.dispatch('refreshGallery')
-      })
-      // eslint-disable-next-line
-    } else if (!Pusher) {
-      console.error('No pusher-client found. Auto-updates will be disabled')
-    } else {
-      console.warn('Pusher key not specified. Pusher disabled!')
-    }
+    events.init(store, remoteProxy, {
+      key: import.meta.env.VITE_PUSHER_KEY,
+      debug: Boolean(import.meta.env.VITE_PUSHER_DEBUG),
+      teamChannel: import.meta.env.VITE_PUSHER_TEAM_CHANNEL,
+      fileChannel: import.meta.env.VITE_PUSHER_FILE_CHANNEL
+    })
   }
 }).$mount('#app')
