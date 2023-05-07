@@ -120,7 +120,7 @@
 
 <style scoped>
   .activity-text {
-   font-size: 60%; 
+   font-size: 60%;
    background-color: var(--v-primary-darken4);
   }
   SMALL {
