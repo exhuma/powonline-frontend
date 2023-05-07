@@ -18,21 +18,17 @@
 <script>
 export default {
   name: 'confirmation-dialog',
-  data () {
+  data() {
     return {
       isDialogVisible: false
     }
   },
-  props: [
-    'actionArgument',
-    'actionName',
-    'buttonText'
-  ],
+  props: ['actionArgument', 'actionName', 'buttonText'],
   methods: {
-    discardAction () {
+    discardAction() {
       this.isDialogVisible = false
     },
-    acceptAction () {
+    acceptAction() {
       this.$store.dispatch(this.actionName, this.actionArgument)
       this.isDialogVisible = false
     }

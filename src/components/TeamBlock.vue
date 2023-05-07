@@ -4,7 +4,9 @@
       <v-list-item-title>{{ team.name }}</v-list-item-title>
     </v-list-item-content>
     <v-list-item-action>
-      <v-icon v-show="routeColor !== null" :style="routeColor">mdi-gesture</v-icon>
+      <v-icon v-show="routeColor !== null" :style="routeColor"
+        >mdi-gesture</v-icon
+      >
     </v-list-item-action>
     <v-list-item-action v-if="hasRole('admin')">
       <v-btn @click="openEditDialog" icon><v-icon>mdi-pencil</v-icon></v-btn>
@@ -13,11 +15,16 @@
       <confirmation-dialog
         buttonText="Delete"
         :actionArgument="name"
-        actionName="deleteTeamRemote">
-        <span slot="title">Do you want to delete the team "{{ team.name }}"?</span>
+        actionName="deleteTeamRemote"
+      >
+        <span slot="title"
+          >Do you want to delete the team "{{ team.name }}"?</span
+        >
         <div slot="text">
-          <p>this will delete the team with the name "{{ team.name }}" and all
-            related information!</p>
+          <p>
+            this will delete the team with the name "{{ team.name }}" and all
+            related information!
+          </p>
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
@@ -29,22 +36,22 @@
 import model from '@/model'
 export default {
   name: 'team-block',
-  data () {
+  data() {
     return {
       stations: []
     }
   },
   props: {
-    'team': {
+    team: {
       type: Object,
       default: model.team.makeEmpty()
     }
   },
 
   computed: {
-    routeColor () {
+    routeColor() {
       let selectedTeam = null
-      this.$store.state.teams.forEach(team => {
+      this.$store.state.teams.forEach((team) => {
         if (team.name !== this.team.name) {
           return
         }
@@ -52,7 +59,7 @@ export default {
       })
 
       let selectedRoute = null
-      this.$store.state.routes.forEach(route => {
+      this.$store.state.routes.forEach((route) => {
         if (route.name !== selectedTeam.route_name) {
           return
         }
@@ -70,16 +77,16 @@ export default {
     }
   },
 
-  created () {
-    this.$remoteProxy.fetchTeamStations(this.team.name).then(items => {
+  created() {
+    this.$remoteProxy.fetchTeamStations(this.team.name).then((items) => {
       this.stations = items
     })
   },
   methods: {
-    hasRole (roleName) {
+    hasRole(roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     },
-    openEditDialog () {
+    openEditDialog() {
       this.$emit('openEditDialog')
     }
   }

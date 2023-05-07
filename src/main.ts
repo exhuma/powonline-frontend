@@ -36,32 +36,38 @@ const store = storeFactory.makeStore(auth, remoteProxy)
 /**
  * Inject the JWT token into each outgoing request if it's available
  */
-axios.interceptors.request.use(config => {
-  const jwt = auth.get_token()
-  if (jwt !== '') {
-    if (auth.token_expired(jwt)) {
-      auth.renewToken(remoteProxy, jwt)
+axios.interceptors.request.use(
+  (config) => {
+    const jwt = auth.get_token()
+    if (jwt !== '') {
+      if (auth.token_expired(jwt)) {
+        auth.renewToken(remoteProxy, jwt)
+      }
+      config.headers['Authorization'] = 'Bearer ' + jwt
+      console.debug('Intercepted and set auth token to ' + jwt)
+    } else {
+      console.debug('JWT was null!')
     }
-    config.headers['Authorization'] = 'Bearer ' + jwt
-    console.debug('Intercepted and set auth token to ' + jwt)
-  } else {
-    console.debug('JWT was null!')
+    return config
+  },
+  (error) => {
+    // nothing to do
+    return Promise.reject(error)
   }
-  return config
-}, error => {
-  // nothing to do
-  return Promise.reject(error)
-})
+)
 
 axios.defaults.withCredentials = true
 
-axios.interceptors.response.use(response => {
-  // nothing to do on successful response
-  return response
-}, error => {
-  console.warn(`Unhandled remote error: ${error}`)
-  return Promise.reject(error)
-})
+axios.interceptors.response.use(
+  (response) => {
+    // nothing to do on successful response
+    return response
+  },
+  (error) => {
+    console.warn(`Unhandled remote error: ${error}`)
+    return Promise.reject(error)
+  }
+)
 
 Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('center-col', CenterCol)
@@ -91,22 +97,24 @@ new Vue({
   vuetify,
   render: (h) => h(App),
   created: function () {
-    document.title = import.meta.env.VITE_PAGE_TITLE || "powonline";
+    document.title = import.meta.env.VITE_PAGE_TITLE || 'powonline'
     // If the token has expired, remove it completely.
     // ... otherwise, the UI still looks as if we were logged in
 
     // Configure social login providers
-    axios.get('/static/config/config.json')
-      .then(response => {
+    axios
+      .get('/static/config/config.json')
+      .then((response) => {
         if (!response.data.hello) {
           console.warn(
-            'No config for hellojs found. Social logins will not work!')
+            'No config for hellojs found. Social logins will not work!'
+          )
         } else {
-          hello.init(response.data.hello, {redirect_uri: 'redirect.html'})
+          hello.init(response.data.hello, { redirect_uri: 'redirect.html' })
           console.log('Social logins initialised.')
         }
       })
-      .catch(e => {
+      .catch((e) => {
         console.warn(`Unable to fetch application config (${e})`)
       })
 
@@ -128,7 +136,9 @@ new Vue({
         cluster: 'eu',
         encrypted: true
       })
-      var teamChannel = pusher.subscribe(import.meta.env.VITE_PUSHER_TEAM_CHANNEL)
+      var teamChannel = pusher.subscribe(
+        import.meta.env.VITE_PUSHER_TEAM_CHANNEL
+      )
       let that = this
       teamChannel.bind('state-change', function (data) {
         that.$store.commit('updateTeamState', data)
@@ -140,16 +150,20 @@ new Vue({
         that.$store.commit('setQuestionnaireScore', data)
       })
       teamChannel.bind('team-details-change', function (data) {
-        that.$remoteProxy.fetchTeam(data.name)
-          .then(newData => {
-            that.$store.commit('updateTeam', {team: data.name, newData: newData})
+        that.$remoteProxy.fetchTeam(data.name).then((newData) => {
+          that.$store.commit('updateTeam', {
+            team: data.name,
+            newData: newData
           })
+        })
       })
       teamChannel.bind('team-deleted', function (data) {
         that.$store.commit('deleteTeam', data.name)
       })
 
-      var fileChannel = pusher.subscribe(import.meta.env.VITE_PUSHER_FILE_CHANNEL)
+      var fileChannel = pusher.subscribe(
+        import.meta.env.VITE_PUSHER_FILE_CHANNEL
+      )
       fileChannel.bind('file-added', function (data) {
         that.$store.dispatch('refreshUploads')
         that.$store.dispatch('refreshGallery')
@@ -159,7 +173,7 @@ new Vue({
         that.$store.dispatch('refreshUploads')
         that.$store.dispatch('refreshGallery')
       })
-    // eslint-disable-next-line
+      // eslint-disable-next-line
     } else if (!Pusher) {
       console.error('No pusher-client found. Auto-updates will be disabled')
     } else {
@@ -176,17 +190,22 @@ new Vue({
  */
 hello.on('auth.login', function (ath) {
   // Fetch user details from the selected network
-  hello(ath.network).api('me').then(function (userInfo) {
-    // Now we can autheticate with the powonline backend
-    remoteProxy.socialLogin(
-      ath.authResponse.network,
-      userInfo.id,
-      ath.authResponse.access_token
-    ).then(data => {
-      store.commit('updateUserData', data)
-    }).catch(e => {
-      // TODO show message as snack-text
-      store.commit('clearUserData')
+  hello(ath.network)
+    .api('me')
+    .then(function (userInfo) {
+      // Now we can autheticate with the powonline backend
+      remoteProxy
+        .socialLogin(
+          ath.authResponse.network,
+          userInfo.id,
+          ath.authResponse.access_token
+        )
+        .then((data) => {
+          store.commit('updateUserData', data)
+        })
+        .catch((e) => {
+          // TODO show message as snack-text
+          store.commit('clearUserData')
+        })
     })
-  })
 })

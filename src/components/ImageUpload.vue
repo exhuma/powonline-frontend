@@ -1,23 +1,27 @@
 <template>
-    <div v-if="tokenIsAvailable">
-      <input v-show="false"
-        @change="sendUpload"
-        ref="fileInput"
-        type="file"
-        name="file"
-        accept="image/*;capture=camera" />
-      <v-btn
-        :class="{
-          secondary: true,
-          'hidden-sm-and-up': fab && isMobile,
-          'hidden-xs-only': fab && !isMobile,
-          'mobile-margin': fab && isMobile,
-          'wide-margin': fab && !isMobile,
-        }"
-        :fab="fab"
-        @click="$refs.fileInput.click()"
-        ><span class="mr-2" v-if="label">{{ label }}</span><v-icon>mdi-cloud-upload</v-icon></v-btn>
-    </div>
+  <div v-if="tokenIsAvailable">
+    <input
+      v-show="false"
+      @change="sendUpload"
+      ref="fileInput"
+      type="file"
+      name="file"
+      accept="image/*;capture=camera"
+    />
+    <v-btn
+      :class="{
+        secondary: true,
+        'hidden-sm-and-up': fab && isMobile,
+        'hidden-xs-only': fab && !isMobile,
+        'mobile-margin': fab && isMobile,
+        'wide-margin': fab && !isMobile
+      }"
+      :fab="fab"
+      @click="$refs.fileInput.click()"
+      ><span class="mr-2" v-if="label">{{ label }}</span
+      ><v-icon>mdi-cloud-upload</v-icon></v-btn
+    >
+  </div>
 </template>
 
 <script>
@@ -34,21 +38,22 @@ export default {
     }
   },
   computed: {
-    tokenIsAvailable () {
+    tokenIsAvailable() {
       const token = this.$store.state.jwt
       const result = token !== ''
       return result
     }
   },
-  data () {
+  data() {
     return {
       isMobile: false
     }
   },
   methods: {
-    sendUpload () {
+    sendUpload() {
       this.$emit('uploadStarted')
-      this.$remoteProxy.sendUpload(this.$refs.fileInput.files[0])
+      this.$remoteProxy
+        .sendUpload(this.$refs.fileInput.files[0])
         .then((data) => {
           this.$emit('uploadFinished')
         })
@@ -59,13 +64,13 @@ export default {
             message = e.response.data
           }
           this.$emit('uploadFailed', {
-            'message': message
+            message: message
           })
         })
     },
-    onResize () {
+    onResize() {
       this.isMobile = window.innerWidth < 600
-    },
+    }
   },
   beforeDestroy() {
     if (typeof window === 'undefined') return

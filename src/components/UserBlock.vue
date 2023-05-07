@@ -1,6 +1,8 @@
 <template>
   <v-card class="mt-3">
-    <v-card-title class="mb-0"><span>{{ name }}</span></v-card-title>
+    <v-card-title class="mb-0"
+      ><span>{{ name }}</span></v-card-title
+    >
     <v-card-text>
       <v-combobox
         multiple
@@ -14,7 +16,7 @@
         :items="roles"
         :loading="loading"
         :read-only="loading"
-        >
+      >
       </v-combobox>
       <v-combobox
         multiple
@@ -28,17 +30,23 @@
         :items="stations"
         :loading="loading"
         :read-only="loading"
-        >
+      >
       </v-combobox>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions v-if="hasRole('admin')">
       <v-spacer />
-      <confirmation-dialog buttonText="Delete" :actionArgument="name" actionName="deleteUserRemote">
+      <confirmation-dialog
+        buttonText="Delete"
+        :actionArgument="name"
+        actionName="deleteUserRemote"
+      >
         <span slot="title">Do you want to delete the user "{{ name }}"?</span>
         <div slot="text">
-          <p>this will delete the user with the name "{{ name }}" and all
-            related information!</p>
+          <p>
+            this will delete the user with the name "{{ name }}" and all related
+            information!
+          </p>
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
@@ -50,7 +58,7 @@
 <script>
 export default {
   name: 'user-block',
-  data () {
+  data() {
     return {
       roles: [],
       selectedRoles: [],
@@ -62,11 +70,11 @@ export default {
     }
   },
   methods: {
-    closeDialog () {
+    closeDialog() {
       this.$emit('closeButtonClicked')
     },
-    onRolesChanged (newRoles) {
-      this.roles.forEach(roleName => {
+    onRolesChanged(newRoles) {
+      this.roles.forEach((roleName) => {
         if (newRoles.includes(roleName)) {
           this.$remoteProxy.addUserRole(this.name, roleName)
         } else {
@@ -74,8 +82,8 @@ export default {
         }
       })
     },
-    onStationsChanged (newStations) {
-      this.stations.forEach(stationName => {
+    onStationsChanged(newStations) {
+      this.stations.forEach((stationName) => {
         if (newStations.includes(stationName)) {
           this.$remoteProxy.addStationToUser(this.name, stationName)
         } else {
@@ -83,11 +91,11 @@ export default {
         }
       })
     },
-    refresh () {
+    refresh() {
       this.refreshRoles()
       this.refreshStations()
     },
-    refreshStations () {
+    refreshStations() {
       const refreshKey = 'stations'
       if (this.refreshingItems.has(refreshKey)) {
         return
@@ -95,8 +103,9 @@ export default {
       this.refreshingItems.add(refreshKey)
       this.loading = true
       this.spinnerKey += 1
-      this.$remoteProxy.fetchUserStations(this.name)
-        .then(items => {
+      this.$remoteProxy
+        .fetchUserStations(this.name)
+        .then((items) => {
           this.selectedStations = []
           items.forEach(([stationName, isActive]) => {
             if (!this.stations.includes(stationName)) {
@@ -112,7 +121,7 @@ export default {
           }
           this.spinnerKey += 1
         })
-        .catch(e => {
+        .catch((e) => {
           this.$store.commit('logError', e)
           this.refreshingItems.delete(refreshKey)
           if (this.refreshingItems.size === 0) {
@@ -121,7 +130,7 @@ export default {
           this.spinnerKey += 1
         })
     },
-    refreshRoles () {
+    refreshRoles() {
       const refreshKey = 'roles'
       if (this.refreshingItems.has(refreshKey)) {
         return
@@ -129,8 +138,9 @@ export default {
       this.refreshingItems.add(refreshKey)
       this.loading = true
       this.spinnerKey += 1
-      this.$remoteProxy.fetchUserRoles(this.name)
-        .then(items => {
+      this.$remoteProxy
+        .fetchUserRoles(this.name)
+        .then((items) => {
           this.selectedRoles = []
           items.forEach(([roleName, isActive]) => {
             if (!this.roles.includes(roleName)) {
@@ -146,7 +156,7 @@ export default {
           }
           this.spinnerKey += 1
         })
-        .catch(e => {
+        .catch((e) => {
           this.$store.commit('logError', e)
           this.refreshingItems.delete(refreshKey)
           if (this.refreshingItems.size === 0) {
@@ -155,15 +165,15 @@ export default {
           this.spinnerKey += 1
         })
     },
-    hasRole (roleName) {
+    hasRole(roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
-  created () {
+  created() {
     this.refresh()
   },
   props: {
-    'name': {
+    name: {
       type: String,
       default: 'Unknown User'
     }

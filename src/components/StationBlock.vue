@@ -15,11 +15,16 @@
       <confirmation-dialog
         buttonText="Delete"
         :actionArgument="station.name"
-        actionName="deleteStationRemote">
-        <span slot="title">Do you want to delete the station "{{ station.name }}"?</span>
+        actionName="deleteStationRemote"
+      >
+        <span slot="title"
+          >Do you want to delete the station "{{ station.name }}"?</span
+        >
         <div slot="text">
-          <p>this will delete the station with the name "{{ station.name }}" and all
-            related information!</p>
+          <p>
+            this will delete the station with the name "{{ station.name }}" and
+            all related information!
+          </p>
           <p>Are you sure?</p>
         </div>
       </confirmation-dialog>
@@ -32,19 +37,21 @@ import model from '@/model'
 export default {
   name: 'station-block',
   props: {
-    'station': {
+    station: {
       type: Object,
-      default: function () { return model.station.makeEmpty() }
+      default: function () {
+        return model.station.makeEmpty()
+      }
     }
   },
   methods: {
-    openDashBoard (station) {
+    openDashBoard(station) {
       this.$router.push('/station/' + station.name)
     },
-    hasRole (roleName) {
+    hasRole(roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     },
-    openEditDialog () {
+    openEditDialog() {
       this.$emit('openEditDialog')
     }
   }

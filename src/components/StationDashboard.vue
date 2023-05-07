@@ -1,7 +1,12 @@
 <template>
   <v-container class="pa-0">
     <v-row justify="center">
-      <v-col cols="1" class="quick-stat-column left" v-ripple @click="goTo('previous')">
+      <v-col
+        cols="1"
+        class="quick-stat-column left"
+        v-ripple
+        @click="goTo('previous')"
+      >
         <state-icon
           v-for="state in previousStates"
           :state="state.state"
@@ -11,39 +16,62 @@
       </v-col>
       <v-col cols="10" md="4" class="pa-0">
         <div class="related-stations">
-          <div class="left" v-ripple @click="goTo('previous')">{{ previousStation }}</div>
+          <div class="left" v-ripple @click="goTo('previous')">
+            {{ previousStation }}
+          </div>
           <h2 class="stationName">{{ stationName }}</h2>
-          <div class="right" v-ripple @click="goTo('next')">{{ nextStation }}</div>
+          <div class="right" v-ripple @click="goTo('next')">
+            {{ nextStation }}
+          </div>
         </div>
         <v-text-field
-        v-model="teamFilter"
-        append-icon="mdi-magnify"
-        clearable
-        label="Find a team by name/contact"
-        @click:clear="onFilterCleared"
-        hint="Filter list of teams by name and/or contact"
-        class="ml-5 mr-5"
+          v-model="teamFilter"
+          append-icon="mdi-magnify"
+          clearable
+          label="Find a team by name/contact"
+          @click:clear="onFilterCleared"
+          hint="Filter list of teams by name and/or contact"
+          class="ml-5 mr-5"
         ></v-text-field>
 
         <v-layout row class="pl-5 pr-5">
           <v-flex xs-4>
-            <v-checkbox class="ml-4" name="showFinished" label="Show finished teams" v-model="showFinished" />
+            <v-checkbox
+              class="ml-4"
+              name="showFinished"
+              label="Show finished teams"
+              v-model="showFinished"
+            />
           </v-flex>
         </v-layout>
 
         <small-station-dashboard-item
-            v-for="(state, idx) in allTeams"
-            class="mb-4 ml-5 mr-5"
-            @scoreUpdated="onScoreUpdated"
-            @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
-            @saveClicked="onSaveClicked"
-            @stateAdvanced="onStateAdvanced"
-            v-if="selectedStates.includes(state.state)"
-            :state="state"
-            :key="'small' + idx"></small-station-dashboard-item>
-        <v-snackbar :top="true" :timeout="2000" :color="snackColor" v-model="snackbar"> {{snacktext}} <v-btn text @click="snackbar = false">Close</v-btn></v-snackbar>
+          v-for="(state, idx) in allTeams"
+          class="mb-4 ml-5 mr-5"
+          @scoreUpdated="onScoreUpdated"
+          @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+          @saveClicked="onSaveClicked"
+          @stateAdvanced="onStateAdvanced"
+          v-if="selectedStates.includes(state.state)"
+          :state="state"
+          :key="'small' + idx"
+        ></small-station-dashboard-item>
+        <v-snackbar
+          :top="true"
+          :timeout="2000"
+          :color="snackColor"
+          v-model="snackbar"
+        >
+          {{ snacktext }}
+          <v-btn text @click="snackbar = false">Close</v-btn></v-snackbar
+        >
       </v-col>
-      <v-col cols="1" class="quick-stat-column right" v-ripple @click="goTo('next')">
+      <v-col
+        cols="1"
+        class="quick-stat-column right"
+        v-ripple
+        @click="goTo('next')"
+      >
         <state-icon
           v-for="state in nextStates"
           :class="state.ageClass"
@@ -81,7 +109,7 @@ function applyAgeClasses(data) {
 }
 export default {
   name: 'station_dashboard',
-  data () {
+  data() {
     return {
       activeTab: 'pending',
       snackbar: false,
@@ -98,7 +126,7 @@ export default {
     }
   },
   computed: {
-    selectedStates () {
+    selectedStates() {
       let output = []
       if (this.showPending) {
         output.push('unknown')
@@ -114,10 +142,10 @@ export default {
     stationName() {
       return this.$route.params.stationName
     },
-    allTeams () {
+    allTeams() {
       const output = []
-      this.$store.state.global_dashboard.forEach(teamInfo => {
-        teamInfo.stations.forEach(stationState => {
+      this.$store.state.global_dashboard.forEach((teamInfo) => {
+        teamInfo.stations.forEach((stationState) => {
           if (stationState.name !== this.stationName) {
             return // skip states from other stations
           }
@@ -137,7 +165,7 @@ export default {
       return filtered
     }
   },
-  created () {
+  created() {
     this.$store.commit('changeTitle', 'Dashboard for ' + this.stationName)
     this.$store.dispatch('fetchQuestionnaireScores')
     this.refresh()
@@ -148,24 +176,24 @@ export default {
         case 'previous':
           if (this.previousStation !== '') {
             this.$router.push(`/station/${this.previousStation}`)
-            this.refresh();
+            this.refresh()
           } else {
-            console.warn(`No station "before" ${this.stationName}`);
+            console.warn(`No station "before" ${this.stationName}`)
           }
-          break;
+          break
         case 'next':
           if (this.nextStation !== '') {
             this.$router.push(`/station/${this.nextStation}`)
-            this.refresh();
+            this.refresh()
           } else {
-            console.warn(`No station "after" ${this.stationName}`);
+            console.warn(`No station "after" ${this.stationName}`)
           }
-          break;
+          break
         default:
           throw new Error(`Unknown relation: ${relation}`)
       }
     },
-    onFilterCleared (e) {
+    onFilterCleared(e) {
       this.teamFilter = ''
     },
     filteredTeams: function (teams) {
@@ -185,14 +213,17 @@ export default {
     onStateAdvanced: function (state) {
       this.$store.dispatch('advanceState', {
         teamName: state.team,
-        stationName: this.stationName})
+        stationName: this.stationName
+      })
     },
     onScoreUpdated: function (state, newScore) {
-      this.$store.dispatch('setStationScore', {
-        teamName: state.team,
-        stationName: this.stationName,
-        score: newScore}).then(evt => {
-      })
+      this.$store
+        .dispatch('setStationScore', {
+          teamName: state.team,
+          stationName: this.stationName,
+          score: newScore
+        })
+        .then((evt) => {})
     },
     onQuestionnaireScoreUpdated: function (payload) {
       const data = {
@@ -207,7 +238,7 @@ export default {
       this.snackColor = 'success'
       this.snackbar = true
     },
-    async refresh () {
+    async refresh() {
       this.previousStates = []
       this.nextStates = []
       this.previousStation = ''
@@ -265,7 +296,6 @@ export default {
 </script>
 
 <style scoped>
-
 .stationName {
   text-align: center;
   color: #c0c0c0;
