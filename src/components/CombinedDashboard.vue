@@ -87,6 +87,15 @@ export default {
     },
     rows() {
       let output = []
+      if (
+        this.$store.state.global_dashboard.length !==
+        this.$store.state.teams.length
+      ) {
+        console.warn(
+          'Inconsistent UI state! Dashboard and team-list are out of sync'
+        )
+        return output
+      }
       this.$store.state.global_dashboard.forEach((team) => {
         let teamDetails = this.$store.getters.findTeam(team.team)
         let route = this.$store.state.routes.find(
