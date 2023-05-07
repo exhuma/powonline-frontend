@@ -4,7 +4,6 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import auth from './auth'
-import hello from 'hellojs'
 import makeRemoteProxy from './remote'
 import storeFactory from './store'
 
@@ -28,6 +27,7 @@ import ImageUpload from './components/ImageUpload.vue'
 import CombinedDashboard from './components/CombinedDashboard.vue'
 import DashboardProgressLine from './components/DashboardProgressLine.vue'
 
+import social from './auth/social'
 import vuetify from './plugins/vuetify'
 
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
@@ -98,26 +98,8 @@ new Vue({
   render: (h) => h(App),
   created: function () {
     document.title = import.meta.env.VITE_PAGE_TITLE || 'powonline'
-    // If the token has expired, remove it completely.
-    // ... otherwise, the UI still looks as if we were logged in
-
-    // Configure social login providers
-    axios
-      .get('/static/config/config.json')
-      .then((response) => {
-        if (!response.data.hello) {
-          console.warn(
-            'No config for hellojs found. Social logins will not work!'
-          )
-        } else {
-          hello.init(response.data.hello, { redirect_uri: 'redirect.html' })
-          console.log('Social logins initialised.')
-        }
-      })
-      .catch((e) => {
-        console.warn(`Unable to fetch application config (${e})`)
-      })
-
+    social.init()
+    social.connect(remoteProxy, store)
     // Logout user if JWT token has expired.
     const tokenCleared = auth.clearExpiredToken()
     if (tokenCleared) {
@@ -181,31 +163,3 @@ new Vue({
     }
   }
 }).$mount('#app')
-
-/**
- * Register callback for social logins
- *
- * After a user successfully logs in using a social identity provider, post
- * that message to the backend to retrieve a corresponding JWT token.
- */
-hello.on('auth.login', function (ath) {
-  // Fetch user details from the selected network
-  hello(ath.network)
-    .api('me')
-    .then(function (userInfo) {
-      // Now we can autheticate with the powonline backend
-      remoteProxy
-        .socialLogin(
-          ath.authResponse.network,
-          userInfo.id,
-          ath.authResponse.access_token
-        )
-        .then((data) => {
-          store.commit('updateUserData', data)
-        })
-        .catch((e) => {
-          // TODO show message as snack-text
-          store.commit('clearUserData')
-        })
-    })
-})
