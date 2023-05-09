@@ -202,7 +202,7 @@ export default {
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2023.05.09.1',
+      version: '2023.05.09.2',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
       activity: {
