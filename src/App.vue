@@ -351,6 +351,11 @@ export default {
         to: '/changelog',
         icon: 'mdi-information'
       })
+      output.push({
+        label: 'Manual',
+        to: '/manual',
+        icon: 'mdi-book'
+      })
       return output
     },
     tokenIsAvailable() {

@@ -2,6 +2,10 @@
 
 ## Highlights
 
+### User Manual
+
+- A user- and staff-manual was added
+
 ### Dashboard <small>(Two new dashboard alternatives)</small>
 
 - Easier to see at a glance how far the team has progressed in the event
