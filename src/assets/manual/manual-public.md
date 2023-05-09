@@ -21,17 +21,17 @@ The dashboard shows the progress of each team during the current event. As of
   - "Finished" and "cancelled" teams will be moved to a separate section.
   - The colour of the line represents the "route".
 
-  ![Combined Dashboard](/src/assets/manual/images/combined-dashboard.png 'Combined Dashboard')
+  ![Combined Dashboard](/manual/images/combined-dashboard.png 'Combined Dashboard')
 
 - The "separate dashboard" is similar to the "combined dashboard" but it shows
   one section for each route.
 
-  ![Separate Dashboard](/src/assets/manual/images/separate-dashboard.png 'Separate Dashboard')
+  ![Separate Dashboard](/manual/images/separate-dashboard.png 'Separate Dashboard')
 
 - The "legacy dashboard" contains information on each station, including state
   icons.
 
-  ![Legacy Dashboard](/src/assets/manual/images/legacy-dashboard.png 'Legacy Dashboard')
+  ![Legacy Dashboard](/manual/images/legacy-dashboard.png 'Legacy Dashboard')
 
   ::: admonition warning
   Because station ordering on the "legacy dashboard" depends on route, the order
