@@ -14,7 +14,7 @@ Important Options:
   team is marked as "arrived" on this station, it is automatically flagged as
   "finished".
 
-![Station List](/src/assets/manual/images/station-list.png 'Station List')
+![Station List](/manual/images/station-list.png 'Station List')
 
 ## Team List & Details
 
@@ -25,13 +25,13 @@ staff. They will see a "cancelled" team and will know that they don't have to
 wait for that team.
 :::
 
-![Team List](/src/assets/manual/images/team-list.png 'Team List')
-![Team Panel](/src/assets/manual/images/team-panel.png 'Team Panel')
+![Team List](/manual/images/team-list.png 'Team List')
+![Team Panel](/manual/images/team-panel.png 'Team Panel')
 
 If you're logged in, and have been granted access to a station, the
 "station-dashboard" will become available for that station.
 
-![Station Dashboard](/src/assets/manual/images/station-dashboard.png 'Station Dashboard')
+![Station Dashboard](/manual/images/station-dashboard.png 'Station Dashboard')
 
 The station-dashboard has a lot of features in one view. These are (in order of
 importance):
@@ -62,7 +62,7 @@ For users to have access to the station dashboard they must be flagged as
 "station_manager" and need to have at least one station assigned to them!
 :::
 
-![User Panel](/src/assets/manual/images/user-panel.png 'User Panel')
+![User Panel](/manual/images/user-panel.png 'User Panel')
 
 ## Audit Log
 
@@ -72,4 +72,4 @@ team across all stations.
 This can prove helpful to retrace changes in scores in case of doubt or upon
 request.
 
-![Audit Log](/src/assets/manual/images/audit-log.png 'Audit Log')
+![Audit Log](/manual/images/audit-log.png 'Audit Log')

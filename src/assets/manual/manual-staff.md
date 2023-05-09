@@ -12,9 +12,9 @@ A team can be in one of three different "states" for each station:
 
 These three states are shown as icons throughout the application:
 
-- Unknown/Pending: ![Pending](/src/assets/manual/images/icon-pending.png 'State Icon: Pending')
-- Arrived/Playing: ![Arrived](/src/assets/manual/images/icon-arrived.png 'State Icon: Arrived')
-- Finished: ![Finished](/src/assets/manual/images/icon-finished.png 'State Icon: Finished')
+- Unknown/Pending: ![Pending](/manual/images/icon-pending.png 'State Icon: Pending')
+- Arrived/Playing: ![Arrived](/manual/images/icon-arrived.png 'State Icon: Arrived')
+- Finished: ![Finished](/manual/images/icon-finished.png 'State Icon: Finished')
 
 ### Finished Teams
 
@@ -42,7 +42,7 @@ user-interface.
 The Station List shows all stations registered for the event. This view can be
 used by administrators to add, remote and/or edit stations.
 
-![Station List](/src/assets/manual/images/station-list.png 'Station List')
+![Station List](/manual/images/station-list.png 'Station List')
 
 ## Station Dashboard
 
@@ -50,13 +50,13 @@ used by administrators to add, remote and/or edit stations.
 This is the main view for the event staff managing a station and can be accessed
 by clicking on the "Clipboard" icon in the station list:
 
-![Clipboard](/src/assets/manual/images/clipboard.png 'Clipboard')
+![Clipboard](/manual/images/clipboard.png 'Clipboard')
 :::
 
 If you're logged in, and have been granted access to a station, the
 "station-dashboard" will become available for that station.
 
-![Station Dashboard](/src/assets/manual/images/station-dashboard.png 'Station Dashboard')
+![Station Dashboard](/manual/images/station-dashboard.png 'Station Dashboard')
 
 The station-dashboard has a lot of features in one view. These are (in order of
 importance):
