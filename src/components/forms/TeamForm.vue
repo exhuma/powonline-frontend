@@ -65,21 +65,21 @@
             <date-time-picker
               @timeValueChanged="updatePlannedTime"
               :time-value="this.team.planned_start_time"
-              hine="The time the team was scheduled to start"
+              hint="The time the team was scheduled to start"
               label="Planned Start Time"
             />
 
             <date-time-picker
               @timeValueChanged="updateEffectiveTime"
               :time-value="this.team.effective_start_time"
-              hine="The time the team effectively left the departure station"
+              hint="The time the team effectively left the departure station"
               label="Effective Start Time"
             />
 
             <date-time-picker
               @timeValueChanged="updateFinishTime"
               :time-value="this.team.finish_time"
-              hine="The time the team finished the event"
+              hint="The time the team finished the event"
               label="Finish Time"
             />
 
