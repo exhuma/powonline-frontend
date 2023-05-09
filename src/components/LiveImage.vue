@@ -1,13 +1,25 @@
 <template>
   <div class="imgbox">
     <div v-if="!fullScreen" class="white--text">{{ counter }}</div>
-    <div v-if="this.queuelength" class="white--text">{{queuelength}} images in queue</div>
+    <div v-if="this.queuelength" class="white--text">
+      {{ queuelength }} images in queue
+    </div>
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
-    <v-slider v-if="!fullScreen" label="Timeout (s)" thumb-label ticks min="1" max="30" v-model="timeout"></v-slider>
-    <v-btn v-if="!fullScreen" class="fab-high" fab
-      @click="toggleFullScreen"><v-icon>mdi-fullscreen</v-icon></v-btn>
-    <v-btn v-else class="fab-low" fab
-      @click="toggleFullScreen"><v-icon>mdi-fullscreen-exit</v-icon></v-btn>
+    <v-slider
+      v-if="!fullScreen"
+      label="Timeout (s)"
+      thumb-label
+      ticks
+      min="1"
+      max="30"
+      v-model="timeout"
+    ></v-slider>
+    <v-btn v-if="!fullScreen" class="fab-high" fab @click="toggleFullScreen"
+      ><v-icon>mdi-fullscreen</v-icon></v-btn
+    >
+    <v-btn v-else class="fab-low" fab @click="toggleFullScreen"
+      ><v-icon>mdi-fullscreen-exit</v-icon></v-btn
+    >
   </div>
 </template>
 
@@ -39,12 +51,12 @@
 
 <script>
 export default {
-  created () {
+  created() {
     this.intervalId = setInterval(() => {
       this.countdown()
     }, 1000)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     clearInterval(this.intervalId)
   },
   watch: {
@@ -52,7 +64,7 @@ export default {
       this.counter = val
     }
   },
-  data () {
+  data() {
     return {
       latestImage: null,
       intervalId: null,
@@ -62,23 +74,23 @@ export default {
     }
   },
   computed: {
-    queuelength () {
+    queuelength() {
       return this.$store.state.liveImageQueue.length
     }
   },
   methods: {
-    toggleFullScreen () {
+    toggleFullScreen() {
       this.$emit('fullScreenRequested', !this.fullScreen)
       this.fullScreen = !this.fullScreen
     },
-    countdown () {
+    countdown() {
       this.counter -= 1
       if (this.counter === 0) {
         this.loadNextImage()
         this.counter = this.timeout
       }
     },
-    loadNextImage () {
+    loadNextImage() {
       if (!this.$store.state.liveImageQueue.length) {
         return
       }

@@ -14,6 +14,7 @@ import Gallery from '@/components/Gallery.vue'
 import LiveImage from '@/components/LiveImage.vue'
 import PrivacyPolicy from '@/components/PrivacyPolicy.vue'
 import AuditLog from '@/components/AuditLog.vue'
+import Manual from '@/components/Manual.vue'
 
 Vue.use(VueRouter)
 
@@ -52,6 +53,10 @@ const router = new VueRouter({
     {
       path: '/changelog',
       component: Changelog
+    },
+    {
+      path: '/manual',
+      component: Manual
     },
     {
       path: '/team/:teamName',

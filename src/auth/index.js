@@ -1,7 +1,6 @@
 import jwt_decode from 'jwt-decode' // eslint-disable-line camelcase
 
 export default {
-
   /**
    * Get the current JWT token from local-storage.
    *
@@ -60,15 +59,17 @@ export default {
     if (token === '') {
       return ''
     }
-    const failedRenewals = parseInt(localStorage.getItem(
-      'failedRenewals', 0), 10)
+    const failedRenewals = parseInt(
+      localStorage.getItem('failedRenewals', 0),
+      10
+    )
     if (failedRenewals > 5) {
       console.error('Too many retries!')
       return ''
     }
     this.clearToken(false)
     console.log('Renewing token')
-    remote.renewToken(token).then(data => {
+    remote.renewToken(token).then((data) => {
       if (data.status < 300) {
         localStorage.setItem('jwt', data.token)
         localStorage.setItem('failedRenewals', 0)

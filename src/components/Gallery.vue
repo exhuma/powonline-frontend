@@ -18,7 +18,8 @@
       <image-upload
         @uploadStarted="onUploadStarted"
         @uploadFailed="onUploadFailed"
-        @uploadFinished="onUploadDone"></image-upload>
+        @uploadFinished="onUploadDone"
+      ></image-upload>
     </v-container>
 
     <v-snackbar
@@ -28,37 +29,36 @@
       color="blue"
       timeout="5000"
       v-model="showUploadSnack"
-      >
+    >
       <v-icon>mdi-information</v-icon>
       <strong>Tip:</strong> Login to upload
-      </v-snackbar>
+    </v-snackbar>
   </div>
 </template>
 
 <style scoped>
-  .image {
-    float: left;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    border: 1px solid #ebebeb;
-    margin: 5px;
-    cursor: pointer;
-  }
+.image {
+  float: left;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border: 1px solid #ebebeb;
+  margin: 5px;
+  cursor: pointer;
+}
 </style>
 
 <script>
 import LightBox from 'vue-it-bigger'
 import('vue-it-bigger/dist/vue-it-bigger.min.css')
 export default {
-
-  created () {
+  created() {
     this.refreshImages()
   },
   components: {
-    LightBox,
+    LightBox
   },
-  data () {
+  data() {
     return {
       index: null,
       showUploadSnack: true
@@ -68,17 +68,17 @@ export default {
     showLightbox(index) {
       this.$refs.lightBox.showImage(index)
     },
-    refreshImages () {
+    refreshImages() {
       this.$store.dispatch('refreshGallery')
     },
-    onUploadStarted () {
+    onUploadStarted() {
       this.$emit('changeActivity', {
         visible: true,
         progress: -1,
         text: 'Uploading...'
       })
     },
-    onUploadDone () {
+    onUploadDone() {
       this.$emit('snackRequested', {
         message: 'Upload successful'
       })
@@ -89,10 +89,10 @@ export default {
         text: ''
       })
     },
-    onUploadFailed (event) {
+    onUploadFailed(event) {
       this.$emit('snackRequested', {
-        'message': `Unable to upload image (${event.message})`,
-        'color': 'red'
+        message: `Unable to upload image (${event.message})`,
+        color: 'red'
       })
       this.$emit('changeActivity', {
         visible: false,
@@ -102,10 +102,10 @@ export default {
     }
   },
   computed: {
-    images () {
+    images() {
       return this.$store.state.gallery
     },
-    media () {
+    media() {
       const output = this.$store.state.gallery.map((item) => {
         return {
           type: 'image',
@@ -114,9 +114,9 @@ export default {
           caption: ''
         }
       })
-      return output;
+      return output
     },
-    tokenIsAvailable () {
+    tokenIsAvailable() {
       const token = this.$store.state.jwt
       const result = token !== ''
       return result

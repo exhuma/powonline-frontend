@@ -6,7 +6,7 @@
 <script>
 export default {
   name: 'homepage',
-  created () {
+  created() {
     this.$store.commit('changeTitle', 'PowOnline v1.1.1')
   }
 }

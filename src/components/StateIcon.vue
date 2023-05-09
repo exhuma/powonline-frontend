@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import util from '@/util';
+import util from '@/util'
 
 export default {
   name: 'state-icon',
@@ -18,12 +18,11 @@ export default {
         default:
           return 'white'
       }
-
     }
   },
   methods: {
-    stateIcon () {
-       return util.getStateIcon(this.state)
+    stateIcon() {
+      return util.getStateIcon(this.state)
     }
   }
 }

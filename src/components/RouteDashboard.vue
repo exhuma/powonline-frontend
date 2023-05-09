@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <v-card>
       <v-card-title class="mb-0">
@@ -15,67 +14,72 @@
       ></v-progress-linear>
       <v-card-text>
         <v-container>
-          <dashboard-progress-line row v-for="row in progressItems" :key="row.team" :data="row" :color="route.color"></dashboard-progress-line>
+          <dashboard-progress-line
+            row
+            v-for="row in progressItems"
+            :key="row.team"
+            :data="row"
+            :color="route.color"
+          ></dashboard-progress-line>
         </v-container>
       </v-card-text>
     </v-card>
   </div>
-
 </template>
 
 <style scoped>
-  .cancelled {
-    text-decoration: line-through;
-    color: #888 !important;
-  }
+.cancelled {
+  text-decoration: line-through;
+  color: #888 !important;
+}
 </style>
 
 <script>
 export default {
   name: 'route-dashboard',
   props: {
-    'route': {
+    route: {
       type: Object,
       default: null
     }
   },
   computed: {
-    overall_pct_finished () {
+    overall_pct_finished() {
       let pending = 0
       let waiting = 0
       let finished = 0
-      this.progressItems.forEach(item => {
+      this.progressItems.forEach((item) => {
         pending += item.pending
         waiting += item.waiting
         finished += item.finished
       })
       let total = pending + waiting + finished
-      return finished / total * 100
+      return (finished / total) * 100
     },
-    overall_pct_waiting () {
+    overall_pct_waiting() {
       let pending = 0
       let waiting = 0
       let finished = 0
-      this.progressItems.forEach(item => {
+      this.progressItems.forEach((item) => {
         pending += item.pending
         waiting += item.waiting
         finished += item.finished
       })
       let total = pending + waiting + finished
-      return waiting / total * 100
+      return (waiting / total) * 100
     },
-    assignedStations () {
+    assignedStations() {
       const output = this.$store.state.route_station_map[this.route.name] || []
       output.sort((a, b) => {
         return a.order - b.order
       })
       return output
     },
-    stateMapping () {
+    stateMapping() {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
       const output = {}
-      this.$store.state.global_dashboard.forEach(teamState => {
-        teamState.stations.forEach(stationState => {
+      this.$store.state.global_dashboard.forEach((teamState) => {
+        teamState.stations.forEach((stationState) => {
           if (output[stationState.name] === undefined) {
             output[stationState.name] = {}
           }
@@ -86,7 +90,7 @@ export default {
       })
       return output
     },
-    progressItems () {
+    progressItems() {
       const rows = []
       const mapping = this.stateMapping
       const routeTeams = this.$store.state.route_team_map
@@ -105,7 +109,7 @@ export default {
             team: teamName,
             cancelled: teamDetails.cancelled
           }
-          assignedStations.forEach(station => {
+          assignedStations.forEach((station) => {
             const stationData = mapping[station.name]
             if (!stationData) {
               return
@@ -126,9 +130,9 @@ export default {
             }
           })
           let total = row.pending + row.waiting + row.finished
-          row.pct_pending = row.pending / total * 100
-          row.pct_waiting = row.waiting / total * 100
-          row.pct_finished = row.finished / total * 100
+          row.pct_pending = (row.pending / total) * 100
+          row.pct_waiting = (row.waiting / total) * 100
+          row.pct_finished = (row.finished / total) * 100
           rows.push(row)
         }
       }

@@ -1,5 +1,4 @@
 export default {
-
   SEND_MODE: {
     CREATE: 'create',
     UPDATE: 'update'

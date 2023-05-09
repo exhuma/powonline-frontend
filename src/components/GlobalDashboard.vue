@@ -38,10 +38,11 @@
 
 <script>
 import RouteDashboardLegacy from '@/components/RouteDashboardLegacy.vue'
-const AUTO_REFRESH_INTERVAL_SECONDS = 10
+const AUTO_REFRESH_INTERVAL_SECONDS =
+  import.meta.env.VITE_DASHBOARD_REFRESH || 0
 export default {
   name: 'global_dashboard',
-  data () {
+  data() {
     return {
       refreshId: null,
       pctUntilNextRefresh: 100.0,
@@ -49,40 +50,44 @@ export default {
     }
   },
   methods: {
-    routes () {
+    routes() {
       return this.$store.state.routes
     },
-    refresh () {
+    refresh() {
       this.$store.dispatch('refreshGlobalDashboard')
       this.$store.dispatch('refreshRoutes')
       this.$store.dispatch('refreshTeams')
       this.$store.dispatch('fetchQuestionnaireScores')
     },
-    autoRefreshTick () {
+    autoRefreshTick() {
       let tickPercent = 100.0 / AUTO_REFRESH_INTERVAL_SECONDS
       this.pctUntilNextRefresh -= tickPercent
-      this.$emit('refresh-progress-updated', {progress: this.pctUntilNextRefresh})
+      this.$emit('refresh-progress-updated', {
+        progress: this.pctUntilNextRefresh
+      })
       if (this.pctUntilNextRefresh <= 0) {
         this.refresh()
         this.pctUntilNextRefresh = 100.0
       }
     },
-    startAutoRefresh () {
-      this.refreshId = window.setInterval(this.autoRefreshTick, 1000)
+    startAutoRefresh() {
+      if (AUTO_REFRESH_INTERVAL_SECONDS > 0) {
+        this.refreshId = window.setInterval(this.autoRefreshTick, 1000)
+      }
     },
-    stopAutoRefresh () {
+    stopAutoRefresh() {
       if (this.refreshId) {
         window.clearInterval(this.refreshId)
-        this.$emit('refresh-progress-updated', {progress: 0.0})
+        this.$emit('refresh-progress-updated', { progress: 0.0 })
       }
     }
   },
-  created () {
+  created() {
     this.$store.commit('changeTitle', 'Global Dashboard')
     this.refresh()
     this.startAutoRefresh()
   },
-  beforeDestroy () {
+  beforeDestroy() {
     this.stopAutoRefresh()
   },
   components: {

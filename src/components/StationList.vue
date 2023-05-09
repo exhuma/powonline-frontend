@@ -1,20 +1,16 @@
 <template>
   <center-col id="StationList">
-    <v-dialog
-      v-model="errorDialog">
+    <v-dialog v-model="errorDialog">
       <v-card>
         <v-card-title>Error</v-card-title>
       </v-card>
       <v-card-text class="white--text">
-        {{errorText}}
+        {{ errorText }}
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          @click="errorDialog = false"
-        >OK</v-btn>
+        <v-btn color="primary" @click="errorDialog = false">OK</v-btn>
       </v-card-actions>
     </v-dialog>
     <popup-dialog
@@ -22,51 +18,58 @@
       @dialogDismissed="closeAddBlock"
       :dialogVisible="isAddBlockVisible"
       :editMode="this.sendMode == this.SEND_MODE.UPDATE"
-      title="Add New Station">
+      title="Add New Station"
+    >
       <v-text-field
         @keyup.enter.native="onDialogConfirmed"
-        type='text'
-        v-model='selectedStation.name'
-        label='Enter a new stationname' />
+        type="text"
+        v-model="selectedStation.name"
+        label="Enter a new stationname"
+      />
       <v-text-field
         name="order"
-        type='number'
-        v-model='selectedStation.order'
+        type="number"
+        v-model="selectedStation.order"
         hint="This field is used to sort stations"
-        label="Station Ordering" />
+        label="Station Ordering"
+      />
       <v-checkbox
         name="is_start"
         label="Departure Station"
-        v-model="selectedStation.is_start" />
+        v-model="selectedStation.is_start"
+      />
       <v-checkbox
         name="is_end"
         label="Arrival Station"
-        v-model="selectedStation.is_end" />
+        v-model="selectedStation.is_end"
+      />
       <v-text-field
         name="phone"
-        v-model='selectedStation.phone'
-        label="Phone Number" />
+        v-model="selectedStation.phone"
+        label="Phone Number"
+      />
       <v-text-field
         name="contact"
-        v-model='selectedStation.contact'
-        label="Contact" />
+        v-model="selectedStation.contact"
+        label="Contact"
+      />
     </popup-dialog>
     <v-list two-line>
       <station-block
         v-for="station in stations"
         @openEditDialog="onOpenEditDialog(station)"
         :station="station"
-        :key="station.name"></station-block>
+        :key="station.name"
+      ></station-block>
     </v-list>
 
-    <v-list-item v-if="hasRole(['admin'])"> <!-- TODO: should not use v-list-item here -->
+    <v-list-item v-if="hasRole(['admin'])">
+      <!-- TODO: should not use v-list-item here -->
       <v-spacer />
       <v-list-item-action>
         <v-btn class="pa-3" @click="openCreateDialog">Add new Station</v-btn>
       </v-list-item-action>
     </v-list-item>
-
-
   </center-col>
 </template>
 
@@ -89,8 +92,9 @@ export default {
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
         station.contact = station.contact || ''
         station.phone = station.phone || ''
-        this.$remoteProxy.updateStation(station.name, station)
-          .catch(error => {
+        this.$remoteProxy
+          .updateStation(station.name, station)
+          .catch((error) => {
             this.errorDialog = true
             this.errorText = error.response.data
           })
@@ -103,7 +107,7 @@ export default {
 
       this.isAddBlockVisible = false
     },
-    closeAddBlock () {
+    closeAddBlock() {
       this.isAddBlockVisible = false
     },
     openCreateDialog: function () {
@@ -113,14 +117,14 @@ export default {
       this.isAddBlockVisible = true
       this.sendMode = model.SEND_MODE.CREATE
     },
-    hasRole (roleName) {
+    hasRole(roleName) {
       return this.$store.state.roles.indexOf(roleName) > -1
     }
   },
-  created () {
+  created() {
     this.$store.commit('changeTitle', 'Station List')
   },
-  data () {
+  data() {
     return {
       isAddBlockVisible: false,
       selectedStation: model.station.makeEmpty(),
@@ -131,7 +135,7 @@ export default {
     }
   },
   computed: {
-    stations () {
+    stations() {
       let copy = this.$store.state.stations.concat()
       copy.sort((a, b) => {
         return parseInt(a.order, 10) - parseInt(b.order, 10)
@@ -147,8 +151,9 @@ export default {
   padding-bottom: 5em;
 }
 
-.slide-enter-active, .slide-leave-active {
-  transition: all .3s
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
 }
 .slide-enter {
   transform: translateY(-100px);
