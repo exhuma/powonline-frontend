@@ -1,7 +1,12 @@
 <template>
   <v-layout row wrap>
     <v-flex xs6>
-      <v-dialog persistent v-model="dateDialogVisible" width="290px">
+      <v-dialog
+        ref="dateDialog"
+        persistent
+        v-model="dateDialogVisible"
+        width="290px"
+      >
         <template v-slot:activator="{ on }">
           <v-text-field
             :label="label"
@@ -13,18 +18,27 @@
           </v-text-field>
         </template>
         <v-date-picker v-model="innerDateValue" :hint="hint" :label="label">
-          <template slot-scope="{ save, cancel }">
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn flat @click="cancel">Cancel</v-btn>
-              <v-btn @click="save">OK</v-btn>
-            </v-card-actions>
-          </template>
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="dateDialogVisible = false">
+            Cancel
+          </v-btn>
+          <v-btn
+            text
+            color="primary"
+            @click="$refs.dateDialog.save(innerDateValue)"
+          >
+            OK
+          </v-btn>
         </v-date-picker>
       </v-dialog>
     </v-flex>
     <v-flex xs6>
-      <v-dialog persistent v-model="timeDialogVisible" width="290px">
+      <v-dialog
+        ref="timeDialog"
+        persistent
+        v-model="timeDialogVisible"
+        width="290px"
+      >
         <template v-slot:activator="{ on }">
           <v-text-field
             :label="label"
@@ -41,13 +55,17 @@
           format="24hr"
           :label="label"
         >
-          <template slot-scope="{ save, cancel }">
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn text @click="cancel">Cancel</v-btn>
-              <v-btn @click="save">OK</v-btn>
-            </v-card-actions>
-          </template>
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="timeDialogVisible = false">
+            Cancel
+          </v-btn>
+          <v-btn
+            text
+            color="primary"
+            @click="$refs.timeDialog.save(innerTimeValue)"
+          >
+            OK
+          </v-btn>
         </v-time-picker>
       </v-dialog>
     </v-flex>
