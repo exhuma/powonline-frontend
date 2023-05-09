@@ -31,8 +31,16 @@ export default {
   margin-bottom: 1em;
 }
 #ChangeLog H2 {
-  color: var(--v-accent-darken2);
+  color: var(--v-accent-lighten5);
+  border-bottom: 1px solid var(--v-primary-darken3);
   font-size: 120%;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+#ChangeLog H3 {
+  color: var(--v-accent-lighten4);
+  font-size: 100%;
+  margin-left: 0.5em;
 }
 LI {
   margin-left: 0.5em;

@@ -1,3 +1,58 @@
+# v2023.05.09 <small class="release-date">2023-05-09</small>
+
+## Highlights
+
+### Dashboard <small>(Two new dashboard alternatives)</small>
+
+- Easier to see at a glance how far the team has progressed in the event
+- Provide a "global progress" to help the staff to see how much of the event has passed
+- The new progress-bar dashboard has an improved layout on smaller screens
+- Show an icon-legend on the "legacy" dashboard
+
+### Station Dashboard
+
+- Add a "peek" view for the previous/next station on station dashboards. The peek is clickable to navigate to that dashboard.
+- Peek view shows recent-activity by fading icons. Recent activity is bright and it fades over time
+
+## Quality-of-Life improvments
+
+### General
+
+- Added a "favicon" for browsers to display
+- Added color to the state-icons
+
+### Station Dashboard
+
+- Display the station-name on the station-dashboard
+- Replaced quick-filter checkboxes ("Pending/Arrived/Finished") on station views
+  with a single "Show Finished Teams" checkbox.
+
+### Image Gallery / Uploads
+
+- Show a message when no images are available
+- The Image Gallery now has an upload button when users are logged in
+- The admin-interface for image-uploads now uses a table layout
+
+### User Management
+
+- UI to assign permissions & routes
+- Improved performance
+- Added a quick-search (filter) for users
+
+### Login Dialog
+
+- Both "social" and" "local" logins are available on the first page
+- Only make social buttons active if they are properly configured
+
+## Support
+
+- Image Gallery / Uploads:
+  - Replace unsupported image gallery with a new, maintained module
+
+## Bugfixes
+
+- Fixed live updates (no longer requires full refresh)
+
 # v2019.05.9 <small class="release-date">2019-05-10</small>
 
 ## Bugfixes
