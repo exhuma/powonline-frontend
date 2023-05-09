@@ -38,7 +38,8 @@
 
 <script>
 import RouteDashboardLegacy from '@/components/RouteDashboardLegacy.vue'
-const AUTO_REFRESH_INTERVAL_SECONDS = 10
+const AUTO_REFRESH_INTERVAL_SECONDS =
+  import.meta.env.VITE_DASHBOARD_REFRESH || 0
 export default {
   name: 'global_dashboard',
   data() {
@@ -70,7 +71,9 @@ export default {
       }
     },
     startAutoRefresh() {
-      this.refreshId = window.setInterval(this.autoRefreshTick, 1000)
+      if (AUTO_REFRESH_INTERVAL_SECONDS > 0) {
+        this.refreshId = window.setInterval(this.autoRefreshTick, 1000)
+      }
     },
     stopAutoRefresh() {
       if (this.refreshId) {
