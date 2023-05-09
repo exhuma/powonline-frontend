@@ -1,6 +1,6 @@
 import type { Store } from 'Vuex'
 import type { Proxy } from './remote'
-import { Pusher } from 'pusher-js'
+import Pusher from 'pusher-js'
 
 type EventConfig = {
   key: string
@@ -16,8 +16,7 @@ export function init(store: Store, remoteProxy: Proxy, config: EventConfig) {
   }
   Pusher.logToConsole = config.debug
   const pusher = new Pusher(config.key, {
-    cluster: 'eu',
-    encrypted: true
+    cluster: 'eu'
   })
   const teamChannel = pusher.subscribe(config.teamChannel)
   teamChannel.bind('state-change', (data: object) => {
