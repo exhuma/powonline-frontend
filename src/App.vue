@@ -314,6 +314,7 @@ export default {
       return this.$store.state.userName
     },
     routes() {
+      const roles = this.$store.state.roles
       const output = [
         { label: 'Dashboard', to: '/dashboard', icon: 'mdi-border-all' },
         {
@@ -323,20 +324,23 @@ export default {
         },
         { label: 'Photos', to: '/gallery', icon: 'mdi-image' }
       ]
-      if (this.tokenIsAvailable) {
+      if (roles && roles.indexOf('station_manager') > -1) {
         output.push({
           label: 'Stations',
           to: '/station',
           icon: 'mdi-map-marker'
         })
+      }
+      if (roles && roles.indexOf('admin') > -1) {
         output.push({ label: 'Teams', to: '/team', icon: 'mdi-account-group' })
+      }
+      if (this.tokenIsAvailable) {
         output.push({
           label: 'Uploads',
           to: '/uploads',
           icon: 'mdi-cloud-upload'
         })
       }
-      const roles = this.$store.state.roles
       if (roles && roles.indexOf('admin') > -1) {
         output.push({ label: 'Routes', to: '/route', icon: 'mdi-gesture' })
         output.push({ label: 'Users', to: '/user', icon: 'mdi-face-man' })
@@ -350,6 +354,11 @@ export default {
         label: 'Changelog',
         to: '/changelog',
         icon: 'mdi-information'
+      })
+      output.push({
+        label: 'Manual',
+        to: '/manual',
+        icon: 'mdi-book'
       })
       return output
     },

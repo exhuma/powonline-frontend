@@ -6,7 +6,7 @@
     <v-list-item-action v-if="hasRole('admin')">
       <v-btn @click="openEditDialog" icon><v-icon>mdi-pencil</v-icon></v-btn>
     </v-list-item-action>
-    <v-list-item-action>
+    <v-list-item-action v-if="hasRole('station_manager')">
       <v-btn icon ripple @click.native="openDashBoard(station)">
         <v-icon>mdi-clipboard-text</v-icon>
       </v-btn>

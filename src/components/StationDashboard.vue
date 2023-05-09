@@ -84,11 +84,19 @@
 </template>
 
 <script>
+/**
+ * Set the image classes based on "last update age". The "updateAge" is
+ * expressed in seconds
+ */
 function applyAgeClasses(data) {
+  // Mark an update as ancient after 2 hours
+  const ancient = 2 * 60 * 60
+  // Mark an update as ancient after 1 hour
+  const old = 1 * 60 * 60
   data.map((item) => {
-    if (item.updateAge > 60 * 60 || !item.updateAge) {
+    if (item.updateAge > ancient || !item.updateAge) {
       item.ageClass = { ancient: true }
-    } else if (item.updateAge > 30 * 60) {
+    } else if (item.updateAge > old) {
       item.ageClass = { old: true }
     } else {
       item.ageClass = { recent: true }
