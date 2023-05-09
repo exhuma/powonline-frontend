@@ -46,6 +46,7 @@ export default {
       return this.$store.state.roles.indexOf(roleName) > -1
     },
     save() {
+      this.team.comments = this.team.comments || ''
       this.$remoteProxy
         .updateTeam(this.$route.params.teamName, this.team)
         .then((data) => {
