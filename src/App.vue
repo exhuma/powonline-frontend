@@ -144,7 +144,7 @@
           app
           transition="slide-y-transition"
           class="hidden-xs-only"
-          :value="isBottomNavVisible"
+          v-if="isBottomNavVisible"
         >
           <v-btn
             v-for="route in routes"
