@@ -1,3 +1,9 @@
+# v2023.05.17 <small class="release-date">2023-05-17</small>
+
+## Highlights
+
+- Add `/slideshow` route (use `?timeout=x` to set the speed in seconds)
+
 # v2023.05.09 <small class="release-date">2023-05-09</small>
 
 ## Highlights
