@@ -36,12 +36,12 @@ export default {
   },
   methods: {
     isAdmin() {
-      return this.$store.state.roles.indexOf('admin') > -1
+      return this.$store.getters.hasROle('admin')
     },
     isStaff() {
       return (
-        this.$store.state.roles.indexOf('staff') > -1 ||
-        this.$store.state.roles.indexOf('station_manager') > -1
+        this.$store.getters.hasROle('staff') ||
+        this.$store.getters.hasROle('station_manager')
       )
     },
     tokenIsAvailable() {

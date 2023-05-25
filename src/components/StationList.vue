@@ -118,7 +118,7 @@ export default {
       this.sendMode = model.SEND_MODE.CREATE
     },
     hasRole(roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+      return this.$store.getters.hasRole(roleName)
     }
   },
   created() {
