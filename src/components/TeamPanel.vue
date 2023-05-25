@@ -43,7 +43,7 @@ export default {
 
   methods: {
     hasRole(roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+      return this.$store.getters.hasRole(roleName)
     },
     save() {
       this.team.comments = this.team.comments || ''
