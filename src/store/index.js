@@ -33,6 +33,7 @@ function makeStore(auth, remoteProxy) {
        * :param data: An object with two keys:
        *    * token - The JWT token (without "Bearer" prefix)
        *    * roles - A list of role-names which the user has assigned to himself
+       *    * userName - The user-name
        */
       setToken(state, data) {
         state.jwt = data['token']
@@ -46,6 +47,7 @@ function makeStore(auth, remoteProxy) {
        * :param data: An object with two keys:
        *    * token - The JWT token (without "Bearer" prefix)
        *    * roles - A list of role-names which the user has assigned to himself
+       *    * user - The user-name
        */
       updateUserData(state, data) {
         localStorage.setItem('roles', data['roles'])
@@ -793,7 +795,7 @@ function makeStore(auth, remoteProxy) {
        * Refreshes the local users from the backend
        */
       refreshUsers(context) {
-        if (context.state.roles.indexOf('admin') === -1) {
+        if (!context.getters.hasRole('admin')) {
           return
         }
         EventBus.$emit('activityEvent', {
@@ -1253,6 +1255,20 @@ function makeStore(auth, remoteProxy) {
       }
     },
     getters: {
+      /**
+       * Return true if a user currently has the named role
+       *
+       * If a user has the 'admin' role, this always returns true.
+       */
+      hasRole(state, getters) {
+        return (roleName) => {
+          return (
+            Boolean(state.roles) &&
+            (state.roles.indexOf('admin') > -1 ||
+              state.roles.indexOf(roleName) > -1)
+          )
+        }
+      },
       /**
        * Get a list of team names which are not assigned to any route
        *
