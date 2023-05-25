@@ -15,6 +15,7 @@ import LiveImage from '@/components/LiveImage.vue'
 import PrivacyPolicy from '@/components/PrivacyPolicy.vue'
 import AuditLog from '@/components/AuditLog.vue'
 import Manual from '@/components/Manual.vue'
+import Slideshow from '@/components/Slideshow.vue'
 
 Vue.use(VueRouter)
 
@@ -57,6 +58,10 @@ const router = new VueRouter({
     {
       path: '/manual',
       component: Manual
+    },
+    {
+      path: '/slideshow',
+      component: Slideshow
     },
     {
       path: '/team/:teamName',

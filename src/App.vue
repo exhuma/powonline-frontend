@@ -144,7 +144,7 @@
           app
           transition="slide-y-transition"
           class="hidden-xs-only"
-          :value="isBottomNavVisible"
+          v-if="isBottomNavVisible"
         >
           <v-btn
             v-for="route in routes"
@@ -297,7 +297,7 @@ export default {
       this.password = ''
     },
     hasRole(roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+      return this.$store.getters.hasRole(roleName)
     }
   },
   computed: {
@@ -314,7 +314,6 @@ export default {
       return this.$store.state.userName
     },
     routes() {
-      const roles = this.$store.state.roles
       const output = [
         { label: 'Dashboard', to: '/dashboard', icon: 'mdi-border-all' },
         {
@@ -324,14 +323,14 @@ export default {
         },
         { label: 'Photos', to: '/gallery', icon: 'mdi-image' }
       ]
-      if (roles && roles.indexOf('station_manager') > -1) {
+      if (this.$store.getters.hasRole('station_manager')) {
         output.push({
           label: 'Stations',
           to: '/station',
           icon: 'mdi-map-marker'
         })
       }
-      if (roles && roles.indexOf('admin') > -1) {
+      if (this.$store.getters.hasRole('admin')) {
         output.push({ label: 'Teams', to: '/team', icon: 'mdi-account-group' })
       }
       if (this.tokenIsAvailable) {
@@ -341,7 +340,7 @@ export default {
           icon: 'mdi-cloud-upload'
         })
       }
-      if (roles && roles.indexOf('admin') > -1) {
+      if (this.$store.getters.hasRole('admin')) {
         output.push({ label: 'Routes', to: '/route', icon: 'mdi-gesture' })
         output.push({ label: 'Users', to: '/user', icon: 'mdi-face-man' })
         output.push({
