@@ -793,7 +793,7 @@ function makeStore(auth, remoteProxy) {
        * Refreshes the local users from the backend
        */
       refreshUsers(context) {
-        if (context.state.roles.indexOf('admin') === -1) {
+        if (!context.getters.hasRole('admin')) {
           return
         }
         EventBus.$emit('activityEvent', {
@@ -1253,6 +1253,20 @@ function makeStore(auth, remoteProxy) {
       }
     },
     getters: {
+      /**
+       * Return true if a user currently has the named role
+       *
+       * If a user has the 'admin' role, this always returns true.
+       */
+      hasRole(state, getters) {
+        return (roleName) => {
+          return (
+            Boolean(state.roles) &&
+            (state.roles.indexOf('admin') > -1 ||
+              state.roles.indexOf(roleName) > -1)
+          )
+        }
+      },
       /**
        * Get a list of team names which are not assigned to any route
        *

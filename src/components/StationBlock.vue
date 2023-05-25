@@ -49,7 +49,7 @@ export default {
       this.$router.push('/station/' + station.name)
     },
     hasRole(roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+      return this.$store.getters.hasRole(roleName)
     },
     openEditDialog() {
       this.$emit('openEditDialog')

@@ -131,7 +131,7 @@ export default {
       this.isAddBlockVisible = false
     },
     hasRole(roleName) {
-      return this.$store.state.roles.indexOf(roleName) > -1
+      return this.$store.getters.hasRole(roleName)
     }
   },
   async created() {
