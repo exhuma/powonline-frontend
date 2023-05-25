@@ -33,6 +33,7 @@ function makeStore(auth, remoteProxy) {
        * :param data: An object with two keys:
        *    * token - The JWT token (without "Bearer" prefix)
        *    * roles - A list of role-names which the user has assigned to himself
+       *    * userName - The user-name
        */
       setToken(state, data) {
         state.jwt = data['token']
@@ -46,6 +47,7 @@ function makeStore(auth, remoteProxy) {
        * :param data: An object with two keys:
        *    * token - The JWT token (without "Bearer" prefix)
        *    * roles - A list of role-names which the user has assigned to himself
+       *    * user - The user-name
        */
       updateUserData(state, data) {
         localStorage.setItem('roles', data['roles'])
