@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.21.2",
     "hellojs": "^1.18.1",
     "jwt-decode": "^2.2.0",
     "markdown-it-container": "^3.0.0",
