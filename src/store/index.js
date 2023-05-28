@@ -540,80 +540,86 @@ function makeStore(auth, remoteProxy) {
           })
       },
 
-      setStationScore(context, payload) {
+      async setStationScore(context, payload) {
         EventBus.$emit('activityEvent', {
           visible: true,
           progress: -1,
           text: ''
         })
-        remoteProxy
-          .setStationScore(payload.stationName, payload.teamName, payload.score)
-          .then((payload) => {
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
-            EventBus.$emit('snackRequested', {
-              message: 'Update successful'
-            })
-          })
-          .catch((e) => {
-            console.error(e)
-            let message = 'Unknown Error'
-            if (e.response.status < 500) {
-              message = e.response.data
-            }
-            EventBus.$emit('snackRequested', {
-              message: message,
-              color: 'red'
-            })
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
-          })
-      },
-
-      setQuestionnaireScore(context, payload) {
-        EventBus.$emit('activityEvent', {
-          visible: true,
-          progress: -1,
-          text: ''
-        })
-        remoteProxy
-          .setQuestionnaireScore(
+        let response = null
+        try {
+          response = await remoteProxy.setStationScore(
             payload.stationName,
             payload.teamName,
             payload.score
           )
-          .then((data) => {
-            context.commit('setQuestionnaireScore', data)
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
-            EventBus.$emit('snackRequested', {
-              message: 'Update successful'
-            })
+        } catch (e) {
+          console.error(e)
+          let message = 'Unknown Error'
+          if (e.response.status < 500) {
+            message = e.response.data
+          }
+          EventBus.$emit('snackRequested', {
+            message: message,
+            color: 'red'
           })
-          .catch((e) => {
-            let message = 'Unknown Error'
-            if (e.response.status < 500) {
-              message = e.response.data
-            }
-            EventBus.$emit('snackRequested', {
-              message: message,
-              color: 'red'
-            })
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
           })
+          return
+        }
+        EventBus.$emit('activityEvent', {
+          visible: false,
+          progress: -1,
+          text: ''
+        })
+        EventBus.$emit('snackRequested', {
+          message: 'Update successful'
+        })
+        return response.data
+      },
+
+      async setQuestionnaireScore(context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        let data = null
+        try {
+          data = await remoteProxy.setQuestionnaireScore(
+            payload.stationName,
+            payload.teamName,
+            payload.score
+          )
+        } catch (e) {
+          let message = 'Unknown Error'
+          if (e.response.status < 500) {
+            message = e.response.data
+          }
+          EventBus.$emit('snackRequested', {
+            message: message,
+            color: 'red'
+          })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
+          return
+        }
+        context.commit('setQuestionnaireScore', data)
+        EventBus.$emit('activityEvent', {
+          visible: false,
+          progress: -1,
+          text: ''
+        })
+        EventBus.$emit('snackRequested', {
+          message: 'Update successful'
+        })
+        return data
       },
 
       /**
@@ -623,40 +629,44 @@ function makeStore(auth, remoteProxy) {
        *     * stationName: The name of the station
        *     * teamName: The name of the team
        */
-      advanceState(context, payload) {
+      async advanceState(context, payload) {
         EventBus.$emit('activityEvent', {
           visible: true,
           progress: -1,
           text: ''
         })
-        remoteProxy
-          .advanceState(payload.stationName, payload.teamName)
-          .then((data) => {
-            store.commit('updateTeamState', data)
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
-            EventBus.$emit('snackRequested', {
-              message: 'Update successful'
-            })
+        let data = null
+        try {
+          data = await remoteProxy.advanceState(
+            payload.stationName,
+            payload.teamName
+          )
+        } catch (e) {
+          let message = 'Unknown Error'
+          if (e.response.status < 500) {
+            message = e.response.data
+          }
+          EventBus.$emit('snackRequested', {
+            message: message,
+            color: 'red'
           })
-          .catch((e) => {
-            let message = 'Unknown Error'
-            if (e.response.status < 500) {
-              message = e.response.data
-            }
-            EventBus.$emit('snackRequested', {
-              message: message,
-              color: 'red'
-            })
-            EventBus.$emit('activityEvent', {
-              visible: false,
-              progress: -1,
-              text: ''
-            })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
           })
+          return
+        }
+        store.commit('updateTeamState', data)
+        EventBus.$emit('activityEvent', {
+          visible: false,
+          progress: -1,
+          text: ''
+        })
+        EventBus.$emit('snackRequested', {
+          message: 'Update successful'
+        })
+        return data
       },
 
       /**
