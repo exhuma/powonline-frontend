@@ -8,7 +8,7 @@
         @click="goTo('previous')"
       >
         <state-icon
-          v-for="state in previousStates"
+          v-for="state in dashboard.peekLeft.states"
           :state="state.state"
           :class="state.ageClass"
           :key="`${state.team}-previous`"
@@ -17,11 +17,11 @@
       <v-col cols="10" md="4" class="pa-0">
         <div class="related-stations">
           <div class="left" v-ripple @click="goTo('previous')">
-            {{ previousStation }}
+            {{ dashboard.peekLeft.stationName }}
           </div>
           <h2 class="stationName">{{ stationName }}</h2>
           <div class="right" v-ripple @click="goTo('next')">
-            {{ nextStation }}
+            {{ dashboard.peekRight.stationName }}
           </div>
         </div>
         <v-text-field
@@ -46,13 +46,12 @@
         </v-layout>
 
         <small-station-dashboard-item
-          v-for="(state, idx) in allTeams"
+          v-for="(state, idx) in filteredTeams()"
           class="mb-4 ml-5 mr-5"
           @scoreUpdated="onScoreUpdated"
           @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
           @saveClicked="onSaveClicked"
           @stateAdvanced="onStateAdvanced"
-          v-if="selectedStates.includes(state.state)"
           :state="state"
           :key="'small' + idx"
         ></small-station-dashboard-item>
@@ -73,7 +72,7 @@
         @click="goTo('next')"
       >
         <state-icon
-          v-for="state in nextStates"
+          v-for="state in dashboard.peekRight.states"
           :class="state.ageClass"
           :state="state.state"
           :key="`${state.team}-next`"
@@ -84,42 +83,11 @@
 </template>
 
 <script>
-/**
- * Set the image classes based on "last update age". The "updateAge" is
- * expressed in seconds
- */
-function applyAgeClasses(data) {
-  // Mark an update as ancient after 2 hours
-  const ancient = 2 * 60 * 60
-  // Mark an update as ancient after 1 hour
-  const old = 1 * 60 * 60
-  data.map((item) => {
-    if (item.updateAge > ancient || !item.updateAge) {
-      item.ageClass = { ancient: true }
-    } else if (item.updateAge > old) {
-      item.ageClass = { old: true }
-    } else {
-      item.ageClass = { recent: true }
-    }
-  })
-  data.sort((a, b) => {
-    if (a) {
-      return 1
-    }
-    if (a.updateAge > b.updateAge) {
-      return -1
-    }
-    if (a.updateAge < b.updateAge) {
-      return 1
-    }
-    return 0
-  })
-}
+import { StationDashboard } from '@/core/stationDashboard'
 export default {
   name: 'station_dashboard',
   data() {
     return {
-      activeTab: 'pending',
       snackbar: false,
       snacktext: '',
       snackColor: 'success',
@@ -127,10 +95,7 @@ export default {
       showPending: true,
       showArrived: true,
       showFinished: false,
-      previousStates: {},
-      nextStates: {},
-      previousStation: '',
-      nextStation: ''
+      dashboard: new StationDashboard()
     }
   },
   computed: {
@@ -149,49 +114,28 @@ export default {
     },
     stationName() {
       return this.$route.params.stationName
-    },
-    allTeams() {
-      const output = []
-      this.$store.state.global_dashboard.forEach((teamInfo) => {
-        teamInfo.stations.forEach((stationState) => {
-          if (stationState.name !== this.stationName) {
-            return // skip states from other stations
-          }
-          if (stationState.state === 'unreachable') {
-            // This team cannot reach the current sation (not assigned)
-            return
-          }
-          output.push({
-            team: teamInfo.team,
-            station: this.stationName,
-            state: stationState.state,
-            score: stationState.score
-          })
-        })
-      })
-      let filtered = this.filteredTeams(output)
-      return filtered
     }
   },
   created() {
-    this.$store.commit('changeTitle', 'Dashboard for ' + this.stationName)
-    this.$store.dispatch('fetchQuestionnaireScores')
+    // XXX this.$store.dispatch('fetchQuestionnaireScores')
     this.refresh()
   },
   methods: {
     goTo(relation) {
       switch (relation) {
         case 'previous':
-          if (this.previousStation !== '') {
-            this.$router.push(`/station/${this.previousStation}`)
+          if (this.dashboard.peekLeft) {
+            this.$router.push(`/station/${this.dashboard.peekLeft.stationName}`)
             this.refresh()
           } else {
             console.warn(`No station "before" ${this.stationName}`)
           }
           break
         case 'next':
-          if (this.nextStation !== '') {
-            this.$router.push(`/station/${this.nextStation}`)
+          if (this.dashboard.peekRight) {
+            this.$router.push(
+              `/station/${this.dashboard.peekRight.stationName}`
+            )
             this.refresh()
           } else {
             console.warn(`No station "after" ${this.stationName}`)
@@ -204,8 +148,8 @@ export default {
     onFilterCleared(e) {
       this.teamFilter = ''
     },
-    filteredTeams: function (teams) {
-      let all = teams
+    filteredTeams: function () {
+      const all = this.dashboard.visibleStates(this.selectedStates)
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return all
       }
@@ -218,28 +162,36 @@ export default {
       })
       return filtered
     },
-    onStateAdvanced: function (state) {
-      this.$store.dispatch('advanceState', {
+    onStateAdvanced: async function (state) {
+      const newState = await this.$store.dispatch('advanceState', {
         teamName: state.team,
         stationName: this.stationName
       })
+      // TODO: This is a workaround (see method docstring)
+      this.dashboard.recordNewState(newState)
     },
-    onScoreUpdated: function (state, newScore) {
-      this.$store
-        .dispatch('setStationScore', {
-          teamName: state.team,
-          stationName: this.stationName,
-          score: newScore
-        })
-        .then((evt) => {})
+    onScoreUpdated: async function (state, newScore) {
+      const newScoreResult = await this.$store.dispatch('setStationScore', {
+        teamName: state.team,
+        stationName: this.stationName,
+        score: newScore
+      })
+      // TODO: This is a workaround (see method docstring)
+      this.dashboard.recordNewScore({
+        team: state.team,
+        station: state.station,
+        new_score: newScoreResult.new_score
+      })
     },
-    onQuestionnaireScoreUpdated: function (payload) {
+    onQuestionnaireScoreUpdated: async function (payload) {
       const data = {
         teamName: payload.team,
         stationName: this.stationName,
         score: payload.score
       }
-      this.$store.dispatch('setQuestionnaireScore', data)
+      const newScore = await this.$store.dispatch('setQuestionnaireScore', data)
+      // TODO: This is a workaround (see method docstring)
+      this.dashboard.recordNewQuestionnaireScore(newScore)
     },
     onSaveClicked: function (state) {
       this.snacktext = 'Changes saved'
@@ -247,57 +199,11 @@ export default {
       this.snackbar = true
     },
     async refresh() {
-      this.previousStates = []
-      this.nextStates = []
-      this.previousStation = ''
-      this.nextStation = ''
-      try {
-        const previousStates = await this.$remoteProxy.fetchRelatedTeams(
-          this.stationName,
-          'previous'
-        )
-        applyAgeClasses(previousStates)
-        this.previousStates = previousStates
-      } catch (error) {
-        console.error(
-          `Unable to fetch 'previous' station states for ${this.stationName} (${error})`
-        )
-      }
-
-      try {
-        const nextStates = await this.$remoteProxy.fetchRelatedTeams(
-          this.stationName,
-          'next'
-        )
-        applyAgeClasses(nextStates)
-        this.nextStates = nextStates
-      } catch (error) {
-        console.error(
-          `Unable to fetch 'next' station states for ${this.stationName} (${error})`
-        )
-      }
-
-      try {
-        this.previousStation = await this.$remoteProxy.fetchRelatedStation(
-          this.stationName,
-          'previous'
-        )
-      } catch (error) {
-        console.error(
-          `Unable to fetch 'previous' station for ${this.stationName} (${error})`
-        )
-      }
-
-      try {
-        this.nextStation = await this.$remoteProxy.fetchRelatedStation(
-          this.stationName,
-          'next'
-        )
-      } catch (error) {
-        console.error(
-          `Unable to fetch 'next' station for ${this.stationName} (${error})`
-        )
-      }
+      const dashboard = await StationDashboard.load(
+        this.$remoteProxy,
+        this.$route.params.stationName
+      )
+      this.dashboard = dashboard
     }
   }
 }
