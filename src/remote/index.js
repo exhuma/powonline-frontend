@@ -22,30 +22,22 @@ class FakeProxy {
     this.baseUrl = baseUrl
   }
 
-  renewToken(token) {
-    const promise = new Promise((resolve, reject) => {
-      const data = {
-        status: 200,
-        token: 'fake-jwt-token'
-      }
-      resolve(data)
-    })
-    return promise
+  async renewToken(token) {
+    return {
+      status: 200,
+      token: 'fake-jwt-token'
+    }
   }
 
-  socialLogin(network, userId, token) {
-    const output = new Promise((resolve, reject) => {
-      const responseData = {
-        token: 'fake-jwt-token',
-        roles: ['role1'],
-        user: 'fake-user'
-      }
-      resolve(responseData)
-    })
-    return output
+  async socialLogin(network, userId, token) {
+    return {
+      token: 'fake-jwt-token',
+      roles: ['role1'],
+      user: 'fake-user'
+    }
   }
 
-  loginUser(username, password) {
+  async loginUser(username, password) {
     const data = {
       status: 200,
       roles: ['role1'],
@@ -53,65 +45,46 @@ class FakeProxy {
       user: username
     }
     console.log('Fake user login, returning ' + data)
-    const promise = new Promise(function (resolve, reject) {
-      resolve(data)
-    })
-    return promise
+    return data
   }
 
-  setStationScore(stationName, teamName, score) {
+  async setStationScore(stationName, teamName, score) {
     // no-op
+    return {}
   }
 
-  setQuestionnaireScore(stationName, teamName, score) {
-    const output = new Promise((resolve, reject) => {
-      // no-op
-      resolve({})
-    })
-    return output
+  async setQuestionnaireScore(stationName, teamName, score) {
+    // no-op
+    return {}
   }
 
-  advanceState(stationName, teamName) {
-    const output = new Promise((resolve, reject) => {
-      resolve({
-        team: teamName,
-        station: stationName,
-        new_state: 'arrived'
-      })
-    })
-    return output
+  async advanceState(stationName, teamName) {
+    return {
+      team: teamName,
+      station: stationName,
+      new_state: 'arrived'
+    }
   }
 
-  fetchDashboard() {
-    const output = new Promise((resolve, reject) => {
-      const data = [
-        {
-          team: 'team-1',
-          stations: [{ name: 'station-1', score: 10, state: 'arrived' }]
-        },
-        {
-          team: 'team-2',
-          stations: [{ name: 'station-1', score: 20, state: 'unknown' }]
-        }
-      ]
-      resolve(data)
-    })
-    return output
+  async fetchDashboard() {
+    return [
+      {
+        team: 'team-1',
+        stations: [{ name: 'station-1', score: 10, state: 'arrived' }]
+      },
+      {
+        team: 'team-2',
+        stations: [{ name: 'station-1', score: 20, state: 'unknown' }]
+      }
+    ]
   }
 
-  setRouteColor(routeName, newColor) {
-    const output = new Promise((resolve, reject) => {
-      resolve(newColor)
-    })
-    return output
+  async setRouteColor(routeName, newColor) {
+    return newColor
   }
 
-  getPublicImages() {
-    const output = new Promise((resolve, reject) => {
-      const output = []
-      resolve(output)
-    })
-    return output
+  async asyncgetPublicImages() {
+    return []
   }
 }
 
@@ -119,41 +92,28 @@ class Proxy extends FakeProxy {
   /**
    * Connect to the back-end to retrieve the questionnaire scores
    */
-  fetchQuestionnaireScores() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/questionnaire-scores')
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
+  async fetchQuestionnaireScores() {
+    return axios
+      .get(this.baseUrl + '/questionnaire-scores')
+      .then((response) => {
+        return response.data
+      })
   }
 
   /**
    * Request a new JTW token using an existing token
    */
-  renewToken(token) {
-    const promise = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/login/renew', {
-          token: token
-        })
-        .then((response) => {
-          const data = {
-            status: response.status,
-            token: response.data.token
-          }
-          resolve(data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return promise
+  async renewToken(token) {
+    return axios
+      .post(this.baseUrl + '/login/renew', {
+        token: token
+      })
+      .then((response) => {
+        return {
+          status: response.status,
+          token: response.data.token
+        }
+      })
   }
 
   /**
@@ -167,56 +127,44 @@ class Proxy extends FakeProxy {
    * userId: The user-id used by the social network
    * token: The token received from the social network.
    */
-  socialLogin(network, userId, token) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/login', {
-          social_provider: network,
-          user_id: userId,
-          token: token
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            resolve(response.data)
-          } else {
-            reject(
-              new Error('Unexpected remote response (' + response.status + ')')
-            )
-          }
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
+  async socialLogin(network, userId, token) {
+    return axios
+      .post(this.baseUrl + '/login', {
+        social_provider: network,
+        user_id: userId,
+        token: token
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          return response.data
+        } else {
+          throw new Error(
+            'Unexpected remote response (' + response.status + ')'
+          )
+        }
+      })
   }
 
   /**
    * Send a normal login package to the back-end to allow non-social logins.
    */
-  loginUser(username, password) {
-    const promise = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/login', {
-          username: username,
-          password: password
-        })
-        .then((response) => {
-          resolve({
-            status: response.status,
-            roles: response.data['roles'],
-            token: response.data['token'],
-            user: response.data['user']
-          })
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return promise
+  async loginUser(username, password) {
+    return axios
+      .post(this.baseUrl + '/login', {
+        username: username,
+        password: password
+      })
+      .then((response) => {
+        return {
+          status: response.status,
+          roles: response.data['roles'],
+          token: response.data['token'],
+          user: response.data['user']
+        }
+      })
   }
 
-  setStationScore(stationName, teamName, score) {
+  async setStationScore(stationName, teamName, score) {
     return axios.post(this.baseUrl + '/job', {
       action: 'set_score',
       args: {
@@ -227,7 +175,7 @@ class Proxy extends FakeProxy {
     })
   }
 
-  setQuestionnaireScore(stationName, teamName, score) {
+  async setQuestionnaireScore(stationName, teamName, score) {
     const payload = {
       action: 'set_questionnaire_score',
       args: {
@@ -236,24 +184,16 @@ class Proxy extends FakeProxy {
         score: score
       }
     }
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/job', payload)
-        .then((response) => {
-          resolve({
-            stationName: stationName,
-            teamName: teamName,
-            score: parseInt(score, 10)
-          })
-        })
-        .catch((e) => {
-          reject(e)
-        })
+    return axios.post(this.baseUrl + '/job', payload).then((response) => {
+      return {
+        stationName: stationName,
+        teamName: teamName,
+        score: parseInt(score, 10)
+      }
     })
-    return output
   }
 
-  advanceState(stationName, teamName) {
+  async advanceState(stationName, teamName) {
     const payload = {
       action: 'advance',
       args: {
@@ -261,569 +201,279 @@ class Proxy extends FakeProxy {
         team_name: teamName
       }
     }
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/job', payload)
-        .then((response) => {
-          // The server assigned a new state, so we must update our local
-          // values
-          const newState = response.data.result.state
-          const data = {
-            team: teamName,
-            station: stationName,
-            new_state: newState
+    return axios.post(this.baseUrl + '/job', payload).then((response) => {
+      // The server assigned a new state, so we must update our local
+      // values
+      const newState = response.data.result.state
+      const data = {
+        team: teamName,
+        station: stationName,
+        new_state: newState
+      }
+      return data
+    })
+  }
+
+  async fetchDashboard() {
+    return axios.get(this.baseUrl + '/dashboard').then((response) => {
+      return response.data
+    })
+  }
+
+  async addUser(user) {
+    return axios.post(this.baseUrl + '/user', user).then((response) => {
+      return user
+    })
+  }
+
+  async addTeam(team) {
+    return axios.post(this.baseUrl + '/team', team).then((response) => {
+      return team
+    })
+  }
+
+  async addRoute(route) {
+    return axios.post(this.baseUrl + '/route', route).then((response) => {
+      return route
+    })
+  }
+
+  async addStation(station) {
+    return axios.post(this.baseUrl + '/station', station).then((response) => {
+      return station
+    })
+  }
+
+  async fetchUsers() {
+    return axios.get(this.baseUrl + '/user').then((response) => {
+      return response.data.items
+    })
+  }
+
+  async fetchUserStations(userName) {
+    return axios
+      .get(this.baseUrl + '/user/' + userName + '/stations')
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async fetchUserRoles(userName) {
+    return axios
+      .get(this.baseUrl + '/user/' + userName + '/roles')
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async addUserRole(userName, roleName) {
+    return axios
+      .post(this.baseUrl + '/user/' + userName + '/roles', {
+        name: roleName
+      })
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async removeUserRole(userName, roleName) {
+    return axios
+      .delete(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async getUserRole(userName, roleName) {
+    return axios
+      .get(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async fetchTeams() {
+    return axios.get(this.baseUrl + '/team').then((response) => {
+      return response.data.items
+    })
+  }
+
+  async fetchTeam(teamName) {
+    return axios.get(this.baseUrl + '/team/' + teamName).then((response) => {
+      return response.data
+    })
+  }
+
+  async addStationToUser(userName, stationName) {
+    return axios
+      .post(this.baseUrl + '/user/' + userName + '/stations', {
+        name: stationName
+      })
+      .then((response) => {
+        return response
+      })
+  }
+
+  async removeStationFromUser(userName, stationName) {
+    return axios
+      .delete(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
+      .then((response) => {
+        return response
+      })
+  }
+
+  async fetchAssignedStationState(userName, stationName) {
+    return axios
+      .get(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async fetchRoutes() {
+    return axios.get(this.baseUrl + '/route').then((response) => {
+      return response.data.items
+    })
+  }
+
+  async fetchStations() {
+    return axios.get(this.baseUrl + '/station').then((response) => {
+      return response.data.items
+    })
+  }
+
+  async fetchAssignments() {
+    return axios.get(this.baseUrl + '/assignments').then((response) => {
+      return response.data
+    })
+  }
+
+  async addTeamToRoute(route, team) {
+    return axios.post(this.baseUrl + '/route/' + route + '/teams', team)
+  }
+
+  async unassignTeamFromRoute(route, team) {
+    return axios.delete(this.baseUrl + '/route/' + route + '/teams/' + team)
+  }
+
+  async assignStationToRoute(routeName, station) {
+    return axios.post(
+      this.baseUrl + '/route/' + routeName + '/stations',
+      station
+    )
+  }
+
+  async unassignStationFromRoute(routeName, stationName) {
+    return axios.delete(
+      this.baseUrl + '/route/' + routeName + '/stations/' + stationName
+    )
+  }
+
+  async deleteRoute(routeName) {
+    return axios.delete(this.baseUrl + '/route/' + routeName)
+  }
+
+  async deleteStation(stationName) {
+    return axios.delete(this.baseUrl + '/station/' + stationName)
+  }
+
+  async deleteUser(userName) {
+    return axios.delete(this.baseUrl + '/user/' + userName)
+  }
+
+  async deleteTeam(teamName) {
+    return axios.delete(this.baseUrl + '/team/' + teamName)
+  }
+
+  async fetchTeamState(stationName, teamName) {
+    return axios
+      .get(this.baseUrl + '/station/' + stationName + '/teams/' + teamName)
+      .then((response) => {
+        return response.data.state
+      })
+  }
+
+  async fetchTeamStations(teamName) {
+    return axios
+      .get(this.baseUrl + '/team/' + teamName + '/stations')
+      .then((response) => {
+        return response.data.items
+      })
+  }
+
+  async updateStation(stationName, newData) {
+    return axios
+      .put(this.baseUrl + '/station/' + stationName, newData)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async updateTeam(teamName, newData) {
+    return axios
+      .put(this.baseUrl + '/team/' + teamName, newData)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async setRouteColor(routeName, newColor) {
+    return axios
+      .put(`${this.baseUrl}/route/${routeName}/color`, { color: newColor })
+      .then((response) => {
+        return response.data.color
+      })
+  }
+
+  async sendUpload(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return axios
+      .post(`${this.baseUrl}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: (progressEvent) => {
+          let progress = -1
+          if (progressEvent.lengthComputable) {
+            progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            )
           }
-          resolve(data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
+          EventBus.$emit('fileUploadProgress', {
+            visible: true,
+            progress: progress,
+            text: 'Uploading...'
+          })
+        }
+      })
+      .then((response) => {
+        return {}
+      })
   }
 
-  fetchDashboard() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/dashboard')
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+  async deleteFile(uuid) {
+    return axios.delete(`${this.baseUrl}/upload/${uuid}`).then((response) => {
+      return response.data
     })
-    return output
   }
 
-  addUser(user) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/user', user)
-        .then((response) => {
-          resolve(user)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+  async fetchUploads() {
+    return axios.get(`${this.baseUrl}/upload`).then((response) => {
+      return response.data
     })
-    return output
   }
 
-  addTeam(team) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/team', team)
-        .then((response) => {
-          resolve(team)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+  async getPublicImages() {
+    return axios.get(`${this.baseUrl}/upload?public=1`).then((response) => {
+      return response.data
     })
-    return output
   }
 
-  addRoute(route) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/route', route)
-        .then((response) => {
-          resolve(route)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+  async fetchAuditLog() {
+    return axios.get(`${this.baseUrl}/auditlog`).then((response) => {
+      return response.data
     })
-    return output
-  }
-
-  addStation(station) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/station', station)
-        .then((response) => {
-          resolve(station)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchUsers() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/user')
-        .then((response) => {
-          resolve(response.data.items)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchUserStations(userName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/user/' + userName + '/stations')
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchUserRoles(userName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/user/' + userName + '/roles')
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  addUserRole(userName, roleName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/user/' + userName + '/roles', {
-          name: roleName
-        })
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  removeUserRole(userName, roleName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  getUserRole(userName, roleName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchTeams() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/team')
-        .then((response) => {
-          resolve(response.data.items)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchTeam(teamName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/team/' + teamName)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  addStationToUser(userName, stationName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/user/' + userName + '/stations', {
-          name: stationName
-        })
-        .then((response) => {
-          resolve(response)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  removeStationFromUser(userName, stationName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
-        .then((response) => {
-          resolve(response)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchAssignedStationState(userName, stationName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchRoutes() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/route')
-        .then((response) => {
-          resolve(response.data.items)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchStations() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/station')
-        .then((response) => {
-          resolve(response.data.items)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchAssignments() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/assignments')
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  addTeamToRoute(route, team) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/route/' + route + '/teams', team)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  unassignTeamFromRoute(route, team) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/route/' + route + '/teams/' + team)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  assignStationToRoute(routeName, station) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .post(this.baseUrl + '/route/' + routeName + '/stations', station)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  unassignStationFromRoute(routeName, stationName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(
-          this.baseUrl + '/route/' + routeName + '/stations/' + stationName
-        )
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  deleteRoute(routeName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/route/' + routeName)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  deleteStation(stationName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/station/' + stationName)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  deleteUser(userName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/user/' + userName)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  deleteTeam(teamName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(this.baseUrl + '/team/' + teamName)
-        .then((response) => {
-          resolve()
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchTeamState(stationName, teamName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/station/' + stationName + '/teams/' + teamName)
-        .then((response) => {
-          resolve(response.data.state)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchTeamStations(teamName) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(this.baseUrl + '/team/' + teamName + '/stations')
-        .then((response) => {
-          resolve(response.data.items)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  updateStation(stationName, newData) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .put(this.baseUrl + '/station/' + stationName, newData)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  updateTeam(teamName, newData) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .put(this.baseUrl + '/team/' + teamName, newData)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  setRouteColor(routeName, newColor) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .put(`${this.baseUrl}/route/${routeName}/color`, { color: newColor })
-        .then((response) => {
-          resolve(response.data.color)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  sendUpload(file) {
-    const output = new Promise((resolve, reject) => {
-      const formData = new FormData()
-      formData.append('file', file)
-      axios
-        .post(`${this.baseUrl}/upload`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: (progressEvent) => {
-            let progress = -1
-            if (progressEvent.lengthComputable) {
-              progress = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              )
-            }
-            EventBus.$emit('fileUploadProgress', {
-              visible: true,
-              progress: progress,
-              text: 'Uploading...'
-            })
-          }
-        })
-        .then((response) => {
-          console.debug(response)
-          resolve({})
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  deleteFile(uuid) {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .delete(`${this.baseUrl}/upload/${uuid}`)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchUploads() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(`${this.baseUrl}/upload`)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  getPublicImages() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(`${this.baseUrl}/upload?public=1`)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
-  }
-
-  fetchAuditLog() {
-    const output = new Promise((resolve, reject) => {
-      axios
-        .get(`${this.baseUrl}/auditlog`)
-        .then((response) => {
-          resolve(response.data)
-        })
-        .catch((e) => {
-          reject(e)
-        })
-    })
-    return output
   }
 
   async fetchRelatedTeams(localStationName, relation) {
