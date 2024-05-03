@@ -34,6 +34,9 @@ import vuetify from './plugins/vuetify'
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
 
+// @ts-expect-error - currently no clue why this is not working
+Vue.use(remoteProxy)
+
 /**
  * Inject the JWT token into each outgoing request if it's available
  */
@@ -92,7 +95,6 @@ Vue.component('dashboard-progress-line', DashboardProgressLine)
 new Vue({
   router,
   store,
-  remoteProxy,
   // @ts-expect-error - passing this as an option is causing a type error
   vuetify,
   render: (h) => h(App),
