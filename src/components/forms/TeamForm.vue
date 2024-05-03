@@ -217,10 +217,9 @@ const TeamForm = Vue.extend({
       this.emitChangeEvent()
     }
   },
-
   computed: {
     finishTime: {
-      get: function () {
+      get: function (): string {
         let output = null
         if (this.team.finish_time) {
           output = moment(this.team.finish_time)
@@ -229,7 +228,7 @@ const TeamForm = Vue.extend({
         }
         return output.format('HH:mm')
       },
-      set: function (newValue) {
+      set: function (newValue: string): void {
         let old = moment(this.team.finish_time)
         if (!old.isValid()) {
           console.debug('Old for finish time invalid. Using default')
@@ -245,7 +244,7 @@ const TeamForm = Vue.extend({
       }
     },
     effectiveStartTime: {
-      get: function () {
+      get: function (): string {
         let output = null
         if (this.team.effective_start_time) {
           output = moment(this.team.effective_start_time)
@@ -254,7 +253,7 @@ const TeamForm = Vue.extend({
         }
         return output.format('HH:mm')
       },
-      set: function (newValue) {
+      set: function (newValue: string): void {
         let old = moment(this.team.effective_start_time)
         if (!old.isValid()) {
           console.debug('Old for planned start time invalid. Using default')
@@ -269,8 +268,7 @@ const TeamForm = Vue.extend({
         }
       }
     },
-    routes() {
-      // @ts-expect-error - "$routes" is from a plugin. Dealing with this another day
+    routes(): unknown {
       return this.$store.state.routes
     }
   }

@@ -8,7 +8,7 @@ import moment from 'moment'
 
 Vue.mixin({
   beforeCreate() {
-    const options = this.$options
+    const options = this.$options as { remoteProxy: Proxy; parent: Vue }
     if (options.remoteProxy) {
       this.$remoteProxy = options.remoteProxy
     } else if (options.parent && options.parent.$remoteProxy) {
