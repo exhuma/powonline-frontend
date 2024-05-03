@@ -32,9 +32,10 @@
   </v-list-item>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
-export default {
+import Vue from 'vue'
+const TeamBlock = Vue.extend({
   name: 'team-block',
   data() {
     return {
@@ -90,5 +91,6 @@ export default {
       this.$emit('openEditDialog')
     }
   }
-}
+})
+export default TeamBlock
 </script>

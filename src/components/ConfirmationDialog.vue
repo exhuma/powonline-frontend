@@ -15,8 +15,9 @@
   </v-dialog>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const ConfirmationDialog = Vue.extend({
   name: 'confirmation-dialog',
   data() {
     return {
@@ -33,5 +34,6 @@ export default {
       this.isDialogVisible = false
     }
   }
-}
+})
+export default ConfirmationDialog
 </script>

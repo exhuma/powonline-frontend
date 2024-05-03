@@ -72,9 +72,10 @@
   </v-layout>
 </template>
 
-<script>
+<script lang="ts">
 import moment from 'moment'
-export default {
+import Vue from 'vue'
+const DateTimePicker = Vue.extend({
   name: 'date-time-picker',
   props: ['label', 'hint', 'timeValue'],
   computed: {
@@ -133,5 +134,6 @@ export default {
       dateDialogVisible: false
     }
   }
-}
+})
+export default DateTimePicker
 </script>

@@ -158,12 +158,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 import moment from 'moment'
 import DateTimePicker from '@/components/DateTimePicker.vue'
 
-export default {
+import Vue from 'vue'
+const TeamForm = Vue.extend({
   name: 'team-form',
   components: { DateTimePicker },
   props: {
@@ -249,5 +250,6 @@ export default {
       return this.$store.state.routes
     }
   }
-}
+})
+export default TeamForm
 </script>

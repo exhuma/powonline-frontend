@@ -88,7 +88,7 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 import moment from 'moment'
 
 /**
@@ -124,7 +124,8 @@ function formatTs(ts) {
   return obj.fromNow()
 }
 
-export default {
+import Vue from 'vue'
+const Uploads = Vue.extend({
   created() {
     this.$store.dispatch('refreshUploads')
   },
@@ -207,5 +208,6 @@ export default {
         })
     }
   }
-}
+})
+export default Uploads
 </script>

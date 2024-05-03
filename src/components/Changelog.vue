@@ -8,16 +8,18 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import { parse } from 'marked'
 import changelogContent from '@/assets/changelog.md?raw'
-export default {
+import Vue from 'vue'
+const ChangeLog = Vue.extend({
   computed: {
     parsedChangelog() {
       return parse(changelogContent)
     }
   }
-}
+})
+export default ChangeLog
 </script>
 
 <style>

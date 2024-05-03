@@ -119,10 +119,11 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 
-export default {
+import Vue from 'vue'
+const TeamList = Vue.extend({
   name: 'team_list',
   data() {
     return {
@@ -265,7 +266,8 @@ export default {
       return filtered
     }
   }
-}
+})
+export default TeamList
 </script>
 
 <style scoped>

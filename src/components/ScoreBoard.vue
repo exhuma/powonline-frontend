@@ -23,8 +23,9 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const Scoreboard = Vue.extend({
   name: 'Scoreboard',
   data() {
     return {
@@ -91,5 +92,6 @@ export default {
       return teamScores
     }
   }
-}
+})
+export default Scoreboard
 </script>

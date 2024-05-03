@@ -65,8 +65,9 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const SmallStationDashboardIcon = Vue.extend({
   name: 'small-station-dashboard-item',
   props: ['state', 'cancelled'],
   computed: {
@@ -127,5 +128,6 @@ export default {
       })
     }
   }
-}
+})
+export default SmallStationDashboardIcon
 </script>

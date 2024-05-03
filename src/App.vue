@@ -172,11 +172,12 @@ SMALL {
 }
 </style>
 
-<script>
+<script lang="ts">
 import hello from 'hellojs'
 import EventBus from '@/plugins/eventBus'
+import Vue from 'vue'
 
-export default {
+const App = Vue.extend({
   name: 'App',
   mounted() {
     EventBus.$on('activityEvent', (payload) => {
@@ -370,5 +371,6 @@ export default {
       return this.$route.path
     }
   }
-}
+})
+export default App
 </script>

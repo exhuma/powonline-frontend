@@ -23,8 +23,9 @@
   </v-dialog>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const PopupDialog = Vue.extend({
   name: 'popup-dialog',
   props: ['title', 'dialogVisible', 'customActionButtons', 'editMode'],
   methods: {
@@ -35,7 +36,8 @@ export default {
       this.$emit('dialogDismissed')
     }
   }
-}
+})
+export default PopupDialog
 </script>
 
 <style scoped>

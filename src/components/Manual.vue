@@ -23,12 +23,13 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import * as publicManual from '@/assets/manual/manual-public.md'
 import * as registeredManual from '@/assets/manual/manual-user.md'
 import * as staffManual from '@/assets/manual/manual-staff.md'
 import * as adminManual from '@/assets/manual/manual-admin.md'
-export default {
+import Vue from 'vue'
+const Manual = Vue.extend({
   data() {
     return {
       activeTab: 'public'
@@ -64,7 +65,8 @@ export default {
       return adminManual.html
     }
   }
-}
+})
+export default Manual
 </script>
 
 <style>

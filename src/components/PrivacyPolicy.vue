@@ -1384,12 +1384,14 @@ LI {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const PrivacyPolicy = Vue.extend({
   data() {
     return {
       selectedLanguage: null
     }
   }
-}
+})
+export default PrivacyPolicy
 </script>

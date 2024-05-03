@@ -4,8 +4,9 @@
   </v-container>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const Slideshow = Vue.extend({
   name: 'Slideshow',
   methods: {
     startAutoRefresh() {
@@ -61,5 +62,6 @@ export default {
       auto_refresh_interval_seconds: 10
     }
   }
-}
+})
+export default Slideshow
 </script>

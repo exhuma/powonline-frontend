@@ -49,8 +49,9 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const LiveImage = Vue.extend({
   created() {
     this.intervalId = setInterval(() => {
       this.countdown()
@@ -99,5 +100,6 @@ export default {
       this.$store.commit('consumeImage')
     }
   }
-}
+})
+export default LiveImage
 </script>

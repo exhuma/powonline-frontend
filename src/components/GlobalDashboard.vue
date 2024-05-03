@@ -36,11 +36,12 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 import RouteDashboardLegacy from '@/components/RouteDashboardLegacy.vue'
 const AUTO_REFRESH_INTERVAL_SECONDS =
   import.meta.env.VITE_DASHBOARD_REFRESH || 0
-export default {
+import Vue from 'vue'
+const GlobalDashboard = Vue.extend({
   name: 'global_dashboard',
   data() {
     return {
@@ -93,5 +94,6 @@ export default {
   components: {
     'route-dashboard-legacy': RouteDashboardLegacy
   }
-}
+})
+export default GlobalDashboard
 </script>
