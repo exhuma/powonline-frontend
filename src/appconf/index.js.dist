@@ -1,7 +1,7 @@
 export default {
 
   // The URL at which the backend is reachable
-  BACKEND_URL: 'http://192.168.1.2:5000',
+  BACKEND_URL: 'http://192.168.1.2:8000',
 
   // Pusher.com auth info (leave PUSHER_KEY empty to disable)
   PUSHER_KEY: '1234567890abcdef',
