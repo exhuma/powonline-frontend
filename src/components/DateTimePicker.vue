@@ -94,7 +94,7 @@ export default {
           console.debug('Old for planned start time invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
-        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
           this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
         } else {
@@ -118,7 +118,7 @@ export default {
           console.debug('Old for planned start date invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
-        let nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
+        const nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
         if (nw.isValid()) {
           this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
         } else {

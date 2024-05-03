@@ -71,7 +71,7 @@ export default {
   props: ['state', 'cancelled'],
   computed: {
     hasCancelled() {
-      let teamDetails = this.$store.getters.findTeam(this.state.team)
+      const teamDetails = this.$store.getters.findTeam(this.state.team)
       if (teamDetails === null) {
         return false
       }

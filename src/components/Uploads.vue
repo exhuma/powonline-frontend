@@ -115,9 +115,9 @@ function sortUploads(uploads) {
 }
 
 function formatTs(ts) {
-  let obj = moment(ts)
-  let now = moment()
-  var duration = moment.duration(now.diff(obj))
+  const obj = moment(ts)
+  const now = moment()
+  const duration = moment.duration(now.diff(obj))
   if (duration.asHours() > 5) {
     return obj.format('YYYY-MM-DD HH:mm:ss')
   }
@@ -144,8 +144,8 @@ export default {
   },
   computed: {
     files() {
-      let groupedData = this.$store.state.uploads
-      let flattened = sortUploads(groupedData)
+      const groupedData = this.$store.state.uploads
+      const flattened = sortUploads(groupedData)
       return flattened
     }
   },

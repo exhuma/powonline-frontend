@@ -65,7 +65,7 @@ export default {
       return output
     },
     tableHeaders() {
-      let output = [
+      const output = [
         {
           text: 'Team',
           align: 'left',
@@ -114,8 +114,8 @@ export default {
           if (this.route.name !== route) {
             continue
           }
-          let teamDetails = this.$store.getters.findTeam(teamName)
-          let row = {
+          const teamDetails = this.$store.getters.findTeam(teamName)
+          const row = {
             stations: [],
             team: teamName,
             cancelled: teamDetails.cancelled

@@ -213,7 +213,7 @@ export default {
           console.debug('Old for finish time invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
-        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
           this.team.finish_time = nw.format('YYYY-MM-DDTHH:mm:00')
         } else {
@@ -237,7 +237,7 @@ export default {
           console.debug('Old for planned start time invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
-        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
           this.team.effective_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
         } else {

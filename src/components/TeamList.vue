@@ -230,15 +230,15 @@ export default {
 
   computed: {
     listItems() {
-      let all = this.$store.state.teams
+      const all = this.$store.state.teams
       let filtered = null
       if (!this.teamFilter || this.teamFilter.length < 3) {
         filtered = all
       } else {
         filtered = all.filter((item) => {
-          let fltr = this.teamFilter.toLowerCase()
-          let nameMatches = item.name.toLowerCase().includes(fltr)
-          let contactMatches = item.contact.toLowerCase().includes(fltr)
+          const fltr = this.teamFilter.toLowerCase()
+          const nameMatches = item.name.toLowerCase().includes(fltr)
+          const contactMatches = item.contact.toLowerCase().includes(fltr)
           return nameMatches || contactMatches
         })
       }
@@ -252,14 +252,14 @@ export default {
       return output
     },
     teams() {
-      let all = this.$store.state.teams
+      const all = this.$store.state.teams
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return all
       }
-      let filtered = all.filter((item) => {
-        let fltr = this.teamFilter.toLowerCase()
-        let nameMatches = item.name.toLowerCase().includes(fltr)
-        let contactMatches = item.contact.toLowerCase().includes(fltr)
+      const filtered = all.filter((item) => {
+        const fltr = this.teamFilter.toLowerCase()
+        const nameMatches = item.name.toLowerCase().includes(fltr)
+        const contactMatches = item.contact.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
       return filtered

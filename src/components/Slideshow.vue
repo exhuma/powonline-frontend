@@ -14,7 +14,7 @@ export default {
       }
     },
     autoRefreshTick() {
-      let tickPercent = 100.0 / this.auto_refresh_interval_seconds
+      const tickPercent = 100.0 / this.auto_refresh_interval_seconds
       this.pctUntilNextRefresh -= tickPercent
       this.$emit('refresh-progress-updated', {
         progress: this.pctUntilNextRefresh

@@ -55,7 +55,7 @@ export default {
       let pending = 0
       let waiting = 0
       let finished = 0
-      let activeTeams = this.rows.filter((item) => !item.cancelled)
+      const activeTeams = this.rows.filter((item) => !item.cancelled)
       activeTeams.forEach((item) => {
         if (isFinished(item)) {
           finished += item.pending + item.waiting + item.finished
@@ -65,14 +65,14 @@ export default {
           finished += item.finished
         }
       })
-      let total = pending + waiting + finished
+      const total = pending + waiting + finished
       return (finished / total) * 100
     },
     overall_pct_waiting() {
       let pending = 0
       let waiting = 0
       let finished = 0
-      let activeTeams = this.rows.filter((item) => !item.cancelled)
+      const activeTeams = this.rows.filter((item) => !item.cancelled)
       activeTeams.forEach((item) => {
         if (isFinished(item)) {
           finished += item.pending + item.waiting + item.finished
@@ -82,11 +82,11 @@ export default {
           finished += item.finished
         }
       })
-      let total = pending + waiting + finished
+      const total = pending + waiting + finished
       return (waiting / total) * 100
     },
     rows() {
-      let output = []
+      const output = []
       if (
         this.$store.state.global_dashboard.length !==
         this.$store.state.teams.length
@@ -97,11 +97,11 @@ export default {
         return output
       }
       this.$store.state.global_dashboard.forEach((team) => {
-        let teamDetails = this.$store.getters.findTeam(team.team)
-        let route = this.$store.state.routes.find(
+        const teamDetails = this.$store.getters.findTeam(team.team)
+        const route = this.$store.state.routes.find(
           (item) => item.name === teamDetails.route_name
         )
-        let row = {
+        const row = {
           pending: 0,
           waiting: 0,
           finished: 0,
@@ -125,7 +125,7 @@ export default {
               console.warn(`Unknown state: ${JSON.stringify(station.state)}`)
           }
         })
-        let total = row.pending + row.waiting + row.finished
+        const total = row.pending + row.waiting + row.finished
         row.pct_pending = (row.pending / total) * 100
         row.pct_waiting = (row.waiting / total) * 100
         row.pct_finished = (row.finished / total) * 100
@@ -139,11 +139,11 @@ export default {
       return output
     },
     finishedTeams() {
-      let all = this.rows
+      const all = this.rows
       return all.filter((item) => isFinished(item))
     },
     unfinishedTeams() {
-      let all = this.rows
+      const all = this.rows
       return all.filter((item) => !isFinished(item))
     }
   }
