@@ -11,7 +11,12 @@
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
 
-  "postCreateCommand": "bash .devcontainer/initialise.bash"
+  "postCreateCommand": "bash .devcontainer/initialise.bash",
+  "customizations": {
+    "vscode": {
+      "extensions": ["esbenp.prettier-vscode", "Vue.volar"]
+    }
+  }
 
   // Configure tool-specific properties.
   // "customizations": {},
