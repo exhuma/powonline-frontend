@@ -244,7 +244,10 @@ const App = Vue.extend({
     },
     showLoginDialog() {
       this.loginDialogVisible = true
-      this.$nextTick(() => this.$refs.LoginDialogUsername.focus())
+      const userNameField = this.$refs.LoginDialogUsername as HTMLInputElement
+      if (userNameField) {
+        this.$nextTick(() => userNameField.focus())
+      }
     },
     login(provider) {
       hello(provider).login({

@@ -1,3 +1,4 @@
+// @ts-expect-error - VueX type definitions are missing
 import type { Store } from 'Vuex'
 import type { Proxy } from './remote'
 import Pusher from 'pusher-js'

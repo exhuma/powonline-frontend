@@ -247,6 +247,7 @@ const TeamForm = Vue.extend({
       }
     },
     routes() {
+      // @ts-expect-error - "$routes" is from a plugin. Dealing with this another day
       return this.$store.state.routes
     }
   }

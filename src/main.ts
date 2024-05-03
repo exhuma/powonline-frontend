@@ -93,6 +93,7 @@ new Vue({
   router,
   store,
   remoteProxy,
+  // @ts-expect-error - passing this as an option is causing a type error
   vuetify,
   render: (h) => h(App),
   created: function () {

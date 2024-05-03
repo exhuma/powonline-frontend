@@ -134,6 +134,7 @@ const Uploads = Vue.extend({
       dialog: false,
       previewImage: { href: '', tiny: '' },
       confirmDelete: '',
+      deleteDialogVisible: false,
       headers: [
         { text: 'Thumbnail', sortable: false, align: 'left' },
         { text: 'User', sortable: true, align: 'left' },
