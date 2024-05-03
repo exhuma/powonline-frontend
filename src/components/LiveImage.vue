@@ -94,7 +94,7 @@ export default {
       if (!this.$store.state.liveImageQueue.length) {
         return
       }
-      let nextImage = this.$store.state.liveImageQueue[0]
+      const nextImage = this.$store.state.liveImageQueue[0]
       this.latestImage = nextImage
       this.$store.commit('consumeImage')
     }

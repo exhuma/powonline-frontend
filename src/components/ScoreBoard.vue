@@ -53,10 +53,10 @@ export default {
       const teamScores = []
       const qScores = this.$store.state.questionnaireScores
       const that = this
-      for (var teamName in qScores) {
+      for (const teamName in qScores) {
         if (qScores.hasOwnProperty(teamName)) {
           const questData = qScores[teamName]
-          for (var stationName in questData) {
+          for (const stationName in questData) {
             if (questData.hasOwnProperty(stationName)) {
               teamQuestScores[teamName] = teamQuestScores[teamName] || 0
               teamQuestScores[teamName] += questData[stationName].score
@@ -65,13 +65,13 @@ export default {
         }
       }
       this.$store.state.global_dashboard.forEach(function (item) {
-        let score = item.stations.reduce(function (accu, current) {
+        const score = item.stations.reduce(function (accu, current) {
           return accu + current.score
         }, 0)
-        let position = 0
-        let tmp = teamQuestScores[item.team] || 0
-        let teamData = that.$store.getters.findTeam(item.team)
-        let cancelled = teamData.cancelled ? 'cancelled' : ''
+        const position = 0
+        const tmp = teamQuestScores[item.team] || 0
+        const teamData = that.$store.getters.findTeam(item.team)
+        const cancelled = teamData.cancelled ? 'cancelled' : ''
         teamScores.push([position, score + tmp, item.team, cancelled])
       })
       teamScores.sort(function (a, b) {

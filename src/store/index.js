@@ -105,7 +105,7 @@ function makeStore(auth, remoteProxy) {
         // "effectiveStartTime" property)
         let insertPosition = 0
         let foundPosition = false
-        for (let [idx, entry] of state.teams.entries()) {
+        for (const [idx, entry] of state.teams.entries()) {
           console.debug(
             `New team has effectiveStartTime ${team.effective_start_time} entry-time: ${entry.effective_start_time}`
           )
@@ -151,7 +151,7 @@ function makeStore(auth, remoteProxy) {
         // "order" property)
         let insertPosition = 0
         let foundPosition = false
-        for (let [idx, entry] of state.stations.entries()) {
+        for (const [idx, entry] of state.stations.entries()) {
           if (entry.order >= station.order) {
             console.debug(
               `New station has order ${station.order} which goes before ${entry.name} with order ${entry.order}`
@@ -472,8 +472,8 @@ function makeStore(auth, remoteProxy) {
 
       replaceGallery(state, data) {
         data.sort((a, b) => {
-          let adt = moment.utc(a.when)
-          let bdt = moment.utc(b.when)
+          const adt = moment.utc(a.when)
+          const bdt = moment.utc(b.when)
           return bdt - adt
         })
         state.gallery = data
@@ -1367,7 +1367,7 @@ function makeStore(auth, remoteProxy) {
        * :returns: Either an object with the team details or null
        */
       findTeam: (state, getters) => (teamName) => {
-        let filtered = state.teams.filter((item) => {
+        const filtered = state.teams.filter((item) => {
           return item.name === teamName
         })
         if (filtered.length === 1) {

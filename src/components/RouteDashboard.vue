@@ -53,7 +53,7 @@ export default {
         waiting += item.waiting
         finished += item.finished
       })
-      let total = pending + waiting + finished
+      const total = pending + waiting + finished
       return (finished / total) * 100
     },
     overall_pct_waiting() {
@@ -65,7 +65,7 @@ export default {
         waiting += item.waiting
         finished += item.finished
       })
-      let total = pending + waiting + finished
+      const total = pending + waiting + finished
       return (waiting / total) * 100
     },
     assignedStations() {
@@ -101,8 +101,8 @@ export default {
           if (this.route.name !== route) {
             continue
           }
-          let teamDetails = this.$store.getters.findTeam(teamName)
-          let row = {
+          const teamDetails = this.$store.getters.findTeam(teamName)
+          const row = {
             pending: 0,
             waiting: 0,
             finished: 0,
@@ -129,7 +129,7 @@ export default {
                 console.warn(`Unknown state: ${JSON.stringify(state)}`)
             }
           })
-          let total = row.pending + row.waiting + row.finished
+          const total = row.pending + row.waiting + row.finished
           row.pct_pending = (row.pending / total) * 100
           row.pct_waiting = (row.waiting / total) * 100
           row.pct_finished = (row.finished / total) * 100

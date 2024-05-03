@@ -136,7 +136,7 @@ export default {
   },
   computed: {
     stations() {
-      let copy = this.$store.state.stations.concat()
+      const copy = this.$store.state.stations.concat()
       copy.sort((a, b) => {
         return parseInt(a.order, 10) - parseInt(b.order, 10)
       })

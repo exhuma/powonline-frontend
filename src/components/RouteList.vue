@@ -100,7 +100,7 @@ export default {
   },
   computed: {
     routes() {
-      let output = this.$store.state.routes.concat()
+      const output = this.$store.state.routes.concat()
       output.sort((a, b) => {
         if (a.name < b.name) {
           return -1

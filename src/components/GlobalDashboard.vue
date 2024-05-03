@@ -60,7 +60,7 @@ export default {
       this.$store.dispatch('fetchQuestionnaireScores')
     },
     autoRefreshTick() {
-      let tickPercent = 100.0 / AUTO_REFRESH_INTERVAL_SECONDS
+      const tickPercent = 100.0 / AUTO_REFRESH_INTERVAL_SECONDS
       this.pctUntilNextRefresh -= tickPercent
       this.$emit('refresh-progress-updated', {
         progress: this.pctUntilNextRefresh

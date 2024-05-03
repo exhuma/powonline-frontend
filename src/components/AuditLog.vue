@@ -48,16 +48,16 @@ export default {
   },
   computed: {
     filteredEntries() {
-      let all = this.entries
+      const all = this.entries
       let filtered = null
       if (!this.entryFilter || this.entryFilter.length < 3) {
         filtered = all
       } else {
         filtered = all.filter((item) => {
-          let fltr = this.entryFilter.toLowerCase()
-          let userMatches = item.username.toLowerCase().includes(fltr)
-          let typeMatches = item.type.toLowerCase().includes(fltr)
-          let msgMatches = item.message.toLowerCase().includes(fltr)
+          const fltr = this.entryFilter.toLowerCase()
+          const userMatches = item.username.toLowerCase().includes(fltr)
+          const typeMatches = item.type.toLowerCase().includes(fltr)
+          const msgMatches = item.message.toLowerCase().includes(fltr)
           return userMatches || typeMatches || msgMatches
         })
       }
@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     format_ts(ts) {
-      let obj = moment(ts)
+      const obj = moment(ts)
       return obj.format('YYYY-MM-DD HH:mm:ss')
     },
     refresh() {

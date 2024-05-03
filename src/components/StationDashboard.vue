@@ -135,7 +135,7 @@ export default {
   },
   computed: {
     selectedStates() {
-      let output = []
+      const output = []
       if (this.showPending) {
         output.push('unknown')
       }
@@ -169,7 +169,7 @@ export default {
           })
         })
       })
-      let filtered = this.filteredTeams(output)
+      const filtered = this.filteredTeams(output)
       return filtered
     }
   },
@@ -205,15 +205,15 @@ export default {
       this.teamFilter = ''
     },
     filteredTeams: function (teams) {
-      let all = teams
+      const all = teams
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return all
       }
-      let filtered = all.filter((item) => {
-        let fltr = this.teamFilter.toLowerCase()
-        let teamData = this.$store.getters.findTeam(item.team)
-        let contactMatches = teamData.contact.toLowerCase().includes(fltr)
-        let nameMatches = item.team.toLowerCase().includes(fltr)
+      const filtered = all.filter((item) => {
+        const fltr = this.teamFilter.toLowerCase()
+        const teamData = this.$store.getters.findTeam(item.team)
+        const contactMatches = teamData.contact.toLowerCase().includes(fltr)
+        const nameMatches = item.team.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
       return filtered

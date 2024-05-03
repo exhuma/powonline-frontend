@@ -23,8 +23,8 @@ class FakeProxy {
   }
 
   renewToken(token) {
-    let promise = new Promise((resolve, reject) => {
-      let data = {
+    const promise = new Promise((resolve, reject) => {
+      const data = {
         status: 200,
         token: 'fake-jwt-token'
       }
@@ -34,8 +34,8 @@ class FakeProxy {
   }
 
   socialLogin(network, userId, token) {
-    let output = new Promise((resolve, reject) => {
-      let responseData = {
+    const output = new Promise((resolve, reject) => {
+      const responseData = {
         token: 'fake-jwt-token',
         roles: ['role1'],
         user: 'fake-user'
@@ -46,14 +46,14 @@ class FakeProxy {
   }
 
   loginUser(username, password) {
-    let data = {
+    const data = {
       status: 200,
       roles: ['role1'],
       token: 'fake-token',
       user: username
     }
     console.log('Fake user login, returning ' + data)
-    let promise = new Promise(function (resolve, reject) {
+    const promise = new Promise(function (resolve, reject) {
       resolve(data)
     })
     return promise
@@ -64,7 +64,7 @@ class FakeProxy {
   }
 
   setQuestionnaireScore(stationName, teamName, score) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       // no-op
       resolve({})
     })
@@ -72,7 +72,7 @@ class FakeProxy {
   }
 
   advanceState(stationName, teamName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       resolve({
         team: teamName,
         station: stationName,
@@ -83,8 +83,8 @@ class FakeProxy {
   }
 
   fetchDashboard() {
-    let output = new Promise((resolve, reject) => {
-      let data = [
+    const output = new Promise((resolve, reject) => {
+      const data = [
         {
           team: 'team-1',
           stations: [{ name: 'station-1', score: 10, state: 'arrived' }]
@@ -100,15 +100,15 @@ class FakeProxy {
   }
 
   setRouteColor(routeName, newColor) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       resolve(newColor)
     })
     return output
   }
 
   getPublicImages() {
-    let output = new Promise((resolve, reject) => {
-      let output = []
+    const output = new Promise((resolve, reject) => {
+      const output = []
       resolve(output)
     })
     return output
@@ -120,7 +120,7 @@ class Proxy extends FakeProxy {
    * Connect to the back-end to retrieve the questionnaire scores
    */
   fetchQuestionnaireScores() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/questionnaire-scores')
         .then((response) => {
@@ -137,13 +137,13 @@ class Proxy extends FakeProxy {
    * Request a new JTW token using an existing token
    */
   renewToken(token) {
-    let promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/login/renew', {
           token: token
         })
         .then((response) => {
-          let data = {
+          const data = {
             status: response.status,
             token: response.data.token
           }
@@ -168,7 +168,7 @@ class Proxy extends FakeProxy {
    * token: The token received from the social network.
    */
   socialLogin(network, userId, token) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/login', {
           social_provider: network,
@@ -195,7 +195,7 @@ class Proxy extends FakeProxy {
    * Send a normal login package to the back-end to allow non-social logins.
    */
   loginUser(username, password) {
-    let promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/login', {
           username: username,
@@ -228,7 +228,7 @@ class Proxy extends FakeProxy {
   }
 
   setQuestionnaireScore(stationName, teamName, score) {
-    let payload = {
+    const payload = {
       action: 'set_questionnaire_score',
       args: {
         station_name: stationName,
@@ -236,7 +236,7 @@ class Proxy extends FakeProxy {
         score: score
       }
     }
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/job', payload)
         .then((response) => {
@@ -254,21 +254,21 @@ class Proxy extends FakeProxy {
   }
 
   advanceState(stationName, teamName) {
-    let payload = {
+    const payload = {
       action: 'advance',
       args: {
         station_name: stationName,
         team_name: teamName
       }
     }
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/job', payload)
         .then((response) => {
           // The server assigned a new state, so we must update our local
           // values
           const newState = response.data.result.state
-          let data = {
+          const data = {
             team: teamName,
             station: stationName,
             new_state: newState
@@ -283,7 +283,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchDashboard() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/dashboard')
         .then((response) => {
@@ -297,7 +297,7 @@ class Proxy extends FakeProxy {
   }
 
   addUser(user) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/user', user)
         .then((response) => {
@@ -311,7 +311,7 @@ class Proxy extends FakeProxy {
   }
 
   addTeam(team) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/team', team)
         .then((response) => {
@@ -325,7 +325,7 @@ class Proxy extends FakeProxy {
   }
 
   addRoute(route) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/route', route)
         .then((response) => {
@@ -339,7 +339,7 @@ class Proxy extends FakeProxy {
   }
 
   addStation(station) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/station', station)
         .then((response) => {
@@ -353,7 +353,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchUsers() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/user')
         .then((response) => {
@@ -367,7 +367,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchUserStations(userName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/user/' + userName + '/stations')
         .then((response) => {
@@ -381,7 +381,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchUserRoles(userName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/user/' + userName + '/roles')
         .then((response) => {
@@ -395,7 +395,7 @@ class Proxy extends FakeProxy {
   }
 
   addUserRole(userName, roleName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/user/' + userName + '/roles', {
           name: roleName
@@ -411,7 +411,7 @@ class Proxy extends FakeProxy {
   }
 
   removeUserRole(userName, roleName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
         .then((response) => {
@@ -425,7 +425,7 @@ class Proxy extends FakeProxy {
   }
 
   getUserRole(userName, roleName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
         .then((response) => {
@@ -439,7 +439,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchTeams() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/team')
         .then((response) => {
@@ -453,7 +453,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchTeam(teamName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/team/' + teamName)
         .then((response) => {
@@ -467,7 +467,7 @@ class Proxy extends FakeProxy {
   }
 
   addStationToUser(userName, stationName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/user/' + userName + '/stations', {
           name: stationName
@@ -483,7 +483,7 @@ class Proxy extends FakeProxy {
   }
 
   removeStationFromUser(userName, stationName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
         .then((response) => {
@@ -497,7 +497,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchAssignedStationState(userName, stationName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
         .then((response) => {
@@ -511,7 +511,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchRoutes() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/route')
         .then((response) => {
@@ -525,7 +525,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchStations() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/station')
         .then((response) => {
@@ -539,7 +539,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchAssignments() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/assignments')
         .then((response) => {
@@ -553,7 +553,7 @@ class Proxy extends FakeProxy {
   }
 
   addTeamToRoute(route, team) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/route/' + route + '/teams', team)
         .then((response) => {
@@ -567,7 +567,7 @@ class Proxy extends FakeProxy {
   }
 
   unassignTeamFromRoute(route, team) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/route/' + route + '/teams/' + team)
         .then((response) => {
@@ -581,7 +581,7 @@ class Proxy extends FakeProxy {
   }
 
   assignStationToRoute(routeName, station) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .post(this.baseUrl + '/route/' + routeName + '/stations', station)
         .then((response) => {
@@ -595,7 +595,7 @@ class Proxy extends FakeProxy {
   }
 
   unassignStationFromRoute(routeName, stationName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(
           this.baseUrl + '/route/' + routeName + '/stations/' + stationName
@@ -611,7 +611,7 @@ class Proxy extends FakeProxy {
   }
 
   deleteRoute(routeName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/route/' + routeName)
         .then((response) => {
@@ -625,7 +625,7 @@ class Proxy extends FakeProxy {
   }
 
   deleteStation(stationName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/station/' + stationName)
         .then((response) => {
@@ -639,7 +639,7 @@ class Proxy extends FakeProxy {
   }
 
   deleteUser(userName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/user/' + userName)
         .then((response) => {
@@ -653,7 +653,7 @@ class Proxy extends FakeProxy {
   }
 
   deleteTeam(teamName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(this.baseUrl + '/team/' + teamName)
         .then((response) => {
@@ -667,7 +667,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchTeamState(stationName, teamName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/station/' + stationName + '/teams/' + teamName)
         .then((response) => {
@@ -681,7 +681,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchTeamStations(teamName) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(this.baseUrl + '/team/' + teamName + '/stations')
         .then((response) => {
@@ -695,7 +695,7 @@ class Proxy extends FakeProxy {
   }
 
   updateStation(stationName, newData) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .put(this.baseUrl + '/station/' + stationName, newData)
         .then((response) => {
@@ -709,7 +709,7 @@ class Proxy extends FakeProxy {
   }
 
   updateTeam(teamName, newData) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .put(this.baseUrl + '/team/' + teamName, newData)
         .then((response) => {
@@ -723,7 +723,7 @@ class Proxy extends FakeProxy {
   }
 
   setRouteColor(routeName, newColor) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .put(`${this.baseUrl}/route/${routeName}/color`, { color: newColor })
         .then((response) => {
@@ -737,7 +737,7 @@ class Proxy extends FakeProxy {
   }
 
   sendUpload(file) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       const formData = new FormData()
       formData.append('file', file)
       axios
@@ -771,7 +771,7 @@ class Proxy extends FakeProxy {
   }
 
   deleteFile(uuid) {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .delete(`${this.baseUrl}/upload/${uuid}`)
         .then((response) => {
@@ -785,7 +785,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchUploads() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(`${this.baseUrl}/upload`)
         .then((response) => {
@@ -799,7 +799,7 @@ class Proxy extends FakeProxy {
   }
 
   getPublicImages() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(`${this.baseUrl}/upload?public=1`)
         .then((response) => {
@@ -813,7 +813,7 @@ class Proxy extends FakeProxy {
   }
 
   fetchAuditLog() {
-    let output = new Promise((resolve, reject) => {
+    const output = new Promise((resolve, reject) => {
       axios
         .get(`${this.baseUrl}/auditlog`)
         .then((response) => {
@@ -827,7 +827,7 @@ class Proxy extends FakeProxy {
   }
 
   async fetchRelatedTeams(localStationName, relation) {
-    let response = await axios.get(
+    const response = await axios.get(
       `${this.baseUrl}/station/${localStationName}/${relation}/dashboard`
     )
     const statePrecedence = {
@@ -857,6 +857,6 @@ class Proxy extends FakeProxy {
 }
 
 export default function makeRemoteProxy(fake, backendUrl) {
-  let Cls = fake ? FakeProxy : Proxy
+  const Cls = fake ? FakeProxy : Proxy
   return new Cls(backendUrl)
 }
