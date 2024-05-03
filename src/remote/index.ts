@@ -17,9 +17,66 @@ Vue.mixin({
   }
 })
 
-class FakeProxy {
+export interface Proxy {
+  renewToken(token: string): Promise<{ status: number; token: string }>
+  socialLogin(
+    network: string,
+    userId: string,
+    token: string
+  ): Promise<{ token: string; roles: string[]; user: string }>
+  loginUser(
+    username: string,
+    password: string
+  ): Promise<{
+    status: number
+    roles: string[]
+    token: string
+    user: string
+  }>
+  setStationScore(
+    stationName: string,
+    teamName: string,
+    score: number
+  ): Promise<unknown>
+  setQuestionnaireScore(
+    stationName: string,
+    teamName: string,
+    score: number
+  ): Promise<unknown>
+  advanceState(
+    stationName: string,
+    teamName: string
+  ): Promise<{ team: string; station: string; new_state: string }>
+  fetchDashboard(): Promise<unknown[]>
+  setRouteColor(routeName: string, newColor: string): Promise<string>
+  getPublicImages(): Promise<unknown[]>
+  fetchTeam(teamName: string): Promise<{ name: string }>
+  fetchRelatedStation(stationName: string, relation: string): Promise<string>
+  fetchRelatedTeams(localStationName: string, relation: string): Promise<string>
+}
+
+class FakeProxy implements Proxy {
+  baseUrl: string
   constructor(baseUrl) {
     this.baseUrl = baseUrl
+  }
+
+  async fetchRelatedStation(
+    stationName: string,
+    relation: string
+  ): Promise<string> {
+    return 'fake-station'
+  }
+
+  async fetchRelatedTeams(
+    localStationName: string,
+    relation: string
+  ): Promise<string> {
+    return 'fake-team'
+  }
+
+  install(vue: typeof Vue, options?: any) {
+    vue.prototype.$remoteProxy = this
   }
 
   async renewToken(token) {
@@ -83,12 +140,22 @@ class FakeProxy {
     return newColor
   }
 
-  async asyncgetPublicImages() {
+  async getPublicImages() {
     return []
+  }
+
+  async fetchTeam(teamName) {
+    return { name: teamName }
   }
 }
 
-class Proxy extends FakeProxy {
+class ConcreteProxy implements Proxy {
+  baseUrl: string
+
+  constructor(baseUrl) {
+    this.baseUrl = baseUrl
+  }
+
   /**
    * Connect to the back-end to retrieve the questionnaire scores
    */
@@ -506,7 +573,10 @@ class Proxy extends FakeProxy {
   }
 }
 
-export default function makeRemoteProxy(fake, backendUrl) {
-  const Cls = fake ? FakeProxy : Proxy
+export default function makeRemoteProxy(
+  fake: boolean,
+  backendUrl: string
+): Proxy {
+  const Cls = fake ? FakeProxy : ConcreteProxy
   return new Cls(backendUrl)
 }
