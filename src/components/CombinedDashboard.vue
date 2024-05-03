@@ -24,14 +24,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 function isFinished(item) {
   if (item.cancelled || item.completed) {
     return true
   }
   return item.waiting + item.pending === 0
 }
-export default {
+import Vue from 'vue'
+const CombinedDashboard = Vue.extend({
   name: 'combined-dashboard',
   props: {
     routes: {
@@ -147,5 +148,6 @@ export default {
       return all.filter((item) => !isFinished(item))
     }
   }
-}
+})
+export default CombinedDashboard
 </script>

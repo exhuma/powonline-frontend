@@ -58,10 +58,11 @@
   </v-list-item>
 </template>
 
-<script>
+<script lang="ts">
 import Swatches from 'vue-swatches'
 import 'vue-swatches/dist/vue-swatches.min.css'
-export default {
+import Vue from 'vue'
+const RouteBlock = Vue.extend({
   name: 'route-block',
   components: { Swatches },
   props: {
@@ -102,5 +103,6 @@ export default {
       return this.$store.getters.hasRole(roleName)
     }
   }
-}
+})
+export default RouteBlock
 </script>

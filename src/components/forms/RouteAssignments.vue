@@ -58,10 +58,11 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 
-export default {
+import Vue from 'vue'
+const RouteAssignments = Vue.extend({
   name: 'route-assignments',
 
   props: {
@@ -114,5 +115,6 @@ export default {
       })
     }
   }
-}
+})
+export default RouteAssignments
 </script>

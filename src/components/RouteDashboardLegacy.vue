@@ -40,8 +40,9 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const RouteDashboardLegacy = Vue.extend({
   name: 'route-dashboard-legacy',
   props: {
     route: {
@@ -144,5 +145,6 @@ export default {
       return rows
     }
   }
-}
+})
+export default RouteDashboardLegacy
 </script>

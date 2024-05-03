@@ -34,8 +34,9 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const RouteDashboard = Vue.extend({
   name: 'route-dashboard',
   props: {
     route: {
@@ -145,5 +146,6 @@ export default {
       return rows
     }
   }
-}
+})
+export default RouteDashboard
 </script>

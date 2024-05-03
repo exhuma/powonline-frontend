@@ -73,10 +73,11 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 
-export default {
+import Vue from 'vue'
+const StationList = Vue.extend({
   name: 'station_list',
   methods: {
     onOpenEditDialog: function (station) {
@@ -143,7 +144,8 @@ export default {
       return copy
     }
   }
-}
+})
+export default StationList
 </script>
 
 <style scoped>

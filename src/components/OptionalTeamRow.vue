@@ -15,8 +15,9 @@
   </v-layout>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const OptionalTeamRow = Vue.extend({
   name: 'optional-team-row',
   props: ['tooltip', 'icon', 'value', 'mu'],
   methods: {
@@ -35,5 +36,6 @@ export default {
       return this.value
     }
   }
-}
+})
+export default OptionalTeamRow
 </script>

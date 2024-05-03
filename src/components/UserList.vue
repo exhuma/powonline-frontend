@@ -69,12 +69,13 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 import UserBlock from './UserBlock.vue'
 import CenterCol from './CenterCol.vue'
 
-export default {
+import Vue from 'vue'
+const UserList = Vue.extend({
   components: { UserBlock, CenterCol },
   name: 'user_list',
   computed: {
@@ -157,7 +158,8 @@ export default {
       users: []
     }
   }
-}
+})
+export default UserList
 </script>
 
 <style scoped>

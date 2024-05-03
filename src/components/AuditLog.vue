@@ -30,9 +30,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import moment from 'moment'
-export default {
+import Vue from 'vue'
+const AuditLog = Vue.extend({
   name: 'auditlog',
   data() {
     return {
@@ -90,5 +91,6 @@ export default {
   created() {
     this.refresh()
   }
-}
+})
+export default AuditLog
 </script>

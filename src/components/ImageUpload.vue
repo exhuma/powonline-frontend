@@ -24,8 +24,9 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const ImageUpload = Vue.extend({
   name: 'image-upload',
   props: {
     fab: {
@@ -81,7 +82,8 @@ export default {
     this.onResize()
     window.addEventListener('resize', this.onResize, { passive: true })
   }
-}
+})
+export default ImageUpload
 </script>
 
 <style>

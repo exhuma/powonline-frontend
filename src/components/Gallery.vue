@@ -48,10 +48,11 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import LightBox from 'vue-it-bigger'
 import('vue-it-bigger/dist/vue-it-bigger.min.css')
-export default {
+import Vue from 'vue'
+const Gallery = Vue.extend({
   created() {
     this.refreshImages()
   },
@@ -122,5 +123,6 @@ export default {
       return result
     }
   }
-}
+})
+export default Gallery
 </script>

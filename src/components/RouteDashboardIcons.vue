@@ -40,10 +40,11 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import util from '@/util'
 
-export default {
+import Vue from 'vue'
+const RouteDashboardIcons = Vue.extend({
   name: 'route-dashboard-icons',
   props: {
     route: {
@@ -145,5 +146,6 @@ export default {
       return util.getStateIcon(state)
     }
   }
-}
+})
+export default RouteDashboardIcons
 </script>

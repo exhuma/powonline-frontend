@@ -2,10 +2,11 @@
   <v-icon :color="adaptiveColor">{{ stateIcon() }}</v-icon>
 </template>
 
-<script>
+<script lang="ts">
 import util from '@/util'
 
-export default {
+import Vue from 'vue'
+const StateIcon = Vue.extend({
   name: 'state-icon',
   props: ['state'],
   computed: {
@@ -25,5 +26,6 @@ export default {
       return util.getStateIcon(this.state)
     }
   }
-}
+})
+export default StateIcon
 </script>

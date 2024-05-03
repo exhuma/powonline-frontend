@@ -23,10 +23,11 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import TeamForm from '@/components/forms/TeamForm.vue'
 
-export default {
+import Vue from 'vue'
+const TeamPanel = Vue.extend({
   name: 'team-panel',
   components: { TeamForm },
 
@@ -60,5 +61,6 @@ export default {
         })
     }
   }
-}
+})
+export default TeamPanel
 </script>

@@ -83,7 +83,7 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 /**
  * Set the image classes based on "last update age". The "updateAge" is
  * expressed in seconds
@@ -115,7 +115,8 @@ function applyAgeClasses(data) {
     return 0
   })
 }
-export default {
+import Vue from 'vue'
+const StationDashboard = Vue.extend({
   name: 'station_dashboard',
   data() {
     return {
@@ -300,7 +301,8 @@ export default {
       }
     }
   }
-}
+})
+export default StationDashboard
 </script>
 
 <style scoped>
