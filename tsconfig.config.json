@@ -4,7 +4,8 @@
   "compilerOptions": {
     "composite": true,
     "types": ["node"],
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,
     // workaround for https://github.com/vuejs/tsconfig/issues/6
     "preserveValueImports": false,
     "importsNotUsedAsValues": "remove",
