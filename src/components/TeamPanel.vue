@@ -1,6 +1,6 @@
 <template>
   <center-col id="TeamList">
-    <team-form :team="team" />
+    <team-form :team.sync="team" />
     <div v-if="hasRole('admin')">
       <confirmation-dialog
         buttonText="Delete"

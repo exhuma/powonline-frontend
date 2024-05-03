@@ -14,8 +14,9 @@
                 <v-text-field
                   name="team-input"
                   type="text"
-                  v-model="team.name"
+                  v-model="localTeam.name"
                   label="Enter a new teamname"
+                  @input="emitChangeEvent"
                 />
               </v-flex>
             </v-layout>
@@ -23,10 +24,11 @@
               <v-flex xs12>
                 <v-select
                   v-bind:items="routes"
-                  v-model="team.route_name"
+                  v-model="localTeam.route_name"
                   item-value="name"
                   item-text="name"
                   label="Route"
+                  @input="emitChangeEvent"
                 />
               </v-flex>
             </v-layout>
@@ -35,8 +37,9 @@
                 <v-text-field
                   name="email-input"
                   type="text"
-                  v-model="team.email"
+                  v-model="localTeam.email"
                   label="Enter a new email"
+                  @input="emitChangeEvent"
                 />
               </v-flex>
             </v-layout>
@@ -45,8 +48,9 @@
                 <v-text-field
                   name="numParticipants"
                   type="number"
-                  v-model="team.num_participants"
+                  v-model="localTeam.num_participants"
                   label="Total number of particibpants"
+                  @input="emitChangeEvent"
                 />
               </v-flex>
             </v-layout>
@@ -55,30 +59,31 @@
                 <v-text-field
                   name="numVegetarians"
                   type="number"
-                  v-model="team.num_vegetarians"
+                  v-model="localTeam.num_vegetarians"
                   hint="How many people of the team are vegetarians"
                   label="Total number of vegetarians"
+                  @input="emitChangeEvent"
                 />
               </v-flex>
             </v-layout>
 
             <date-time-picker
               @timeValueChanged="updatePlannedTime"
-              :time-value="this.team.planned_start_time"
+              :time-value="localTeam.planned_start_time"
               hint="The time the team was scheduled to start"
               label="Planned Start Time"
             />
 
             <date-time-picker
               @timeValueChanged="updateEffectiveTime"
-              :time-value="this.team.effective_start_time"
+              :time-value="localTeam.effective_start_time"
               hint="The time the team effectively left the departure station"
               label="Effective Start Time"
             />
 
             <date-time-picker
               @timeValueChanged="updateFinishTime"
-              :time-value="this.team.finish_time"
+              :time-value="localTeam.finish_time"
               hint="The time the team finished the event"
               label="Finish Time"
             />
@@ -90,11 +95,13 @@
             </v-layout>
             <v-checkbox
               label="Team has cancelled the event"
-              v-model="team.cancelled"
+              v-model="localTeam.cancelled"
+              @change="emitChangeEvent"
             />
             <v-checkbox
               label="Team has completed the event"
-              v-model="team.completed"
+              v-model="localTeam.completed"
+              @change="emitChangeEvent"
             /> </v-card-text
         ></v-card>
       </v-tab-item>
@@ -105,20 +112,23 @@
             <v-text-field
               name="email-input"
               type="text"
-              v-model="team.email"
+              v-model="localTeam.email"
               label="Enter a new email"
+              @input="emitChangeEvent"
             />
             <v-text-field
               name="contactName"
               type="text"
-              v-model="team.contact"
+              v-model="localTeam.contact"
               label="Contact Name"
+              @input="emitChangeEvent"
             />
             <v-text-field
               name="contactPhone"
               type="text"
-              v-model="team.phone"
+              v-model="localTeam.phone"
               label="Contact Phone #"
+              @input="emitChangeEvent"
             /> </v-card-text
         ></v-card>
       </v-tab-item>
@@ -128,18 +138,21 @@
           ><v-card-text>
             <v-checkbox
               label="Team has accepted the registration"
-              v-model="team.accepted"
+              v-model="localTeam.accepted"
+              @change="emitChangeEvent"
             />
             <v-checkbox
               label="Team was confirmed by the registration staff"
-              v-model="team.is_confirmed"
+              v-model="localTeam.is_confirmed"
+              @change="emitChangeEvent"
             />
             <v-select
               v-bind:items="routes"
-              v-model="team.route_name"
+              v-model="localTeam.route_name"
               item-value="name"
               item-text="name"
               label="Route"
+              @input="emitChangeEvent"
             /> </v-card-text
         ></v-card>
       </v-tab-item>
@@ -150,7 +163,8 @@
             <v-textarea
               name="comments"
               type="text"
-              v-model="team.comments"
+              v-model="localTeam.comments"
+              @input="emitChangeEvent"
             /> </v-card-text
         ></v-card>
       </v-tab-item>
@@ -181,19 +195,26 @@ const TeamForm = Vue.extend({
       activeTab: 'teamInfo',
       showPlannedStartTimeDialog: false,
       showEffectiveStartTimeDialog: false,
-      showFinishTimeDialog: false
+      showFinishTimeDialog: false,
+      localTeam: JSON.parse(JSON.stringify(this.team))
     }
   },
 
   methods: {
+    emitChangeEvent() {
+      this.$emit('update:team', JSON.parse(JSON.stringify(this.localTeam)))
+    },
     updatePlannedTime(newValue) {
-      this.team.planned_start_time = newValue
+      this.localTeam.planned_start_time = newValue
+      this.emitChangeEvent()
     },
     updateEffectiveTime(newValue) {
-      this.team.effective_start_time = newValue
+      this.localTeam.effective_start_time = newValue
+      this.emitChangeEvent()
     },
     updateFinishTime(newValue) {
-      this.team.finish_time = newValue
+      this.localTeam.finish_time = newValue
+      this.emitChangeEvent()
     }
   },
 
@@ -216,7 +237,8 @@ const TeamForm = Vue.extend({
         }
         const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
-          this.team.finish_time = nw.format('YYYY-MM-DDTHH:mm:00')
+          this.localTeam.finish_time = nw.format('YYYY-MM-DDTHH:mm:00')
+          this.emitChangeEvent()
         } else {
           console.error({ 'Cannot set date value to': nw })
         }
@@ -240,7 +262,8 @@ const TeamForm = Vue.extend({
         }
         const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
-          this.team.effective_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
+          this.localTeam.effective_start_time = nw.format('YYYY-MM-DDTHH:mm:00')
+          this.emitChangeEvent()
         } else {
           console.error({ 'Cannot set date value to': nw })
         }
