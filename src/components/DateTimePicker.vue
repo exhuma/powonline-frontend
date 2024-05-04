@@ -80,7 +80,7 @@ const DateTimePicker = Vue.extend({
   props: ['label', 'hint', 'timeValue'],
   computed: {
     innerTimeValue: {
-      get: function () {
+      get: function (): string {
         let output = null
         if (this.timeValue) {
           output = moment(this.timeValue)
@@ -89,7 +89,7 @@ const DateTimePicker = Vue.extend({
         }
         return output.format('HH:mm')
       },
-      set: function (newValue) {
+      set: function (newValue: string): void {
         let old = moment(this.timeValue)
         if (!old.isValid()) {
           console.debug('Old for planned start time invalid. Using default')
@@ -104,7 +104,7 @@ const DateTimePicker = Vue.extend({
       }
     },
     innerDateValue: {
-      get: function () {
+      get: function (): string {
         let output = null
         if (this.timeValue) {
           output = moment(this.timeValue)
@@ -113,7 +113,7 @@ const DateTimePicker = Vue.extend({
         }
         return output.format('YYYY-MM-DD')
       },
-      set: function (newValue) {
+      set: function (newValue: string): void {
         let old = moment(this.timeValue)
         if (!old.isValid()) {
           console.debug('Old for planned start date invalid. Using default')

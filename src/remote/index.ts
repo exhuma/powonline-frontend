@@ -5,6 +5,14 @@ import axios from 'axios'
 import Vue from 'vue'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
+import { type Upload } from './model/upload'
+import { type Station } from './model/station'
+import { Team } from './model/team'
+import { Route } from './model/route'
+import { AssignmentMap } from './model/assignmentMap'
+import { QuestionnaireScores } from './model/questionnaireScores'
+import { User } from './model/user'
+import { DashboardRow } from './model/dashboardRow'
 
 Vue.mixin({
   beforeCreate() {
@@ -19,46 +27,134 @@ Vue.mixin({
 
 export interface Proxy {
   renewToken(token: string): Promise<{ status: number; token: string }>
-  socialLogin(
-    network: string,
-    userId: string,
-    token: string
-  ): Promise<{ token: string; roles: string[]; user: string }>
+  addRoute(route: Route): Promise<Route>
+  addStation(station: Station): Promise<Station>
+  addTeam(team: Team): Promise<Team>
+  addTeamToRoute(routeName: string, team: Team): Promise<unknown>
+  addUser(user: User): Promise<User>
+  advanceState(
+    stationName: string,
+    teamName: string
+  ): Promise<{ team: string; station: string; new_state: string }>
+  assignStationToRoute(routeName: string, station: Station): Promise<unknown>
+  deleteRoute(routeName: string): Promise<unknown>
+  deleteStation(stationName: string): Promise<unknown>
+  deleteTeam(teamName: string): Promise<unknown>
+  deleteUser(userName: string): Promise<unknown>
+  fetchAssignments(): Promise<AssignmentMap>
+  fetchDashboard(): Promise<DashboardRow[]>
+  fetchQuestionnaireScores(): Promise<QuestionnaireScores>
+  fetchRelatedStation(stationName: string, relation: string): Promise<string>
+  fetchRelatedTeams(localStationName: string, relation: string): Promise<string>
+  fetchRoutes(): Promise<Route[]>
+  fetchStations(): Promise<Station[]>
+  fetchTeam(teamName: string): Promise<{ name: string }>
+  fetchTeams(): Promise<Team[]>
+  fetchUploads(): Promise<Upload[]>
+  fetchUsers(): Promise<User[]>
+  getPublicImages(): Promise<unknown[]>
   loginUser(
     username: string,
     password: string
-  ): Promise<{
-    status: number
-    roles: string[]
-    token: string
-    user: string
-  }>
-  setStationScore(
-    stationName: string,
-    teamName: string,
-    score: number
-  ): Promise<unknown>
+  ): Promise<{ status: number; roles: string[]; token: string; user: string }>
   setQuestionnaireScore(
     stationName: string,
     teamName: string,
     score: number
   ): Promise<unknown>
-  advanceState(
-    stationName: string,
-    teamName: string
-  ): Promise<{ team: string; station: string; new_state: string }>
-  fetchDashboard(): Promise<unknown[]>
   setRouteColor(routeName: string, newColor: string): Promise<string>
-  getPublicImages(): Promise<unknown[]>
-  fetchTeam(teamName: string): Promise<{ name: string }>
-  fetchRelatedStation(stationName: string, relation: string): Promise<string>
-  fetchRelatedTeams(localStationName: string, relation: string): Promise<string>
+  setStationScore(
+    stationName: string,
+    teamName: string,
+    score: number
+  ): Promise<unknown>
+  socialLogin(
+    network: string,
+    userId: string,
+    token: string
+  ): Promise<{ token: string; roles: string[]; user: string }>
+  unassignStationFromRoute(
+    routeName: string,
+    stationName: string
+  ): Promise<unknown>
+  unassignTeamFromRoute(routeName: string, teamName: string): Promise<unknown>
+  updateTeam(teamName: string, newData: Team): Promise<unknown>
+  deleteFile(uuid: string): Promise<unknown>
 }
 
 class FakeProxy implements Proxy {
   baseUrl: string
   constructor(baseUrl) {
     this.baseUrl = baseUrl
+  }
+  async deleteFile(uuid: string): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async addTeam(team: Team): Promise<Team> {
+    throw new Error('Method not implemented.')
+  }
+  async updateTeam(teamName: string, newData: Team): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchRoutes(): Promise<Route[]> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchStations(): Promise<Station[]> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchUsers(): Promise<User[]> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchAssignments(): Promise<AssignmentMap> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchTeams(): Promise<Team[]> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchQuestionnaireScores(): Promise<QuestionnaireScores> {
+    throw new Error('Method not implemented.')
+  }
+  async deleteTeam(teamName: string): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async deleteUser(userName: string): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async deleteStation(stationName: string): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async deleteRoute(routeName: string): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async addTeamToRoute(routeName: string, team: Team): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async unassignTeamFromRoute(
+    routeName: string,
+    teamName: string
+  ): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async assignStationToRoute(
+    routeName: string,
+    station: Station
+  ): Promise<unknown> {
+    throw new Error('Method not implemented.')
+  }
+  async addUser(user: User): Promise<User> {
+    throw new Error('Method not implemented.')
+  }
+  async addRoute(route: Route): Promise<Route> {
+    throw new Error('Method not implemented.')
+  }
+  async addStation(station: Station): Promise<Station> {
+    throw new Error('Method not implemented.')
+  }
+  async unassignStationFromRoute(
+    routeName: string,
+    stationName: string
+  ): Promise<unknown> {
+    throw new Error('Method not implemented.')
   }
 
   async fetchRelatedStation(
@@ -123,7 +219,7 @@ class FakeProxy implements Proxy {
     }
   }
 
-  async fetchDashboard() {
+  async fetchDashboard(): Promise<DashboardRow[]> {
     return [
       {
         team: 'team-1',
@@ -147,6 +243,10 @@ class FakeProxy implements Proxy {
   async fetchTeam(teamName) {
     return { name: teamName }
   }
+
+  async fetchUploads(): Promise<Upload[]> {
+    return []
+  }
 }
 
 class ConcreteProxy implements Proxy {
@@ -159,7 +259,7 @@ class ConcreteProxy implements Proxy {
   /**
    * Connect to the back-end to retrieve the questionnaire scores
    */
-  async fetchQuestionnaireScores() {
+  async fetchQuestionnaireScores(): Promise<QuestionnaireScores> {
     return axios
       .get(this.baseUrl + '/questionnaire-scores')
       .then((response) => {
@@ -281,7 +381,7 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async fetchDashboard() {
+  async fetchDashboard(): Promise<DashboardRow[]> {
     return axios.get(this.baseUrl + '/dashboard').then((response) => {
       return response.data
     })
@@ -409,46 +509,46 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async fetchAssignments() {
+  async fetchAssignments(): Promise<AssignmentMap> {
     return axios.get(this.baseUrl + '/assignments').then((response) => {
       return response.data
     })
   }
 
-  async addTeamToRoute(route, team) {
+  async addTeamToRoute(route, team): Promise<unknown> {
     return axios.post(this.baseUrl + '/route/' + route + '/teams', team)
   }
 
-  async unassignTeamFromRoute(route, team) {
+  async unassignTeamFromRoute(route, team): Promise<unknown> {
     return axios.delete(this.baseUrl + '/route/' + route + '/teams/' + team)
   }
 
-  async assignStationToRoute(routeName, station) {
+  async assignStationToRoute(routeName, station): Promise<unknown> {
     return axios.post(
       this.baseUrl + '/route/' + routeName + '/stations',
       station
     )
   }
 
-  async unassignStationFromRoute(routeName, stationName) {
+  async unassignStationFromRoute(routeName, stationName): Promise<unknown> {
     return axios.delete(
       this.baseUrl + '/route/' + routeName + '/stations/' + stationName
     )
   }
 
-  async deleteRoute(routeName) {
+  async deleteRoute(routeName): Promise<unknown> {
     return axios.delete(this.baseUrl + '/route/' + routeName)
   }
 
-  async deleteStation(stationName) {
+  async deleteStation(stationName): Promise<unknown> {
     return axios.delete(this.baseUrl + '/station/' + stationName)
   }
 
-  async deleteUser(userName) {
+  async deleteUser(userName): Promise<unknown> {
     return axios.delete(this.baseUrl + '/user/' + userName)
   }
 
-  async deleteTeam(teamName) {
+  async deleteTeam(teamName): Promise<unknown> {
     return axios.delete(this.baseUrl + '/team/' + teamName)
   }
 
@@ -476,7 +576,7 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async updateTeam(teamName, newData) {
+  async updateTeam(teamName, newData): Promise<unknown> {
     return axios
       .put(this.baseUrl + '/team/' + teamName, newData)
       .then((response) => {
@@ -519,13 +619,13 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async deleteFile(uuid) {
+  async deleteFile(uuid): Promise<unknown> {
     return axios.delete(`${this.baseUrl}/upload/${uuid}`).then((response) => {
       return response.data
     })
   }
 
-  async fetchUploads() {
+  async fetchUploads(): Promise<Upload[]> {
     return axios.get(`${this.baseUrl}/upload`).then((response) => {
       return response.data
     })

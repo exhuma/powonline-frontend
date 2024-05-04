@@ -2,14 +2,18 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
+import { Auth } from '@/auth'
+import { Proxy } from '@/remote'
+import { User } from '@/remote/model/user'
+import { Station } from '@/remote/model/station'
 
 Vue.use(Vuex)
 
-function makeStore(auth, remoteProxy) {
+function makeStore(auth: Auth, remoteProxy: Proxy) {
   const store = new Vuex.Store({
     state: {
-      users: [],
-      stations: [],
+      users: [] as User[],
+      stations: [] as Station[],
       teams: [],
       routes: [],
       questionnaireScores: {}, // map: team -> station -> questionnaireScore
@@ -18,7 +22,7 @@ function makeStore(auth, remoteProxy) {
       global_dashboard: [],
       teamStates: [],
       jwt: auth.get_token(),
-      roles: auth.get_roles(),
+      roles: auth.get_roles() as string[],
       userName: auth.get_username(),
       baseUrl: import.meta.env.VITE_BACKEND_URL,
       pageTitle: 'Powonline',
@@ -474,7 +478,7 @@ function makeStore(auth, remoteProxy) {
         data.sort((a, b) => {
           const adt = moment.utc(a.when)
           const bdt = moment.utc(b.when)
-          return bdt - adt
+          return bdt.unix() - adt.unix()
         })
         state.gallery = data
       },
@@ -548,7 +552,7 @@ function makeStore(auth, remoteProxy) {
         })
         remoteProxy
           .setStationScore(payload.stationName, payload.teamName, payload.score)
-          .then((payload) => {
+          .then(() => {
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
