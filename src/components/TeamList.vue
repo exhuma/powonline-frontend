@@ -211,17 +211,13 @@ const TeamList = Vue.extend({
     closeAddBlock() {
       this.isAddBlockVisible = false
     },
-    hasRole(roleNames) {
+    hasRole(roleNames: string[]) {
       let output = false
+      const roles = this.$store.state.roles as string[]
       roleNames.forEach((role) => {
-        output |= this.$store.state.roles.includes(role)
+        output = output || roles.includes(role)
       })
       return output
-    },
-    onOpenEditDialog: function (team) {
-      this.selectedTeam = team
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.UPDATE
     }
   },
 

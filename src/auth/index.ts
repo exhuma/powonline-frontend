@@ -1,33 +1,34 @@
 import jwt_decode from 'jwt-decode' // eslint-disable-line camelcase
+import { Proxy } from '@/remote'
 
-export default {
+export class Auth {
   /**
    * Get the current JWT token from local-storage.
    *
    * Returns an empty string if the token is not defined or empty.
    */
-  get_token: function () {
+  get_token(): string {
     return localStorage.getItem('jwt') || ''
-  },
+  }
 
   /**
    * Returns the user-roles from local-storage
    */
-  get_roles: function () {
-    return localStorage.getItem('roles') || []
-  },
+  get_roles(): string[] {
+    return JSON.parse(localStorage.getItem('roles') ?? '[]')
+  }
 
   /**
    * Returns the current username from local storage.
    */
-  get_username: function () {
+  get_username(): string {
     return localStorage.getItem('userName') || ''
-  },
+  }
 
   /**
    * Determines whether a token has expired or not.
    */
-  token_expired: function (token) {
+  token_expired(token): boolean {
     console.log('Checking if current token has expired')
     if (token === '') {
       console.log('Empty token (always counts as expired)')
@@ -49,18 +50,18 @@ export default {
       console.log('Security token is still fresh')
       return false
     }
-  },
+  }
 
   /**
    * Renews the current token. Note that this will only work for tokens that
    * have not expired yet!
    */
-  renewToken: function (remote, token) {
+  renewToken(remote: Proxy, token: string): string {
     if (token === '') {
       return ''
     }
     const failedRenewals = parseInt(
-      localStorage.getItem('failedRenewals', 0),
+      localStorage.getItem('failedRenewals') ?? '0',
       10
     )
     if (failedRenewals > 5) {
@@ -72,31 +73,31 @@ export default {
     remote.renewToken(token).then((data) => {
       if (data.status < 300) {
         localStorage.setItem('jwt', data.token)
-        localStorage.setItem('failedRenewals', 0)
+        localStorage.setItem('failedRenewals', '0')
       } else {
         console.error('Unable to renew the token!')
-        localStorage.setItem('failedRenewals', failedRenewals + 1)
+        localStorage.setItem('failedRenewals', `${failedRenewals + 1}`)
       }
     })
-  },
+  }
 
   /**
    * Remove all auth information from local storage
    *
    * @param resetFailedRenewals Whether to set failedRenewals back to 0
    */
-  clearToken: function (resetFailedRenewals) {
+  clearToken(resetFailedRenewals?: boolean): void {
     if (resetFailedRenewals === undefined) {
       resetFailedRenewals = true
     }
     console.log('Clearing auth info')
     localStorage.setItem('jwt', '')
     localStorage.setItem('userName', '')
-    localStorage.setItem('roles', [])
+    localStorage.setItem('roles', '[]')
     if (resetFailedRenewals) {
-      localStorage.setItem('failedRenewals', 0)
+      localStorage.setItem('failedRenewals', '0')
     }
-  },
+  }
 
   /**
    * Checks if the token in current storage has expired. If true, clears if
@@ -104,7 +105,7 @@ export default {
    *
    * Return true if the token was cleared, false otherwise.
    */
-  clearExpiredToken: function () {
+  clearExpiredToken(): boolean {
     const jwt = this.get_token()
     if (jwt === '' || this.token_expired(jwt)) {
       this.clearToken()

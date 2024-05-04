@@ -204,15 +204,15 @@ const TeamForm = Vue.extend({
     emitChangeEvent() {
       this.$emit('update:team', JSON.parse(JSON.stringify(this.localTeam)))
     },
-    updatePlannedTime(newValue) {
+    updatePlannedTime(newValue: string) {
       this.localTeam.planned_start_time = newValue
       this.emitChangeEvent()
     },
-    updateEffectiveTime(newValue) {
+    updateEffectiveTime(newValue: string) {
       this.localTeam.effective_start_time = newValue
       this.emitChangeEvent()
     },
-    updateFinishTime(newValue) {
+    updateFinishTime(newValue: string) {
       this.localTeam.finish_time = newValue
       this.emitChangeEvent()
     }

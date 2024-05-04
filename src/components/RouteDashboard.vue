@@ -36,6 +36,18 @@
 
 <script lang="ts">
 import Vue from 'vue'
+
+interface DashboardRow {
+  pending: number
+  waiting: number
+  finished: number
+  team: string
+  cancelled: boolean
+  pct_pending: number
+  pct_waiting: number
+  pct_finished: number
+}
+
 const RouteDashboard = Vue.extend({
   name: 'route-dashboard',
   props: {
@@ -103,12 +115,15 @@ const RouteDashboard = Vue.extend({
             continue
           }
           const teamDetails = this.$store.getters.findTeam(teamName)
-          const row = {
+          const row: DashboardRow = {
             pending: 0,
             waiting: 0,
             finished: 0,
             team: teamName,
-            cancelled: teamDetails.cancelled
+            cancelled: teamDetails.cancelled,
+            pct_finished: 0,
+            pct_waiting: 0,
+            pct_pending: 0
           }
           assignedStations.forEach((station) => {
             const stationData = mapping[station.name]

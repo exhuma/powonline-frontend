@@ -3,7 +3,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
-import auth from './auth'
+import { Auth } from './auth'
 import makeRemoteProxy from './remote'
 import storeFactory from './store'
 
@@ -31,6 +31,7 @@ import social from './auth/social'
 import events from './events'
 import vuetify from './plugins/vuetify'
 
+const auth = new Auth()
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
 const store = storeFactory.makeStore(auth, remoteProxy)
 

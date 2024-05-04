@@ -135,7 +135,7 @@ const StationDashboard = Vue.extend({
     }
   },
   computed: {
-    selectedStates() {
+    selectedStates(): string[] {
       const output = []
       if (this.showPending) {
         output.push('unknown')
@@ -148,10 +148,10 @@ const StationDashboard = Vue.extend({
       }
       return output
     },
-    stationName() {
+    stationName(): string {
       return this.$route.params.stationName
     },
-    allTeams() {
+    allTeams(): unknown[] {
       const output = []
       this.$store.state.global_dashboard.forEach((teamInfo) => {
         teamInfo.stations.forEach((stationState) => {
