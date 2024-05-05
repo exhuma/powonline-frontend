@@ -81,6 +81,12 @@
           v-model="activity.progress"
           :indeterminate="activity.progress === -1"
         ></v-progress-linear>
+        <v-btn @click="triggerLogin">Login</v-btn>
+        <v-btn @click="triggerLogout">Logout</v-btn>
+        <v-btn @click="makeDummyRequest">Make Dummy Request</v-btn>
+        <pre style="width: 500px; height: 50px; overflow: auto">
+          {{ idToken }}
+        </pre>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
@@ -138,6 +144,8 @@
             @fullScreenRequested="setFullscreen"
             @snackRequested="onSnackRequested"
             @refresh-progress-updated="onRefreshProgressUpdated"
+            @authenticated="onAuthenticated"
+            @authentication-failure="onAuthenticationFailure"
           ></router-view>
         </v-container>
         <v-bottom-navigation
@@ -175,6 +183,7 @@ SMALL {
 <script lang="ts">
 import hello from 'hellojs'
 import EventBus from '@/plugins/eventBus'
+import * as oidc from '@/auth/oidc'
 import Vue from 'vue'
 
 const App = Vue.extend({
@@ -195,6 +204,7 @@ const App = Vue.extend({
   },
   data() {
     return {
+      idToken: '',
       activeLoginTab: 'socialLogin',
       loginDialogVisible: false,
       sideMenuVisible: false,
@@ -218,6 +228,34 @@ const App = Vue.extend({
     }
   },
   methods: {
+    onAuthenticated(authResult) {
+      console.log(authResult)
+      this.idToken = authResult.id_token
+    },
+    onAuthenticationFailure(error: Error) {
+      console.log(error)
+      this.onSnackRequested({ message: 'Error during login', color: 'error' })
+      oidc.cleanAuthState()
+    },
+    async triggerLogout() {
+      const as = await oidc.getAs()
+      oidc.triggerLogout(as)
+    },
+    async triggerLogin() {
+      const as = await oidc.getAs()
+      oidc.triggerLogin(as).then(() => {
+        console.log(arguments) // XXX
+      })
+    },
+    async makeDummyRequest() {
+      const response = await fetch('http://localhost:8000/dummy-request', {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer ' + this.idToken
+        }
+      })
+      console.log(`Response: ${response.status}`)
+    },
     setFullscreen(state) {
       this.isBottomNavVisible = !state
       this.isTitleBarVisible = !state

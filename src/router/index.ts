@@ -7,6 +7,7 @@ import GlobalDashboard from '@/components/GlobalDashboard.vue'
 import StationList from '@/components/StationList.vue'
 import TeamList from '@/components/TeamList.vue'
 import UserList from '@/components/UserList.vue'
+import OidcRedirect from '@/components/OidcRedirect.vue'
 import TeamPanel from '@/components/TeamPanel.vue'
 import Changelog from '@/components/Changelog.vue'
 import Uploads from '@/components/Uploads.vue'
@@ -102,6 +103,10 @@ const router = new VueRouter({
     {
       path: '/user',
       component: UserList
+    },
+    {
+      path: '/oidc-redirect',
+      component: OidcRedirect
     }
   ]
 })
