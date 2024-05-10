@@ -6,6 +6,8 @@ import { Auth } from '@/auth'
 import { Proxy } from '@/remote'
 import { User } from '@/remote/model/user'
 import { Station } from '@/remote/model/station'
+import { DashboardRow } from '@/remote/model/dashboardRow'
+import { AssignmentMap } from '@/remote/model/assignmentMap'
 
 Vue.use(Vuex)
 
@@ -17,9 +19,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
       teams: [],
       routes: [],
       questionnaireScores: {}, // map: team -> station -> questionnaireScore
-      route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
-      route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
-      global_dashboard: [],
+      route_station_map: {} as { [key: string]: Station[] }, // map stations to routes (key=stationName, value=routeName)
+      route_team_map: {} as { [key: string]: string[] }, // map teams to routes (key=teamName, value=routeName)
+      global_dashboard: [] as DashboardRow[],
       teamStates: [],
       jwt: auth.get_token(),
       roles: auth.get_roles() as string[],
@@ -255,13 +257,13 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
        *
        * :param assignments: An object as returned by the backend
        */
-      replaceAssignments(state, assignments) {
+      replaceAssignments(state, assignments: AssignmentMap) {
         state.route_team_map = {}
         for (const routeName in assignments.teams) {
           if (assignments.teams.hasOwnProperty(routeName)) {
             const teams = assignments.teams[routeName]
             teams.forEach((team) => {
-              state.route_team_map[team.name] = routeName
+              state.route_team_map[team.name] = [routeName]
             })
           }
         }

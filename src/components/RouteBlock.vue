@@ -93,7 +93,7 @@ const RouteBlock = Vue.extend({
           console.log('Color changed') // XXX snack
         })
         .catch((e) => {
-          console.lerror(e) // XXX snack
+          console.error(e) // XXX snack
         })
     },
     dismissDialog: function () {

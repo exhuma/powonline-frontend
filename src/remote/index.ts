@@ -2,9 +2,11 @@
  * Proxy for the remote API
  */
 import axios from 'axios'
+import type { AxiosResponse } from 'axios'
 import Vue from 'vue'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
+import type { Moment } from 'moment'
 import { type Upload } from './model/upload'
 import { type Station } from './model/station'
 import { Team } from './model/team'
@@ -13,6 +15,7 @@ import { AssignmentMap } from './model/assignmentMap'
 import { QuestionnaireScores } from './model/questionnaireScores'
 import { User } from './model/user'
 import { DashboardRow } from './model/dashboardRow'
+import type { AuditLogRow } from './model/auditLogRow'
 
 Vue.mixin({
   beforeCreate() {
@@ -45,13 +48,27 @@ export interface Proxy {
   fetchDashboard(): Promise<DashboardRow[]>
   fetchQuestionnaireScores(): Promise<QuestionnaireScores>
   fetchRelatedStation(stationName: string, relation: string): Promise<string>
-  fetchRelatedTeams(localStationName: string, relation: string): Promise<string>
+  fetchRelatedTeams(
+    localStationName: string,
+    relation: string
+  ): Promise<
+    {
+      team: string
+      state: number
+      score: number
+      updated: string
+      updatedParsed?: Moment | null
+      updateAge?: number
+    }[]
+  >
   fetchRoutes(): Promise<Route[]>
   fetchStations(): Promise<Station[]>
   fetchTeam(teamName: string): Promise<{ name: string }>
   fetchTeams(): Promise<Team[]>
   fetchUploads(): Promise<Upload[]>
   fetchUsers(): Promise<User[]>
+  fetchUserRoles(userName: string): Promise<string[]>
+  fetchUserStations(userName: string): Promise<[string, boolean][]>
   getPublicImages(): Promise<unknown[]>
   loginUser(
     username: string,
@@ -80,6 +97,13 @@ export interface Proxy {
   unassignTeamFromRoute(routeName: string, teamName: string): Promise<unknown>
   updateTeam(teamName: string, newData: Team): Promise<unknown>
   deleteFile(uuid: string): Promise<unknown>
+  updateStation(stationName: string, station: Station): Promise<Station>
+  addStationToUser(userName: string, stationName: string): Promise<AxiosResponse>
+  removeStationFromUser(userName: string, stationName: string): Promise<AxiosResponse>
+  removeUserRole(userName: string, roleName: string): Promise<string>
+  addUserRole(userName: string, roleName: string): Promise<string>
+  fetchAuditLog(): Promise<AuditLogRow[]>
+  fetchTeamStations(teamName: string): Promise<Station[]>
 }
 
 class FakeProxy implements Proxy {
@@ -103,6 +127,12 @@ class FakeProxy implements Proxy {
     throw new Error('Method not implemented.')
   }
   async fetchUsers(): Promise<User[]> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchUserRoles(userName: string): Promise<string[]> {
+    throw new Error('Method not implemented.')
+  }
+  fetchUserStations(userName: string): Promise<[string, boolean][]> {
     throw new Error('Method not implemented.')
   }
   async fetchAssignments(): Promise<AssignmentMap> {
@@ -167,8 +197,24 @@ class FakeProxy implements Proxy {
   async fetchRelatedTeams(
     localStationName: string,
     relation: string
-  ): Promise<string> {
-    return 'fake-team'
+  ): Promise<
+    {
+      team: string
+      state: number
+      score: number
+      updated: string
+      updatedParsed?: Moment | null
+      updateAge?: number
+    }[]
+  > {
+    return [
+      {
+        team: 'fake-team',
+        state: 0,
+        score: 0,
+        updated: ''
+      }
+    ]
   }
 
   install(vue: typeof Vue, options?: any) {
@@ -247,6 +293,28 @@ class FakeProxy implements Proxy {
   async fetchUploads(): Promise<Upload[]> {
     return []
   }
+  async updateStation(stationName: string, station: Station): Promise<Station> {
+    throw new Error('Method not implemented.')
+  }
+  async addStationToUser(userName: string, stationName: string): Promise<AxiosResponse> {
+    throw new Error('Method not implemented.')
+  }
+  async removeStationFromUser(userName: string, stationName: string): Promise<AxiosResponse> {
+    throw new Error('Method not implemented.')
+  }
+  async removeUserRole(userName: string, roleName: string): Promise<string> {
+    throw new Error('Method not implemented')
+  }
+  async addUserRole(userName: string, roleName: string): Promise<string> {
+    throw new Error('Method not implemented')
+  }
+  async fetchAuditLog(): Promise<AuditLogRow[]> {
+    throw new Error('Method not implemented')
+  }
+  async fetchTeamStations(teamName: string): Promise<Station[]> {
+    throw new Error('Method not implemented')
+  }
+
 }
 
 class ConcreteProxy implements Proxy {
@@ -417,7 +485,7 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async fetchUserStations(userName) {
+  async fetchUserStations(userName: string): Promise<[string, boolean][]> {
     return axios
       .get(this.baseUrl + '/user/' + userName + '/stations')
       .then((response) => {
@@ -433,7 +501,7 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async addUserRole(userName, roleName) {
+  async addUserRole(userName: string, roleName: string): Promise<string> {
     return axios
       .post(this.baseUrl + '/user/' + userName + '/roles', {
         name: roleName
@@ -443,7 +511,7 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async removeUserRole(userName, roleName) {
+  async removeUserRole(userName: string, roleName: string): Promise<string> {
     return axios
       .delete(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
       .then((response) => {
@@ -560,7 +628,7 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async fetchTeamStations(teamName) {
+  async fetchTeamStations(teamName: string): Promise<Station[]> {
     return axios
       .get(this.baseUrl + '/team/' + teamName + '/stations')
       .then((response) => {
@@ -637,13 +705,25 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async fetchAuditLog() {
+  async fetchAuditLog(): Promise<AuditLogRow[]> {
     return axios.get(`${this.baseUrl}/auditlog`).then((response) => {
       return response.data
     })
   }
 
-  async fetchRelatedTeams(localStationName, relation) {
+  async fetchRelatedTeams(
+    localStationName,
+    relation
+  ): Promise<
+    {
+      team: string
+      state: number
+      score: number
+      updated: string
+      updatedParsed?: Moment | null
+      updateAge?: number
+    }[]
+  > {
     const response = await axios.get(
       `${this.baseUrl}/station/${localStationName}/${relation}/dashboard`
     )
@@ -652,17 +732,26 @@ class ConcreteProxy implements Proxy {
       arrived: 20,
       finished: 30
     }
-    response.data.sort(
+    const data = response.data as {
+      team: string
+      state: number
+      score: number
+      updated: string
+      updatedParsed?: Moment | null
+      updateAge?: number
+    }[]
+    data.sort(
       (a, b) =>
-        (statePrecedence[a.state] || 0) > (statePrecedence[b.state] || 0)
+        (statePrecedence[b.state] || 0) - (statePrecedence[a.state] || 0)
     )
-    response.data.map((item) => {
+    data.map((item) => {
       item.updatedParsed = item.updated ? moment(item.updated) : null
       if (item.updatedParsed) {
         item.updateAge = moment().diff(item.updatedParsed, 'seconds')
       }
     })
-    return response.data
+
+    return data
   }
 
   async fetchRelatedStation(localStationName, relation) {

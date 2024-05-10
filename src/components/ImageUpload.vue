@@ -39,7 +39,7 @@ const ImageUpload = Vue.extend({
     }
   },
   computed: {
-    tokenIsAvailable() {
+    tokenIsAvailable(): boolean {
       const token = this.$store.state.jwt
       const result = token !== ''
       return result
@@ -75,7 +75,7 @@ const ImageUpload = Vue.extend({
   },
   beforeDestroy() {
     if (typeof window === 'undefined') return
-    window.removeEventListener('resize', this.onResize, { passive: true })
+    window.removeEventListener('resize', this.onResize)
   },
 
   mounted() {

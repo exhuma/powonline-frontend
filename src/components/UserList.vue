@@ -73,13 +73,14 @@
 import model from '@/model'
 import UserBlock from './UserBlock.vue'
 import CenterCol from './CenterCol.vue'
+import type { User } from '@/remote/model/user'
 
 import Vue from 'vue'
 const UserList = Vue.extend({
   components: { UserBlock, CenterCol },
   name: 'user_list',
   computed: {
-    filteredUsers: function () {
+    filteredUsers: function (): User[] {
       if (this.userFilterText.trim() === '') {
         return this.users
       }
@@ -100,6 +101,7 @@ const UserList = Vue.extend({
       this.selectedUserName = userName
       this.isEditDialogVisible = true
       this.$nextTick(() => {
+        // @ts-expect-error - I don't know how to type this
         this.$refs.userDialog.refresh()
       })
     },
@@ -155,7 +157,7 @@ const UserList = Vue.extend({
       isEditDialogVisible: false,
       selectedUser: model.user.makeEmpty(),
       sendMode: model.SEND_MODE.CREATE,
-      users: []
+      users: [] as User[]
     }
   }
 })

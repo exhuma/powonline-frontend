@@ -129,7 +129,7 @@ const StationDashboard = Vue.extend({
       showArrived: true,
       showFinished: false,
       previousStates: {},
-      nextStates: {},
+      nextStates: [],
       previousStation: '',
       nextStation: ''
     }

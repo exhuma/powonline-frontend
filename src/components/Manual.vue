@@ -52,16 +52,20 @@ const Manual = Vue.extend({
     }
   },
   computed: {
-    publicManual() {
+    publicManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return publicManual.html
     },
-    registeredManual() {
+    registeredManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return registeredManual.html
     },
-    staffManual() {
+    staffManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return staffManual.html
     },
-    adminManual() {
+    adminManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return adminManual.html
     }
   }
