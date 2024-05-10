@@ -36,6 +36,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { Station } from '@/remote/model/station'
+import { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
 
 interface DashboardRow {
   pending: number
@@ -57,7 +59,7 @@ const RouteDashboard = Vue.extend({
     }
   },
   computed: {
-    overall_pct_finished() {
+    overall_pct_finished(): number {
       let pending = 0
       let waiting = 0
       let finished = 0
@@ -69,7 +71,7 @@ const RouteDashboard = Vue.extend({
       const total = pending + waiting + finished
       return (finished / total) * 100
     },
-    overall_pct_waiting() {
+    overall_pct_waiting(): number {
       let pending = 0
       let waiting = 0
       let finished = 0
@@ -81,17 +83,19 @@ const RouteDashboard = Vue.extend({
       const total = pending + waiting + finished
       return (waiting / total) * 100
     },
-    assignedStations() {
+    assignedStations(): Station[] {
       const output = this.$store.state.route_station_map[this.route.name] || []
       output.sort((a, b) => {
         return a.order - b.order
       })
       return output
     },
-    stateMapping() {
+    stateMapping(): { [key: string]: { [key: string]: { name: string; score: number; state: string } } } {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
       const output = {}
-      this.$store.state.global_dashboard.forEach((teamState) => {
+      const teamStates = this.$store.state.global_dashboard as RemoteDashboardRow[]
+
+      teamStates.forEach((teamState) => {
         teamState.stations.forEach((stationState) => {
           if (output[stationState.name] === undefined) {
             output[stationState.name] = {}
@@ -103,7 +107,7 @@ const RouteDashboard = Vue.extend({
       })
       return output
     },
-    progressItems() {
+    progressItems(): DashboardRow[] {
       const rows = []
       const mapping = this.stateMapping
       const routeTeams = this.$store.state.route_team_map

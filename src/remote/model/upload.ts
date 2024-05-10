@@ -5,4 +5,5 @@ export interface Upload {
   tiny: string
   name: string
   when: string
+  username: string
 }

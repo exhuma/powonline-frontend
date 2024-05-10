@@ -47,10 +47,11 @@ const Slideshow = Vue.extend({
   },
   async created() {
     await this.updateImages()
-    this.auto_refresh_interval_seconds = Number.parseInt(
-      this.$route.query.timeout || 10,
-      10
-    )
+    const timeout: string =
+      typeof this.$route.query.timeout === 'string'
+        ? typeof this.$route.query.timeout
+        : typeof this.$route.query.timeout[0]
+    this.auto_refresh_interval_seconds = Number.parseInt(timeout || '10', 10)
     this.startAutoRefresh()
     this.$emit('fullScreenRequested', true)
   },
@@ -59,7 +60,8 @@ const Slideshow = Vue.extend({
       images: [],
       currentImage: '',
       pctUntilNextRefresh: 100.0,
-      auto_refresh_interval_seconds: 10
+      auto_refresh_interval_seconds: 10,
+      currentImageIndex: 0
     }
   }
 })

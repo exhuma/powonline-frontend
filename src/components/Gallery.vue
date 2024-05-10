@@ -67,6 +67,7 @@ const Gallery = Vue.extend({
   },
   methods: {
     showLightbox(index) {
+      // @ts-expect-error - Don't know how to properly type this yet
       this.$refs.lightBox.showImage(index)
     },
     refreshImages() {

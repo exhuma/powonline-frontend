@@ -60,8 +60,10 @@
 
 <script lang="ts">
 import model from '@/model'
-
 import Vue from 'vue'
+import { Station } from '@/remote/model/station'
+import { Team } from '@/remote/model/team'
+
 const RouteAssignments = Vue.extend({
   name: 'route-assignments',
 
@@ -75,16 +77,16 @@ const RouteAssignments = Vue.extend({
   },
 
   computed: {
-    assignedTeams() {
+    assignedTeams(): Team[] {
       return this.$store.getters.assignedTeams(this.route.name)
     },
-    unassignedTeams() {
+    unassignedTeams(): Team[] {
       return this.$store.getters.unassignedTeams
     },
-    assignedStations() {
+    assignedStations(): Station[] {
       return this.$store.getters.assignedStations(this.route.name)
     },
-    unassignedStations() {
+    unassignedStations(): Station[] {
       return this.$store.getters.unassignedStations(this.route.name)
     }
   },

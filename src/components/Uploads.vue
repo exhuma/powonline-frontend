@@ -90,11 +90,12 @@
 
 <script lang="ts">
 import moment from 'moment'
+import { type Upload } from '@/remote/model/upload'
 
 /**
  * Flatten the upload data and sort it by time
  */
-function sortUploads(uploads) {
+  function sortUploads(uploads: { [key: string]: Upload[] }) {
   if (!uploads) {
     return []
   }
@@ -109,7 +110,7 @@ function sortUploads(uploads) {
     item.parsedDate = new Date(item.when)
     item.formattedDate = formatTs(item.parsedDate)
   })
-  allImages.sort((a, b) => a.parsedDate < b.parsedDate)
+  allImages.sort((a, b) => a.parsedDate - b.parsedDate)
   console.log(allImages)
   return allImages
 }
@@ -145,7 +146,7 @@ const Uploads = Vue.extend({
     }
   },
   computed: {
-    files() {
+    files(): Upload[] {
       const groupedData = this.$store.state.uploads
       const flattened = sortUploads(groupedData)
       return flattened

@@ -71,14 +71,14 @@ const SmallStationDashboardIcon = Vue.extend({
   name: 'small-station-dashboard-item',
   props: ['state', 'cancelled'],
   computed: {
-    hasCancelled() {
+    hasCancelled(): boolean {
       const teamDetails = this.$store.getters.findTeam(this.state.team)
       if (teamDetails === null) {
         return false
       }
       return teamDetails.cancelled
     },
-    questionnaireScore() {
+    questionnaireScore(): { name: string, score: number } {
       const team = this.$store.state.questionnaireScores[this.state.team]
       if (!team) {
         return {
