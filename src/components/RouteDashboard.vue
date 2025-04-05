@@ -115,18 +115,24 @@ export default {
               return
             }
             const state = stationData[teamName]
-            switch (state.state) {
-              case 'arrived':
-                row.waiting += 1
-                break
-              case 'finished':
-                row.finished += 1
-                break
-              case 'unknown':
-                row.pending += 1
-                break
-              default:
-                console.warn(`Unknown state: ${JSON.stringify(state)}`)
+            if (!state) {
+              console.warn(
+                `No state for team ${teamName} on station ${station.name}`
+              )
+            } else {
+              switch (state.state) {
+                case 'arrived':
+                  row.waiting += 1
+                  break
+                case 'finished':
+                  row.finished += 1
+                  break
+                case 'unknown':
+                  row.pending += 1
+                  break
+                default:
+                  console.warn(`Unknown state: ${JSON.stringify(state)}`)
+              }
             }
           })
           let total = row.pending + row.waiting + row.finished

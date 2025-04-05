@@ -126,11 +126,17 @@ export default {
               return
             }
             const state = stationData[teamName]
-            row.stations.push({
-              state: state.state,
-              score: state.score,
-              station: state.name
-            })
+            if (!state) {
+              console.warn(
+                `No state for team ${teamName} on station ${station.name}`
+              )
+            } else {
+              row.stations.push({
+                state: state.state,
+                score: state.score,
+                station: state.name
+              })
+            }
           })
           rows.push(row)
         }
