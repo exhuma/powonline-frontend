@@ -1,61 +1,23 @@
 <template>
-  <center-col id="RouteList">
-    <popup-dialog
-      @dialogConfirmed="onDialogConfirmed"
-      @dialogDismissed="closeAddBlock"
-      :dialogVisible="isAddBlockVisible"
-      title="Add New Route"
-    >
-      <v-layout row class="text-xs-left">
-        <v-flex xs12>
-          <v-text-field
-            name="route-input"
-            @keyup.enter.native="onDialogConfirmed"
-            type="text"
-            v-model="selectedRoute.name"
-            label="Enter a new routename"
-          />
-        </v-flex>
-      </v-layout>
-      <v-layout row class="text-xs-left" style="min-height: 30em">
-        <v-flex xs3>Color</v-flex>
-        <v-flex xs9>
-          <swatches
-            colors="text-advanced"
-            v-model="selectedRoute.color"
-            shapes="circles"
-            swatch-size="30"
-          />
-        </v-flex>
-      </v-layout>
-    </popup-dialog>
+  <SplitView>
+    <template #left>
+      <div>Hello</div>
+    </template>
 
-    <!-- List all routes -->
-    <v-list two-line>
-      <route-block
-        v-for="route in routes"
-        :route="route"
-        :key="route.name"
-      ></route-block>
-    </v-list>
-
-    <v-list-item v-if="hasRole(['admin'])">
-      <!-- TODO: should not use v-list-item here -->
-      <v-spacer />
-      <v-list-item-action>
-        <v-btn @click="openCreateDialog">Add new Route</v-btn>
-      </v-list-item-action>
-    </v-list-item>
-  </center-col>
+    <template #right>
+      <div>World</div>
+    </template>
+  </SplitView>
 </template>
 
 <script>
 import Swatches from 'vue-swatches'
+import SplitView from '@/components/SplitView.vue'
 import 'vue-swatches/dist/vue-swatches.min.css'
 import model from '@/model'
 export default {
   name: 'route_list',
-  components: { Swatches },
+  components: { SplitView },
   methods: {
     onDialogConfirmed: function (event) {
       const route = this.selectedRoute
