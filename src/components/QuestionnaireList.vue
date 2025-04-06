@@ -39,6 +39,28 @@
           </div>
         </confirmation-dialog>
       </template>
+      <template v-slot:item.max_score="{ item }">
+        <v-text-field
+          v-model="item.max_score"
+          type="number"
+          dense
+          solo
+          hide-details
+          @change="questionnaireUpdated(item, item.originalName || item.name)"
+          @focus="item.originalName = item.name"
+        ></v-text-field>
+      </template>
+      <template v-slot:item.name="{ item }">
+        <v-text-field
+          v-model="item.name"
+          dense
+          solo
+          hide-details
+          style="font-size: 90%"
+          @change="questionnaireUpdated(item, item.originalName || item.name)"
+          @focus="item.originalName = item.name"
+        ></v-text-field>
+      </template>
     </v-data-table>
   </center-col>
 </template>
@@ -75,6 +97,18 @@ export default {
           this.loading = false
           console.error(error)
         })
+    },
+    questionnaireUpdated(questionnaire, oldName) {
+      this.loading = true
+      this.$store
+        .dispatch('updateQuestionnaireRemote', { oldName, questionnaire })
+        .then(() => {
+          this.loading = false
+        })
+        .catch((error) => {
+          this.loading = false
+          console.error(error)
+        })
     }
   },
   data() {
@@ -84,7 +118,8 @@ export default {
         {
           text: 'Name',
           value: 'name',
-          sortable: true
+          sortable: true,
+          width: '200'
         },
         {
           text: 'Max. Score',

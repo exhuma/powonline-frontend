@@ -506,6 +506,14 @@ function makeStore(auth, remoteProxy) {
         })
       },
 
+      updateQuestionnaire(state, oldName, newQuestionnaire) {
+        state.questionnaires.forEach((item) => {
+          if (item.name === oldName) {
+            Object.assign(item, newQuestionnaire)
+          }
+        })
+      },
+
       replaceUploads(state, data) {
         state.uploads = data
       },
@@ -685,6 +693,39 @@ function makeStore(auth, remoteProxy) {
               message: message,
               color: 'red'
             })
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+      },
+
+      updateQuestionnaireRemote(context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        remoteProxy
+          .updateQuestionnaire(payload.oldName, payload.questionnaire)
+          .then(() => {
+            context.commit(
+              'updateQuestionnaire',
+              payload.oldName,
+              payload.questionnaire
+            )
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            EventBus.$emit('snackRequested', {
+              message: 'Update successful'
+            })
+          })
+          .catch((e) => {
+            console.error(e)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,

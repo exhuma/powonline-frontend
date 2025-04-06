@@ -85,6 +85,20 @@ class FakeProxy {
     return output
   }
 
+  updateQuestionnaire(oldName, newData) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .put(this.baseUrl + '/questionnaire/' + oldName, newData)
+        .then(() => {
+          resolve()
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   advanceState(stationName, teamName) {
     let output = new Promise((resolve, reject) => {
       resolve({
