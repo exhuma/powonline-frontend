@@ -693,6 +693,35 @@ function makeStore(auth, remoteProxy) {
           })
       },
 
+      deleteQuestionnaireRemote(context, questionnaireName) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        remoteProxy
+          .deleteQuestionnaire(questionnaireName)
+          .then(() => {
+            context.commit('deleteQuestionnaire', questionnaireName)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            EventBus.$emit('snackRequested', {
+              message: 'Delete successful'
+            })
+          })
+          .catch((e) => {
+            console.error(e)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+      },
+
       /**
        * Advance the state of a team on a station
        *

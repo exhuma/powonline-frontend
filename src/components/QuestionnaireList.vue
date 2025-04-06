@@ -21,6 +21,24 @@
           :menu-props="{ closeOnContentClick: false }"
         ></v-select>
       </template>
+      <template v-slot:item.actions="{ item }">
+        <confirmation-dialog
+          buttonText="Delete"
+          :actionArgument="item.name"
+          actionName="deleteQuestionnaireRemote"
+        >
+          <span slot="title"
+            >Do you want to delete the questionnaire "{{ item.name }}"?</span
+          >
+          <div slot="text">
+            <p>
+              this will delete the questionnaire with the name "{{ item.name }}"
+              and all related information!
+            </p>
+            <p>Are you sure?</p>
+          </div>
+        </confirmation-dialog>
+      </template>
     </v-data-table>
   </center-col>
 </template>
@@ -79,6 +97,12 @@ export default {
         {
           text: 'Station',
           value: 'station_name'
+        },
+        {
+          text: 'Actions',
+          value: 'actions',
+          sortable: false,
+          align: 'end'
         }
       ]
     }

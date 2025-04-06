@@ -71,6 +71,20 @@ class FakeProxy {
     return output
   }
 
+  deleteQuestionnaire(questionnaireName) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .delete(this.baseUrl + '/questionnaire/' + questionnaireName)
+        .then(() => {
+          resolve()
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   advanceState(stationName, teamName) {
     let output = new Promise((resolve, reject) => {
       resolve({
