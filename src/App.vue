@@ -81,7 +81,7 @@
           v-model="activity.progress"
           :indeterminate="activity.progress === -1"
         ></v-progress-linear>
-        <v-container fluid>
+        <v-container fluid style="height: 100%">
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
               <v-card-title class="primary">
