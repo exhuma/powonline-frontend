@@ -12,6 +12,7 @@ function makeStore(auth, remoteProxy) {
       stations: [],
       teams: [],
       routes: [],
+      questionnaires: [],
       questionnaireScores: {}, // map: team -> station -> questionnaireScore
       route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
       route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
@@ -139,6 +140,16 @@ function makeStore(auth, remoteProxy) {
       },
 
       /**
+       * Add a new questionnaire to the local state
+       *
+       * @param {state} state  The state object
+       * @param {*} questionnaire  The questionnaire object to add
+       */
+      addQuestionnaire(state, questionnaire) {
+        state.questionnaires.push(questionnaire)
+      },
+
+      /**
        * Add a new station to the local state
        *
        * This is triggered by the completion of a corresponding remote call.
@@ -209,6 +220,16 @@ function makeStore(auth, remoteProxy) {
        */
       replaceRoutes(state, routes) {
         state.routes = routes
+      },
+
+      /**
+       * Replace the questionnaires with a new list of questionnaires
+       *
+       * @param {*} state The state object
+       * @param {*} questionnaires  The questionnaires to replace the current list
+       */
+      replaceQuestionnaires(state, questionnaires) {
+        state.questionnaires = questionnaires
       },
 
       /**
@@ -347,15 +368,26 @@ function makeStore(auth, remoteProxy) {
        * :param routeName (str): The name of the route to remove.
        */
       deleteRoute(state, routeName) {
-        let idx = -1 // TODO REDDIT there must be a better way than the following loop
-        state.routes.forEach((item) => {
-          if (item.name === routeName) {
-            idx = state.routes.indexOf(item)
-          }
-        })
+        const idx = state.routes.findIndex((item) => item.name === routeName)
 
         if (idx > -1) {
           state.routes.splice(idx, 1)
+        }
+      },
+
+      /**
+       * Removes a questionnaire
+       *
+       * @param {*} state The state object
+       * @param {*} questionnaireName  The name of the questionnaire to remove
+       */
+      deleteQuestionnaire(state, questionnaireName) {
+        const idx = state.questionnaires.findIndex(
+          (item) => item.name === questionnaireName
+        )
+
+        if (idx > -1) {
+          state.questionnaires.splice(idx, 1)
         }
       },
 
@@ -464,6 +496,14 @@ function makeStore(auth, remoteProxy) {
         const teamScores = state.questionnaireScores[payload.teamName] || {}
         const stationScores = teamScores[payload.stationName] || {}
         stationScores.score = payload.score
+      },
+
+      setQuestionnaireStation(state, payload) {
+        state.questionnaires.forEach((item) => {
+          if (item.name === payload.questionnaireName) {
+            item.station_name = payload.station
+          }
+        })
       },
 
       replaceUploads(state, data) {
@@ -590,6 +630,43 @@ function makeStore(auth, remoteProxy) {
           )
           .then((data) => {
             context.commit('setQuestionnaireScore', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            EventBus.$emit('snackRequested', {
+              message: 'Update successful'
+            })
+          })
+          .catch((e) => {
+            let message = 'Unknown Error'
+            if (e.response.status < 500) {
+              message = e.response.data
+            }
+            EventBus.$emit('snackRequested', {
+              message: message,
+              color: 'red'
+            })
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+      },
+
+      setQuestionnaireStation(context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        payload.questionnaire.station_name = payload.station.name
+        remoteProxy
+          .setQuestionnaireStation(payload.station.name, payload.questionnaire)
+          .then((data) => {
+            context.commit('setQuestionnaireStation', data)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
@@ -789,6 +866,7 @@ function makeStore(auth, remoteProxy) {
         context.dispatch('refreshStations')
         context.dispatch('refreshUsers')
         context.dispatch('refreshGlobalDashboard')
+        context.dispatch('refreshQuestionnaires')
       },
 
       /**
@@ -871,6 +949,32 @@ function makeStore(auth, remoteProxy) {
             })
           })
           .catch((e) => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+      },
+
+      refreshQuestionnaires(context) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        remoteProxy
+          .fetchQuestionnaires()
+          .then((questionnaires) => {
+            context.commit('replaceQuestionnaires', questionnaires)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch((e) => {
+            console.error(e)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,

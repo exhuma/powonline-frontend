@@ -538,6 +538,40 @@ class Proxy extends FakeProxy {
     return output
   }
 
+  fetchQuestionnaires() {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .get(this.baseUrl + '/questionnaire')
+        .then((response) => {
+          resolve(response.data.items)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  /**
+   * Assign a questionnaire to a station
+   */
+  setQuestionnaireStation(stationName, questionnaire) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .post(
+          this.baseUrl + '/station/' + stationName + '/questionnaires',
+          questionnaire
+        )
+        .then((response) => {
+          resolve(response.data)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   fetchAssignments() {
     let output = new Promise((resolve, reject) => {
       axios

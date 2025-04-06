@@ -331,6 +331,13 @@ export default {
         })
       }
       if (this.$store.getters.hasRole('admin')) {
+        output.push({
+          label: 'Questionnaires',
+          to: '/questionnaire',
+          icon: 'mdi-script-text'
+        })
+      }
+      if (this.$store.getters.hasRole('admin')) {
         output.push({ label: 'Teams', to: '/team', icon: 'mdi-account-group' })
       }
       if (this.tokenIsAvailable) {
