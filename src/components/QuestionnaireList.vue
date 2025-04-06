@@ -126,10 +126,6 @@ export default {
           value: 'max_score'
         },
         {
-          text: 'Order',
-          value: 'order'
-        },
-        {
           text: 'Station',
           value: 'station_name'
         },
