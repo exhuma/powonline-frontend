@@ -498,10 +498,18 @@ function makeStore(auth, remoteProxy) {
         stationScores.score = payload.score
       },
 
-      setQuestionnaireStation(state, payload) {
+      assignQuestionnaireToStation(state, payload) {
         state.questionnaires.forEach((item) => {
           if (item.name === payload.questionnaireName) {
             item.station_name = payload.station
+          }
+        })
+      },
+
+      unassignQuestionnaireFromStation(state, payload) {
+        state.questionnaires.forEach((item) => {
+          if (item.name === payload.questionnaireName) {
+            item.station_name = null
           }
         })
       },
@@ -664,7 +672,7 @@ function makeStore(auth, remoteProxy) {
           })
       },
 
-      setQuestionnaireStation(context, payload) {
+      assignQuestionnaireToStation(context, payload) {
         EventBus.$emit('activityEvent', {
           visible: true,
           progress: -1,
@@ -672,9 +680,48 @@ function makeStore(auth, remoteProxy) {
         })
         payload.questionnaire.station_name = payload.station.name
         remoteProxy
-          .setQuestionnaireStation(payload.station.name, payload.questionnaire)
+          .assignQuestionnaireToStation(
+            payload.station.name,
+            payload.questionnaire
+          )
           .then((data) => {
-            context.commit('setQuestionnaireStation', data)
+            context.commit('assignQuestionnaireToStation', data)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+            EventBus.$emit('snackRequested', {
+              message: 'Update successful'
+            })
+          })
+          .catch((e) => {
+            let message = 'Unknown Error'
+            if (e.response.status < 500) {
+              message = e.response.data
+            }
+            EventBus.$emit('snackRequested', {
+              message: message,
+              color: 'red'
+            })
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+      },
+
+      unassignQuestionnaireFromStation(context, payload) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        remoteProxy
+          .unassignQuestionnaireFromStation(payload.questionnaire.name)
+          .then((data) => {
+            context.commit('unssignQuestionnaireFromStation', data)
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,

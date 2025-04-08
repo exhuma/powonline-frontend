@@ -583,13 +583,30 @@ class Proxy extends FakeProxy {
   /**
    * Assign a questionnaire to a station
    */
-  setQuestionnaireStation(stationName, questionnaire) {
+  assignQuestionnaireToStation(stationName, questionnaire) {
     const output = new Promise((resolve, reject) => {
       axios
         .post(
           this.baseUrl + '/station/' + stationName + '/questionnaires',
           questionnaire
         )
+        .then((response) => {
+          resolve(response.data)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  /**
+   * Unassign a questionnaire from a station
+   */
+  unassignQuestionnaireFromStation(questionnaireName) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .delete(`${this.baseUrl}/questionnaire/${questionnaireName}/station`)
         .then((response) => {
           resolve(response.data)
         })

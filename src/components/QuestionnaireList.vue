@@ -10,7 +10,10 @@
       <template v-slot:item.station_name="{ item }">
         <v-select
           v-model="item.station_name"
-          :items="Object.values(stations)"
+          :items="[
+            { id: null, name: '-- None --' },
+            ...Object.values(stations)
+          ]"
           item-text="name"
           item-value="id"
           hide-details
@@ -83,20 +86,34 @@ export default {
   },
   methods: {
     stationUpdated(station, questionnaire) {
+      // Recover the currently assigned station
       this.loading = true
-
-      this.$store
-        .dispatch('setQuestionnaireStation', {
-          questionnaire: questionnaire,
-          station: station
-        })
-        .then(() => {
-          this.loading = false
-        })
-        .catch((error) => {
-          this.loading = false
-          console.error(error)
-        })
+      if (station.id !== null) {
+        this.$store
+          .dispatch('assignQuestionnaireToStation', {
+            questionnaire: questionnaire,
+            station: station
+          })
+          .then(() => {
+            this.loading = false
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error(error)
+          })
+      } else {
+        this.$store
+          .dispatch('unassignQuestionnaireFromStation', {
+            questionnaire: questionnaire
+          })
+          .then(() => {
+            this.loading = false
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error(error)
+          })
+      }
     },
     questionnaireUpdated(questionnaire, oldName) {
       this.loading = true
