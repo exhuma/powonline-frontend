@@ -39,8 +39,8 @@ export default {
         name: '',
         order: 500,
         max_score: 0,
-        inserted: '',
-        updated: '',
+        inserted: null,
+        updated: null,
         station_name: null
       }
     }

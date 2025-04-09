@@ -380,6 +380,20 @@ class Proxy extends FakeProxy {
     return output
   }
 
+  addQuestionnaire(questionnaire) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .post(this.baseUrl + '/questionnaire', questionnaire)
+        .then(() => {
+          resolve(questionnaire)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   fetchUsers() {
     let output = new Promise((resolve, reject) => {
       axios

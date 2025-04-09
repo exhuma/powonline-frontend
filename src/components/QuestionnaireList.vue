@@ -1,5 +1,26 @@
 <template>
   <center-col id="QuestionnaireList">
+    <popup-dialog
+      @dialogConfirmed="onDialogConfirmed"
+      @dialogDismissed="closeAddBlock"
+      :dialogVisible="isAddBlockVisible"
+      :editMode="this.sendMode == this.SEND_MODE.UPDATE"
+      title="Add New Questionnaire"
+    >
+      <v-text-field
+        @keyup.enter.native="onDialogConfirmed"
+        type="text"
+        v-model="selectedQuestionnaire.name"
+        label="Enter a new questionnaire name"
+      />
+      <v-text-field
+        name="order"
+        type="number"
+        v-model="selectedQuestionnaire.order"
+        hint="This field is used to sort questionnaires"
+        label="Questionnaire Ordering"
+      />
+    </popup-dialog>
     <v-data-table
       :headers="questionnaireHeaders"
       :items="questionnaires"
@@ -65,11 +86,14 @@
         ></v-text-field>
       </template>
     </v-data-table>
+    <v-btn class="pa-3" @click="openCreateDialog">Add new Questionnaire</v-btn>
   </center-col>
 </template>
 
 <script>
 import 'vue-swatches/dist/vue-swatches.min.css'
+import model from '@/model'
+
 export default {
   name: 'questionnaire_list',
   created() {
@@ -85,6 +109,38 @@ export default {
     }
   },
   methods: {
+    openCreateDialog: function () {
+      const newQuestionnaire = model.questionnaire.makeEmpty()
+      this.selectedQuestionnaire = newQuestionnaire
+      this.isAddBlockVisible = true
+      this.sendMode = model.SEND_MODE.CREATE
+    },
+    onDialogConfirmed: function () {
+      const questionnaire = this.selectedQuestionnaire
+
+      if (this.sendMode === model.SEND_MODE.CREATE) {
+        this.$store.dispatch('addQuestionnaireRemote', questionnaire)
+      } else if (this.sendMode === model.SEND_MODE.UPDATE) {
+        questionnaire.contact = questionnaire.contact || ''
+        questionnaire.phone = questionnaire.phone || ''
+        this.$remoteProxy
+          .updateQuestionnaire(questionnaire.name, questionnaire)
+          .catch((error) => {
+            this.errorDialog = true
+            this.errorText = error.response.data
+          })
+      } else {
+        console.error('Invalid send mode: ' + this.sendMode)
+      }
+
+      this.$emit('questionnaireSaved', questionnaire)
+      this.selectedQuestionnaire = model.questionnaire.makeEmpty()
+
+      this.isAddBlockVisible = false
+    },
+    closeAddBlock() {
+      this.isAddBlockVisible = false
+    },
     stationUpdated(station, questionnaire) {
       // Recover the currently assigned station
       this.loading = true
@@ -130,6 +186,12 @@ export default {
   },
   data() {
     return {
+      isAddBlockVisible: false,
+      selectedQuestionnaire: model.questionnaire.makeEmpty(),
+      sendMode: model.SEND_MODE.CREATE,
+      errorDialog: false,
+      errorText: '',
+      SEND_MODE: model.SEND_MODE,
       loading: false,
       questionnaireHeaders: [
         {

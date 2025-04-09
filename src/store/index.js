@@ -974,6 +974,36 @@ function makeStore(auth, remoteProxy) {
       },
 
       /**
+       * Add a questionnaire to the remote store
+       *
+       * :param route: The questionnaire object to add
+       */
+      addQuestionnaireRemote(context, questionnaire) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
+        remoteProxy
+          .addQuestionnaire(questionnaire)
+          .then((questionnaire) => {
+            context.commit('addQuestionnaire', questionnaire)
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+          .catch((e) => {
+            EventBus.$emit('activityEvent', {
+              visible: false,
+              progress: -1,
+              text: ''
+            })
+          })
+      },
+
+      /**
        * Refresh everything from the server
        */
       refreshRemote(context) {
