@@ -5,6 +5,7 @@ import StationDashboard from '@/components/StationDashboard.vue'
 import ScoreBoard from '@/components/ScoreBoard.vue'
 import GlobalDashboard from '@/components/GlobalDashboard.vue'
 import StationList from '@/components/StationList.vue'
+import QuestionnaireList from '@/components/QuestionnaireList.vue'
 import TeamList from '@/components/TeamList.vue'
 import UserList from '@/components/UserList.vue'
 import TeamPanel from '@/components/TeamPanel.vue'
@@ -82,6 +83,10 @@ const router = new VueRouter({
     {
       path: '/station',
       component: StationList
+    },
+    {
+      path: '/questionnaire',
+      component: QuestionnaireList
     },
     {
       path: '/scoreboard',

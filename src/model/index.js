@@ -33,6 +33,19 @@ export default {
     }
   },
 
+  questionnaire: {
+    makeEmpty: function () {
+      return {
+        name: '',
+        order: 500,
+        max_score: 0,
+        inserted: null,
+        updated: null,
+        station_name: null
+      }
+    }
+  },
+
   team: {
     makeEmpty: function () {
       return {

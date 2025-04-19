@@ -71,6 +71,34 @@ class FakeProxy {
     return output
   }
 
+  deleteQuestionnaire(questionnaireName) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .delete(this.baseUrl + '/questionnaire/' + questionnaireName)
+        .then(() => {
+          resolve()
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  updateQuestionnaire(oldName, newData) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .put(this.baseUrl + '/questionnaire/' + oldName, newData)
+        .then(() => {
+          resolve()
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   advanceState(stationName, teamName) {
     let output = new Promise((resolve, reject) => {
       resolve({
@@ -352,6 +380,20 @@ class Proxy extends FakeProxy {
     return output
   }
 
+  addQuestionnaire(questionnaire) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .post(this.baseUrl + '/questionnaire', questionnaire)
+        .then(() => {
+          resolve(questionnaire)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
   fetchUsers() {
     let output = new Promise((resolve, reject) => {
       axios
@@ -530,6 +572,57 @@ class Proxy extends FakeProxy {
         .get(this.baseUrl + '/station')
         .then((response) => {
           resolve(response.data.items)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  fetchQuestionnaires() {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .get(this.baseUrl + '/questionnaire')
+        .then((response) => {
+          resolve(response.data.items)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  /**
+   * Assign a questionnaire to a station
+   */
+  assignQuestionnaireToStation(stationName, questionnaire) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .post(
+          this.baseUrl + '/station/' + stationName + '/questionnaires',
+          questionnaire
+        )
+        .then((response) => {
+          resolve(response.data)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+    return output
+  }
+
+  /**
+   * Unassign a questionnaire from a station
+   */
+  unassignQuestionnaireFromStation(questionnaireName) {
+    const output = new Promise((resolve, reject) => {
+      axios
+        .delete(`${this.baseUrl}/questionnaire/${questionnaireName}/station`)
+        .then((response) => {
+          resolve(response.data)
         })
         .catch((e) => {
           reject(e)
