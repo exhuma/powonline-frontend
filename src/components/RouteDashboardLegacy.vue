@@ -6,6 +6,7 @@
       hide-default-footer
       :headers="tableHeaders"
       :items="tableItems"
+      :items-per-page="-1"
     >
       <template v-slot:item="props">
         <tr>
