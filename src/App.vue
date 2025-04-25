@@ -94,6 +94,7 @@
                   v-model="username"
                   ref="LoginDialogUsername"
                   label="Enter a new username"
+                  autofocus
                 />
                 <v-text-field
                   @keyup.enter.native="loginUser"
@@ -244,10 +245,6 @@ const App = Vue.extend({
     },
     showLoginDialog() {
       this.loginDialogVisible = true
-      const userNameField = this.$refs.LoginDialogUsername as HTMLInputElement
-      if (userNameField) {
-        this.$nextTick(() => userNameField.focus())
-      }
     },
     login(provider) {
       hello(provider).login({
