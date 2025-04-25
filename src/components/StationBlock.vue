@@ -32,9 +32,10 @@
   </v-list-item>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
-export default {
+import Vue from 'vue'
+const StationBlock = Vue.extend({
   name: 'station-block',
   props: {
     station: {
@@ -55,5 +56,6 @@ export default {
       this.$emit('openEditDialog')
     }
   }
-}
+})
+export default StationBlock
 </script>

@@ -2,9 +2,10 @@
   <v-icon>{{ stateIcon }}</v-icon>
 </template>
 
-<script>
+<script lang="ts">
 import util from '@/util'
-export default {
+import Vue from 'vue'
+const MiniStatus = Vue.extend({
   name: 'mini-status',
   props: ['team', 'station'],
   data() {
@@ -24,5 +25,6 @@ export default {
         this.$store.commit('logError', e)
       })
   }
-}
+})
+export default MiniStatus
 </script>

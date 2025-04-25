@@ -40,10 +40,14 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import util from '@/util'
+import { DashboardRow } from '@/remote/model/dashboardRow'
+import type { VueTableHeader } from '@/types'
+import type { Station } from '@/remote/model/station'
 
-export default {
+import Vue from 'vue'
+const RouteDashboardIcons = Vue.extend({
   name: 'route-dashboard-icons',
   props: {
     route: {
@@ -52,22 +56,25 @@ export default {
     }
   },
   computed: {
-    routeColor() {
+    routeColor(): string {
       if (this.route.color) {
         return this.route.color
       } else {
         return '#000000'
       }
     },
-    assignedStations() {
-      const output = this.$store.state.route_station_map[this.route.name] || []
+    assignedStations(): Station[] {
+      const map = this.$store.state.route_station_map as {
+        [key: string]: Station[]
+      }
+      const output = map[this.route.name] || []
       output.sort((a, b) => {
         return a.order - b.order
       })
       return output
     },
-    tableHeaders() {
-      let output = [
+    tableHeaders(): VueTableHeader[] {
+      const output: VueTableHeader[] = [
         {
           text: 'Team',
           align: 'left',
@@ -92,7 +99,8 @@ export default {
     stateMapping() {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
       const output = {}
-      this.$store.state.global_dashboard.forEach((teamState) => {
+      const dashBoard = this.$store.state.global_dashboard as DashboardRow[]
+      dashBoard.forEach((teamState) => {
         teamState.stations.forEach((stationState) => {
           if (output[stationState.name] === undefined) {
             output[stationState.name] = {}
@@ -116,8 +124,8 @@ export default {
           if (this.route.name !== route) {
             continue
           }
-          let teamDetails = this.$store.getters.findTeam(teamName)
-          let row = {
+          const teamDetails = this.$store.getters.findTeam(teamName)
+          const row = {
             stations: [],
             team: teamName,
             cancelled: teamDetails.cancelled
@@ -145,5 +153,6 @@ export default {
       return util.getStateIcon(state)
     }
   }
-}
+})
+export default RouteDashboardIcons
 </script>

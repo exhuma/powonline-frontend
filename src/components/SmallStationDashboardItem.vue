@@ -65,19 +65,20 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const SmallStationDashboardIcon = Vue.extend({
   name: 'small-station-dashboard-item',
   props: ['state', 'cancelled'],
   computed: {
-    hasCancelled() {
-      let teamDetails = this.$store.getters.findTeam(this.state.team)
+    hasCancelled(): boolean {
+      const teamDetails = this.$store.getters.findTeam(this.state.team)
       if (teamDetails === null) {
         return false
       }
       return teamDetails.cancelled
     },
-    questionnaireScore() {
+    questionnaireScore(): { name: string, score: number } {
       const team = this.$store.state.questionnaireScores[this.state.team]
       if (!team) {
         return {
@@ -127,5 +128,6 @@ export default {
       })
     }
   }
-}
+})
+export default SmallStationDashboardIcon
 </script>

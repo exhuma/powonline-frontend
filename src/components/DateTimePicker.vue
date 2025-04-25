@@ -72,14 +72,15 @@
   </v-layout>
 </template>
 
-<script>
+<script lang="ts">
 import moment from 'moment'
-export default {
+import Vue from 'vue'
+const DateTimePicker = Vue.extend({
   name: 'date-time-picker',
   props: ['label', 'hint', 'timeValue'],
   computed: {
     innerTimeValue: {
-      get: function () {
+      get: function (): string {
         let output = null
         if (this.timeValue) {
           output = moment(this.timeValue)
@@ -88,13 +89,13 @@ export default {
         }
         return output.format('HH:mm')
       },
-      set: function (newValue) {
+      set: function (newValue: string): void {
         let old = moment(this.timeValue)
         if (!old.isValid()) {
           console.debug('Old for planned start time invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
-        let nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+        const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
         if (nw.isValid()) {
           this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
         } else {
@@ -103,7 +104,7 @@ export default {
       }
     },
     innerDateValue: {
-      get: function () {
+      get: function (): string {
         let output = null
         if (this.timeValue) {
           output = moment(this.timeValue)
@@ -112,13 +113,13 @@ export default {
         }
         return output.format('YYYY-MM-DD')
       },
-      set: function (newValue) {
+      set: function (newValue: string): void {
         let old = moment(this.timeValue)
         if (!old.isValid()) {
           console.debug('Old for planned start date invalid. Using default')
           old = moment('2019-10-05T19:00')
         }
-        let nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
+        const nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
         if (nw.isValid()) {
           this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
         } else {
@@ -133,5 +134,6 @@ export default {
       dateDialogVisible: false
     }
   }
-}
+})
+export default DateTimePicker
 </script>

@@ -58,10 +58,13 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
+import Vue from 'vue'
+import { Station } from '@/remote/model/station'
+import { Team } from '@/remote/model/team'
 
-export default {
+const RouteAssignments = Vue.extend({
   name: 'route-assignments',
 
   props: {
@@ -74,16 +77,16 @@ export default {
   },
 
   computed: {
-    assignedTeams() {
+    assignedTeams(): Team[] {
       return this.$store.getters.assignedTeams(this.route.name)
     },
-    unassignedTeams() {
-      return this.$store.getters.unassignedTeams
+    unassignedTeams(): Team[] {
+      return this.$store.getters.unassignedTeams(this.route.name)
     },
-    assignedStations() {
+    assignedStations(): Station[] {
       return this.$store.getters.assignedStations(this.route.name)
     },
-    unassignedStations() {
+    unassignedStations(): Station[] {
       return this.$store.getters.unassignedStations(this.route.name)
     }
   },
@@ -114,5 +117,6 @@ export default {
       })
     }
   }
-}
+})
+export default RouteAssignments
 </script>

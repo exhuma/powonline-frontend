@@ -55,8 +55,9 @@
   </v-card>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const UserBlock = Vue.extend({
   name: 'user-block',
   data() {
     return {
@@ -178,5 +179,6 @@ export default {
       default: 'Unknown User'
     }
   }
-}
+})
+export default UserBlock
 </script>

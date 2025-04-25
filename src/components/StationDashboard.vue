@@ -83,7 +83,7 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 /**
  * Set the image classes based on "last update age". The "updateAge" is
  * expressed in seconds
@@ -115,7 +115,8 @@ function applyAgeClasses(data) {
     return 0
   })
 }
-export default {
+import Vue from 'vue'
+const StationDashboard = Vue.extend({
   name: 'station_dashboard',
   data() {
     return {
@@ -128,14 +129,14 @@ export default {
       showArrived: true,
       showFinished: false,
       previousStates: {},
-      nextStates: {},
+      nextStates: [],
       previousStation: '',
       nextStation: ''
     }
   },
   computed: {
-    selectedStates() {
-      let output = []
+    selectedStates(): string[] {
+      const output = []
       if (this.showPending) {
         output.push('unknown')
       }
@@ -147,10 +148,10 @@ export default {
       }
       return output
     },
-    stationName() {
+    stationName(): string {
       return this.$route.params.stationName
     },
-    allTeams() {
+    allTeams(): unknown[] {
       const output = []
       this.$store.state.global_dashboard.forEach((teamInfo) => {
         teamInfo.stations.forEach((stationState) => {
@@ -169,7 +170,7 @@ export default {
           })
         })
       })
-      let filtered = this.filteredTeams(output)
+      const filtered = this.filteredTeams(output)
       return filtered
     }
   },
@@ -205,15 +206,15 @@ export default {
       this.teamFilter = ''
     },
     filteredTeams: function (teams) {
-      let all = teams
+      const all = teams
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return all
       }
-      let filtered = all.filter((item) => {
-        let fltr = this.teamFilter.toLowerCase()
-        let teamData = this.$store.getters.findTeam(item.team)
-        let contactMatches = teamData.contact.toLowerCase().includes(fltr)
-        let nameMatches = item.team.toLowerCase().includes(fltr)
+      const filtered = all.filter((item) => {
+        const fltr = this.teamFilter.toLowerCase()
+        const teamData = this.$store.getters.findTeam(item.team)
+        const contactMatches = teamData.contact.toLowerCase().includes(fltr)
+        const nameMatches = item.team.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
       return filtered
@@ -300,7 +301,8 @@ export default {
       }
     }
   }
-}
+})
+export default StationDashboard
 </script>
 
 <style scoped>

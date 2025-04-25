@@ -88,13 +88,14 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
 import moment from 'moment'
+import { type Upload } from '@/remote/model/upload'
 
 /**
  * Flatten the upload data and sort it by time
  */
-function sortUploads(uploads) {
+  function sortUploads(uploads: { [key: string]: Upload[] }) {
   if (!uploads) {
     return []
   }
@@ -109,22 +110,23 @@ function sortUploads(uploads) {
     item.parsedDate = new Date(item.when)
     item.formattedDate = formatTs(item.parsedDate)
   })
-  allImages.sort((a, b) => a.parsedDate < b.parsedDate)
+  allImages.sort((a, b) => a.parsedDate - b.parsedDate)
   console.log(allImages)
   return allImages
 }
 
 function formatTs(ts) {
-  let obj = moment(ts)
-  let now = moment()
-  var duration = moment.duration(now.diff(obj))
+  const obj = moment(ts)
+  const now = moment()
+  const duration = moment.duration(now.diff(obj))
   if (duration.asHours() > 5) {
     return obj.format('YYYY-MM-DD HH:mm:ss')
   }
   return obj.fromNow()
 }
 
-export default {
+import Vue from 'vue'
+const Uploads = Vue.extend({
   created() {
     this.$store.dispatch('refreshUploads')
   },
@@ -133,6 +135,7 @@ export default {
       dialog: false,
       previewImage: { href: '', tiny: '' },
       confirmDelete: '',
+      deleteDialogVisible: false,
       headers: [
         { text: 'Thumbnail', sortable: false, align: 'left' },
         { text: 'User', sortable: true, align: 'left' },
@@ -143,9 +146,9 @@ export default {
     }
   },
   computed: {
-    files() {
-      let groupedData = this.$store.state.uploads
-      let flattened = sortUploads(groupedData)
+    files(): Upload[] {
+      const groupedData = this.$store.state.uploads
+      const flattened = sortUploads(groupedData)
       return flattened
     }
   },
@@ -207,5 +210,6 @@ export default {
         })
     }
   }
-}
+})
+export default Uploads
 </script>

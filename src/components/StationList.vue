@@ -73,10 +73,11 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 
-export default {
+import Vue from 'vue'
+const StationList = Vue.extend({
   name: 'station_list',
   methods: {
     onOpenEditDialog: function (station) {
@@ -136,14 +137,15 @@ export default {
   },
   computed: {
     stations() {
-      let copy = this.$store.state.stations.concat()
+      const copy = this.$store.state.stations.concat()
       copy.sort((a, b) => {
         return parseInt(a.order, 10) - parseInt(b.order, 10)
       })
       return copy
     }
   }
-}
+})
+export default StationList
 </script>
 
 <style scoped>

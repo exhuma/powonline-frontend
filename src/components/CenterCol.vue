@@ -6,8 +6,10 @@
   </v-layout>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const CenterCol = Vue.extend({
   name: 'center-col'
-}
+})
+export default CenterCol
 </script>

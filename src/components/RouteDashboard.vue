@@ -34,8 +34,23 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+import { Station } from '@/remote/model/station'
+import { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
+
+interface DashboardRow {
+  pending: number
+  waiting: number
+  finished: number
+  team: string
+  cancelled: boolean
+  pct_pending: number
+  pct_waiting: number
+  pct_finished: number
+}
+
+const RouteDashboard = Vue.extend({
   name: 'route-dashboard',
   props: {
     route: {
@@ -44,7 +59,7 @@ export default {
     }
   },
   computed: {
-    overall_pct_finished() {
+    overall_pct_finished(): number {
       let pending = 0
       let waiting = 0
       let finished = 0
@@ -53,10 +68,10 @@ export default {
         waiting += item.waiting
         finished += item.finished
       })
-      let total = pending + waiting + finished
+      const total = pending + waiting + finished
       return (finished / total) * 100
     },
-    overall_pct_waiting() {
+    overall_pct_waiting(): number {
       let pending = 0
       let waiting = 0
       let finished = 0
@@ -65,20 +80,22 @@ export default {
         waiting += item.waiting
         finished += item.finished
       })
-      let total = pending + waiting + finished
+      const total = pending + waiting + finished
       return (waiting / total) * 100
     },
-    assignedStations() {
+    assignedStations(): Station[] {
       const output = this.$store.state.route_station_map[this.route.name] || []
       output.sort((a, b) => {
         return a.order - b.order
       })
       return output
     },
-    stateMapping() {
+    stateMapping(): { [key: string]: { [key: string]: { name: string; score: number; state: string } } } {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
       const output = {}
-      this.$store.state.global_dashboard.forEach((teamState) => {
+      const teamStates = this.$store.state.global_dashboard as RemoteDashboardRow[]
+
+      teamStates.forEach((teamState) => {
         teamState.stations.forEach((stationState) => {
           if (output[stationState.name] === undefined) {
             output[stationState.name] = {}
@@ -90,7 +107,7 @@ export default {
       })
       return output
     },
-    progressItems() {
+    progressItems(): DashboardRow[] {
       const rows = []
       const mapping = this.stateMapping
       const routeTeams = this.$store.state.route_team_map
@@ -101,13 +118,16 @@ export default {
           if (this.route.name !== route) {
             continue
           }
-          let teamDetails = this.$store.getters.findTeam(teamName)
-          let row = {
+          const teamDetails = this.$store.getters.findTeam(teamName)
+          const row: DashboardRow = {
             pending: 0,
             waiting: 0,
             finished: 0,
             team: teamName,
-            cancelled: teamDetails.cancelled
+            cancelled: teamDetails.cancelled,
+            pct_finished: 0,
+            pct_waiting: 0,
+            pct_pending: 0
           }
           assignedStations.forEach((station) => {
             const stationData = mapping[station.name]
@@ -135,7 +155,7 @@ export default {
               }
             }
           })
-          let total = row.pending + row.waiting + row.finished
+          const total = row.pending + row.waiting + row.finished
           row.pct_pending = (row.pending / total) * 100
           row.pct_waiting = (row.waiting / total) * 100
           row.pct_finished = (row.finished / total) * 100
@@ -145,5 +165,6 @@ export default {
       return rows
     }
   }
-}
+})
+export default RouteDashboard
 </script>

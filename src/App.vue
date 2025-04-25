@@ -94,6 +94,7 @@
                   v-model="username"
                   ref="LoginDialogUsername"
                   label="Enter a new username"
+                  autofocus
                 />
                 <v-text-field
                   @keyup.enter.native="loginUser"
@@ -172,11 +173,12 @@ SMALL {
 }
 </style>
 
-<script>
+<script lang="ts">
 import hello from 'hellojs'
 import EventBus from '@/plugins/eventBus'
+import Vue from 'vue'
 
-export default {
+const App = Vue.extend({
   name: 'App',
   mounted() {
     EventBus.$on('activityEvent', (payload) => {
@@ -243,7 +245,6 @@ export default {
     },
     showLoginDialog() {
       this.loginDialogVisible = true
-      this.$nextTick(() => this.$refs.LoginDialogUsername.focus())
     },
     login(provider) {
       hello(provider).login({
@@ -377,5 +378,6 @@ export default {
       return this.$route.path
     }
   }
-}
+})
+export default App
 </script>

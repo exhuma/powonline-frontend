@@ -24,8 +24,9 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const ImageUpload = Vue.extend({
   name: 'image-upload',
   props: {
     fab: {
@@ -38,7 +39,7 @@ export default {
     }
   },
   computed: {
-    tokenIsAvailable() {
+    tokenIsAvailable(): boolean {
       const token = this.$store.state.jwt
       const result = token !== ''
       return result
@@ -74,14 +75,15 @@ export default {
   },
   beforeDestroy() {
     if (typeof window === 'undefined') return
-    window.removeEventListener('resize', this.onResize, { passive: true })
+    window.removeEventListener('resize', this.onResize)
   },
 
   mounted() {
     this.onResize()
     window.addEventListener('resize', this.onResize, { passive: true })
   }
-}
+})
+export default ImageUpload
 </script>
 
 <style>

@@ -1,6 +1,6 @@
 <template>
   <center-col id="TeamList">
-    <team-form :team="team" />
+    <team-form :team.sync="team" />
     <div v-if="hasRole('admin')">
       <confirmation-dialog
         buttonText="Delete"
@@ -23,10 +23,11 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import TeamForm from '@/components/forms/TeamForm.vue'
 
-export default {
+import Vue from 'vue'
+const TeamPanel = Vue.extend({
   name: 'team-panel',
   components: { TeamForm },
 
@@ -49,16 +50,14 @@ export default {
       this.team.comments = this.team.comments || ''
       this.$remoteProxy
         .updateTeam(this.$route.params.teamName, this.team)
-        .then((data) => {
+        .then(() => {
           this.$emit('snackRequested', {
             message: 'Save successful'
           })
         })
-        .catch((error) => {
-          this.errorDialog = true
-          this.errorText = error.response.data
-        })
+      // TODO: error-handling
     }
   }
-}
+})
+export default TeamPanel
 </script>

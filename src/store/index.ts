@@ -2,24 +2,30 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
+import { Auth } from '@/auth'
+import { Proxy } from '@/remote'
+import { User } from '@/remote/model/user'
+import { Station } from '@/remote/model/station'
+import { DashboardRow } from '@/remote/model/dashboardRow'
+import { AssignmentMap } from '@/remote/model/assignmentMap'
 
 Vue.use(Vuex)
 
-function makeStore(auth, remoteProxy) {
+function makeStore(auth: Auth, remoteProxy: Proxy) {
   const store = new Vuex.Store({
     state: {
-      users: [],
-      stations: [],
+      users: [] as User[],
+      stations: [] as Station[],
       teams: [],
       routes: [],
       questionnaires: [],
       questionnaireScores: {}, // map: team -> station -> questionnaireScore
-      route_station_map: {}, // map stations to routes (key=stationName, value=routeName)
-      route_team_map: {}, // map teams to routes (key=teamName, value=routeName)
-      global_dashboard: [],
+      route_station_map: {} as { [key: string]: Station[] }, // map stations to routes (key=stationName, value=routeName)
+      route_team_map: {} as { [key: string]: string[] }, // map teams to routes (key=teamName, value=routeName)
+      global_dashboard: [] as DashboardRow[],
       teamStates: [],
       jwt: auth.get_token(),
-      roles: auth.get_roles(),
+      roles: auth.get_roles() as string[],
       userName: auth.get_username(),
       baseUrl: import.meta.env.VITE_BACKEND_URL,
       pageTitle: 'Powonline',
@@ -51,7 +57,7 @@ function makeStore(auth, remoteProxy) {
        *    * user - The user-name
        */
       updateUserData(state, data) {
-        localStorage.setItem('roles', data['roles'])
+        localStorage.setItem('roles', JSON.stringify(data['roles']))
         localStorage.setItem('jwt', data['token'])
         localStorage.setItem('userName', data['user'])
         state.jwt = data['token']
@@ -106,7 +112,7 @@ function makeStore(auth, remoteProxy) {
         // "effectiveStartTime" property)
         let insertPosition = 0
         let foundPosition = false
-        for (let [idx, entry] of state.teams.entries()) {
+        for (const [idx, entry] of state.teams.entries()) {
           console.debug(
             `New team has effectiveStartTime ${team.effective_start_time} entry-time: ${entry.effective_start_time}`
           )
@@ -162,7 +168,7 @@ function makeStore(auth, remoteProxy) {
         // "order" property)
         let insertPosition = 0
         let foundPosition = false
-        for (let [idx, entry] of state.stations.entries()) {
+        for (const [idx, entry] of state.stations.entries()) {
           if (entry.order >= station.order) {
             console.debug(
               `New station has order ${station.order} which goes before ${entry.name} with order ${entry.order}`
@@ -272,13 +278,13 @@ function makeStore(auth, remoteProxy) {
        *
        * :param assignments: An object as returned by the backend
        */
-      replaceAssignments(state, assignments) {
+      replaceAssignments(state, assignments: AssignmentMap) {
         state.route_team_map = {}
         for (const routeName in assignments.teams) {
           if (assignments.teams.hasOwnProperty(routeName)) {
             const teams = assignments.teams[routeName]
             teams.forEach((team) => {
-              state.route_team_map[team.name] = routeName
+              state.route_team_map[team.name] = [routeName]
             })
           }
         }
@@ -528,9 +534,9 @@ function makeStore(auth, remoteProxy) {
 
       replaceGallery(state, data) {
         data.sort((a, b) => {
-          let adt = moment.utc(a.when)
-          let bdt = moment.utc(b.when)
-          return bdt - adt
+          const adt = moment.utc(a.when)
+          const bdt = moment.utc(b.when)
+          return bdt.unix() - adt.unix()
         })
         state.gallery = data
       },
@@ -604,7 +610,7 @@ function makeStore(auth, remoteProxy) {
         })
         remoteProxy
           .setStationScore(payload.stationName, payload.teamName, payload.score)
-          .then((payload) => {
+          .then(() => {
             EventBus.$emit('activityEvent', {
               visible: false,
               progress: -1,
@@ -1525,12 +1531,14 @@ function makeStore(auth, remoteProxy) {
        *
        * :returns: a list of strings
        */
-      unassignedTeams(state, getters) {
+      unassignedTeams: (state, getters) => (routeName: string) => {
         // fetch *all* assignments of teams
         const assignedTeams = []
         const map = state.route_team_map
         for (const teamName in map) {
-          assignedTeams.push(teamName)
+          if (map[teamName].includes(routeName)) {
+            assignedTeams.push(teamName)
+          }
         }
 
         // now create a list of teams which are *not* in the assigned list
@@ -1555,7 +1563,7 @@ function makeStore(auth, remoteProxy) {
         const assignedTeams = []
         const map = state.route_team_map
         for (const teamName in map) {
-          if (map[teamName] === routeName) {
+          if (map[teamName].includes(routeName)) {
             assignedTeams.push(teamName)
           }
         }
@@ -1618,7 +1626,7 @@ function makeStore(auth, remoteProxy) {
        * :returns: Either an object with the team details or null
        */
       findTeam: (state, getters) => (teamName) => {
-        let filtered = state.teams.filter((item) => {
+        const filtered = state.teams.filter((item) => {
           return item.name === teamName
         })
         if (filtered.length === 1) {

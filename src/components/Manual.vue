@@ -23,12 +23,13 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import * as publicManual from '@/assets/manual/manual-public.md'
 import * as registeredManual from '@/assets/manual/manual-user.md'
 import * as staffManual from '@/assets/manual/manual-staff.md'
 import * as adminManual from '@/assets/manual/manual-admin.md'
-export default {
+import Vue from 'vue'
+const Manual = Vue.extend({
   data() {
     return {
       activeTab: 'public'
@@ -51,20 +52,25 @@ export default {
     }
   },
   computed: {
-    publicManual() {
+    publicManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return publicManual.html
     },
-    registeredManual() {
+    registeredManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return registeredManual.html
     },
-    staffManual() {
+    staffManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return staffManual.html
     },
-    adminManual() {
+    adminManual(): string {
+      // @ts-expect-error - markdown imports don't seem to be typed properly
       return adminManual.html
     }
   }
-}
+})
+export default Manual
 </script>
 
 <style>

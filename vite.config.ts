@@ -31,6 +31,9 @@ mdi.use(MdContainer, 'admonition', {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    sourcemap: true
+  },
   plugins: [
     vue2(),
     legacy({
@@ -45,6 +48,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  test: {
+    setupFiles: ['tests/setup.ts'],
+    environment: 'jsdom',
+    coverage: {
+      all: true
     }
   }
 })

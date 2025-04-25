@@ -4,8 +4,9 @@
   </v-container>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const Slideshow = Vue.extend({
   name: 'Slideshow',
   methods: {
     startAutoRefresh() {
@@ -14,7 +15,7 @@ export default {
       }
     },
     autoRefreshTick() {
-      let tickPercent = 100.0 / this.auto_refresh_interval_seconds
+      const tickPercent = 100.0 / this.auto_refresh_interval_seconds
       this.pctUntilNextRefresh -= tickPercent
       this.$emit('refresh-progress-updated', {
         progress: this.pctUntilNextRefresh
@@ -46,10 +47,11 @@ export default {
   },
   async created() {
     await this.updateImages()
-    this.auto_refresh_interval_seconds = Number.parseInt(
-      this.$route.query.timeout || 10,
-      10
-    )
+    const timeout: string =
+      typeof this.$route.query.timeout === 'string'
+        ? typeof this.$route.query.timeout
+        : typeof this.$route.query.timeout[0]
+    this.auto_refresh_interval_seconds = Number.parseInt(timeout || '10', 10)
     this.startAutoRefresh()
     this.$emit('fullScreenRequested', true)
   },
@@ -58,8 +60,10 @@ export default {
       images: [],
       currentImage: '',
       pctUntilNextRefresh: 100.0,
-      auto_refresh_interval_seconds: 10
+      auto_refresh_interval_seconds: 10,
+      currentImageIndex: 0
     }
   }
-}
+})
+export default Slideshow
 </script>

@@ -14,7 +14,7 @@
   "postCreateCommand": "bash .devcontainer/initialise.bash",
   "customizations": {
     "vscode": {
-      "extensions": ["Vue.volar"]
+      "extensions": ["esbenp.prettier-vscode", "Vue.volar"]
     }
   }
 

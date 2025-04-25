@@ -34,8 +34,9 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+const DashboardProgressLine = Vue.extend({
   name: 'dashboard-progress-line',
   computed: {
     dynamicColor() {
@@ -53,5 +54,6 @@ export default {
       required: true
     }
   }
-}
+})
+export default DashboardProgressLine
 </script>

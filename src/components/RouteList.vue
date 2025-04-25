@@ -49,11 +49,12 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import Swatches from 'vue-swatches'
 import 'vue-swatches/dist/vue-swatches.min.css'
 import model from '@/model'
-export default {
+import Vue from 'vue'
+const RouteList = Vue.extend({
   name: 'route_list',
   components: { Swatches },
   methods: {
@@ -100,7 +101,7 @@ export default {
   },
   computed: {
     routes() {
-      let output = this.$store.state.routes.concat()
+      const output = this.$store.state.routes.concat()
       output.sort((a, b) => {
         if (a.name < b.name) {
           return -1
@@ -113,7 +114,8 @@ export default {
       return this.$store.state.routes
     }
   }
-}
+})
+export default RouteList
 </script>
 
 <style scoped>

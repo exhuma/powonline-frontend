@@ -119,10 +119,11 @@
   </center-col>
 </template>
 
-<script>
+<script lang="ts">
 import model from '@/model'
 
-export default {
+import Vue from 'vue'
+const TeamList = Vue.extend({
   name: 'team_list',
   data() {
     return {
@@ -210,17 +211,13 @@ export default {
     closeAddBlock() {
       this.isAddBlockVisible = false
     },
-    hasRole(roleNames) {
+    hasRole(roleNames: string[]) {
       let output = false
+      const roles = this.$store.state.roles as string[]
       roleNames.forEach((role) => {
-        output |= this.$store.state.roles.includes(role)
+        output = output || roles.includes(role)
       })
       return output
-    },
-    onOpenEditDialog: function (team) {
-      this.selectedTeam = team
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.UPDATE
     }
   },
 
@@ -230,15 +227,15 @@ export default {
 
   computed: {
     listItems() {
-      let all = this.$store.state.teams
+      const all = this.$store.state.teams
       let filtered = null
       if (!this.teamFilter || this.teamFilter.length < 3) {
         filtered = all
       } else {
         filtered = all.filter((item) => {
-          let fltr = this.teamFilter.toLowerCase()
-          let nameMatches = item.name.toLowerCase().includes(fltr)
-          let contactMatches = item.contact.toLowerCase().includes(fltr)
+          const fltr = this.teamFilter.toLowerCase()
+          const nameMatches = item.name.toLowerCase().includes(fltr)
+          const contactMatches = item.contact.toLowerCase().includes(fltr)
           return nameMatches || contactMatches
         })
       }
@@ -252,20 +249,21 @@ export default {
       return output
     },
     teams() {
-      let all = this.$store.state.teams
+      const all = this.$store.state.teams
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return all
       }
-      let filtered = all.filter((item) => {
-        let fltr = this.teamFilter.toLowerCase()
-        let nameMatches = item.name.toLowerCase().includes(fltr)
-        let contactMatches = item.contact.toLowerCase().includes(fltr)
+      const filtered = all.filter((item) => {
+        const fltr = this.teamFilter.toLowerCase()
+        const nameMatches = item.name.toLowerCase().includes(fltr)
+        const contactMatches = item.contact.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
       return filtered
     }
   }
-}
+})
+export default TeamList
 </script>
 
 <style scoped>
