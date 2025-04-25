@@ -98,6 +98,7 @@ new Vue({
   store,
   // @ts-expect-error - passing this as an option is causing a type error
   vuetify,
+  remoteProxy,
   render: (h) => h(App),
   created: function () {
     document.title = import.meta.env.VITE_PAGE_TITLE || 'powonline'
