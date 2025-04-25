@@ -29,9 +29,9 @@ export class Auth {
    * Determines whether a token has expired or not.
    */
   token_expired(token): boolean {
-    console.log('Checking if current token has expired')
+    console.debug('Checking if current token has expired')
     if (token === '') {
-      console.log('Empty token (always counts as expired)')
+      console.debug('Empty token (always counts as expired)')
       return true
     }
     const now = Math.floor(Date.now() / 1000)
@@ -42,12 +42,12 @@ export class Auth {
       console.error('Invalid token detected, clearing auth info!')
       return true
     }
-    console.log('Token will expire in ' + (decoded['exp'] - now) + 's')
+    console.debug('Token will expire in ' + (decoded['exp'] - now) + 's')
     if (decoded['exp'] <= now) {
-      console.log('Security token has expired!')
+      console.debug('Security token has expired!')
       return true
     } else {
-      console.log('Security token is still fresh')
+      console.debug('Security token is still fresh')
       return false
     }
   }

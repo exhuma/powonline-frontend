@@ -17,12 +17,12 @@ export function init() {
   if (import.meta.env.VITE_FACEBOOK_PUBLIC_KEY) {
     helloConfig['facebook'] = import.meta.env.VITE_FACEBOOK_PUBLIC_KEY
   } else {
-    console.info(
+    console.warn(
       'No Facebook Public Key Set. Facebook Auth will not be available'
     )
   }
   hello.init(helloConfig, { redirect_uri: 'redirect.html' })
-  console.log('Social logins initialised.')
+  console.debug('Social logins initialised.')
 }
 
 /**
