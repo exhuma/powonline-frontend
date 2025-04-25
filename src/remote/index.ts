@@ -9,6 +9,7 @@ import moment from 'moment'
 import type { Moment } from 'moment'
 import { type Upload } from './model/upload'
 import { type Station } from './model/station'
+import { type Questionnaire } from './model/questionnaire'
 import { Team } from './model/team'
 import { Route } from './model/route'
 import { AssignmentMap } from './model/assignmentMap'
@@ -46,6 +47,13 @@ export interface Proxy {
   deleteUser(userName: string): Promise<unknown>
   fetchAssignments(): Promise<AssignmentMap>
   fetchDashboard(): Promise<DashboardRow[]>
+  fetchQuestionnaires(): Promise<Questionnaire[]>
+  addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire>
+  updateQuestionnaire(
+    oldName: string,
+    newData: Questionnaire
+  ): Promise<AxiosResponse>
+  deleteQuestionnaire(questionnaireName: string): Promise<AxiosResponse>
   fetchQuestionnaireScores(): Promise<QuestionnaireScores>
   fetchRelatedStation(stationName: string, relation: string): Promise<string>
   fetchRelatedTeams(
@@ -98,8 +106,14 @@ export interface Proxy {
   updateTeam(teamName: string, newData: Team): Promise<unknown>
   deleteFile(uuid: string): Promise<unknown>
   updateStation(stationName: string, station: Station): Promise<Station>
-  addStationToUser(userName: string, stationName: string): Promise<AxiosResponse>
-  removeStationFromUser(userName: string, stationName: string): Promise<AxiosResponse>
+  addStationToUser(
+    userName: string,
+    stationName: string
+  ): Promise<AxiosResponse>
+  removeStationFromUser(
+    userName: string,
+    stationName: string
+  ): Promise<AxiosResponse>
   removeUserRole(userName: string, roleName: string): Promise<string>
   addUserRole(userName: string, roleName: string): Promise<string>
   fetchAuditLog(): Promise<AuditLogRow[]>
@@ -121,6 +135,21 @@ class FakeProxy implements Proxy {
     throw new Error('Method not implemented.')
   }
   async fetchRoutes(): Promise<Route[]> {
+    throw new Error('Method not implemented.')
+  }
+  async fetchQuestionnaires(): Promise<Questionnaire[]> {
+    throw new Error('Method not implemented.')
+  }
+  async addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire> {
+    throw new Error('Method not implemented.')
+  }
+  async updateQuestionnaire(
+    oldName: string,
+    newData: Questionnaire
+  ): Promise<AxiosResponse> {
+    throw new Error('Method not implemented.')
+  }
+  async deleteQuestionnaire(questionnaireName: string): Promise<AxiosResponse> {
     throw new Error('Method not implemented.')
   }
   async fetchStations(): Promise<Station[]> {
@@ -304,10 +333,16 @@ class FakeProxy implements Proxy {
   async updateStation(stationName: string, station: Station): Promise<Station> {
     throw new Error('Method not implemented.')
   }
-  async addStationToUser(userName: string, stationName: string): Promise<AxiosResponse> {
+  async addStationToUser(
+    userName: string,
+    stationName: string
+  ): Promise<AxiosResponse> {
     throw new Error('Method not implemented.')
   }
-  async removeStationFromUser(userName: string, stationName: string): Promise<AxiosResponse> {
+  async removeStationFromUser(
+    userName: string,
+    stationName: string
+  ): Promise<AxiosResponse> {
     throw new Error('Method not implemented.')
   }
   async removeUserRole(userName: string, roleName: string): Promise<string> {
@@ -322,7 +357,6 @@ class FakeProxy implements Proxy {
   async fetchTeamStations(teamName: string): Promise<Station[]> {
     throw new Error('Method not implemented')
   }
-
 }
 
 class ConcreteProxy implements Proxy {
@@ -341,6 +375,25 @@ class ConcreteProxy implements Proxy {
       .then((response) => {
         return response.data
       })
+  }
+
+  async addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire> {
+    return axios
+      .post(this.baseUrl + '/questionnaire', questionnaire)
+      .then(() => {
+        return questionnaire
+      })
+  }
+
+  async updateQuestionnaire(
+    oldName: string,
+    newData: Questionnaire
+  ): Promise<AxiosResponse> {
+    return axios.put(this.baseUrl + '/questionnaire/' + oldName, newData)
+  }
+
+  async deleteQuestionnaire(questionnaireName: string): Promise<AxiosResponse> {
+    return axios.delete(this.baseUrl + '/questionnaire/' + questionnaireName)
   }
 
   /**
@@ -600,6 +653,12 @@ class ConcreteProxy implements Proxy {
 
   async fetchRoutes() {
     return axios.get(this.baseUrl + '/route').then((response) => {
+      return response.data.items
+    })
+  }
+
+  fetchQuestionnaires(): Promise<Questionnaire[]> {
+    return axios.get(this.baseUrl + '/questionnaire').then((response) => {
       return response.data.items
     })
   }
