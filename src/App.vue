@@ -15,7 +15,7 @@
           ><v-icon>mdi-menu</v-icon></v-btn
         >
         <v-toolbar-title
-          >{{ pageTitle }} <small>v{{ version }}</small></v-toolbar-title
+          >{{ pageTitle }} <small>v{{ appVersion }}</small></v-toolbar-title
         >
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable"
@@ -204,7 +204,6 @@ const App = Vue.extend({
       globalSnack: false,
       globalSnackText: '',
       globalSnackColor: '',
-      version: '2024.04.28',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
       activity: {
@@ -302,6 +301,9 @@ const App = Vue.extend({
     }
   },
   computed: {
+    appVersion() {
+      return __APP_VERSION__
+    },
     googleKeyAvailable() {
       return Boolean(import.meta.env.VITE_GOOGLE_PUBLIC_KEY)
     },

@@ -1,4 +1,6 @@
+import fs from 'fs'
 import { fileURLToPath, URL } from 'node:url'
+import path from 'path'
 
 import { defineConfig } from 'vite'
 import legacy from '@vitejs/plugin-legacy'
@@ -7,6 +9,7 @@ import MdContainer from 'markdown-it-container'
 import MarkdownIt from 'markdown-it'
 import mdPlugin from 'vite-plugin-markdown'
 import { Mode } from 'vite-plugin-markdown'
+import packageJson from './package.json'
 
 const mdi = MarkdownIt()
 mdi.use(MdContainer, 'admonition', {
@@ -29,6 +32,22 @@ mdi.use(MdContainer, 'admonition', {
   }
 })
 
+/**
+ * Write the application version to a file in the dist folder
+ */
+function writeVersionPlugin(): import('vite').Plugin {
+  return {
+    name: 'write-version-plugin',
+    closeBundle() {
+      const outputPath = path.resolve(__dirname, 'dist', 'version.txt')
+      fs.writeFileSync(outputPath, `${packageJson.version}`, {
+        encoding: 'utf8'
+      })
+      console.log(`Version ${packageJson.version} written to dist/version.txt`)
+    }
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -40,6 +59,7 @@ export default defineConfig({
       targets: ['ie >= 11'],
       additionalLegacyPolyfills: ['regenerator-runtime/runtime']
     }),
+    writeVersionPlugin(),
     mdPlugin({
       mode: [Mode.HTML],
       markdownIt: mdi
@@ -49,6 +69,9 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version)
   },
   test: {
     setupFiles: ['tests/setup.ts'],
