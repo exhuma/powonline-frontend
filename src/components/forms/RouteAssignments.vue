@@ -81,7 +81,7 @@ const RouteAssignments = Vue.extend({
       return this.$store.getters.assignedTeams(this.route.name)
     },
     unassignedTeams(): Team[] {
-      return this.$store.getters.unassignedTeams
+      return this.$store.getters.unassignedTeams(this.route.name)
     },
     assignedStations(): Station[] {
       return this.$store.getters.assignedStations(this.route.name)

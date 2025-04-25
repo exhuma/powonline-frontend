@@ -1531,12 +1531,14 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
        *
        * :returns: a list of strings
        */
-      unassignedTeams(state, getters) {
+      unassignedTeams: (state, getters) => (routeName: string) => {
         // fetch *all* assignments of teams
         const assignedTeams = []
         const map = state.route_team_map
         for (const teamName in map) {
-          assignedTeams.push(teamName)
+          if (map[teamName].includes(routeName)) {
+            assignedTeams.push(teamName)
+          }
         }
 
         // now create a list of teams which are *not* in the assigned list
@@ -1561,7 +1563,7 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
         const assignedTeams = []
         const map = state.route_team_map
         for (const teamName in map) {
-          if (map[teamName] === routeName) {
+          if (map[teamName].includes(routeName)) {
             assignedTeams.push(teamName)
           }
         }
