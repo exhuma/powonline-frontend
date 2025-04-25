@@ -25,6 +25,9 @@ jobs:
           -t \"${{secrets.DOCKER_REGISTRY}}/\
           ${{secrets.DOCKER_REGISTRY_NAMESPACE}}/\
           powonline-frontend:${PROJECT_VERSION}\"
+          -t \"${{secrets.DOCKER_REGISTRY}}/\
+          ${{secrets.DOCKER_REGISTRY_NAMESPACE}}/\
+          powonline-frontend:dev\"
           --build-arg=\"VITE_BACKEND_URL=${{vars.VITE_BACKEND_URL}}\"
           --build-arg=\"VITE_FACEBOOK_PUBLIC_KEY=\
           ${{secrets.VITE_FACEBOOK_PUBLIC_KEY}}\"
