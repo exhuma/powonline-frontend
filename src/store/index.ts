@@ -57,7 +57,7 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
        *    * user - The user-name
        */
       updateUserData(state, data) {
-        localStorage.setItem('roles', data['roles'])
+        localStorage.setItem('roles', JSON.stringify(data['roles']))
         localStorage.setItem('jwt', data['token'])
         localStorage.setItem('userName', data['user'])
         state.jwt = data['token']
