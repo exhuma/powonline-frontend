@@ -20,7 +20,11 @@
       :editMode="this.sendMode == this.SEND_MODE.UPDATE"
       title="Add New Team"
     >
-      <team-form :send-mode="sendMode" :team="selectedTeam" />
+      <team-form
+        :send-mode="sendMode"
+        :team="selectedTeam"
+        @update:team="onTeamUpdated"
+      />
     </popup-dialog>
     <v-text-field
       v-model="teamFilter"
@@ -137,6 +141,9 @@ const TeamList = Vue.extend({
     }
   },
   methods: {
+    onTeamUpdated(team: model.team.Team) {
+      this.selectedTeam = team
+    },
     onFilterCleared(e) {
       this.teamFilter = ''
     },
