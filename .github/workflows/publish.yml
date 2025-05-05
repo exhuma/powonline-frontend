@@ -5,7 +5,7 @@ on:
   push: null
 jobs:
   build_and_push:
-    if: ${{ startsWith(github.ref, 'refs/tags/release-') || github.ref == 'refs/heads/develop' }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/develop' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
