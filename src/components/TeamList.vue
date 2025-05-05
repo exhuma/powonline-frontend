@@ -147,7 +147,7 @@ const TeamList = Vue.extend({
     onFilterCleared(e) {
       this.teamFilter = ''
     },
-    onTeamSelected(team) {
+    onTeamSelected(team: model.team.Team) {
       this.selectedTeam = team
     },
     openCreateDialog: function () {
