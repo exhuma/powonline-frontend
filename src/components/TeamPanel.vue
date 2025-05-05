@@ -6,6 +6,7 @@
         buttonText="Delete"
         :actionArgument="team.name"
         actionName="deleteTeamRemote"
+        @actionAccepted="onTeamDeleted"
       >
         <span slot="title"
           >Do you want to delete the team "{{ team.name }}"?</span
@@ -43,6 +44,12 @@ const TeamPanel = Vue.extend({
   },
 
   methods: {
+    onTeamDeleted(team) {
+      this.$router.push({ name: 'team_list' })
+      this.$emit('snackRequested', {
+        message: `Team "${team}" deleted`
+      })
+    },
     hasRole(roleName) {
       return this.$store.getters.hasRole(roleName)
     },
@@ -53,6 +60,9 @@ const TeamPanel = Vue.extend({
         .then(() => {
           this.$emit('snackRequested', {
             message: 'Save successful'
+          })
+          this.$router.push({
+            name: 'team_list'
           })
         })
       // TODO: error-handling

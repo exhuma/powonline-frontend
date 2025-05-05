@@ -98,7 +98,8 @@ const router = new VueRouter({
     },
     {
       path: '/team',
-      component: TeamList
+      component: TeamList,
+      name: 'team_list'
     },
     {
       path: '/route',

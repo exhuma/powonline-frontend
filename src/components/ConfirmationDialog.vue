@@ -32,6 +32,7 @@ const ConfirmationDialog = Vue.extend({
     acceptAction() {
       this.$store.dispatch(this.actionName, this.actionArgument)
       this.isDialogVisible = false
+      this.$emit('actionAccepted', this.actionArgument)
     }
   }
 })
