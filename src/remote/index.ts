@@ -18,6 +18,24 @@ import { User } from './model/user'
 import { DashboardRow } from './model/dashboardRow'
 import type { AuditLogRow } from './model/auditLogRow'
 
+export type TimeRange = {
+  start: string
+  end: string
+}
+
+export type EventInfo = {
+  id: number
+  name: string
+  time_range: TimeRange
+  inserted?: string | null
+  updated?: string | null
+}
+
+export type EventMember = {
+  user_name: string
+  role_name: string
+}
+
 Vue.mixin({
   beforeCreate() {
     const options = this.$options as { remoteProxy: Proxy; parent: Vue }
@@ -45,9 +63,9 @@ export interface Proxy {
   deleteStation(stationName: string): Promise<unknown>
   deleteTeam(teamName: string): Promise<unknown>
   deleteUser(userName: string): Promise<unknown>
-  fetchAssignments(): Promise<AssignmentMap>
-  fetchDashboard(): Promise<DashboardRow[]>
-  fetchQuestionnaires(): Promise<Questionnaire[]>
+  fetchAssignments(eventId?: number): Promise<AssignmentMap>
+  fetchDashboard(eventId?: number): Promise<DashboardRow[]>
+  fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]>
   addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire>
   updateQuestionnaire(
     oldName: string,
@@ -69,10 +87,10 @@ export interface Proxy {
       updateAge?: number
     }[]
   >
-  fetchRoutes(): Promise<Route[]>
-  fetchStations(): Promise<Station[]>
-  fetchTeam(teamName: string): Promise<{ name: string }>
-  fetchTeams(): Promise<Team[]>
+  fetchRoutes(eventId?: number): Promise<Route[]>
+  fetchStations(eventId?: number): Promise<Station[]>
+  fetchTeam(teamName: string, eventId?: number): Promise<{ name: string }>
+  fetchTeams(eventId?: number): Promise<Team[]>
   fetchUploads(): Promise<Upload[]>
   fetchUsers(): Promise<User[]>
   fetchUserRoles(userName: string): Promise<string[]>
@@ -118,6 +136,34 @@ export interface Proxy {
   addUserRole(userName: string, roleName: string): Promise<string>
   fetchAuditLog(): Promise<AuditLogRow[]>
   fetchTeamStations(teamName: string): Promise<Station[]>
+  fetchEvents(): Promise<EventInfo[]>
+  createEvent(event: {
+    name: string
+    time_range: TimeRange
+  }): Promise<EventInfo>
+  updateEvent(
+    eventId: number,
+    event: {
+      name?: string
+      time_range?: TimeRange
+    }
+  ): Promise<EventInfo>
+  fetchEventMembers(eventId: number): Promise<EventMember[]>
+  addEventMember(eventId: number, member: EventMember): Promise<EventMember>
+  removeEventMember(
+    eventId: number,
+    userName: string,
+    roleName: string
+  ): Promise<unknown>
+  deleteEvent(eventId: number): Promise<unknown>
+  fetchTeamsForEvent(eventId: number): Promise<Team[]>
+  addTeamForEvent(eventId: number, team: Team): Promise<Team>
+  updateTeamForEvent(
+    eventId: number,
+    teamName: string,
+    newData: Team
+  ): Promise<unknown>
+  deleteTeamForEvent(eventId: number, teamName: string): Promise<unknown>
 }
 
 class FakeProxy implements Proxy {
@@ -137,7 +183,7 @@ class FakeProxy implements Proxy {
   async fetchRoutes(): Promise<Route[]> {
     throw new Error('Method not implemented.')
   }
-  async fetchQuestionnaires(): Promise<Questionnaire[]> {
+  async fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]> {
     throw new Error('Method not implemented.')
   }
   async addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire> {
@@ -357,6 +403,67 @@ class FakeProxy implements Proxy {
   async fetchTeamStations(teamName: string): Promise<Station[]> {
     throw new Error('Method not implemented')
   }
+  async fetchEvents(): Promise<EventInfo[]> {
+    return []
+  }
+  async createEvent(event: {
+    name: string
+    time_range: TimeRange
+  }): Promise<EventInfo> {
+    return {
+      id: 1,
+      name: event.name,
+      time_range: event.time_range
+    }
+  }
+  async updateEvent(
+    eventId: number,
+    event: {
+      name?: string
+      time_range?: TimeRange
+    }
+  ): Promise<EventInfo> {
+    return {
+      id: eventId,
+      name: event.name || 'fake-event',
+      time_range: event.time_range || { start: '', end: '' }
+    }
+  }
+  async fetchEventMembers(eventId: number): Promise<EventMember[]> {
+    return []
+  }
+  async addEventMember(
+    eventId: number,
+    member: EventMember
+  ): Promise<EventMember> {
+    return member
+  }
+  async removeEventMember(
+    eventId: number,
+    userName: string,
+    roleName: string
+  ): Promise<unknown> {
+    return {}
+  }
+  async deleteEvent(eventId: number): Promise<unknown> {
+    return {}
+  }
+  async fetchTeamsForEvent(eventId: number): Promise<Team[]> {
+    return this.fetchTeams(eventId)
+  }
+  async addTeamForEvent(eventId: number, team: Team): Promise<Team> {
+    return team
+  }
+  async updateTeamForEvent(
+    eventId: number,
+    teamName: string,
+    newData: Team
+  ): Promise<unknown> {
+    return newData
+  }
+  async deleteTeamForEvent(eventId: number, teamName: string): Promise<unknown> {
+    return {}
+  }
 }
 
 class ConcreteProxy implements Proxy {
@@ -369,17 +476,23 @@ class ConcreteProxy implements Proxy {
   /**
    * Connect to the back-end to retrieve the questionnaire scores
    */
-  async fetchQuestionnaireScores(): Promise<QuestionnaireScores> {
+  async fetchQuestionnaireScores(eventId?: number): Promise<QuestionnaireScores> {
+    if (!eventId) {
+      throw new Error('eventId is required for questionnaire scores')
+    }
     return axios
-      .get(this.baseUrl + '/questionnaire-scores')
+      .get(`${this.baseUrl}/events/${eventId}/questionnaire-scores`)
       .then((response) => {
         return response.data
       })
   }
 
-  async addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire> {
+  async addQuestionnaire(questionnaire: Questionnaire, eventId?: number): Promise<Questionnaire> {
+    if (!eventId) {
+      throw new Error('eventId is required for questionnaire creation')
+    }
     return axios
-      .post(this.baseUrl + '/questionnaire', questionnaire)
+      .post(`${this.baseUrl}/events/${eventId}/questionnaire`, questionnaire)
       .then(() => {
         return questionnaire
       })
@@ -387,13 +500,20 @@ class ConcreteProxy implements Proxy {
 
   async updateQuestionnaire(
     oldName: string,
-    newData: Questionnaire
+    newData: Questionnaire,
+    eventId?: number
   ): Promise<AxiosResponse> {
-    return axios.put(this.baseUrl + '/questionnaire/' + oldName, newData)
+    if (!eventId) {
+      throw new Error('eventId is required for questionnaire update')
+    }
+    return axios.put(`${this.baseUrl}/events/${eventId}/questionnaire/${oldName}`, newData)
   }
 
-  async deleteQuestionnaire(questionnaireName: string): Promise<AxiosResponse> {
-    return axios.delete(this.baseUrl + '/questionnaire/' + questionnaireName)
+  async deleteQuestionnaire(questionnaireName: string, eventId?: number): Promise<AxiosResponse> {
+    if (!eventId) {
+      throw new Error('eventId is required for questionnaire deletion')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/questionnaire/${questionnaireName}`)
   }
 
   /**
@@ -460,8 +580,11 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async setStationScore(stationName, teamName, score) {
-    return axios.post(this.baseUrl + '/job', {
+  async setStationScore(stationName, teamName, score, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for station score updates')
+    }
+    return axios.post(`${this.baseUrl}/events/${eventId}/job`, {
       action: 'set_score',
       args: {
         station_name: stationName,
@@ -471,7 +594,10 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async setQuestionnaireScore(stationName, teamName, score) {
+  async setQuestionnaireScore(stationName, teamName, score, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for questionnaire score updates')
+    }
     const payload = {
       action: 'set_questionnaire_score',
       args: {
@@ -480,7 +606,7 @@ class ConcreteProxy implements Proxy {
         score: score
       }
     }
-    return axios.post(this.baseUrl + '/job', payload).then((response) => {
+    return axios.post(`${this.baseUrl}/events/${eventId}/job`, payload).then((response) => {
       return {
         stationName: stationName,
         teamName: teamName,
@@ -489,7 +615,10 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async advanceState(stationName, teamName) {
+  async advanceState(stationName, teamName, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required to advance state')
+    }
     const payload = {
       action: 'advance',
       args: {
@@ -497,7 +626,7 @@ class ConcreteProxy implements Proxy {
         team_name: teamName
       }
     }
-    return axios.post(this.baseUrl + '/job', payload).then((response) => {
+    return axios.post(`${this.baseUrl}/events/${eventId}/job`, payload).then((response) => {
       // The server assigned a new state, so we must update our local
       // values
       const newState = response.data.result.state
@@ -513,10 +642,13 @@ class ConcreteProxy implements Proxy {
   /**
    * Assign a questionnaire to a station
    */
-  async assignQuestionnaireToStation(stationName, questionnaire) {
+  async assignQuestionnaireToStation(stationName, questionnaire, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required to assign questionnaire')
+    }
     return axios
       .post(
-        this.baseUrl + '/station/' + stationName + '/questionnaires',
+        `${this.baseUrl}/events/${eventId}/station/${stationName}/questionnaires`,
         questionnaire
       )
       .then((response) => {
@@ -527,16 +659,22 @@ class ConcreteProxy implements Proxy {
   /**
    * Unassign a questionnaire from a station
    */
-  async unassignQuestionnaireFromStation(questionnaireName) {
+  async unassignQuestionnaireFromStation(questionnaireName, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required to unassign questionnaire')
+    }
     return axios
-      .delete(`${this.baseUrl}/questionnaire/${questionnaireName}/station`)
+      .delete(`${this.baseUrl}/events/${eventId}/questionnaire/${questionnaireName}/station`)
       .then((response) => {
         return response.data
       })
   }
 
-  async fetchDashboard(): Promise<DashboardRow[]> {
-    return axios.get(this.baseUrl + '/dashboard').then((response) => {
+  async fetchDashboard(eventId?: number): Promise<DashboardRow[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for dashboard')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/dashboard`).then((response) => {
       return response.data
     })
   }
@@ -547,20 +685,35 @@ class ConcreteProxy implements Proxy {
     })
   }
 
-  async addTeam(team) {
-    return axios.post(this.baseUrl + '/team', team).then((response) => {
-      return team
-    })
+  async addTeam(team, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for team creation')
+    }
+    return this.addTeamForEvent(eventId, team)
   }
 
-  async addRoute(route) {
-    return axios.post(this.baseUrl + '/route', route).then((response) => {
+  async addTeamForEvent(eventId: number, team: Team): Promise<Team> {
+    return axios
+      .post(`${this.baseUrl}/events/${eventId}/team`, team)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async addRoute(route, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for route creation')
+    }
+    return axios.post(`${this.baseUrl}/events/${eventId}/route`, route).then((response) => {
       return route
     })
   }
 
-  async addStation(station) {
-    return axios.post(this.baseUrl + '/station', station).then((response) => {
+  async addStation(station, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for station creation')
+    }
+    return axios.post(`${this.baseUrl}/events/${eventId}/station`, station).then((response) => {
       return station
     })
   }
@@ -613,14 +766,24 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async fetchTeams() {
-    return axios.get(this.baseUrl + '/team').then((response) => {
+  async fetchTeams(eventId?: number): Promise<Team[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for teams')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/team`).then((response) => {
       return response.data.items
     })
   }
 
-  async fetchTeam(teamName) {
-    return axios.get(this.baseUrl + '/team/' + teamName).then((response) => {
+  async fetchTeamsForEvent(eventId: number): Promise<Team[]> {
+    return this.fetchTeams(eventId)
+  }
+
+  async fetchTeam(teamName: string, eventId?: number): Promise<{ name: string }> {
+    if (!eventId) {
+      throw new Error('eventId is required for team lookup')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/team/${teamName}`).then((response) => {
       return response.data
     })
   }
@@ -651,112 +814,237 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async fetchRoutes() {
-    return axios.get(this.baseUrl + '/route').then((response) => {
+  async fetchRoutes(eventId?: number): Promise<Route[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for routes')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/route`).then((response) => {
       return response.data.items
     })
   }
 
-  fetchQuestionnaires(): Promise<Questionnaire[]> {
-    return axios.get(this.baseUrl + '/questionnaire').then((response) => {
+  fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for questionnaires')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/questionnaire`).then((response) => {
       return response.data.items
     })
   }
 
-  async fetchStations() {
-    return axios.get(this.baseUrl + '/station').then((response) => {
+  async fetchStations(eventId?: number): Promise<Station[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for stations')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/station`).then((response) => {
       return response.data.items
     })
   }
 
-  async fetchAssignments(): Promise<AssignmentMap> {
-    return axios.get(this.baseUrl + '/assignments').then((response) => {
+  async fetchAssignments(eventId?: number): Promise<AssignmentMap> {
+    if (!eventId) {
+      throw new Error('eventId is required for assignments')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/assignments`).then((response) => {
       return response.data
     })
   }
 
-  async addTeamToRoute(route, team): Promise<unknown> {
-    return axios.post(this.baseUrl + '/route/' + route + '/teams', team)
+  async addTeamToRoute(route, team, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to assign team to route')
+    }
+    return axios.post(`${this.baseUrl}/events/${eventId}/route/${route}/teams`, team)
   }
 
-  async unassignTeamFromRoute(route, team): Promise<unknown> {
-    return axios.delete(this.baseUrl + '/route/' + route + '/teams/' + team)
+  async unassignTeamFromRoute(route, team, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to unassign team from route')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/route/${route}/teams/${team}`)
   }
 
-  async assignStationToRoute(routeName, station): Promise<unknown> {
+  async assignStationToRoute(routeName, station, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to assign station to route')
+    }
     return axios.post(
-      this.baseUrl + '/route/' + routeName + '/stations',
+      `${this.baseUrl}/events/${eventId}/route/${routeName}/stations`,
       station
     )
   }
 
-  async unassignStationFromRoute(routeName, stationName): Promise<unknown> {
-    return axios.delete(
-      this.baseUrl + '/route/' + routeName + '/stations/' + stationName
-    )
+  async unassignStationFromRoute(routeName, stationName, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to unassign station from route')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/route/${routeName}/stations/${stationName}`)
   }
 
-  async deleteRoute(routeName): Promise<unknown> {
-    return axios.delete(this.baseUrl + '/route/' + routeName)
+  async deleteRoute(routeName, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to delete route')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/route/${routeName}`)
   }
 
-  async deleteStation(stationName): Promise<unknown> {
-    return axios.delete(this.baseUrl + '/station/' + stationName)
+  async deleteStation(stationName, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to delete station')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/station/${stationName}`)
   }
 
   async deleteUser(userName): Promise<unknown> {
     return axios.delete(this.baseUrl + '/user/' + userName)
   }
 
-  async deleteTeam(teamName): Promise<unknown> {
-    return axios.delete(this.baseUrl + '/team/' + teamName)
+  async deleteTeam(teamName, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required to delete team')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
   }
 
-  async fetchTeamState(stationName, teamName) {
+  async deleteTeamForEvent(eventId: number, teamName: string): Promise<unknown> {
+    return axios.delete(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
+  }
+
+  async fetchTeamState(stationName, teamName, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for team state lookup')
+    }
     return axios
-      .get(this.baseUrl + '/station/' + stationName + '/teams/' + teamName)
+      .get(`${this.baseUrl}/events/${eventId}/station/${stationName}/teams/${teamName}`)
       .then((response) => {
         return response.data.state
       })
   }
 
-  async fetchTeamStations(teamName: string): Promise<Station[]> {
+  async fetchTeamStations(teamName: string, eventId?: number): Promise<Station[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for team stations lookup')
+    }
     return axios
-      .get(this.baseUrl + '/team/' + teamName + '/stations')
+      .get(`${this.baseUrl}/events/${eventId}/team/${teamName}/stations`)
       .then((response) => {
-        return response.data.items
+        return response.data.items || response.data
       })
   }
 
-  async updateStation(stationName, newData) {
+  async updateStation(stationName, newData, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for station update')
+    }
     return axios
-      .put(this.baseUrl + '/station/' + stationName, newData)
-      .then((response) => {
-        return response.data
-      })
-  }
-
-  async updateTeam(teamName, newData): Promise<unknown> {
-    return axios
-      .put(this.baseUrl + '/team/' + teamName, newData)
+      .put(`${this.baseUrl}/events/${eventId}/station/${stationName}`, newData)
       .then((response) => {
         return response.data
       })
   }
 
-  async setRouteColor(routeName, newColor) {
+  async updateTeam(teamName, newData, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required for team update')
+    }
     return axios
-      .put(`${this.baseUrl}/route/${routeName}/color`, { color: newColor })
+      .put(`${this.baseUrl}/events/${eventId}/team/${teamName}`, newData)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async updateTeamForEvent(
+    eventId: number,
+    teamName: string,
+    newData: Team
+  ): Promise<unknown> {
+    return axios
+      .put(`${this.baseUrl}/events/${eventId}/team/${teamName}`, newData)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async fetchEvents(): Promise<EventInfo[]> {
+    return axios.get(`${this.baseUrl}/events`).then((response) => {
+      return response.data.items
+    })
+  }
+
+  async createEvent(event: {
+    name: string
+    time_range: TimeRange
+  }): Promise<EventInfo> {
+    return axios.post(`${this.baseUrl}/events`, event).then((response) => {
+      return response.data
+    })
+  }
+
+  async updateEvent(
+    eventId: number,
+    event: {
+      name?: string
+      time_range?: TimeRange
+    }
+  ): Promise<EventInfo> {
+    return axios
+      .put(`${this.baseUrl}/events/${eventId}`, event)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async fetchEventMembers(eventId: number): Promise<EventMember[]> {
+    return axios.get(`${this.baseUrl}/events/${eventId}/members`).then((response) => {
+      return response.data.items
+    })
+  }
+
+  async addEventMember(
+    eventId: number,
+    member: EventMember
+  ): Promise<EventMember> {
+    return axios
+      .post(`${this.baseUrl}/events/${eventId}/members`, member)
+      .then((response) => {
+        return response.data
+      })
+  }
+
+  async removeEventMember(
+    eventId: number,
+    userName: string,
+    roleName: string
+  ): Promise<unknown> {
+    return axios.delete(
+      `${this.baseUrl}/events/${eventId}/members/${userName}/${roleName}`
+    )
+  }
+
+  async deleteEvent(eventId: number): Promise<unknown> {
+    return axios.delete(`${this.baseUrl}/events/${eventId}`)
+  }
+
+  async setRouteColor(routeName, newColor, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for route color updates')
+    }
+    return axios
+      .put(`${this.baseUrl}/events/${eventId}/route/${routeName}/color`, { color: newColor })
       .then((response) => {
         return response.data.color
       })
   }
 
-  async sendUpload(file) {
+  async sendUpload(file, eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for uploads')
+    }
     const formData = new FormData()
     formData.append('file', file)
     return axios
-      .post(`${this.baseUrl}/upload`, formData, {
+      .post(`${this.baseUrl}/events/${eventId}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -779,33 +1067,46 @@ class ConcreteProxy implements Proxy {
       })
   }
 
-  async deleteFile(uuid): Promise<unknown> {
-    return axios.delete(`${this.baseUrl}/upload/${uuid}`).then((response) => {
+  async deleteFile(uuid, eventId?: number): Promise<unknown> {
+    if (!eventId) {
+      throw new Error('eventId is required for file deletion')
+    }
+    return axios.delete(`${this.baseUrl}/events/${eventId}/upload/${uuid}`).then((response) => {
       return response.data
     })
   }
 
-  async fetchUploads(): Promise<Upload[]> {
-    return axios.get(`${this.baseUrl}/upload`).then((response) => {
+  async fetchUploads(eventId?: number): Promise<Upload[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for uploads')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/upload`).then((response) => {
       return response.data
     })
   }
 
-  async getPublicImages() {
-    return axios.get(`${this.baseUrl}/upload?public=1`).then((response) => {
+  async getPublicImages(eventId?: number) {
+    if (!eventId) {
+      throw new Error('eventId is required for public images')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/upload?public=1`).then((response) => {
       return response.data
     })
   }
 
-  async fetchAuditLog(): Promise<AuditLogRow[]> {
-    return axios.get(`${this.baseUrl}/auditlog`).then((response) => {
+  async fetchAuditLog(eventId?: number): Promise<AuditLogRow[]> {
+    if (!eventId) {
+      throw new Error('eventId is required for audit log')
+    }
+    return axios.get(`${this.baseUrl}/events/${eventId}/auditlog`).then((response) => {
       return response.data
     })
   }
 
   async fetchRelatedTeams(
     localStationName,
-    relation
+    relation,
+    eventId?
   ): Promise<
     {
       team: string
@@ -816,8 +1117,11 @@ class ConcreteProxy implements Proxy {
       updateAge?: number
     }[]
   > {
+    if (!eventId) {
+      throw new Error('eventId is required for related dashboard data')
+    }
     const response = await axios.get(
-      `${this.baseUrl}/station/${localStationName}/${relation}/dashboard`
+      `${this.baseUrl}/events/${eventId}/station/${localStationName}/${relation}/dashboard`
     )
     const statePrecedence = {
       unknown: 10,
@@ -846,9 +1150,12 @@ class ConcreteProxy implements Proxy {
     return data
   }
 
-  async fetchRelatedStation(localStationName, relation) {
+  async fetchRelatedStation(localStationName, relation, eventId?) {
+    if (!eventId) {
+      throw new Error('eventId is required for related station lookup')
+    }
     const response = await axios.get(
-      `${this.baseUrl}/station/${localStationName}/related/${relation}`
+      `${this.baseUrl}/events/${eventId}/station/${localStationName}/related/${relation}`
     )
     return response.data
   }

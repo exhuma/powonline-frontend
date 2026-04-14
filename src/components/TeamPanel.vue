@@ -55,8 +55,9 @@ const TeamPanel = Vue.extend({
     },
     save() {
       this.team.comments = this.team.comments || ''
+      const eventId = this.$store.state.selectedEventId
       this.$remoteProxy
-        .updateTeam(this.$route.params.teamName, this.team)
+        .updateTeam(this.$route.params.teamName, this.team, eventId)
         .then(() => {
           this.$emit('snackRequested', {
             message: 'Save successful'

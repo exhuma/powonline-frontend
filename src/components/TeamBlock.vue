@@ -79,7 +79,8 @@ const TeamBlock = Vue.extend({
   },
 
   created() {
-    this.$remoteProxy.fetchTeamStations(this.team.name).then((items) => {
+    const eventId = this.$store.state.selectedEventId
+    this.$remoteProxy.fetchTeamStations(this.team.name, eventId).then((items) => {
       this.stations = items
     })
   },

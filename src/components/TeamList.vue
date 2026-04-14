@@ -181,8 +181,9 @@ const TeamList = Vue.extend({
       }
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
+        const eventId = this.$store.state.selectedEventId
         this.$remoteProxy
-          .addTeam(team)
+          .addTeam(team, eventId)
           .then((team) => {
             this.$store.commit('addTeam', team)
             this.$emit('snackRequested', {
@@ -195,8 +196,9 @@ const TeamList = Vue.extend({
             console.error(error)
           })
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
+        const eventId = this.$store.state.selectedEventId
         this.$remoteProxy
-          .updateTeam(team.name, team)
+          .updateTeam(team.name, team, eventId)
           .then((team) => {
             this.$emit('snackRequested', {
               message: 'Save successful'

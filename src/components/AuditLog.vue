@@ -71,8 +71,9 @@ const AuditLog = Vue.extend({
       return obj.format('YYYY-MM-DD HH:mm:ss')
     },
     refresh() {
+      const eventId = this.$store.state.selectedEventId
       this.$remoteProxy
-        .fetchAuditLog()
+        .fetchAuditLog(eventId)
         .then((result) => {
           this.entries = result
         })

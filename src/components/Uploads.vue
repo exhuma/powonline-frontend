@@ -191,8 +191,9 @@ const Uploads = Vue.extend({
     },
     deleteFile(uuid) {
       this.deleteDialogVisible = false
+      const eventId = this.$store.state.selectedEventId
       this.$remoteProxy
-        .deleteFile(uuid)
+        .deleteFile(uuid, eventId)
         .then((data) => {
           this.$emit('snackRequested', {
             message: 'File deleted'

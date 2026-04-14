@@ -53,8 +53,9 @@ const ImageUpload = Vue.extend({
   methods: {
     sendUpload() {
       this.$emit('uploadStarted')
+      const eventId = this.$store.state.selectedEventId
       this.$remoteProxy
-        .sendUpload(this.$refs.fileInput.files[0])
+        .sendUpload(this.$refs.fileInput.files[0], eventId)
         .then((data) => {
           this.$emit('uploadFinished')
         })

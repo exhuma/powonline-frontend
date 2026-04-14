@@ -17,6 +17,8 @@ import PrivacyPolicy from '@/components/PrivacyPolicy.vue'
 import AuditLog from '@/components/AuditLog.vue'
 import Manual from '@/components/Manual.vue'
 import Slideshow from '@/components/Slideshow.vue'
+import HomePage from '@/components/HomePage.vue'
+import EventManagement from '@/components/EventManagement.vue'
 
 Vue.use(VueRouter)
 
@@ -74,7 +76,11 @@ const router = new VueRouter({
     },
     {
       path: '/',
-      component: GlobalDashboard
+      component: HomePage
+    },
+    {
+      path: '/events',
+      component: EventManagement
     },
     {
       path: '/matrix',

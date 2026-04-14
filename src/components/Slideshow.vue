@@ -39,7 +39,8 @@ const Slideshow = Vue.extend({
       }
     },
     async updateImages() {
-      const images = await this.$remoteProxy.getPublicImages()
+      const eventId = this.$store.state.selectedEventId
+      const images = await this.$remoteProxy.getPublicImages(eventId)
       this.images = images
       this.currentImageIndex = 0
       this.currentImage = images[0]

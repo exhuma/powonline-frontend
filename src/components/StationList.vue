@@ -93,8 +93,9 @@ const StationList = Vue.extend({
       } else if (this.sendMode === model.SEND_MODE.UPDATE) {
         station.contact = station.contact || ''
         station.phone = station.phone || ''
+        const eventId = this.$store.state.selectedEventId
         this.$remoteProxy
-          .updateStation(station.name, station)
+          .updateStation(station.name, station, eventId)
           .catch((error) => {
             this.errorDialog = true
             this.errorText = error.response.data

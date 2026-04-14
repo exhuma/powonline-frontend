@@ -8,6 +8,7 @@ import { User } from '@/remote/model/user'
 import { Station } from '@/remote/model/station'
 import { DashboardRow } from '@/remote/model/dashboardRow'
 import { AssignmentMap } from '@/remote/model/assignmentMap'
+import type { EventInfo } from '@/remote'
 
 Vue.use(Vuex)
 
@@ -31,9 +32,32 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
       pageTitle: 'Powonline',
       uploads: {},
       gallery: [],
-      liveImageQueue: []
+      liveImageQueue: [],
+      events: [] as EventInfo[],
+      selectedEventId: null as number | null
     },
     mutations: {
+      setEvents(state, events: EventInfo[]) {
+        state.events = events
+      },
+      setSelectedEventId(state, eventId: number | null) {
+        state.selectedEventId = eventId
+      },
+      addEvent(state, event: EventInfo) {
+        state.events.push(event)
+      },
+      updateEventInStore(state, updatedEvent: EventInfo) {
+        const idx = state.events.findIndex((e) => e.id === updatedEvent.id)
+        if (idx > -1) {
+          state.events[idx] = updatedEvent
+        }
+      },
+      deleteEventFromStore(state, eventId: number) {
+        const idx = state.events.findIndex((e) => e.id === eventId)
+        if (idx > -1) {
+          state.events.splice(idx, 1)
+        }
+      },
       /**
        * Sets a new JWT token
        *
@@ -550,14 +574,79 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
       }
     },
     actions: {
+      async fetchEvents(context) {
+        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: '' })
+        try {
+          const events = await remoteProxy.fetchEvents()
+          context.commit('setEvents', events)
+        } catch (e) {
+          console.error(e)
+          EventBus.$emit('snackRequested', { message: 'Unable to fetch events', color: 'red' })
+        } finally {
+          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+        }
+      },
+
+      async selectEvent(context, eventId: number) {
+        context.commit('setSelectedEventId', eventId)
+      },
+
+      async createEvent(context, eventData: { name: string; time_range: { start: string; end: string } }) {
+        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: 'Creating event...' })
+        try {
+          const newEvent = await remoteProxy.createEvent(eventData)
+          context.commit('addEvent', newEvent)
+          EventBus.$emit('snackRequested', { message: 'Event created successfully' })
+          return newEvent
+        } catch (e: any) {
+          console.error(e)
+          const message = e?.response?.data ?? 'Unable to create event'
+          EventBus.$emit('snackRequested', { message, color: 'red' })
+        } finally {
+          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+        }
+      },
+
+      async updateEvent(context, payload: { eventId: number; eventData: object }) {
+        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: 'Updating event...' })
+        try {
+          const updated = await remoteProxy.updateEvent(payload.eventId, payload.eventData)
+          context.commit('updateEventInStore', updated)
+          EventBus.$emit('snackRequested', { message: 'Event updated successfully' })
+          return updated
+        } catch (e: any) {
+          console.error(e)
+          const message = e?.response?.data ?? 'Unable to update event'
+          EventBus.$emit('snackRequested', { message, color: 'red' })
+        } finally {
+          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+        }
+      },
+
+      async deleteEvent(context, eventId: number) {
+        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: 'Deleting event...' })
+        try {
+          await remoteProxy.deleteEvent(eventId)
+          context.commit('deleteEventFromStore', eventId)
+          EventBus.$emit('snackRequested', { message: 'Event deleted successfully' })
+        } catch (e: any) {
+          console.error(e)
+          const message = e?.response?.data ?? 'Unable to delete event'
+          EventBus.$emit('snackRequested', { message, color: 'red' })
+        } finally {
+          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+        }
+      },
+
       refreshGallery(context) {
         EventBus.$emit('activityEvent', {
           visible: true,
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .getPublicImages()
+          .getPublicImages(eventId)
           .then((data) => {
             context.commit('replaceGallery', data)
             EventBus.$emit('activityEvent', {
@@ -582,8 +671,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchUploads()
+          .fetchUploads(eventId)
           .then((data) => {
             context.commit('replaceUploads', data)
             EventBus.$emit('activityEvent', {
@@ -608,8 +698,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .setStationScore(payload.stationName, payload.teamName, payload.score)
+          .setStationScore(payload.stationName, payload.teamName, payload.score, eventId)
           .then(() => {
             EventBus.$emit('activityEvent', {
               visible: false,
@@ -644,11 +735,13 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
           .setQuestionnaireScore(
             payload.stationName,
             payload.teamName,
-            payload.score
+            payload.score,
+            eventId
           )
           .then((data) => {
             context.commit('setQuestionnaireScore', data)
@@ -684,11 +777,13 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         payload.questionnaire.station_name = payload.station.name
         remoteProxy
           .assignQuestionnaireToStation(
             payload.station.name,
-            payload.questionnaire
+            payload.questionnaire,
+            eventId
           )
           .then((data) => {
             context.commit('assignQuestionnaireToStation', data)
@@ -724,8 +819,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .unassignQuestionnaireFromStation(payload.questionnaire.name)
+          .unassignQuestionnaireFromStation(payload.questionnaire.name, eventId)
           .then((data) => {
             context.commit('unssignQuestionnaireFromStation', data)
             EventBus.$emit('activityEvent', {
@@ -760,8 +856,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .updateQuestionnaire(payload.oldName, payload.questionnaire)
+          .updateQuestionnaire(payload.oldName, payload.questionnaire, eventId)
           .then(() => {
             context.commit(
               'updateQuestionnaire',
@@ -793,8 +890,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .deleteQuestionnaire(questionnaireName)
+          .deleteQuestionnaire(questionnaireName, eventId)
           .then(() => {
             context.commit('deleteQuestionnaire', questionnaireName)
             EventBus.$emit('activityEvent', {
@@ -829,8 +927,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .advanceState(payload.stationName, payload.teamName)
+          .advanceState(payload.stationName, payload.teamName, eventId)
           .then((data) => {
             store.commit('updateTeamState', data)
             EventBus.$emit('activityEvent', {
@@ -868,8 +967,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchQuestionnaireScores()
+          .fetchQuestionnaireScores(eventId)
           .then((data) => {
             context.commit('updateQuestionnaireScores', data)
             EventBus.$emit('activityEvent', {
@@ -929,8 +1029,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .addRoute(route)
+          .addRoute(route, eventId)
           .then((route) => {
             context.commit('addRoute', route)
             EventBus.$emit('activityEvent', {
@@ -960,8 +1061,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .addStation(station)
+          .addStation(station, eventId)
           .then((station) => {
             context.commit('addStation', station)
             EventBus.$emit('activityEvent', {
@@ -990,8 +1092,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .addQuestionnaire(questionnaire)
+          .addQuestionnaire(questionnaire, eventId)
           .then((questionnaire) => {
             context.commit('addQuestionnaire', questionnaire)
             EventBus.$emit('activityEvent', {
@@ -1063,8 +1166,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchTeams()
+          .fetchTeams(eventId)
           .then((teams) => {
             context.commit('replaceTeams', teams)
             EventBus.$emit('activityEvent', {
@@ -1091,8 +1195,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchRoutes()
+          .fetchRoutes(eventId)
           .then((routes) => {
             context.commit('replaceRoutes', routes)
             EventBus.$emit('activityEvent', {
@@ -1116,8 +1221,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchQuestionnaires()
+          .fetchQuestionnaires(eventId)
           .then((questionnaires) => {
             context.commit('replaceQuestionnaires', questionnaires)
             EventBus.$emit('activityEvent', {
@@ -1145,8 +1251,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchStations()
+          .fetchStations(eventId)
           .then((stations) => {
             context.commit('replaceStations', stations)
             EventBus.$emit('activityEvent', {
@@ -1174,8 +1281,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchAssignments()
+          .fetchAssignments(eventId)
           .then((assignments) => {
             context.commit('replaceAssignments', assignments)
             EventBus.$emit('activityEvent', {
@@ -1202,8 +1310,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .fetchDashboard()
+          .fetchDashboard(eventId)
           .then((data) => {
             context.commit('updateGlobalDashboard', data)
             EventBus.$emit('activityEvent', {
@@ -1243,8 +1352,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
             team = item
           }
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .addTeamToRoute(data.routeName, team)
+          .addTeamToRoute(data.routeName, team, eventId)
           .then(() => {
             context.commit('assignTeamToRoute', {
               routeName: data.routeName,
@@ -1279,8 +1389,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .unassignTeamFromRoute(data.routeName, data.teamName)
+          .unassignTeamFromRoute(data.routeName, data.teamName, eventId)
           .then(() => {
             context.commit('unassignTeamFromRoute', data)
             EventBus.$emit('activityEvent', {
@@ -1320,8 +1431,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
             station = item
           }
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .assignStationToRoute(data.routeName, station)
+          .assignStationToRoute(data.routeName, station, eventId)
           .then(() => {
             context.commit('assignStationToRoute', {
               routeName: data.routeName,
@@ -1356,8 +1468,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .unassignStationFromRoute(data.routeName, data.stationName)
+          .unassignStationFromRoute(data.routeName, data.stationName, eventId)
           .then(() => {
             context.commit('unassignStationFromRoute', data)
             EventBus.$emit('activityEvent', {
@@ -1387,8 +1500,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .deleteRoute(routeName)
+          .deleteRoute(routeName, eventId)
           .then(() => {
             context.commit('deleteRoute', routeName)
             EventBus.$emit('activityEvent', {
@@ -1420,8 +1534,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .deleteStation(stationName)
+          .deleteStation(stationName, eventId)
           .then(() => {
             context.commit('deleteStation', stationName)
             EventBus.$emit('activityEvent', {
@@ -1488,8 +1603,9 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
           progress: -1,
           text: ''
         })
+        const eventId = context.state.selectedEventId
         remoteProxy
-          .deleteTeam(teamName)
+          .deleteTeam(teamName, eventId)
           .then(() => {
             context.commit('deleteTeam', teamName)
             EventBus.$emit('activityEvent', {

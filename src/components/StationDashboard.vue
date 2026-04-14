@@ -252,10 +252,12 @@ const StationDashboard = Vue.extend({
       this.nextStates = []
       this.previousStation = ''
       this.nextStation = ''
+      const eventId = this.$store.state.selectedEventId
       try {
         const previousStates = await this.$remoteProxy.fetchRelatedTeams(
           this.stationName,
-          'previous'
+          'previous',
+          eventId
         )
         applyAgeClasses(previousStates)
         this.previousStates = previousStates
@@ -268,7 +270,8 @@ const StationDashboard = Vue.extend({
       try {
         const nextStates = await this.$remoteProxy.fetchRelatedTeams(
           this.stationName,
-          'next'
+          'next',
+          eventId
         )
         applyAgeClasses(nextStates)
         this.nextStates = nextStates
@@ -281,7 +284,8 @@ const StationDashboard = Vue.extend({
       try {
         this.previousStation = await this.$remoteProxy.fetchRelatedStation(
           this.stationName,
-          'previous'
+          'previous',
+          eventId
         )
       } catch (error) {
         console.error(
@@ -292,7 +296,8 @@ const StationDashboard = Vue.extend({
       try {
         this.nextStation = await this.$remoteProxy.fetchRelatedStation(
           this.stationName,
-          'next'
+          'next',
+          eventId
         )
       } catch (error) {
         console.error(

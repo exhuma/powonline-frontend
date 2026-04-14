@@ -17,6 +17,17 @@
         <v-toolbar-title
           >{{ pageTitle }} <small>v{{ appVersion }}</small></v-toolbar-title
         >
+        <v-chip
+          v-if="selectedEventName"
+          class="ml-3"
+          color="secondary"
+          label
+          small
+          to="/"
+        >
+          <v-icon left small>mdi-calendar</v-icon>
+          {{ selectedEventName }}
+        </v-chip>
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable"
           >Logged in as
@@ -358,6 +369,11 @@ const App = Vue.extend({
           to: '/auditlog',
           icon: 'mdi-receipt-text'
         })
+        output.push({
+          label: 'Events',
+          to: '/events',
+          icon: 'mdi-calendar-multiple'
+        })
       }
       output.push({
         label: 'Changelog',
@@ -375,6 +391,12 @@ const App = Vue.extend({
       const token = this.$store.state.jwt
       const result = token !== ''
       return result
+    },
+    selectedEventName(): string {
+      const eventId = this.$store.state.selectedEventId
+      if (!eventId) return ''
+      const event = this.$store.state.events.find((e: any) => e.id === eventId)
+      return event ? event.name : ''
     },
     here() {
       return this.$route.path
