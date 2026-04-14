@@ -1,6 +1,6 @@
 {
   "name": "powonline",
-  "version": "2025.04.25",
+  "version": "2025.05.05",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "run-p type-check build-only",
