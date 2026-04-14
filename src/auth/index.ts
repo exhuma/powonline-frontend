@@ -1,116 +1,29 @@
-import jwt_decode from 'jwt-decode' // eslint-disable-line camelcase
-import { Proxy } from '@/remote'
+/**
+ * Auth helpers.
+ *
+ * Session state is held exclusively in the Vuex store (populated via
+ * GET /auth/me on startup and after social-login callback).  There is no
+ * localStorage, no readable JWT — cookies are HttpOnly and managed by the
+ * browser transparently.
+ */
+import type { Store } from 'vuex'
 
 export class Auth {
-  /**
-   * Get the current JWT token from local-storage.
-   *
-   * Returns an empty string if the token is not defined or empty.
-   */
-  get_token(): string {
-    return localStorage.getItem('jwt') || ''
+  private store: Store<any>
+
+  constructor(store: Store<any>) {
+    this.store = store
   }
 
-  /**
-   * Returns the user-roles from local-storage
-   */
+  isAuthenticated(): boolean {
+    return Boolean(this.store.state.userName)
+  }
+
   get_roles(): string[] {
-    return JSON.parse(localStorage.getItem('roles') ?? '[]')
+    return this.store.state.roles || []
   }
 
-  /**
-   * Returns the current username from local storage.
-   */
   get_username(): string {
-    return localStorage.getItem('userName') || ''
-  }
-
-  /**
-   * Determines whether a token has expired or not.
-   */
-  token_expired(token): boolean {
-    console.debug('Checking if current token has expired')
-    if (token === '') {
-      console.debug('Empty token (always counts as expired)')
-      return true
-    }
-    const now = Math.floor(Date.now() / 1000)
-    let decoded = null
-    try {
-      decoded = jwt_decode(token)
-    } catch (err) {
-      console.error('Invalid token detected, clearing auth info!')
-      return true
-    }
-    console.debug('Token will expire in ' + (decoded['exp'] - now) + 's')
-    if (decoded['exp'] <= now) {
-      console.debug('Security token has expired!')
-      return true
-    } else {
-      console.debug('Security token is still fresh')
-      return false
-    }
-  }
-
-  /**
-   * Renews the current token. Note that this will only work for tokens that
-   * have not expired yet!
-   */
-  renewToken(remote: Proxy, token: string): string {
-    if (token === '') {
-      return ''
-    }
-    const failedRenewals = parseInt(
-      localStorage.getItem('failedRenewals') ?? '0',
-      10
-    )
-    if (failedRenewals > 5) {
-      console.error('Too many retries!')
-      return ''
-    }
-    this.clearToken(false)
-    console.log('Renewing token')
-    remote.renewToken(token).then((data) => {
-      if (data.status < 300) {
-        localStorage.setItem('jwt', data.token)
-        localStorage.setItem('failedRenewals', '0')
-      } else {
-        console.error('Unable to renew the token!')
-        localStorage.setItem('failedRenewals', `${failedRenewals + 1}`)
-      }
-    })
-  }
-
-  /**
-   * Remove all auth information from local storage
-   *
-   * @param resetFailedRenewals Whether to set failedRenewals back to 0
-   */
-  clearToken(resetFailedRenewals?: boolean): void {
-    if (resetFailedRenewals === undefined) {
-      resetFailedRenewals = true
-    }
-    console.log('Clearing auth info')
-    localStorage.setItem('jwt', '')
-    localStorage.setItem('userName', '')
-    localStorage.setItem('roles', '[]')
-    if (resetFailedRenewals) {
-      localStorage.setItem('failedRenewals', '0')
-    }
-  }
-
-  /**
-   * Checks if the token in current storage has expired. If true, clears if
-   * from the storage..
-   *
-   * Return true if the token was cleared, false otherwise.
-   */
-  clearExpiredToken(): boolean {
-    const jwt = this.get_token()
-    if (jwt === '' || this.token_expired(jwt)) {
-      this.clearToken()
-      return true
-    }
-    return false
+    return this.store.state.userName || ''
   }
 }

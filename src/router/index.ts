@@ -19,6 +19,7 @@ import Manual from '@/components/Manual.vue'
 import Slideshow from '@/components/Slideshow.vue'
 import HomePage from '@/components/HomePage.vue'
 import EventManagement from '@/components/EventManagement.vue'
+import AuthCallback from '@/components/AuthCallback.vue'
 
 Vue.use(VueRouter)
 
@@ -26,14 +27,10 @@ const router = new VueRouter({
   mode: 'history',
   base: import.meta.env.VITE_BASE_URL,
   routes: [
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue')
-    // }
+    {
+      path: '/auth/callback',
+      component: AuthCallback
+    },
     {
       path: '/auditlog',
       component: AuditLog

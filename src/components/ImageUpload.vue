@@ -40,9 +40,7 @@ const ImageUpload = Vue.extend({
   },
   computed: {
     tokenIsAvailable(): boolean {
-      const token = this.$store.state.jwt
-      const result = token !== ''
-      return result
+      return Boolean(this.$store.state.userName)
     }
   },
   data() {

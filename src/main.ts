@@ -2,8 +2,6 @@ import Vue from 'vue'
 
 import App from './App.vue'
 import router from './router'
-import axios from 'axios'
-import { Auth } from './auth'
 import makeRemoteProxy from './remote'
 import storeFactory from './store'
 
@@ -27,50 +25,14 @@ import ImageUpload from './components/ImageUpload.vue'
 import CombinedDashboard from './components/CombinedDashboard.vue'
 import DashboardProgressLine from './components/DashboardProgressLine.vue'
 
-import social from './auth/social'
 import events from './events'
 import vuetify from './plugins/vuetify'
 
-const auth = new Auth()
 const remoteProxy = makeRemoteProxy(false, import.meta.env.VITE_BACKEND_URL)
-const store = storeFactory.makeStore(auth, remoteProxy)
+const store = storeFactory.makeStore(remoteProxy)
 
 // @ts-expect-error - currently no clue why this is not working
 Vue.use(remoteProxy)
-
-/**
- * Inject the JWT token into each outgoing request if it's available
- */
-axios.interceptors.request.use(
-  (config) => {
-    const jwt = auth.get_token()
-    if (jwt !== '') {
-      if (auth.token_expired(jwt)) {
-        auth.renewToken(remoteProxy, jwt)
-      }
-      config.headers['Authorization'] = 'Bearer ' + jwt
-      console.debug('Intercepted and set auth token to ' + jwt)
-    }
-    return config
-  },
-  (error) => {
-    // nothing to do
-    return Promise.reject(error)
-  }
-)
-
-axios.defaults.withCredentials = true
-
-axios.interceptors.response.use(
-  (response) => {
-    // nothing to do on successful response
-    return response
-  },
-  (error) => {
-    console.warn(`Unhandled remote error: ${error}`)
-    return Promise.reject(error)
-  }
-)
 
 Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('center-col', CenterCol)
@@ -102,13 +64,8 @@ new Vue({
   render: (h) => h(App),
   created: function () {
     document.title = import.meta.env.VITE_PAGE_TITLE || 'powonline'
-    social.init()
-    social.connect(remoteProxy, store)
-    // Logout user if JWT token has expired.
-    const tokenCleared = auth.clearExpiredToken()
-    if (tokenCleared) {
-      this.$store.commit('clearUserData')
-    }
+    // Check for an existing server-side session (reads the access_token cookie)
+    this.$store.dispatch('checkSession')
     this.$store.dispatch('refreshRemote')
     events.init(store, remoteProxy, {
       key: import.meta.env.VITE_PUSHER_KEY,

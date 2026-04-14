@@ -116,19 +116,8 @@
                 <v-divider class="mt-4 mb-4"></v-divider>
                 <v-layout row wrap align-center>
                   <v-flex> Or login with: </v-flex>
-                  <v-flex>
-                    <v-btn
-                      :disabled="!googleKeyAvailable"
-                      @click="login('google')"
-                      >Google</v-btn
-                    >
-                  </v-flex>
-                  <v-flex>
-                    <v-btn
-                      :disabled="!facebookKeyAvailable"
-                      @click="login('facebook')"
-                      >Facebook</v-btn
-                    >
+                  <v-flex v-for="provider in authProviders" :key="provider.name">
+                    <v-btn @click="loginSocial(provider.name)">{{ provider.label }}</v-btn>
                   </v-flex>
                 </v-layout>
                 <v-divider class="mt-4 mb-4"></v-divider>
@@ -185,9 +174,10 @@ SMALL {
 </style>
 
 <script lang="ts">
-import hello from 'hellojs'
+import { startSocialLogin } from '@/auth/social'
 import EventBus from '@/plugins/eventBus'
 import Vue from 'vue'
+import type { AuthProvider } from '@/remote'
 
 const App = Vue.extend({
   name: 'App',
@@ -204,6 +194,12 @@ const App = Vue.extend({
     EventBus.$on('refresh-progress-updated', (payload) => {
       this.onRefreshProgressUpdated(payload)
     })
+    // Load available social auth providers
+    this.$remoteProxy.getAuthProviders().then((providers: AuthProvider[]) => {
+      this.authProviders = providers
+    }).catch(() => {
+      this.authProviders = []
+    })
   },
   data() {
     return {
@@ -217,6 +213,7 @@ const App = Vue.extend({
       globalSnackColor: '',
       isTitleBarVisible: true,
       isBottomNavVisible: true,
+      authProviders: [] as AuthProvider[],
       activity: {
         visible: false,
         progress: -1,
@@ -256,11 +253,9 @@ const App = Vue.extend({
     showLoginDialog() {
       this.loginDialogVisible = true
     },
-    login(provider) {
-      hello(provider).login({
-        scope: 'basic, email'
-      })
+    loginSocial(provider: string) {
       this.loginDialogVisible = false
+      startSocialLogin(provider)
     },
     loginUser() {
       this.$remoteProxy
@@ -268,14 +263,7 @@ const App = Vue.extend({
         .then((data) => {
           this.username = ''
           this.password = ''
-          if (data.status === 200) {
-            this.$store.commit('updateUserData', data)
-          } else {
-            this.globalSnackText =
-              'Unexpected remote response (' + data.status + ')'
-            this.globalSnack = true
-            this.globalSnackColor = 'orange'
-          }
+          this.$store.commit('updateUserData', data)
         })
         .catch((e) => {
           let message = 'Unknown Error'
@@ -284,9 +272,6 @@ const App = Vue.extend({
           } else {
             message = e.message
           }
-
-          hello.logout('facebook')
-          hello.logout('google')
           this.$store.commit('clearUserData')
           this.globalSnackText = message
           this.globalSnack = true
@@ -295,12 +280,11 @@ const App = Vue.extend({
       this.loginDialogVisible = false
     },
     logoutUser() {
-      hello.logout('facebook')
-      hello.logout('google')
-      this.$store.commit('clearUserData')
-      this.$router.push('/')
-      this.username = ''
-      this.password = ''
+      this.$store.dispatch('logout').then(() => {
+        this.$router.push('/')
+        this.username = ''
+        this.password = ''
+      })
     },
     cancelLogin() {
       this.loginDialogVisible = false
@@ -314,12 +298,6 @@ const App = Vue.extend({
   computed: {
     appVersion() {
       return __APP_VERSION__
-    },
-    googleKeyAvailable() {
-      return Boolean(import.meta.env.VITE_GOOGLE_PUBLIC_KEY)
-    },
-    facebookKeyAvailable() {
-      return Boolean(import.meta.env.VITE_FACEBOOK_PUBLIC_KEY)
     },
     pageTitle() {
       return import.meta.env.VITE_PAGE_TITLE
@@ -388,9 +366,7 @@ const App = Vue.extend({
       return output
     },
     tokenIsAvailable() {
-      const token = this.$store.state.jwt
-      const result = token !== ''
-      return result
+      return Boolean(this.$store.state.userName)
     },
     selectedEventName(): string {
       const eventId = this.$store.state.selectedEventId

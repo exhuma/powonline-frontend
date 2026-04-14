@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
-import { Auth } from '@/auth'
 import { Proxy } from '@/remote'
 import { User } from '@/remote/model/user'
 import { Station } from '@/remote/model/station'
@@ -12,7 +11,7 @@ import type { EventInfo } from '@/remote'
 
 Vue.use(Vuex)
 
-function makeStore(auth: Auth, remoteProxy: Proxy) {
+function makeStore(remoteProxy: Proxy) {
   const store = new Vuex.Store({
     state: {
       users: [] as User[],
@@ -25,9 +24,8 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
       route_team_map: {} as { [key: string]: string[] }, // map teams to routes (key=teamName, value=routeName)
       global_dashboard: [] as DashboardRow[],
       teamStates: [],
-      jwt: auth.get_token(),
-      roles: auth.get_roles() as string[],
-      userName: auth.get_username(),
+      roles: [] as string[],
+      userName: '' as string,
       baseUrl: import.meta.env.VITE_BACKEND_URL,
       pageTitle: 'Powonline',
       uploads: {},
@@ -67,7 +65,6 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
        *    * userName - The user-name
        */
       setToken(state, data) {
-        state.jwt = data['token']
         state.roles = data['roles']
         state.userName = data['userName']
       },
@@ -75,30 +72,22 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
       /**
        * Flag the user as "logged in".
        *
-       * :param data: An object with two keys:
-       *    * token - The JWT token (without "Bearer" prefix)
-       *    * roles - A list of role-names which the user has assigned to himself
-       *    * user - The user-name
+       * :param data: An object with keys:
+       *    * roles - A list of role-names
+       *    * user  - The user-name (matches backend SessionInfo shape)
        */
       updateUserData(state, data) {
-        localStorage.setItem('roles', JSON.stringify(data['roles']))
-        localStorage.setItem('jwt', data['token'])
-        localStorage.setItem('userName', data['user'])
-        state.jwt = data['token']
         state.roles = data['roles']
-        state.userName = data['user']
-        console.debug('Set auth token in LS to ' + data['token'])
+        state.userName = data['user'] || data['userName'] || ''
+        console.debug('Session established for ' + state.userName)
       },
 
       /**
        * Flag the user as "logged out"
        */
       clearUserData(state) {
-        localStorage.removeItem('jwt')
-        localStorage.removeItem('roles')
-        localStorage.removeItem('userName')
-        state.jwt = ''
         state.roles = []
+        state.userName = ''
         console.debug('Successfully logged out user & cleared state')
       },
 
@@ -574,6 +563,42 @@ function makeStore(auth: Auth, remoteProxy: Proxy) {
       }
     },
     actions: {
+      /**
+       * Check for an existing backend session by calling GET /auth/me.
+       * On success populates userName + roles. On 401 silently clears state.
+       */
+      async checkSession(context) {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/auth/me`,
+            { credentials: 'include' }
+          )
+          if (res.ok) {
+            const session = await res.json()
+            context.commit('updateUserData', session)
+          } else {
+            context.commit('clearUserData')
+          }
+        } catch {
+          context.commit('clearUserData')
+        }
+      },
+
+      /**
+       * Call POST /auth/logout to clear server-side cookies, then clear local state.
+       */
+      async logout(context) {
+        try {
+          await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include'
+          })
+        } catch {
+          // ignore network errors during logout
+        }
+        context.commit('clearUserData')
+      },
+
       async fetchEvents(context) {
         EventBus.$emit('activityEvent', { visible: true, progress: -1, text: '' })
         try {

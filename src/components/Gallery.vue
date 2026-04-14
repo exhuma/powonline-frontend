@@ -119,9 +119,7 @@ const Gallery = Vue.extend({
       return output
     },
     tokenIsAvailable() {
-      const token = this.$store.state.jwt
-      const result = token !== ''
-      return result
+      return Boolean(this.$store.state.userName)
     }
   }
 })

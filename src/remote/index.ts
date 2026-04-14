@@ -1,8 +1,12 @@
 /**
  * Proxy for the remote API
+ *
+ * All requests use the native fetch API with `credentials: 'include'` so that
+ * HttpOnly auth cookies are sent automatically.
+ *
+ * On a 401 the proxy attempts a single token refresh via POST /auth/refresh.
+ * If the refresh also fails the error is propagated to the caller.
  */
-import axios from 'axios'
-import type { AxiosResponse } from 'axios'
 import Vue from 'vue'
 import EventBus from '@/plugins/eventBus'
 import moment from 'moment'
@@ -36,6 +40,16 @@ export type EventMember = {
   role_name: string
 }
 
+export type SessionInfo = {
+  user: string
+  roles: string[]
+}
+
+export type AuthProvider = {
+  name: string
+  label: string
+}
+
 Vue.mixin({
   beforeCreate() {
     const options = this.$options as { remoteProxy: Proxy; parent: Vue }
@@ -48,35 +62,38 @@ Vue.mixin({
 })
 
 export interface Proxy {
-  renewToken(token: string): Promise<{ status: number; token: string }>
-  addRoute(route: Route): Promise<Route>
-  addStation(station: Station): Promise<Station>
-  addTeam(team: Team): Promise<Team>
-  addTeamToRoute(routeName: string, team: Team): Promise<unknown>
+  getAuthProviders(): Promise<AuthProvider[]>
+  addRoute(route: Route, eventId?: number): Promise<Route>
+  addStation(station: Station, eventId?: number): Promise<Station>
+  addTeam(team: Team, eventId?: number): Promise<Team>
+  addTeamToRoute(routeName: string, team: Team, eventId?: number): Promise<unknown>
   addUser(user: User): Promise<User>
   advanceState(
     stationName: string,
-    teamName: string
+    teamName: string,
+    eventId?: number
   ): Promise<{ team: string; station: string; new_state: string }>
-  assignStationToRoute(routeName: string, station: Station): Promise<unknown>
-  deleteRoute(routeName: string): Promise<unknown>
-  deleteStation(stationName: string): Promise<unknown>
-  deleteTeam(teamName: string): Promise<unknown>
+  assignStationToRoute(routeName: string, station: Station, eventId?: number): Promise<unknown>
+  deleteRoute(routeName: string, eventId?: number): Promise<unknown>
+  deleteStation(stationName: string, eventId?: number): Promise<unknown>
+  deleteTeam(teamName: string, eventId?: number): Promise<unknown>
   deleteUser(userName: string): Promise<unknown>
   fetchAssignments(eventId?: number): Promise<AssignmentMap>
   fetchDashboard(eventId?: number): Promise<DashboardRow[]>
   fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]>
-  addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire>
+  addQuestionnaire(questionnaire: Questionnaire, eventId?: number): Promise<Questionnaire>
   updateQuestionnaire(
     oldName: string,
-    newData: Questionnaire
-  ): Promise<AxiosResponse>
-  deleteQuestionnaire(questionnaireName: string): Promise<AxiosResponse>
-  fetchQuestionnaireScores(): Promise<QuestionnaireScores>
-  fetchRelatedStation(stationName: string, relation: string): Promise<string>
+    newData: Questionnaire,
+    eventId?: number
+  ): Promise<unknown>
+  deleteQuestionnaire(questionnaireName: string, eventId?: number): Promise<unknown>
+  fetchQuestionnaireScores(eventId?: number): Promise<QuestionnaireScores>
+  fetchRelatedStation(stationName: string, relation: string, eventId?: number): Promise<string>
   fetchRelatedTeams(
     localStationName: string,
-    relation: string
+    relation: string,
+    eventId?: number
   ): Promise<
     {
       team: string
@@ -91,277 +108,137 @@ export interface Proxy {
   fetchStations(eventId?: number): Promise<Station[]>
   fetchTeam(teamName: string, eventId?: number): Promise<{ name: string }>
   fetchTeams(eventId?: number): Promise<Team[]>
-  fetchUploads(): Promise<Upload[]>
+  fetchUploads(eventId?: number): Promise<Upload[]>
   fetchUsers(): Promise<User[]>
   fetchUserRoles(userName: string): Promise<string[]>
   fetchUserStations(userName: string): Promise<[string, boolean][]>
-  getPublicImages(): Promise<unknown[]>
-  loginUser(
-    username: string,
-    password: string
-  ): Promise<{ status: number; roles: string[]; token: string; user: string }>
+  getPublicImages(eventId?: number): Promise<unknown[]>
+  loginUser(username: string, password: string): Promise<SessionInfo>
   setQuestionnaireScore(
     stationName: string,
     teamName: string,
-    score: number
+    score: number,
+    eventId?: number
   ): Promise<unknown>
-  setRouteColor(routeName: string, newColor: string): Promise<string>
+  setRouteColor(routeName: string, newColor: string, eventId?: number): Promise<string>
   setStationScore(
     stationName: string,
     teamName: string,
-    score: number
+    score: number,
+    eventId?: number
   ): Promise<unknown>
-  socialLogin(
-    network: string,
-    userId: string,
-    token: string
-  ): Promise<{ token: string; roles: string[]; user: string }>
   unassignStationFromRoute(
     routeName: string,
-    stationName: string
+    stationName: string,
+    eventId?: number
   ): Promise<unknown>
-  unassignTeamFromRoute(routeName: string, teamName: string): Promise<unknown>
-  updateTeam(teamName: string, newData: Team): Promise<unknown>
-  deleteFile(uuid: string): Promise<unknown>
-  updateStation(stationName: string, station: Station): Promise<Station>
-  addStationToUser(
-    userName: string,
-    stationName: string
-  ): Promise<AxiosResponse>
-  removeStationFromUser(
-    userName: string,
-    stationName: string
-  ): Promise<AxiosResponse>
+  unassignTeamFromRoute(routeName: string, teamName: string, eventId?: number): Promise<unknown>
+  updateTeam(teamName: string, newData: Team, eventId?: number): Promise<unknown>
+  deleteFile(uuid: string, eventId?: number): Promise<unknown>
+  updateStation(stationName: string, station: Station, eventId?: number): Promise<Station>
+  addStationToUser(userName: string, stationName: string): Promise<unknown>
+  removeStationFromUser(userName: string, stationName: string): Promise<unknown>
   removeUserRole(userName: string, roleName: string): Promise<string>
   addUserRole(userName: string, roleName: string): Promise<string>
-  fetchAuditLog(): Promise<AuditLogRow[]>
-  fetchTeamStations(teamName: string): Promise<Station[]>
+  fetchAuditLog(eventId?: number): Promise<AuditLogRow[]>
+  fetchTeamStations(teamName: string, eventId?: number): Promise<Station[]>
   fetchEvents(): Promise<EventInfo[]>
-  createEvent(event: {
-    name: string
-    time_range: TimeRange
-  }): Promise<EventInfo>
-  updateEvent(
-    eventId: number,
-    event: {
-      name?: string
-      time_range?: TimeRange
-    }
-  ): Promise<EventInfo>
+  createEvent(event: { name: string; time_range: TimeRange }): Promise<EventInfo>
+  updateEvent(eventId: number, event: { name?: string; time_range?: TimeRange }): Promise<EventInfo>
   fetchEventMembers(eventId: number): Promise<EventMember[]>
   addEventMember(eventId: number, member: EventMember): Promise<EventMember>
-  removeEventMember(
-    eventId: number,
-    userName: string,
-    roleName: string
-  ): Promise<unknown>
+  removeEventMember(eventId: number, userName: string, roleName: string): Promise<unknown>
   deleteEvent(eventId: number): Promise<unknown>
   fetchTeamsForEvent(eventId: number): Promise<Team[]>
   addTeamForEvent(eventId: number, team: Team): Promise<Team>
-  updateTeamForEvent(
-    eventId: number,
-    teamName: string,
-    newData: Team
-  ): Promise<unknown>
+  updateTeamForEvent(eventId: number, teamName: string, newData: Team): Promise<unknown>
   deleteTeamForEvent(eventId: number, teamName: string): Promise<unknown>
+  assignQuestionnaireToStation(
+    stationName: string,
+    questionnaire: Questionnaire,
+    eventId?: number
+  ): Promise<unknown>
+  unassignQuestionnaireFromStation(questionnaireName: string, eventId?: number): Promise<unknown>
 }
+
+// ---------------------------------------------------------------------------
+// FakeProxy — used when makeRemoteProxy(true, ...)
+// ---------------------------------------------------------------------------
 
 class FakeProxy implements Proxy {
   baseUrl: string
-  constructor(baseUrl) {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl
   }
-  async deleteFile(uuid: string): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async addTeam(team: Team): Promise<Team> {
-    throw new Error('Method not implemented.')
-  }
-  async updateTeam(teamName: string, newData: Team): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchRoutes(): Promise<Route[]> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]> {
-    throw new Error('Method not implemented.')
-  }
-  async addQuestionnaire(questionnaire: Questionnaire): Promise<Questionnaire> {
-    throw new Error('Method not implemented.')
-  }
-  async updateQuestionnaire(
-    oldName: string,
-    newData: Questionnaire
-  ): Promise<AxiosResponse> {
-    throw new Error('Method not implemented.')
-  }
-  async deleteQuestionnaire(questionnaireName: string): Promise<AxiosResponse> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchStations(): Promise<Station[]> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchUsers(): Promise<User[]> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchUserRoles(userName: string): Promise<string[]> {
-    throw new Error('Method not implemented.')
-  }
-  fetchUserStations(userName: string): Promise<[string, boolean][]> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchAssignments(): Promise<AssignmentMap> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchTeams(): Promise<Team[]> {
-    throw new Error('Method not implemented.')
-  }
-  async fetchQuestionnaireScores(): Promise<QuestionnaireScores> {
-    throw new Error('Method not implemented.')
-  }
-  async deleteTeam(teamName: string): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async deleteUser(userName: string): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async deleteStation(stationName: string): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async deleteRoute(routeName: string): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async addTeamToRoute(routeName: string, team: Team): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async unassignTeamFromRoute(
-    routeName: string,
-    teamName: string
-  ): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async assignStationToRoute(
-    routeName: string,
-    station: Station
-  ): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
-  async addUser(user: User): Promise<User> {
-    throw new Error('Method not implemented.')
-  }
-  async addRoute(route: Route): Promise<Route> {
-    throw new Error('Method not implemented.')
-  }
-  async addStation(station: Station): Promise<Station> {
-    throw new Error('Method not implemented.')
-  }
-  async unassignStationFromRoute(
-    routeName: string,
-    stationName: string
-  ): Promise<unknown> {
-    throw new Error('Method not implemented.')
-  }
 
-  async fetchRelatedStation(
-    stationName: string,
-    relation: string
-  ): Promise<string> {
+  async getAuthProviders(): Promise<AuthProvider[]> {
+    return [{ name: 'google', label: 'Google' }]
+  }
+  async deleteFile(_uuid: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async addTeam(_team: Team): Promise<Team> { throw new Error('Method not implemented.') }
+  async updateTeam(_teamName: string, _newData: Team): Promise<unknown> { throw new Error('Method not implemented.') }
+  async fetchRoutes(): Promise<Route[]> { throw new Error('Method not implemented.') }
+  async fetchQuestionnaires(_eventId?: number): Promise<Questionnaire[]> { throw new Error('Method not implemented.') }
+  async addQuestionnaire(_questionnaire: Questionnaire): Promise<Questionnaire> { throw new Error('Method not implemented.') }
+  async updateQuestionnaire(_oldName: string, _newData: Questionnaire): Promise<unknown> { throw new Error('Method not implemented.') }
+  async deleteQuestionnaire(_questionnaireName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async fetchStations(): Promise<Station[]> { throw new Error('Method not implemented.') }
+  async fetchUsers(): Promise<User[]> { throw new Error('Method not implemented.') }
+  async fetchUserRoles(_userName: string): Promise<string[]> { throw new Error('Method not implemented.') }
+  fetchUserStations(_userName: string): Promise<[string, boolean][]> { throw new Error('Method not implemented.') }
+  async fetchAssignments(): Promise<AssignmentMap> { throw new Error('Method not implemented.') }
+  async fetchTeams(): Promise<Team[]> { throw new Error('Method not implemented.') }
+  async fetchQuestionnaireScores(): Promise<QuestionnaireScores> { throw new Error('Method not implemented.') }
+  async deleteTeam(_teamName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async deleteUser(_userName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async deleteStation(_stationName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async deleteRoute(_routeName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async addTeamToRoute(_routeName: string, _team: Team): Promise<unknown> { throw new Error('Method not implemented.') }
+  async unassignTeamFromRoute(_routeName: string, _teamName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async assignStationToRoute(_routeName: string, _station: Station): Promise<unknown> { throw new Error('Method not implemented.') }
+  async addUser(_user: User): Promise<User> { throw new Error('Method not implemented.') }
+  async addRoute(_route: Route): Promise<Route> { throw new Error('Method not implemented.') }
+  async addStation(_station: Station): Promise<Station> { throw new Error('Method not implemented.') }
+  async unassignStationFromRoute(_routeName: string, _stationName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+  async assignQuestionnaireToStation(_stationName: string, _questionnaire: Questionnaire): Promise<unknown> { throw new Error('Method not implemented.') }
+  async unassignQuestionnaireFromStation(_questionnaireName: string): Promise<unknown> { throw new Error('Method not implemented.') }
+
+  async fetchRelatedStation(_stationName: string, _relation: string): Promise<string> {
     return 'fake-station'
   }
 
-  async fetchRelatedTeams(
-    localStationName: string,
-    relation: string
-  ): Promise<
-    {
-      team: string
-      state: number
-      score: number
-      updated: string
-      updatedParsed?: Moment | null
-      updateAge?: number
-    }[]
-  > {
-    return [
-      {
-        team: 'fake-team',
-        state: 0,
-        score: 0,
-        updated: ''
-      }
-    ]
+  async fetchRelatedTeams(_localStationName: string, _relation: string) {
+    return [{ team: 'fake-team', state: 0, score: 0, updated: '' }]
   }
 
-  install(vue: typeof Vue, options?: any) {
+  install(vue: typeof Vue, _options?: unknown) {
     vue.prototype.$remoteProxy = this
   }
 
-  async renewToken(token) {
-    return {
-      status: 200,
-      token: 'fake-jwt-token'
-    }
+  async loginUser(username: string, _password: string): Promise<SessionInfo> {
+    return { user: username, roles: ['role1'] }
   }
 
-  async socialLogin(network, userId, token) {
-    return {
-      token: 'fake-jwt-token',
-      roles: ['role1'],
-      user: 'fake-user'
-    }
-  }
-
-  async loginUser(username, password) {
-    const data = {
-      status: 200,
-      roles: ['role1'],
-      token: 'fake-token',
-      user: username
-    }
-    console.log('Fake user login, returning ' + data)
-    return data
-  }
-
-  async setStationScore(stationName, teamName, score) {
-    // no-op
+  async setStationScore(_stationName: string, _teamName: string, _score: number) {
     return {}
   }
 
-  async setQuestionnaireScore(stationName, teamName, score) {
-    // no-op
+  async setQuestionnaireScore(_stationName: string, _teamName: string, _score: number) {
     return {}
   }
 
-  async deleteQuestionnaire(questionnaireName) {
-    return axios.delete(this.baseUrl + '/questionnaire/' + questionnaireName)
-  }
-
-  async updateQuestionnaire(oldName, newData) {
-    return axios.put(this.baseUrl + '/questionnaire/' + oldName, newData)
-  }
-
-  async advanceState(stationName, teamName) {
-    return {
-      team: teamName,
-      station: stationName,
-      new_state: 'arrived'
-    }
+  async advanceState(stationName: string, teamName: string) {
+    return { team: teamName, station: stationName, new_state: 'arrived' }
   }
 
   async fetchDashboard(): Promise<DashboardRow[]> {
     return [
-      {
-        team: 'team-1',
-        stations: [{ name: 'station-1', score: 10, state: 'arrived' }]
-      },
-      {
-        team: 'team-2',
-        stations: [{ name: 'station-1', score: 20, state: 'unknown' }]
-      }
+      { team: 'team-1', stations: [{ name: 'station-1', score: 10, state: 'arrived' }] },
+      { team: 'team-2', stations: [{ name: 'station-1', score: 20, state: 'unknown' }] }
     ]
   }
 
-  async setRouteColor(routeName, newColor) {
+  async setRouteColor(_routeName: string, newColor: string) {
     return newColor
   }
 
@@ -369,410 +246,274 @@ class FakeProxy implements Proxy {
     return []
   }
 
-  async fetchTeam(teamName) {
+  async fetchTeam(teamName: string) {
     return { name: teamName }
   }
 
   async fetchUploads(): Promise<Upload[]> {
     return []
   }
-  async updateStation(stationName: string, station: Station): Promise<Station> {
+
+  async updateStation(_stationName: string, station: Station): Promise<Station> {
     throw new Error('Method not implemented.')
   }
-  async addStationToUser(
-    userName: string,
-    stationName: string
-  ): Promise<AxiosResponse> {
+
+  async addStationToUser(_userName: string, _stationName: string): Promise<unknown> {
     throw new Error('Method not implemented.')
   }
-  async removeStationFromUser(
-    userName: string,
-    stationName: string
-  ): Promise<AxiosResponse> {
+
+  async removeStationFromUser(_userName: string, _stationName: string): Promise<unknown> {
     throw new Error('Method not implemented.')
   }
-  async removeUserRole(userName: string, roleName: string): Promise<string> {
+
+  async removeUserRole(_userName: string, _roleName: string): Promise<string> {
     throw new Error('Method not implemented')
   }
-  async addUserRole(userName: string, roleName: string): Promise<string> {
+
+  async addUserRole(_userName: string, _roleName: string): Promise<string> {
     throw new Error('Method not implemented')
   }
+
   async fetchAuditLog(): Promise<AuditLogRow[]> {
     throw new Error('Method not implemented')
   }
-  async fetchTeamStations(teamName: string): Promise<Station[]> {
+
+  async fetchTeamStations(_teamName: string): Promise<Station[]> {
     throw new Error('Method not implemented')
   }
+
   async fetchEvents(): Promise<EventInfo[]> {
     return []
   }
-  async createEvent(event: {
-    name: string
-    time_range: TimeRange
-  }): Promise<EventInfo> {
-    return {
-      id: 1,
-      name: event.name,
-      time_range: event.time_range
-    }
+
+  async createEvent(event: { name: string; time_range: TimeRange }): Promise<EventInfo> {
+    return { id: 1, name: event.name, time_range: event.time_range }
   }
-  async updateEvent(
-    eventId: number,
-    event: {
-      name?: string
-      time_range?: TimeRange
-    }
-  ): Promise<EventInfo> {
-    return {
-      id: eventId,
-      name: event.name || 'fake-event',
-      time_range: event.time_range || { start: '', end: '' }
-    }
+
+  async updateEvent(eventId: number, event: { name?: string; time_range?: TimeRange }): Promise<EventInfo> {
+    return { id: eventId, name: event.name || 'fake-event', time_range: event.time_range || { start: '', end: '' } }
   }
-  async fetchEventMembers(eventId: number): Promise<EventMember[]> {
-    return []
-  }
-  async addEventMember(
-    eventId: number,
-    member: EventMember
-  ): Promise<EventMember> {
-    return member
-  }
-  async removeEventMember(
-    eventId: number,
-    userName: string,
-    roleName: string
-  ): Promise<unknown> {
-    return {}
-  }
-  async deleteEvent(eventId: number): Promise<unknown> {
-    return {}
-  }
-  async fetchTeamsForEvent(eventId: number): Promise<Team[]> {
-    return this.fetchTeams(eventId)
-  }
-  async addTeamForEvent(eventId: number, team: Team): Promise<Team> {
-    return team
-  }
-  async updateTeamForEvent(
-    eventId: number,
-    teamName: string,
-    newData: Team
-  ): Promise<unknown> {
-    return newData
-  }
-  async deleteTeamForEvent(eventId: number, teamName: string): Promise<unknown> {
-    return {}
-  }
+
+  async fetchEventMembers(_eventId: number): Promise<EventMember[]> { return [] }
+  async addEventMember(_eventId: number, member: EventMember): Promise<EventMember> { return member }
+  async removeEventMember(_eventId: number, _userName: string, _roleName: string): Promise<unknown> { return {} }
+  async deleteEvent(_eventId: number): Promise<unknown> { return {} }
+  async fetchTeamsForEvent(eventId: number): Promise<Team[]> { return this.fetchTeams(eventId) }
+  async addTeamForEvent(_eventId: number, team: Team): Promise<Team> { return team }
+  async updateTeamForEvent(_eventId: number, _teamName: string, newData: Team): Promise<unknown> { return newData }
+  async deleteTeamForEvent(_eventId: number, _teamName: string): Promise<unknown> { return {} }
 }
+
+// ---------------------------------------------------------------------------
+// ConcreteProxy
+// ---------------------------------------------------------------------------
 
 class ConcreteProxy implements Proxy {
   baseUrl: string
+  private _refreshing: Promise<void> | null = null
 
-  constructor(baseUrl) {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl
   }
 
   /**
-   * Connect to the back-end to retrieve the questionnaire scores
+   * Core fetch wrapper.
+   *
+   * On 401 it attempts one refresh then retries the original request.
+   * Throws on non-2xx after any retry.
    */
-  async fetchQuestionnaireScores(eventId?: number): Promise<QuestionnaireScores> {
-    if (!eventId) {
-      throw new Error('eventId is required for questionnaire scores')
+  private async _fetch(input: string, init: RequestInit = {}): Promise<Response> {
+    const defaults: RequestInit = { credentials: 'include' }
+    const response = await fetch(input, { ...defaults, ...init })
+
+    if (response.status !== 401) {
+      return response
     }
-    return axios
-      .get(`${this.baseUrl}/events/${eventId}/questionnaire-scores`)
-      .then((response) => {
-        return response.data
+
+    // Attempt refresh (deduplicate concurrent refreshes)
+    if (!this._refreshing) {
+      this._refreshing = fetch(`${this.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include'
+      }).then(async (r) => {
+        if (!r.ok) throw new Error('refresh_failed')
+      }).finally(() => {
+        this._refreshing = null
       })
+    }
+
+    try {
+      await this._refreshing
+    } catch {
+      // Refresh failed — propagate the original 401
+      return response
+    }
+
+    // Retry original request
+    return fetch(input, { ...defaults, ...init })
+  }
+
+  private async _json<T>(input: string, init: RequestInit = {}): Promise<T> {
+    const response = await this._fetch(input, {
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...(init.headers || {}) }
+    })
+    if (!response.ok) {
+      const text = await response.text().catch(() => response.statusText)
+      const err: any = new Error(text)
+      err.response = { status: response.status, data: text }
+      throw err
+    }
+    return response.json() as Promise<T>
+  }
+
+  install(vue: typeof Vue, _options?: unknown) {
+    vue.prototype.$remoteProxy = this
+  }
+
+  async getAuthProviders(): Promise<AuthProvider[]> {
+    return this._json<AuthProvider[]>(`${this.baseUrl}/auth/providers`)
+  }
+
+  async loginUser(username: string, password: string): Promise<SessionInfo> {
+    return this._json<SessionInfo>(`${this.baseUrl}/auth/login`, {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    })
+  }
+
+  async fetchQuestionnaireScores(eventId?: number): Promise<QuestionnaireScores> {
+    if (!eventId) throw new Error('eventId is required for questionnaire scores')
+    return this._json(`${this.baseUrl}/events/${eventId}/questionnaire-scores`)
   }
 
   async addQuestionnaire(questionnaire: Questionnaire, eventId?: number): Promise<Questionnaire> {
-    if (!eventId) {
-      throw new Error('eventId is required for questionnaire creation')
-    }
-    return axios
-      .post(`${this.baseUrl}/events/${eventId}/questionnaire`, questionnaire)
-      .then(() => {
-        return questionnaire
-      })
+    if (!eventId) throw new Error('eventId is required for questionnaire creation')
+    await this._json(`${this.baseUrl}/events/${eventId}/questionnaire`, {
+      method: 'POST',
+      body: JSON.stringify(questionnaire)
+    })
+    return questionnaire
   }
 
-  async updateQuestionnaire(
-    oldName: string,
-    newData: Questionnaire,
-    eventId?: number
-  ): Promise<AxiosResponse> {
-    if (!eventId) {
-      throw new Error('eventId is required for questionnaire update')
-    }
-    return axios.put(`${this.baseUrl}/events/${eventId}/questionnaire/${oldName}`, newData)
-  }
-
-  async deleteQuestionnaire(questionnaireName: string, eventId?: number): Promise<AxiosResponse> {
-    if (!eventId) {
-      throw new Error('eventId is required for questionnaire deletion')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/questionnaire/${questionnaireName}`)
-  }
-
-  /**
-   * Request a new JTW token using an existing token
-   */
-  async renewToken(token) {
-    return axios
-      .post(this.baseUrl + '/login/renew', {
-        token: token
-      })
-      .then((response) => {
-        return {
-          status: response.status,
-          token: response.data.token
-        }
-      })
-  }
-
-  /**
-   * Perform a social login on the back-end
-   *
-   * This assumes that we've already done a social login on the client-side and
-   * hold a token. The back-end will use that token to authenticate the user
-   * with the social provider.
-   *
-   * network: The name of the social network
-   * userId: The user-id used by the social network
-   * token: The token received from the social network.
-   */
-  async socialLogin(network, userId, token) {
-    return axios
-      .post(this.baseUrl + '/login', {
-        social_provider: network,
-        user_id: userId,
-        token: token
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.data
-        } else {
-          throw new Error(
-            'Unexpected remote response (' + response.status + ')'
-          )
-        }
-      })
-  }
-
-  /**
-   * Send a normal login package to the back-end to allow non-social logins.
-   */
-  async loginUser(username, password) {
-    return axios
-      .post(this.baseUrl + '/login', {
-        username: username,
-        password: password
-      })
-      .then((response) => {
-        return {
-          status: response.status,
-          roles: response.data['roles'],
-          token: response.data['token'],
-          user: response.data['user']
-        }
-      })
-  }
-
-  async setStationScore(stationName, teamName, score, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for station score updates')
-    }
-    return axios.post(`${this.baseUrl}/events/${eventId}/job`, {
-      action: 'set_score',
-      args: {
-        station_name: stationName,
-        team_name: teamName,
-        score: score
-      }
+  async updateQuestionnaire(oldName: string, newData: Questionnaire, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required for questionnaire update')
+    return this._json(`${this.baseUrl}/events/${eventId}/questionnaire/${oldName}`, {
+      method: 'PUT',
+      body: JSON.stringify(newData)
     })
   }
 
-  async setQuestionnaireScore(stationName, teamName, score, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for questionnaire score updates')
-    }
-    const payload = {
-      action: 'set_questionnaire_score',
-      args: {
-        station_name: stationName,
-        team_name: teamName,
-        score: score
-      }
-    }
-    return axios.post(`${this.baseUrl}/events/${eventId}/job`, payload).then((response) => {
-      return {
-        stationName: stationName,
-        teamName: teamName,
-        score: parseInt(score, 10)
-      }
+  async deleteQuestionnaire(questionnaireName: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required for questionnaire deletion')
+    return this._json(`${this.baseUrl}/events/${eventId}/questionnaire/${questionnaireName}`, {
+      method: 'DELETE'
     })
   }
 
-  async advanceState(stationName, teamName, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required to advance state')
-    }
-    const payload = {
-      action: 'advance',
-      args: {
-        station_name: stationName,
-        team_name: teamName
-      }
-    }
-    return axios.post(`${this.baseUrl}/events/${eventId}/job`, payload).then((response) => {
-      // The server assigned a new state, so we must update our local
-      // values
-      const newState = response.data.result.state
-      const data = {
-        team: teamName,
-        station: stationName,
-        new_state: newState
-      }
-      return data
+  async setStationScore(stationName: string, teamName: string, score: number, eventId?: number) {
+    if (!eventId) throw new Error('eventId is required for station score updates')
+    return this._json(`${this.baseUrl}/events/${eventId}/job`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'set_score', args: { station_name: stationName, team_name: teamName, score } })
     })
   }
 
-  /**
-   * Assign a questionnaire to a station
-   */
-  async assignQuestionnaireToStation(stationName, questionnaire, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required to assign questionnaire')
-    }
-    return axios
-      .post(
-        `${this.baseUrl}/events/${eventId}/station/${stationName}/questionnaires`,
-        questionnaire
-      )
-      .then((response) => {
-        return response.data
-      })
+  async setQuestionnaireScore(stationName: string, teamName: string, score: number, eventId?: number) {
+    if (!eventId) throw new Error('eventId is required for questionnaire score updates')
+    await this._json(`${this.baseUrl}/events/${eventId}/job`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'set_questionnaire_score', args: { station_name: stationName, team_name: teamName, score } })
+    })
+    return { stationName, teamName, score: parseInt(String(score), 10) }
   }
 
-  /**
-   * Unassign a questionnaire from a station
-   */
-  async unassignQuestionnaireFromStation(questionnaireName, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required to unassign questionnaire')
-    }
-    return axios
-      .delete(`${this.baseUrl}/events/${eventId}/questionnaire/${questionnaireName}/station`)
-      .then((response) => {
-        return response.data
-      })
+  async advanceState(stationName: string, teamName: string, eventId?: number) {
+    if (!eventId) throw new Error('eventId is required to advance state')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/job`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'advance', args: { station_name: stationName, team_name: teamName } })
+    })
+    return { team: teamName, station: stationName, new_state: data.result.state }
+  }
+
+  async assignQuestionnaireToStation(stationName: string, questionnaire: Questionnaire, eventId?: number) {
+    if (!eventId) throw new Error('eventId is required to assign questionnaire')
+    return this._json(`${this.baseUrl}/events/${eventId}/station/${stationName}/questionnaires`, {
+      method: 'POST',
+      body: JSON.stringify(questionnaire)
+    })
+  }
+
+  async unassignQuestionnaireFromStation(questionnaireName: string, eventId?: number) {
+    if (!eventId) throw new Error('eventId is required to unassign questionnaire')
+    return this._json(`${this.baseUrl}/events/${eventId}/questionnaire/${questionnaireName}/station`, {
+      method: 'DELETE'
+    })
   }
 
   async fetchDashboard(eventId?: number): Promise<DashboardRow[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for dashboard')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/dashboard`).then((response) => {
-      return response.data
-    })
+    if (!eventId) throw new Error('eventId is required for dashboard')
+    return this._json(`${this.baseUrl}/events/${eventId}/dashboard`)
   }
 
-  async addUser(user) {
-    return axios.post(this.baseUrl + '/user', user).then((response) => {
-      return user
-    })
+  async addUser(user: User) {
+    await this._json(`${this.baseUrl}/user`, { method: 'POST', body: JSON.stringify(user) })
+    return user
   }
 
-  async addTeam(team, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for team creation')
-    }
+  async addTeam(team: Team, eventId?: number): Promise<Team> {
+    if (!eventId) throw new Error('eventId is required for team creation')
     return this.addTeamForEvent(eventId, team)
   }
 
   async addTeamForEvent(eventId: number, team: Team): Promise<Team> {
-    return axios
-      .post(`${this.baseUrl}/events/${eventId}/team`, team)
-      .then((response) => {
-        return response.data
-      })
-  }
-
-  async addRoute(route, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for route creation')
-    }
-    return axios.post(`${this.baseUrl}/events/${eventId}/route`, route).then((response) => {
-      return route
+    return this._json(`${this.baseUrl}/events/${eventId}/team`, {
+      method: 'POST',
+      body: JSON.stringify(team)
     })
   }
 
-  async addStation(station, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for station creation')
-    }
-    return axios.post(`${this.baseUrl}/events/${eventId}/station`, station).then((response) => {
-      return station
-    })
+  async addRoute(route: Route, eventId?: number): Promise<Route> {
+    if (!eventId) throw new Error('eventId is required for route creation')
+    await this._json(`${this.baseUrl}/events/${eventId}/route`, { method: 'POST', body: JSON.stringify(route) })
+    return route
   }
 
-  async fetchUsers() {
-    return axios.get(this.baseUrl + '/user').then((response) => {
-      return response.data.items
-    })
+  async addStation(station: Station, eventId?: number): Promise<Station> {
+    if (!eventId) throw new Error('eventId is required for station creation')
+    await this._json(`${this.baseUrl}/events/${eventId}/station`, { method: 'POST', body: JSON.stringify(station) })
+    return station
+  }
+
+  async fetchUsers(): Promise<User[]> {
+    const data: any = await this._json(`${this.baseUrl}/user`)
+    return data.items
   }
 
   async fetchUserStations(userName: string): Promise<[string, boolean][]> {
-    return axios
-      .get(this.baseUrl + '/user/' + userName + '/stations')
-      .then((response) => {
-        return response.data
-      })
+    return this._json(`${this.baseUrl}/user/${userName}/stations`)
   }
 
-  async fetchUserRoles(userName) {
-    return axios
-      .get(this.baseUrl + '/user/' + userName + '/roles')
-      .then((response) => {
-        return response.data
-      })
+  async fetchUserRoles(userName: string): Promise<string[]> {
+    return this._json(`${this.baseUrl}/user/${userName}/roles`)
   }
 
   async addUserRole(userName: string, roleName: string): Promise<string> {
-    return axios
-      .post(this.baseUrl + '/user/' + userName + '/roles', {
-        name: roleName
-      })
-      .then((response) => {
-        return response.data
-      })
+    return this._json(`${this.baseUrl}/user/${userName}/roles`, {
+      method: 'POST',
+      body: JSON.stringify({ name: roleName })
+    })
   }
 
   async removeUserRole(userName: string, roleName: string): Promise<string> {
-    return axios
-      .delete(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
-      .then((response) => {
-        return response.data
-      })
-  }
-
-  async getUserRole(userName, roleName) {
-    return axios
-      .get(this.baseUrl + '/user/' + userName + '/roles/' + roleName)
-      .then((response) => {
-        return response.data
-      })
+    return this._json(`${this.baseUrl}/user/${userName}/roles/${roleName}`, { method: 'DELETE' })
   }
 
   async fetchTeams(eventId?: number): Promise<Team[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for teams')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/team`).then((response) => {
-      return response.data.items
-    })
+    if (!eventId) throw new Error('eventId is required for teams')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/team`)
+    return data.items
   }
 
   async fetchTeamsForEvent(eventId: number): Promise<Team[]> {
@@ -780,391 +521,230 @@ class ConcreteProxy implements Proxy {
   }
 
   async fetchTeam(teamName: string, eventId?: number): Promise<{ name: string }> {
-    if (!eventId) {
-      throw new Error('eventId is required for team lookup')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/team/${teamName}`).then((response) => {
-      return response.data
+    if (!eventId) throw new Error('eventId is required for team lookup')
+    return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
+  }
+
+  async addStationToUser(userName: string, stationName: string): Promise<unknown> {
+    return this._json(`${this.baseUrl}/user/${userName}/stations`, {
+      method: 'POST',
+      body: JSON.stringify({ name: stationName })
     })
   }
 
-  async addStationToUser(userName, stationName) {
-    return axios
-      .post(this.baseUrl + '/user/' + userName + '/stations', {
-        name: stationName
-      })
-      .then((response) => {
-        return response
-      })
-  }
-
-  async removeStationFromUser(userName, stationName) {
-    return axios
-      .delete(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
-      .then((response) => {
-        return response
-      })
-  }
-
-  async fetchAssignedStationState(userName, stationName) {
-    return axios
-      .get(this.baseUrl + '/user/' + userName + '/stations/' + stationName)
-      .then((response) => {
-        return response.data
-      })
+  async removeStationFromUser(userName: string, stationName: string): Promise<unknown> {
+    return this._json(`${this.baseUrl}/user/${userName}/stations/${stationName}`, { method: 'DELETE' })
   }
 
   async fetchRoutes(eventId?: number): Promise<Route[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for routes')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/route`).then((response) => {
-      return response.data.items
-    })
+    if (!eventId) throw new Error('eventId is required for routes')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/route`)
+    return data.items
   }
 
-  fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for questionnaires')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/questionnaire`).then((response) => {
-      return response.data.items
-    })
+  async fetchQuestionnaires(eventId?: number): Promise<Questionnaire[]> {
+    if (!eventId) throw new Error('eventId is required for questionnaires')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/questionnaire`)
+    return data.items
   }
 
   async fetchStations(eventId?: number): Promise<Station[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for stations')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/station`).then((response) => {
-      return response.data.items
-    })
+    if (!eventId) throw new Error('eventId is required for stations')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/station`)
+    return data.items
   }
 
   async fetchAssignments(eventId?: number): Promise<AssignmentMap> {
-    if (!eventId) {
-      throw new Error('eventId is required for assignments')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/assignments`).then((response) => {
-      return response.data
+    if (!eventId) throw new Error('eventId is required for assignments')
+    return this._json(`${this.baseUrl}/events/${eventId}/assignments`)
+  }
+
+  async addTeamToRoute(route: string, team: Team, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to assign team to route')
+    return this._json(`${this.baseUrl}/events/${eventId}/route/${route}/teams`, {
+      method: 'POST',
+      body: JSON.stringify(team)
     })
   }
 
-  async addTeamToRoute(route, team, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to assign team to route')
-    }
-    return axios.post(`${this.baseUrl}/events/${eventId}/route/${route}/teams`, team)
+  async unassignTeamFromRoute(route: string, team: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to unassign team from route')
+    return this._json(`${this.baseUrl}/events/${eventId}/route/${route}/teams/${team}`, { method: 'DELETE' })
   }
 
-  async unassignTeamFromRoute(route, team, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to unassign team from route')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/route/${route}/teams/${team}`)
+  async assignStationToRoute(routeName: string, station: Station, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to assign station to route')
+    return this._json(`${this.baseUrl}/events/${eventId}/route/${routeName}/stations`, {
+      method: 'POST',
+      body: JSON.stringify(station)
+    })
   }
 
-  async assignStationToRoute(routeName, station, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to assign station to route')
-    }
-    return axios.post(
-      `${this.baseUrl}/events/${eventId}/route/${routeName}/stations`,
-      station
-    )
+  async unassignStationFromRoute(routeName: string, stationName: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to unassign station from route')
+    return this._json(`${this.baseUrl}/events/${eventId}/route/${routeName}/stations/${stationName}`, { method: 'DELETE' })
   }
 
-  async unassignStationFromRoute(routeName, stationName, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to unassign station from route')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/route/${routeName}/stations/${stationName}`)
+  async deleteRoute(routeName: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to delete route')
+    return this._json(`${this.baseUrl}/events/${eventId}/route/${routeName}`, { method: 'DELETE' })
   }
 
-  async deleteRoute(routeName, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to delete route')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/route/${routeName}`)
+  async deleteStation(stationName: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to delete station')
+    return this._json(`${this.baseUrl}/events/${eventId}/station/${stationName}`, { method: 'DELETE' })
   }
 
-  async deleteStation(stationName, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to delete station')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/station/${stationName}`)
+  async deleteUser(userName: string): Promise<unknown> {
+    return this._json(`${this.baseUrl}/user/${userName}`, { method: 'DELETE' })
   }
 
-  async deleteUser(userName): Promise<unknown> {
-    return axios.delete(this.baseUrl + '/user/' + userName)
-  }
-
-  async deleteTeam(teamName, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required to delete team')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
+  async deleteTeam(teamName: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required to delete team')
+    return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`, { method: 'DELETE' })
   }
 
   async deleteTeamForEvent(eventId: number, teamName: string): Promise<unknown> {
-    return axios.delete(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
-  }
-
-  async fetchTeamState(stationName, teamName, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for team state lookup')
-    }
-    return axios
-      .get(`${this.baseUrl}/events/${eventId}/station/${stationName}/teams/${teamName}`)
-      .then((response) => {
-        return response.data.state
-      })
+    return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`, { method: 'DELETE' })
   }
 
   async fetchTeamStations(teamName: string, eventId?: number): Promise<Station[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for team stations lookup')
-    }
-    return axios
-      .get(`${this.baseUrl}/events/${eventId}/team/${teamName}/stations`)
-      .then((response) => {
-        return response.data.items || response.data
-      })
+    if (!eventId) throw new Error('eventId is required for team stations lookup')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}/stations`)
+    return data.items || data
   }
 
-  async updateStation(stationName, newData, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for station update')
-    }
-    return axios
-      .put(`${this.baseUrl}/events/${eventId}/station/${stationName}`, newData)
-      .then((response) => {
-        return response.data
-      })
+  async updateStation(stationName: string, newData: Station, eventId?: number): Promise<Station> {
+    if (!eventId) throw new Error('eventId is required for station update')
+    return this._json(`${this.baseUrl}/events/${eventId}/station/${stationName}`, {
+      method: 'PUT',
+      body: JSON.stringify(newData)
+    })
   }
 
-  async updateTeam(teamName, newData, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required for team update')
-    }
-    return axios
-      .put(`${this.baseUrl}/events/${eventId}/team/${teamName}`, newData)
-      .then((response) => {
-        return response.data
-      })
+  async updateTeam(teamName: string, newData: Team, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required for team update')
+    return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`, {
+      method: 'PUT',
+      body: JSON.stringify(newData)
+    })
   }
 
-  async updateTeamForEvent(
-    eventId: number,
-    teamName: string,
-    newData: Team
-  ): Promise<unknown> {
-    return axios
-      .put(`${this.baseUrl}/events/${eventId}/team/${teamName}`, newData)
-      .then((response) => {
-        return response.data
-      })
+  async updateTeamForEvent(eventId: number, teamName: string, newData: Team): Promise<unknown> {
+    return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`, {
+      method: 'PUT',
+      body: JSON.stringify(newData)
+    })
   }
 
   async fetchEvents(): Promise<EventInfo[]> {
-    return axios.get(`${this.baseUrl}/events`).then((response) => {
-      return response.data.items
-    })
+    const data: any = await this._json(`${this.baseUrl}/events`)
+    return data.items
   }
 
-  async createEvent(event: {
-    name: string
-    time_range: TimeRange
-  }): Promise<EventInfo> {
-    return axios.post(`${this.baseUrl}/events`, event).then((response) => {
-      return response.data
-    })
+  async createEvent(event: { name: string; time_range: TimeRange }): Promise<EventInfo> {
+    return this._json(`${this.baseUrl}/events`, { method: 'POST', body: JSON.stringify(event) })
   }
 
-  async updateEvent(
-    eventId: number,
-    event: {
-      name?: string
-      time_range?: TimeRange
-    }
-  ): Promise<EventInfo> {
-    return axios
-      .put(`${this.baseUrl}/events/${eventId}`, event)
-      .then((response) => {
-        return response.data
-      })
+  async updateEvent(eventId: number, event: { name?: string; time_range?: TimeRange }): Promise<EventInfo> {
+    return this._json(`${this.baseUrl}/events/${eventId}`, {
+      method: 'PUT',
+      body: JSON.stringify(event)
+    })
   }
 
   async fetchEventMembers(eventId: number): Promise<EventMember[]> {
-    return axios.get(`${this.baseUrl}/events/${eventId}/members`).then((response) => {
-      return response.data.items
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/members`)
+    return data.items
+  }
+
+  async addEventMember(eventId: number, member: EventMember): Promise<EventMember> {
+    return this._json(`${this.baseUrl}/events/${eventId}/members`, {
+      method: 'POST',
+      body: JSON.stringify(member)
     })
   }
 
-  async addEventMember(
-    eventId: number,
-    member: EventMember
-  ): Promise<EventMember> {
-    return axios
-      .post(`${this.baseUrl}/events/${eventId}/members`, member)
-      .then((response) => {
-        return response.data
-      })
-  }
-
-  async removeEventMember(
-    eventId: number,
-    userName: string,
-    roleName: string
-  ): Promise<unknown> {
-    return axios.delete(
-      `${this.baseUrl}/events/${eventId}/members/${userName}/${roleName}`
-    )
+  async removeEventMember(eventId: number, userName: string, roleName: string): Promise<unknown> {
+    return this._json(`${this.baseUrl}/events/${eventId}/members/${userName}/${roleName}`, { method: 'DELETE' })
   }
 
   async deleteEvent(eventId: number): Promise<unknown> {
-    return axios.delete(`${this.baseUrl}/events/${eventId}`)
+    return this._json(`${this.baseUrl}/events/${eventId}`, { method: 'DELETE' })
   }
 
-  async setRouteColor(routeName, newColor, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for route color updates')
-    }
-    return axios
-      .put(`${this.baseUrl}/events/${eventId}/route/${routeName}/color`, { color: newColor })
-      .then((response) => {
-        return response.data.color
-      })
+  async setRouteColor(routeName: string, newColor: string, eventId?: number): Promise<string> {
+    if (!eventId) throw new Error('eventId is required for route color updates')
+    const data: any = await this._json(`${this.baseUrl}/events/${eventId}/route/${routeName}/color`, {
+      method: 'PUT',
+      body: JSON.stringify({ color: newColor })
+    })
+    return data.color
   }
 
-  async sendUpload(file, eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for uploads')
-    }
+  async sendUpload(file: File, eventId?: number) {
+    if (!eventId) throw new Error('eventId is required for uploads')
     const formData = new FormData()
     formData.append('file', file)
-    return axios
-      .post(`${this.baseUrl}/events/${eventId}/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        onUploadProgress: (progressEvent) => {
-          let progress = -1
-          if (progressEvent.lengthComputable) {
-            progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            )
-          }
-          EventBus.$emit('fileUploadProgress', {
-            visible: true,
-            progress: progress,
-            text: 'Uploading...'
-          })
-        }
-      })
-      .then((response) => {
-        return {}
-      })
+    const response = await this._fetch(`${this.baseUrl}/events/${eventId}/upload`, {
+      method: 'POST',
+      body: formData
+      // No Content-Type header — browser sets multipart boundary automatically
+    })
+    if (!response.ok) {
+      const text = await response.text().catch(() => response.statusText)
+      throw new Error(text)
+    }
+    return {}
   }
 
-  async deleteFile(uuid, eventId?: number): Promise<unknown> {
-    if (!eventId) {
-      throw new Error('eventId is required for file deletion')
-    }
-    return axios.delete(`${this.baseUrl}/events/${eventId}/upload/${uuid}`).then((response) => {
-      return response.data
-    })
+  async deleteFile(uuid: string, eventId?: number): Promise<unknown> {
+    if (!eventId) throw new Error('eventId is required for file deletion')
+    return this._json(`${this.baseUrl}/events/${eventId}/upload/${uuid}`, { method: 'DELETE' })
   }
 
   async fetchUploads(eventId?: number): Promise<Upload[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for uploads')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/upload`).then((response) => {
-      return response.data
-    })
+    if (!eventId) throw new Error('eventId is required for uploads')
+    return this._json(`${this.baseUrl}/events/${eventId}/upload`)
   }
 
-  async getPublicImages(eventId?: number) {
-    if (!eventId) {
-      throw new Error('eventId is required for public images')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/upload?public=1`).then((response) => {
-      return response.data
-    })
+  async getPublicImages(eventId?: number): Promise<unknown[]> {
+    if (!eventId) throw new Error('eventId is required for public images')
+    return this._json(`${this.baseUrl}/events/${eventId}/upload?public=1`)
   }
 
   async fetchAuditLog(eventId?: number): Promise<AuditLogRow[]> {
-    if (!eventId) {
-      throw new Error('eventId is required for audit log')
-    }
-    return axios.get(`${this.baseUrl}/events/${eventId}/auditlog`).then((response) => {
-      return response.data
-    })
+    if (!eventId) throw new Error('eventId is required for audit log')
+    return this._json(`${this.baseUrl}/events/${eventId}/auditlog`)
   }
 
   async fetchRelatedTeams(
-    localStationName,
-    relation,
-    eventId?
-  ): Promise<
-    {
-      team: string
-      state: number
-      score: number
-      updated: string
-      updatedParsed?: Moment | null
-      updateAge?: number
-    }[]
-  > {
-    if (!eventId) {
-      throw new Error('eventId is required for related dashboard data')
-    }
-    const response = await axios.get(
+    localStationName: string,
+    relation: string,
+    eventId?: number
+  ) {
+    if (!eventId) throw new Error('eventId is required for related dashboard data')
+    const data = await this._json<any[]>(
       `${this.baseUrl}/events/${eventId}/station/${localStationName}/${relation}/dashboard`
     )
-    const statePrecedence = {
-      unknown: 10,
-      arrived: 20,
-      finished: 30
-    }
-    const data = response.data as {
-      team: string
-      state: number
-      score: number
-      updated: string
-      updatedParsed?: Moment | null
-      updateAge?: number
-    }[]
-    data.sort(
-      (a, b) =>
-        (statePrecedence[b.state] || 0) - (statePrecedence[a.state] || 0)
-    )
-    data.map((item) => {
+    const statePrecedence: Record<string, number> = { unknown: 10, arrived: 20, finished: 30 }
+    data.sort((a, b) => (statePrecedence[b.state] || 0) - (statePrecedence[a.state] || 0))
+    data.forEach((item) => {
       item.updatedParsed = item.updated ? moment(item.updated) : null
       if (item.updatedParsed) {
         item.updateAge = moment().diff(item.updatedParsed, 'seconds')
       }
     })
-
     return data
   }
 
-  async fetchRelatedStation(localStationName, relation, eventId?) {
-    if (!eventId) {
-      throw new Error('eventId is required for related station lookup')
-    }
-    const response = await axios.get(
-      `${this.baseUrl}/events/${eventId}/station/${localStationName}/related/${relation}`
-    )
-    return response.data
+  async fetchRelatedStation(localStationName: string, relation: string, eventId?: number): Promise<string> {
+    if (!eventId) throw new Error('eventId is required for related station lookup')
+    return this._json(`${this.baseUrl}/events/${eventId}/station/${localStationName}/related/${relation}`)
   }
 }
 
-export default function makeRemoteProxy(
-  fake: boolean,
-  backendUrl: string
-): Proxy {
+export default function makeRemoteProxy(fake: boolean, backendUrl: string): Proxy {
   const Cls = fake ? FakeProxy : ConcreteProxy
   return new Cls(backendUrl)
 }

@@ -1,58 +1,35 @@
-import hello from 'hellojs'
-import type { Store } from 'vuex'
-import type { Proxy } from '@/remote'
+/**
+ * Social (OAuth2 PKCE) login helpers.
+ *
+ * Starting a social login is a simple redirect: the frontend tells the backend
+ * which provider to use and what callback URL to use, and the backend handles
+ * the rest (PKCE, cookie, redirect to IdP).
+ *
+ * After the IdP redirects back to the backend callback URL the backend sets
+ * auth cookies and redirects the browser to the frontend's /auth/callback
+ * route, where AuthCallback.vue calls store.dispatch('checkSession').
+ */
 
-type HelloConfig = {
-  google: string
-  facebook: string
-}
-
-export function init() {
-  const helloConfig: HelloConfig = { google: '', facebook: '' }
-  if (import.meta.env.VITE_GOOGLE_PUBLIC_KEY) {
-    helloConfig['google'] = import.meta.env.VITE_GOOGLE_PUBLIC_KEY
-  } else {
-    console.info('No Google Public Key Set. Google Auth will not be available')
-  }
-  if (import.meta.env.VITE_FACEBOOK_PUBLIC_KEY) {
-    helloConfig['facebook'] = import.meta.env.VITE_FACEBOOK_PUBLIC_KEY
-  } else {
-    console.warn(
-      'No Facebook Public Key Set. Facebook Auth will not be available'
-    )
-  }
-  hello.init(helloConfig, { redirect_uri: 'redirect.html' })
-  console.debug('Social logins initialised.')
-}
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string
 
 /**
- * Register callback for social logins
+ * Redirect the browser to begin an OAuth2 PKCE flow for the given provider.
  *
- * After a user successfully logs in using a social identity provider, post
- * that message to the backend to retrieve a corresponding JWT token.
+ * @param provider  Provider name as returned by GET /auth/providers (e.g. "google")
  */
-export function connect(remoteProxy: Proxy, store: Store<any>) {
-  hello.on('auth.login', async function (ath) {
-    // Fetch user details from the selected network
-    const userInfo = await hello(ath.network).api('me')
-    if (!ath.authResponse) {
-      throw new Error('No valid auth response received')
-    }
-    try {
-      const data = await remoteProxy.socialLogin(
-        ath.authResponse.network,
-        userInfo.id,
-        ath.authResponse.access_token
-      )
-      store.commit('updateUserData', data)
-    } catch (error) {
-      store.commit('clearUserData')
-      // TODO show message as snack-text
-    }
+export function startSocialLogin(provider: string): void {
+  // The backend callback URL — the IdP will redirect here with the code.
+  const backendCallbackUrl = `${BACKEND_URL}/auth/callback/${provider}`
+
+  // The frontend URL the backend should redirect to after successful login.
+  const frontendCallbackUrl = `${window.location.origin}/auth/callback`
+
+  const params = new URLSearchParams({
+    redirect_uri: backendCallbackUrl,
+    frontend_url: frontendCallbackUrl
   })
+
+  window.location.href = `${BACKEND_URL}/auth/social/${provider}?${params}`
 }
 
-export default {
-  init,
-  connect
-}
+export default { startSocialLogin }
