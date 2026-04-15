@@ -38,20 +38,27 @@
 import Vue from 'vue'
 const DashboardProgressLine = Vue.extend({
   name: 'dashboard-progress-line',
-  computed: {
-    dynamicColor() {
-      if (this.data.cancelled) {
-        return '#444'
-      }
-      return this.color
-    }
-  },
   props: {
     color: {
+      type: String,
       required: true
     },
     data: {
+      type: Object as () => {
+        team: string
+        cancelled: boolean
+        pct_finished: number
+        pct_waiting: number
+      },
       required: true
+    }
+  },
+  computed: {
+    dynamicColor(): string {
+      if ((this.data as any).cancelled) {
+        return '#444'
+      }
+      return this.color
     }
   }
 })

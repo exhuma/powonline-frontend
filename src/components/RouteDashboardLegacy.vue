@@ -42,8 +42,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import type { VueTableHeader } from '@/types'
+import type { VueTableHeaders } from '@/types'
+import type { Team } from '@/remote/model/team'
 import type { Station } from '@/remote/model/station'
+import type { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
 
 const RouteDashboardLegacy = Vue.extend({
   name: 'route-dashboard-legacy',
@@ -51,57 +53,54 @@ const RouteDashboardLegacy = Vue.extend({
     route: {
       type: Object,
       default: null
+    },
+    globalDashboard: {
+      type: Array as () => RemoteDashboardRow[],
+      default: () => []
+    },
+    // { [routeName]: Team[] }
+    routeTeams: {
+      type: Object as () => { [routeName: string]: Team[] },
+      default: () => ({})
+    },
+    // { [routeName]: Station[] }
+    routeStations: {
+      type: Object as () => { [routeName: string]: Station[] },
+      default: () => ({})
+    },
+    teams: {
+      type: Array as () => Team[],
+      default: () => []
     }
   },
   computed: {
     routeColor(): string {
-      if (this.route.color) {
-        return this.route.color
-      } else {
-        return '#000000'
-      }
+      return this.route.color || '#000000'
     },
     assignedStations(): Station[] {
-      const map = this.$store.state.route_station_map as {
-        [key: string]: Station[]
-      }
-      const output = map[this.route.name] || []
-      output.sort((a, b) => {
-        return a.order - b.order
+      const list = (this.routeStations[this.route.name] || []).slice()
+      list.sort((a: Station, b: Station) => a.order - b.order)
+      return list
+    },
+    tableHeaders(): VueTableHeaders[] {
+      const output: VueTableHeaders[] = [
+        { text: 'Team', align: 'left', value: 'team' }
+      ]
+      this.assignedStations.forEach((station: Station) => {
+        output.push({
+          text: station.name,
+          align: 'center',
+          value: 'state',
+          sortable: false
+        })
       })
       return output
     },
-    tableHeaders(): VueTableHeader[] {
-      const output: VueTableHeader[] = [
-        {
-          text: 'Team',
-          align: 'left',
-          value: 'team'
-        }
-      ]
-      const assignedStations = this.assignedStations
-      // (not really a side-effect, I think)
-      // eslint-disable-next-line
-      if (this.assignedStations) {
-        assignedStations.forEach((station) => {
-          output.push({
-            text: station.name,
-            align: 'center',
-            value: 'state',
-            sortable: false
-          })
-        })
-      }
-      return output
-    },
-    stateMapping() {
-      // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
-      const output = {}
-      this.$store.state.global_dashboard.forEach((teamState) => {
+    stateMapping(): Record<string, Record<string, any>> {
+      const output: Record<string, Record<string, any>> = {}
+      ;(this.globalDashboard as RemoteDashboardRow[]).forEach((teamState) => {
         teamState.stations.forEach((stationState) => {
-          if (output[stationState.name] === undefined) {
-            output[stationState.name] = {}
-          }
+          if (!output[stationState.name]) output[stationState.name] = {}
           if (stationState.state !== 'unreachable') {
             output[stationState.name][teamState.team] = stationState
           }
@@ -109,45 +108,37 @@ const RouteDashboardLegacy = Vue.extend({
       })
       return output
     },
-    tableItems() {
-      const rows = []
+    tableItems(): any[] {
+      const rows: any[] = []
       const mapping = this.stateMapping
-      const routeTeams = this.$store.state.route_team_map
+      const assignedTeams: Team[] = this.routeTeams[this.route.name] || []
       const assignedStations = this.assignedStations
 
-      for (const teamName in routeTeams) {
-        if (routeTeams.hasOwnProperty(teamName)) {
-          const route = routeTeams[teamName]
-          if (this.route.name !== route) {
-            continue
-          }
-          const teamDetails = this.$store.getters.findTeam(teamName)
-          const row = {
-            stations: [],
-            team: teamName,
-            cancelled: teamDetails.cancelled
-          }
-          assignedStations.forEach((station) => {
-            const stationData = mapping[station.name]
-            if (!stationData) {
-              return
-            }
-            const state = stationData[teamName]
-            if (!state) {
-              console.warn(
-                `No state for team ${teamName} on station ${station.name}`
-              )
-            } else {
-              row.stations.push({
-                state: state.state,
-                score: state.score,
-                station: state.name
-              })
-            }
-          })
-          rows.push(row)
+      assignedTeams.forEach((team) => {
+        const teamDetails = this.teams.find((t: Team) => t.name === team.name)
+        const row: any = {
+          stations: [],
+          team: team.name,
+          cancelled: teamDetails ? teamDetails.cancelled : false
         }
-      }
+        assignedStations.forEach((station: Station) => {
+          const stationData = mapping[station.name]
+          if (!stationData) return
+          const state = stationData[team.name]
+          if (!state) {
+            console.warn(
+              `No state for team ${team.name} on station ${station.name}`
+            )
+          } else {
+            row.stations.push({
+              state: state.state,
+              score: state.score,
+              station: state.name
+            })
+          }
+        })
+        rows.push(row)
+      })
       return rows
     }
   }

@@ -52,26 +52,53 @@
 import LightBox from 'vue-it-bigger'
 import('vue-it-bigger/dist/vue-it-bigger.min.css')
 import Vue from 'vue'
-const Gallery = Vue.extend({
+import { api } from '@/main'
+import type { Session } from '@/App.vue'
+
+export default Vue.extend({
+  name: 'Gallery',
+  components: { LightBox },
+  inject: ['session', 'getSelectedEventId'],
   created() {
     this.refreshImages()
   },
-  components: {
-    LightBox
-  },
   data() {
     return {
-      index: null,
+      images: [] as { href: string; thumbnail: string }[],
       showUploadSnack: true
     }
   },
+  computed: {
+    tokenIsAvailable(): boolean {
+      // @ts-expect-error inject
+      return Boolean((this.session as Session).userName)
+    },
+    media(): { type: string; thumb: string; src: string; caption: string }[] {
+      return this.images.map((item) => ({
+        type: 'image',
+        thumb: item.thumbnail,
+        src: item.href,
+        caption: ''
+      }))
+    }
+  },
   methods: {
-    showLightbox(index) {
+    showLightbox(index: number) {
       // @ts-expect-error - Don't know how to properly type this yet
       this.$refs.lightBox.showImage(index)
     },
-    refreshImages() {
-      this.$store.dispatch('refreshGallery')
+    async refreshImages() {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        this.images = (await api.getPublicImages(eventId)) as {
+          href: string
+          thumbnail: string
+        }[]
+      } catch (e) {
+        console.error('Unable to fetch gallery images', e)
+      }
     },
     onUploadStarted() {
       this.$emit('changeActivity', {
@@ -81,47 +108,17 @@ const Gallery = Vue.extend({
       })
     },
     onUploadDone() {
-      this.$emit('snackRequested', {
-        message: 'Upload successful'
-      })
+      this.$emit('snackRequested', { message: 'Upload successful' })
       this.refreshImages()
-      this.$emit('changeActivity', {
-        visible: false,
-        progress: -1,
-        text: ''
-      })
+      this.$emit('changeActivity', { visible: false, progress: -1, text: '' })
     },
-    onUploadFailed(event) {
+    onUploadFailed(event: { message: string }) {
       this.$emit('snackRequested', {
         message: `Unable to upload image (${event.message})`,
         color: 'red'
       })
-      this.$emit('changeActivity', {
-        visible: false,
-        progress: -1,
-        text: ''
-      })
-    }
-  },
-  computed: {
-    images() {
-      return this.$store.state.gallery
-    },
-    media() {
-      const output = this.$store.state.gallery.map((item) => {
-        return {
-          type: 'image',
-          thumb: item.thumbnail,
-          src: item.href,
-          caption: ''
-        }
-      })
-      return output
-    },
-    tokenIsAvailable() {
-      return Boolean(this.$store.state.userName)
+      this.$emit('changeActivity', { visible: false, progress: -1, text: '' })
     }
   }
 })
-export default Gallery
 </script>

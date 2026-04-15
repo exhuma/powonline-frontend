@@ -36,8 +36,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Station } from '@/remote/model/station'
-import { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
+import type { Team } from '@/remote/model/team'
+import type { Station } from '@/remote/model/station'
+import type { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
 
 interface DashboardRow {
   pending: number
@@ -56,6 +57,24 @@ const RouteDashboard = Vue.extend({
     route: {
       type: Object,
       default: null
+    },
+    globalDashboard: {
+      type: Array as () => RemoteDashboardRow[],
+      default: () => []
+    },
+    // { [routeName]: Team[] }
+    routeTeams: {
+      type: Object as () => { [routeName: string]: Team[] },
+      default: () => ({})
+    },
+    // { [routeName]: Station[] }
+    routeStations: {
+      type: Object as () => { [routeName: string]: Station[] },
+      default: () => ({})
+    },
+    teams: {
+      type: Array as () => Team[],
+      default: () => []
     }
   },
   computed: {
@@ -69,6 +88,7 @@ const RouteDashboard = Vue.extend({
         finished += item.finished
       })
       const total = pending + waiting + finished
+      if (total === 0) return 0
       return (finished / total) * 100
     },
     overall_pct_waiting(): number {
@@ -81,25 +101,21 @@ const RouteDashboard = Vue.extend({
         finished += item.finished
       })
       const total = pending + waiting + finished
+      if (total === 0) return 0
       return (waiting / total) * 100
     },
     assignedStations(): Station[] {
-      const output = this.$store.state.route_station_map[this.route.name] || []
-      output.sort((a, b) => {
-        return a.order - b.order
-      })
-      return output
+      const list = (this.routeStations[this.route.name] || []).slice()
+      list.sort((a, b) => a.order - b.order)
+      return list
     },
     stateMapping(): {
-      [key: string]: {
-        [key: string]: { name: string; score: number; state: string }
+      [stationName: string]: {
+        [teamName: string]: { name: string; score: number; state: string }
       }
     } {
-      // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
-      const output = {}
-      const teamStates = this.$store.state
-        .global_dashboard as RemoteDashboardRow[]
-
+      const output: Record<string, Record<string, any>> = {}
+      const teamStates = this.globalDashboard as RemoteDashboardRow[]
       teamStates.forEach((teamState) => {
         teamState.stations.forEach((stationState) => {
           if (output[stationState.name] === undefined) {
@@ -113,60 +129,55 @@ const RouteDashboard = Vue.extend({
       return output
     },
     progressItems(): DashboardRow[] {
-      const rows = []
+      const rows: DashboardRow[] = []
       const mapping = this.stateMapping
-      const routeTeams = this.$store.state.route_team_map
+      const assignedTeams: Team[] = this.routeTeams[this.route.name] || []
       const assignedStations = this.assignedStations
-      for (const teamName in routeTeams) {
-        if (routeTeams.hasOwnProperty(teamName)) {
-          const route = routeTeams[teamName]
-          if (this.route.name !== route) {
-            continue
-          }
-          const teamDetails = this.$store.getters.findTeam(teamName)
-          const row: DashboardRow = {
-            pending: 0,
-            waiting: 0,
-            finished: 0,
-            team: teamName,
-            cancelled: teamDetails.cancelled,
-            pct_finished: 0,
-            pct_waiting: 0,
-            pct_pending: 0
-          }
-          assignedStations.forEach((station) => {
-            const stationData = mapping[station.name]
-            if (!stationData) {
-              return
+
+      assignedTeams.forEach((team) => {
+        const teamDetails = this.teams.find((t) => t.name === team.name)
+        const row: DashboardRow = {
+          pending: 0,
+          waiting: 0,
+          finished: 0,
+          team: team.name,
+          cancelled: teamDetails ? teamDetails.cancelled : false,
+          pct_finished: 0,
+          pct_waiting: 0,
+          pct_pending: 0
+        }
+        assignedStations.forEach((station) => {
+          const stationData = mapping[station.name]
+          if (!stationData) return
+          const state = stationData[team.name]
+          if (!state) {
+            console.warn(
+              `No state for team ${team.name} on station ${station.name}`
+            )
+          } else {
+            switch (state.state) {
+              case 'arrived':
+                row.waiting += 1
+                break
+              case 'finished':
+                row.finished += 1
+                break
+              case 'unknown':
+                row.pending += 1
+                break
+              default:
+                console.warn(`Unknown state: ${JSON.stringify(state)}`)
             }
-            const state = stationData[teamName]
-            if (!state) {
-              console.warn(
-                `No state for team ${teamName} on station ${station.name}`
-              )
-            } else {
-              switch (state.state) {
-                case 'arrived':
-                  row.waiting += 1
-                  break
-                case 'finished':
-                  row.finished += 1
-                  break
-                case 'unknown':
-                  row.pending += 1
-                  break
-                default:
-                  console.warn(`Unknown state: ${JSON.stringify(state)}`)
-              }
-            }
-          })
-          const total = row.pending + row.waiting + row.finished
+          }
+        })
+        const total = row.pending + row.waiting + row.finished
+        if (total > 0) {
           row.pct_pending = (row.pending / total) * 100
           row.pct_waiting = (row.waiting / total) * 100
           row.pct_finished = (row.finished / total) * 100
-          rows.push(row)
         }
-      }
+        rows.push(row)
+      })
       return rows
     }
   }

@@ -12,17 +12,19 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { api } from '@/main'
 
 /**
  * Handles the redirect back from the backend after a successful OAuth2 social
- * login.  The backend already set the auth cookies before redirecting here.
+ * login. The backend already set the auth cookies before redirecting here.
  *
  * All this component needs to do is:
- *  1. Call checkSession to populate the Vuex store from /auth/me
+ *  1. Call checkSession to populate the session from /auth/me
  *  2. Redirect to the home page
  */
 export default Vue.extend({
   name: 'AuthCallback',
+  inject: ['checkSession'],
   data() {
     return {
       loading: true,
@@ -31,7 +33,10 @@ export default Vue.extend({
   },
   async created() {
     try {
-      await this.$store.dispatch('checkSession')
+      const info = await api.checkSession()
+      if (info) {
+        await (this as any).checkSession()
+      }
     } catch (e) {
       this.error = 'Login failed — could not verify session.'
     } finally {

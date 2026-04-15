@@ -31,8 +31,9 @@ function isFinished(item: UIDashboardRow) {
   }
   return item.waiting + item.pending === 0
 }
-import { DashboardRow } from '@/remote/model/dashboardRow'
-import { Route } from '@/remote/model/route'
+import type { DashboardRow } from '@/remote/model/dashboardRow'
+import type { Route } from '@/remote/model/route'
+import type { Team } from '@/remote/model/team'
 import Vue from 'vue'
 
 interface UIDashboardRow {
@@ -51,7 +52,16 @@ const CombinedDashboard = Vue.extend({
   name: 'combined-dashboard',
   props: {
     routes: {
-      required: true
+      type: Array as () => Route[],
+      default: () => []
+    },
+    teams: {
+      type: Array as () => Team[],
+      default: () => []
+    },
+    globalDashboard: {
+      type: Array as () => DashboardRow[],
+      default: () => []
     }
   },
   data() {
@@ -82,6 +92,7 @@ const CombinedDashboard = Vue.extend({
         }
       })
       const total = pending + waiting + finished
+      if (total === 0) return 0
       return (finished / total) * 100
     },
     overall_pct_waiting(): number {
@@ -99,25 +110,19 @@ const CombinedDashboard = Vue.extend({
         }
       })
       const total = pending + waiting + finished
+      if (total === 0) return 0
       return (waiting / total) * 100
     },
     rows(): UIDashboardRow[] {
       const output: UIDashboardRow[] = []
-      if (
-        this.$store.state.global_dashboard.length !==
-        this.$store.state.teams.length
-      ) {
-        console.warn(
-          'Inconsistent UI state! Dashboard and team-list are out of sync'
-        )
-        return output
-      }
-      const dashboardRows: DashboardRow[] = this.$store.state.global_dashboard
+      const dashboardRows: DashboardRow[] = this.globalDashboard
       dashboardRows.forEach((team) => {
-        const teamDetails = this.$store.getters.findTeam(team.team)
-        const routes = this.$store.state.routes as Route[]
-        const route = routes.find(
-          (item) => item.name === teamDetails.route_name
+        const teamDetails = (this.teams as Team[]).find(
+          (t) => t.name === team.team
+        )
+        if (!teamDetails) return
+        const route = (this.routes as Route[]).find(
+          (r) => r.name === teamDetails.route_name
         )
         const row: UIDashboardRow = {
           pending: 0,
@@ -147,9 +152,11 @@ const CombinedDashboard = Vue.extend({
           }
         })
         const total = row.pending + row.waiting + row.finished
-        row.pct_pending = (row.pending / total) * 100
-        row.pct_waiting = (row.waiting / total) * 100
-        row.pct_finished = (row.finished / total) * 100
+        if (total > 0) {
+          row.pct_pending = (row.pending / total) * 100
+          row.pct_waiting = (row.waiting / total) * 100
+          row.pct_finished = (row.finished / total) * 100
+        }
         output.push(row)
       })
       output.sort(
@@ -161,12 +168,10 @@ const CombinedDashboard = Vue.extend({
       return output
     },
     finishedTeams(): UIDashboardRow[] {
-      const all = this.rows
-      return all.filter((item) => isFinished(item))
+      return this.rows.filter((item) => isFinished(item))
     },
     unfinishedTeams(): UIDashboardRow[] {
-      const all = this.rows
-      return all.filter((item) => !isFinished(item))
+      return this.rows.filter((item) => !isFinished(item))
     }
   }
 })

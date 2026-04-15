@@ -2,9 +2,9 @@
   <center-col id="Manual">
     <v-tabs v-model="activeTab" grow>
       <v-tab>Public</v-tab>
-      <v-tab v-if="tokenIsAvailable()">Registered Users</v-tab>
-      <v-tab v-if="isStaff()">Staff</v-tab>
-      <v-tab v-if="isAdmin()">Admin</v-tab>
+      <v-tab v-if="isLoggedIn">Registered Users</v-tab>
+      <v-tab v-if="isStaff">Staff</v-tab>
+      <v-tab v-if="isAdmin">Admin</v-tab>
     </v-tabs>
     <v-tabs-items v-model="activeTab" class="pa-5">
       <v-tab-item>
@@ -24,51 +24,55 @@
 </template>
 
 <script lang="ts">
-import * as publicManual from '@/assets/manual/manual-public.md'
-import * as registeredManual from '@/assets/manual/manual-user.md'
-import * as staffManual from '@/assets/manual/manual-staff.md'
-import * as adminManual from '@/assets/manual/manual-admin.md'
+import * as publicManualMd from '@/assets/manual/manual-public.md'
+import * as registeredManualMd from '@/assets/manual/manual-user.md'
+import * as staffManualMd from '@/assets/manual/manual-staff.md'
+import * as adminManualMd from '@/assets/manual/manual-admin.md'
 import Vue from 'vue'
-const Manual = Vue.extend({
+import type { Session } from '@/App.vue'
+
+export default Vue.extend({
+  name: 'Manual',
+  inject: ['session'],
   data() {
     return {
       activeTab: 'public'
     }
   },
-  methods: {
-    isAdmin() {
-      return this.$store.getters.hasRole('admin')
+  computed: {
+    isLoggedIn(): boolean {
+      return Boolean((this as any).session.userName)
     },
-    isStaff() {
+    isAdmin(): boolean {
+      const roles: string[] = (this as any).session.roles
+      return roles.includes('admin')
+    },
+    isStaff(): boolean {
+      const roles: string[] = (this as any).session.roles
       return (
-        this.$store.getters.hasRole('staff') ||
-        this.$store.getters.hasRole('station_manager')
+        roles.includes('admin') ||
+        roles.includes('staff') ||
+        roles.includes('station_manager')
       )
     },
-    tokenIsAvailable() {
-      return Boolean(this.$store.state.userName)
-    }
-  },
-  computed: {
     publicManual(): string {
       // @ts-expect-error - markdown imports don't seem to be typed properly
-      return publicManual.html
+      return publicManualMd.html
     },
     registeredManual(): string {
       // @ts-expect-error - markdown imports don't seem to be typed properly
-      return registeredManual.html
+      return registeredManualMd.html
     },
     staffManual(): string {
       // @ts-expect-error - markdown imports don't seem to be typed properly
-      return staffManual.html
+      return staffManualMd.html
     },
     adminManual(): string {
       // @ts-expect-error - markdown imports don't seem to be typed properly
-      return adminManual.html
+      return adminManualMd.html
     }
   }
 })
-export default Manual
 </script>
 
 <style>

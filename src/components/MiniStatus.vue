@@ -7,23 +7,25 @@ import util from '@/util'
 import Vue from 'vue'
 const MiniStatus = Vue.extend({
   name: 'mini-status',
-  props: ['team', 'station'],
-  data() {
-    return {
-      state: 'unknown',
-      stateIcon: 'u'
+  props: {
+    team: {
+      type: String,
+      default: ''
+    },
+    station: {
+      type: String,
+      default: ''
+    },
+    // Pass state directly if known; if not provided, icon defaults to unknown.
+    state: {
+      type: String,
+      default: 'unknown'
     }
   },
-  created() {
-    this.$remoteProxy
-      .fetchTeamState(this.station, this.team)
-      .then((state) => {
-        const icon = util.getStateIcon(state)
-        this.stateIcon = icon
-      })
-      .catch((e) => {
-        this.$store.commit('logError', e)
-      })
+  computed: {
+    stateIcon(): string {
+      return util.getStateIcon(this.state)
+    }
   }
 })
 export default MiniStatus

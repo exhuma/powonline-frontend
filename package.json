@@ -18,8 +18,7 @@
     "vue-it-bigger": "^0.3.2",
     "vue-router": "^3.5.4",
     "vue-swatches": "^1.0.3",
-    "vuetify": "^2.6.15",
-    "vuex": "^3.1.1"
+    "vuetify": "^2.6.15"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
@@ -41,4 +40,3 @@
     "vue-tsc": "^0.38.8"
   }
 }
-

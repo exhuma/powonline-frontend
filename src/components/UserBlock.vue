@@ -39,7 +39,7 @@
       <confirmation-dialog
         buttonText="Delete"
         :actionArgument="name"
-        actionName="deleteUserRemote"
+        @confirmed="deleteUser"
       >
         <span slot="title">Do you want to delete the user "{{ name }}"?</span>
         <div slot="text">
@@ -57,38 +57,55 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { api } from '@/main'
+import type { Session } from '@/App.vue'
+
 const UserBlock = Vue.extend({
   name: 'user-block',
+  inject: ['session'],
   data() {
     return {
-      roles: [],
-      selectedRoles: [],
-      stations: [],
-      selectedStations: [],
-      refreshingItems: new Set(),
+      roles: [] as string[],
+      selectedRoles: [] as string[],
+      stations: [] as string[],
+      selectedStations: [] as string[],
+      refreshingItems: new Set<string>(),
       spinnerKey: 0,
       loading: false
     }
+  },
+  props: {
+    name: {
+      type: String,
+      default: 'Unknown User'
+    }
+  },
+  created() {
+    this.refresh()
   },
   methods: {
     closeDialog() {
       this.$emit('closeButtonClicked')
     },
-    onRolesChanged(newRoles) {
+    onRolesChanged(newRoles: string[]) {
       this.roles.forEach((roleName) => {
         if (newRoles.includes(roleName)) {
-          this.$remoteProxy.addUserRole(this.name, roleName)
+          api.addUserRole(this.name, roleName).catch((e) => console.error(e))
         } else {
-          this.$remoteProxy.removeUserRole(this.name, roleName)
+          api.removeUserRole(this.name, roleName).catch((e) => console.error(e))
         }
       })
     },
-    onStationsChanged(newStations) {
+    onStationsChanged(newStations: string[]) {
       this.stations.forEach((stationName) => {
         if (newStations.includes(stationName)) {
-          this.$remoteProxy.addStationToUser(this.name, stationName)
+          api
+            .addStationToUser(this.name, stationName)
+            .catch((e) => console.error(e))
         } else {
-          this.$remoteProxy.removeStationFromUser(this.name, stationName)
+          api
+            .removeStationFromUser(this.name, stationName)
+            .catch((e) => console.error(e))
         }
       })
     },
@@ -96,87 +113,75 @@ const UserBlock = Vue.extend({
       this.refreshRoles()
       this.refreshStations()
     },
-    refreshStations() {
+    async refreshStations() {
       const refreshKey = 'stations'
-      if (this.refreshingItems.has(refreshKey)) {
-        return
-      }
+      if (this.refreshingItems.has(refreshKey)) return
       this.refreshingItems.add(refreshKey)
       this.loading = true
       this.spinnerKey += 1
-      this.$remoteProxy
-        .fetchUserStations(this.name)
-        .then((items) => {
-          this.selectedStations = []
-          items.forEach(([stationName, isActive]) => {
-            if (!this.stations.includes(stationName)) {
-              this.stations.push(stationName)
-            }
-            if (isActive) {
-              this.selectedStations.push(stationName)
-            }
-          })
-          this.refreshingItems.delete(refreshKey)
-          if (this.refreshingItems.size === 0) {
-            this.loading = false
+      try {
+        const items = await api.fetchUserStations(this.name)
+        this.selectedStations = []
+        items.forEach(([stationName, isActive]) => {
+          if (!this.stations.includes(stationName)) {
+            this.stations.push(stationName)
           }
-          this.spinnerKey += 1
-        })
-        .catch((e) => {
-          this.$store.commit('logError', e)
-          this.refreshingItems.delete(refreshKey)
-          if (this.refreshingItems.size === 0) {
-            this.loading = false
+          if (isActive) {
+            this.selectedStations.push(stationName)
           }
-          this.spinnerKey += 1
         })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.refreshingItems.delete(refreshKey)
+        if (this.refreshingItems.size === 0) {
+          this.loading = false
+        }
+        this.spinnerKey += 1
+      }
     },
-    refreshRoles() {
+    async refreshRoles() {
       const refreshKey = 'roles'
-      if (this.refreshingItems.has(refreshKey)) {
-        return
-      }
+      if (this.refreshingItems.has(refreshKey)) return
       this.refreshingItems.add(refreshKey)
       this.loading = true
       this.spinnerKey += 1
-      this.$remoteProxy
-        .fetchUserRoles(this.name)
-        .then((items) => {
-          this.selectedRoles = []
-          items.forEach(([roleName, isActive]) => {
-            if (!this.roles.includes(roleName)) {
-              this.roles.push(roleName)
-            }
-            if (isActive) {
-              this.selectedRoles.push(roleName)
-            }
-          })
-          this.refreshingItems.delete(refreshKey)
-          if (this.refreshingItems.size === 0) {
-            this.loading = false
+      try {
+        const items = await api.fetchUserRoles(this.name)
+        this.selectedRoles = []
+        // fetchUserRoles returns plain string[] of all possible roles or
+        // [roleName, isActive] pairs — handle both shapes
+        items.forEach((item: any) => {
+          const [roleName, isActive] = Array.isArray(item) ? item : [item, true]
+          if (!this.roles.includes(roleName)) {
+            this.roles.push(roleName)
           }
-          this.spinnerKey += 1
-        })
-        .catch((e) => {
-          this.$store.commit('logError', e)
-          this.refreshingItems.delete(refreshKey)
-          if (this.refreshingItems.size === 0) {
-            this.loading = false
+          if (isActive) {
+            this.selectedRoles.push(roleName)
           }
-          this.spinnerKey += 1
         })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.refreshingItems.delete(refreshKey)
+        if (this.refreshingItems.size === 0) {
+          this.loading = false
+        }
+        this.spinnerKey += 1
+      }
     },
-    hasRole(roleName) {
-      return this.$store.getters.hasRole(roleName)
-    }
-  },
-  created() {
-    this.refresh()
-  },
-  props: {
-    name: {
-      type: String,
-      default: 'Unknown User'
+    hasRole(roleName: string): boolean {
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return session.roles.includes(roleName)
+    },
+    async deleteUser(userName: string) {
+      try {
+        await api.deleteUser(userName)
+        this.$emit('deleted', userName)
+      } catch (e) {
+        console.error('Failed to delete user', e)
+      }
     }
   }
 })

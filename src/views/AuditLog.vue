@@ -33,11 +33,15 @@
 <script lang="ts">
 import moment from 'moment'
 import Vue from 'vue'
-const AuditLog = Vue.extend({
-  name: 'auditlog',
+import { api } from '@/main'
+import type { AuditLogRow } from '@/remote/model/auditLogRow'
+
+export default Vue.extend({
+  name: 'AuditLog',
+  inject: ['getSelectedEventId'],
   data() {
     return {
-      entries: [],
+      entries: [] as AuditLogRow[],
       entryFilter: '',
       headers: [
         { text: 'Timestamp', sortable: false },
@@ -48,44 +52,38 @@ const AuditLog = Vue.extend({
     }
   },
   computed: {
-    filteredEntries() {
+    filteredEntries(): AuditLogRow[] {
       const all = this.entries
-      let filtered = null
       if (!this.entryFilter || this.entryFilter.length < 3) {
-        filtered = all
-      } else {
-        filtered = all.filter((item) => {
-          const fltr = this.entryFilter.toLowerCase()
-          const userMatches = item.username.toLowerCase().includes(fltr)
-          const typeMatches = item.type.toLowerCase().includes(fltr)
-          const msgMatches = item.message.toLowerCase().includes(fltr)
-          return userMatches || typeMatches || msgMatches
-        })
+        return all
       }
-      return filtered
+      return all.filter((item) => {
+        const fltr = this.entryFilter.toLowerCase()
+        const userMatches = item.username.toLowerCase().includes(fltr)
+        const typeMatches = item.type.toLowerCase().includes(fltr)
+        const msgMatches = item.message.toLowerCase().includes(fltr)
+        return userMatches || typeMatches || msgMatches
+      })
     }
   },
   methods: {
-    format_ts(ts) {
-      const obj = moment(ts)
-      return obj.format('YYYY-MM-DD HH:mm:ss')
+    format_ts(ts: string): string {
+      return moment(ts).format('YYYY-MM-DD HH:mm:ss')
     },
-    refresh() {
-      const eventId = this.$store.state.selectedEventId
-      this.$remoteProxy
-        .fetchAuditLog(eventId)
-        .then((result) => {
-          this.entries = result
+    async refresh() {
+      const eventId: number | null = (this as any).getSelectedEventId()
+      if (!eventId) return
+      try {
+        this.entries = await api.fetchAuditLog(eventId)
+      } catch (e: any) {
+        console.error(e)
+        this.$emit('snackRequested', {
+          message: `Unable to update audit-log (${e?.response?.data ?? e?.message})`,
+          color: 'red'
         })
-        .catch((e) => {
-          console.error(e)
-          this.$emit('snackRequested', {
-            message: `Unable to update audit-log (${e.response.data})`,
-            color: 'red'
-          })
-        })
+      }
     },
-    onFilterCleared(e) {
+    onFilterCleared() {
       this.entryFilter = ''
     }
   },
@@ -93,5 +91,4 @@ const AuditLog = Vue.extend({
     this.refresh()
   }
 })
-export default AuditLog
 </script>

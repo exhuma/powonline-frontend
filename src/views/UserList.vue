@@ -8,7 +8,7 @@
     >
       <v-text-field
         name="user-input"
-        id="UserNameImput"
+        id="UserNameInput"
         @keyup.enter.native="onDialogConfirmed"
         type="text"
         v-model="selectedUser.name"
@@ -39,18 +39,22 @@
       label="Filter"
       v-model="userFilterText"
       append-icon="mdi-magnify"
-      hint="Filter list of teams by name and/or contact"
+      hint="Filter list of users by name"
     ></v-text-field>
-    <v-list two-line>
+
+    <div v-if="loading" class="text-center py-6">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </div>
+
+    <v-list v-else two-line>
       <template v-for="item in filteredUsers">
-        <v-list-item :key="item.name" @click="() => openUserDialog(item.name)">
+        <v-list-item :key="item.name" @click="openUserDialog(item.name)">
           <v-list-item-avatar v-if="item.avatar_url">
             <img :src="item.avatar_url" />
           </v-list-item-avatar>
           <v-list-item-avatar v-else>
             <v-icon>mdi-face-man</v-icon>
           </v-list-item-avatar>
-
           <v-list-item-content>
             <v-list-item-title>{{ item.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
@@ -60,7 +64,6 @@
     </v-list>
 
     <v-list-item v-if="hasRole(['admin'])">
-      <!-- TODO: should not use v-list-item here -->
       <v-spacer />
       <v-list-item-action>
         <v-btn @click="openCreateDialog">Add new User</v-btn>
@@ -70,94 +73,95 @@
 </template>
 
 <script lang="ts">
-import model from '@/model'
-import UserBlock from './UserBlock.vue'
-import CenterCol from './CenterCol.vue'
-import type { User } from '@/remote/model/user'
-
 import Vue from 'vue'
+import { api } from '@/main'
+import model from '@/model'
+import UserBlock from '@/components/UserBlock.vue'
+import type { User } from '@/remote/model/user'
+import type { Session } from '@/App.vue'
+
 const UserList = Vue.extend({
-  components: { UserBlock, CenterCol },
   name: 'user_list',
-  computed: {
-    filteredUsers: function (): User[] {
-      if (this.userFilterText.trim() === '') {
-        return this.users
-      }
-      return this.users.filter(
-        (item) =>
-          item.name
-            .toLowerCase()
-            .search(this.userFilterText.trim().toLowerCase()) >= 0
-      )
-    }
-  },
-  methods: {
-    closeUserDialog: function () {
-      this.selectedUserName = ''
-      this.isEditDialogVisible = false
-    },
-    openUserDialog: function (userName) {
-      this.selectedUserName = userName
-      this.isEditDialogVisible = true
-      this.$nextTick(() => {
-        // @ts-expect-error - I don't know how to type this
-        this.$refs.userDialog.refresh()
-      })
-    },
-    onDialogConfirmed: function (event) {
-      const user = this.selectedUser
+  components: { UserBlock },
+  inject: ['session'],
 
-      if (this.sendMode === model.SEND_MODE.CREATE) {
-        this.$store.dispatch('addUserRemote', user)
-      } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        console.warn('Updating users is not implemented yet!')
-      } else {
-        console.error('Invalid send mode: ' + this.sendMode)
-      }
-
-      this.$emit('userSaved', user)
-      this.selectedUser = model.user.makeEmpty()
-
-      this.isAddBlockVisible = false
-    },
-
-    openCreateDialog: function () {
-      const newUser = model.user.makeEmpty()
-
-      this.selectedUser = newUser
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.CREATE
-    },
-
-    closeAddBlock() {
-      this.isAddBlockVisible = false
-    },
-    hasRole(roleName) {
-      return this.$store.getters.hasRole(roleName)
-    }
-  },
-  async created() {
-    this.$store.commit('changeTitle', 'User List')
-    let users = []
-    try {
-      users = await this.$remoteProxy.fetchUsers()
-      this.errorMessage = ''
-    } catch (error) {
-      this.errorMessage = 'Unable to fetch users (are you logged in?)'
-    }
-    this.users = users
-  },
   data() {
     return {
+      loading: false,
+      users: [] as User[],
       userFilterText: '',
       errorMessage: '',
       isAddBlockVisible: false,
       selectedUserName: '',
       isEditDialogVisible: false,
-      selectedUser: model.user.makeEmpty(),
+      selectedUser: model.user.makeEmpty() as any,
       sendMode: model.SEND_MODE.CREATE,
-      users: [] as User[]
+      SEND_MODE: model.SEND_MODE
+    }
+  },
+
+  computed: {
+    filteredUsers(): User[] {
+      if (this.userFilterText.trim() === '') return this.users
+      const fltr = this.userFilterText.trim().toLowerCase()
+      return this.users.filter((u) => u.name.toLowerCase().includes(fltr))
+    }
+  },
+
+  async created() {
+    this.loading = true
+    try {
+      this.users = await api.fetchUsers()
+      this.errorMessage = ''
+    } catch {
+      this.errorMessage = 'Unable to fetch users (are you logged in?)'
+    } finally {
+      this.loading = false
+    }
+  },
+
+  methods: {
+    hasRole(roleNames: string[]): boolean {
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return roleNames.some((r) => session.roles.includes(r))
+    },
+    closeUserDialog() {
+      this.selectedUserName = ''
+      this.isEditDialogVisible = false
+    },
+    openUserDialog(userName: string) {
+      this.selectedUserName = userName
+      this.isEditDialogVisible = true
+      this.$nextTick(() => {
+        // @ts-expect-error - ref typing
+        this.$refs.userDialog?.refresh?.()
+      })
+    },
+    openCreateDialog() {
+      this.selectedUser = model.user.makeEmpty()
+      this.isAddBlockVisible = true
+      this.sendMode = model.SEND_MODE.CREATE
+    },
+    closeAddBlock() {
+      this.isAddBlockVisible = false
+    },
+    async onDialogConfirmed() {
+      const user = this.selectedUser
+
+      if (this.sendMode === model.SEND_MODE.CREATE) {
+        try {
+          const created = await api.addUser(user)
+          this.users.push(created)
+        } catch (e) {
+          console.error('Failed to add user', e)
+        }
+      } else {
+        console.warn('Updating users is not implemented yet!')
+      }
+
+      this.selectedUser = model.user.makeEmpty()
+      this.isAddBlockVisible = false
     }
   }
 })

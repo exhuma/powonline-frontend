@@ -15,7 +15,7 @@
       <confirmation-dialog
         buttonText="Delete"
         :actionArgument="station.name"
-        actionName="deleteStationRemote"
+        @confirmed="deleteStation"
       >
         <span slot="title"
           >Do you want to delete the station "{{ station.name }}"?</span
@@ -35,8 +35,12 @@
 <script lang="ts">
 import model from '@/model'
 import Vue from 'vue'
+import { api } from '@/main'
+import type { Session } from '@/App.vue'
+
 const StationBlock = Vue.extend({
   name: 'station-block',
+  inject: ['session', 'getSelectedEventId'],
   props: {
     station: {
       type: Object,
@@ -46,14 +50,27 @@ const StationBlock = Vue.extend({
     }
   },
   methods: {
-    openDashBoard(station) {
+    openDashBoard(station: { name: string }) {
       this.$router.push('/station/' + station.name)
     },
-    hasRole(roleName) {
-      return this.$store.getters.hasRole(roleName)
+    hasRole(roleName: string): boolean {
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return session.roles.includes(roleName)
     },
     openEditDialog() {
       this.$emit('openEditDialog')
+    },
+    async deleteStation(stationName: string) {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        await api.deleteStation(stationName, eventId)
+        this.$emit('deleted', stationName)
+      } catch (e) {
+        console.error('Failed to delete station', e)
+      }
     }
   }
 })

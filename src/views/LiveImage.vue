@@ -1,7 +1,7 @@
 <template>
   <div class="imgbox">
     <div v-if="!fullScreen" class="white--text">{{ counter }}</div>
-    <div v-if="this.queuelength" class="white--text">
+    <div v-if="queuelength" class="white--text">
       {{ queuelength }} images in queue
     </div>
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
@@ -51,32 +51,37 @@
 
 <script lang="ts">
 import Vue from 'vue'
-const LiveImage = Vue.extend({
+
+export default Vue.extend({
+  name: 'LiveImage',
+  // liveImageQueue is a reactive array provided by App.vue via Pusher callbacks
+  inject: { liveImageQueue: { default: () => [] } },
   created() {
-    this.intervalId = setInterval(() => {
+    this.intervalId = window.setInterval(() => {
       this.countdown()
     }, 1000)
   },
   beforeDestroy() {
-    clearInterval(this.intervalId)
+    window.clearInterval(this.intervalId as number)
   },
   watch: {
-    timeout: function (val) {
+    timeout(val: number) {
       this.counter = val
     }
   },
   data() {
     return {
-      latestImage: null,
-      intervalId: null,
+      latestImage: null as any,
+      intervalId: null as number | null,
       timeout: 10,
       counter: 10,
-      fullScreen: false
+      fullScreen: false,
+      localQueue: [] as any[]
     }
   },
   computed: {
-    queuelength() {
-      return this.$store.state.liveImageQueue.length
+    queuelength(): number {
+      return (this as any).liveImageQueue.length
     }
   },
   methods: {
@@ -92,14 +97,11 @@ const LiveImage = Vue.extend({
       }
     },
     loadNextImage() {
-      if (!this.$store.state.liveImageQueue.length) {
-        return
-      }
-      const nextImage = this.$store.state.liveImageQueue[0]
-      this.latestImage = nextImage
-      this.$store.commit('consumeImage')
+      const queue: any[] = (this as any).liveImageQueue
+      if (!queue.length) return
+      this.latestImage = queue[0]
+      queue.splice(0, 1)
     }
   }
 })
-export default LiveImage
 </script>

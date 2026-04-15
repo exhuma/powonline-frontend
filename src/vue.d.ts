@@ -1,9 +1,7 @@
 // src/vue.d.ts
-import Vue from 'vue'
-import { Proxy } from './remote/index' // replace with actual path to the type of remoteProxy
+// $remoteProxy has been removed — all API calls go through ApiClient (injected via provide/inject)
 
-declare module 'vue/types/vue' {
-  interface Vue {
-    $remoteProxy: Proxy
-  }
+declare module '*.vue' {
+  import Vue from 'vue'
+  export default Vue
 }

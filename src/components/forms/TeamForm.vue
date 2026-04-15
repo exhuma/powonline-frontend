@@ -187,6 +187,10 @@ const TeamForm = Vue.extend({
       default() {
         return model.team.makeEmpty()
       }
+    },
+    routes: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -267,9 +271,6 @@ const TeamForm = Vue.extend({
           console.error({ 'Cannot set date value to': nw })
         }
       }
-    },
-    routes(): unknown {
-      return this.$store.state.routes
     }
   }
 })

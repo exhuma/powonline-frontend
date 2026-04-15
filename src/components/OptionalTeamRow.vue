@@ -10,7 +10,7 @@
       v-html="muvalue"
     ></v-flex>
     <v-flex v-if="!isConstructed()" xs11 class="text-xs-left">{{
-      this.value
+      value
     }}</v-flex>
   </v-layout>
 </template>
@@ -19,14 +19,19 @@
 import Vue from 'vue'
 const OptionalTeamRow = Vue.extend({
   name: 'optional-team-row',
-  props: ['tooltip', 'icon', 'value', 'mu'],
+  props: {
+    tooltip: { type: String, default: '' },
+    icon: { type: String, default: '' },
+    value: { type: String, default: '' },
+    mu: { type: String, default: '' }
+  },
   methods: {
-    isConstructed: function () {
+    isConstructed(): boolean {
       return this.mu === 'email' || this.mu === 'tel'
     }
   },
   computed: {
-    muvalue() {
+    muvalue(): string {
       if (this.mu === 'email') {
         return `<a href="mailto:${this.value}">${this.value}</a>`
       }

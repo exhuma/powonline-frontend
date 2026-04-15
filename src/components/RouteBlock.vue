@@ -39,13 +39,15 @@
         <confirmation-dialog
           buttonText="Delete"
           :actionArgument="route.name"
-          actionName="deleteRouteRemote"
+          @confirmed="deleteRoute"
         >
-          <span slot="title">Do you want to delete the route "{{ route.name }}"?</span>
+          <span slot="title"
+            >Do you want to delete the route "{{ route.name }}"?</span
+          >
           <div slot="text">
             <p>
-              This will delete the route with the name "{{ route.name }}" and all
-              related information!
+              This will delete the route with the name "{{ route.name }}" and
+              all related information!
             </p>
             <p>Are you sure?</p>
           </div>
@@ -76,10 +78,13 @@ import Swatches from 'vue-swatches'
 import 'vue-swatches/dist/vue-swatches.min.css'
 import RouteAssignments from '@/components/forms/RouteAssignments.vue'
 import Vue from 'vue'
+import { api } from '@/main'
+import type { Session } from '@/App.vue'
 
 const RouteBlock = Vue.extend({
   name: 'route-block',
   components: { Swatches, RouteAssignments },
+  inject: ['session', 'getSelectedEventId'],
   props: {
     route: {
       type: Object,
@@ -97,18 +102,31 @@ const RouteBlock = Vue.extend({
     }
   },
   methods: {
-    setRouteColor(newColor: string) {
-      this.$remoteProxy
-        .setRouteColor(this.route.name, newColor)
-        .then(() => {
-          console.log('Color changed') // XXX snack
-        })
-        .catch((e: unknown) => {
-          console.error(e) // XXX snack
-        })
+    async setRouteColor(newColor: string) {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        await api.setRouteColor(this.route.name, newColor, eventId)
+      } catch (e) {
+        console.error('Failed to set route color', e)
+      }
+    },
+    async deleteRoute(routeName: string) {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        await api.deleteRoute(routeName, eventId)
+        this.$emit('deleted', routeName)
+      } catch (e) {
+        console.error('Failed to delete route', e)
+      }
     },
     hasRole(roleName: string): boolean {
-      return this.$store.getters.hasRole(roleName)
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return session.roles.includes(roleName)
     }
   }
 })

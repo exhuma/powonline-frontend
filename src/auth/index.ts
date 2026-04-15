@@ -1,29 +1,32 @@
 /**
  * Auth helpers.
  *
- * Session state is held exclusively in the Vuex store (populated via
- * GET /auth/me on startup and after social-login callback).  There is no
- * localStorage, no readable JWT — cookies are HttpOnly and managed by the
- * browser transparently.
+ * Session state is held by App.vue (populated via GET /auth/me on startup
+ * and after social-login callback). There is no localStorage, no readable JWT
+ * — cookies are HttpOnly and managed by the browser transparently.
  */
-import type { Store } from 'vuex'
+
+export type Session = {
+  userName: string
+  roles: string[]
+}
 
 export class Auth {
-  private store: Store<any>
+  private session: Session
 
-  constructor(store: Store<any>) {
-    this.store = store
+  constructor(session: Session) {
+    this.session = session
   }
 
   isAuthenticated(): boolean {
-    return Boolean(this.store.state.userName)
+    return Boolean(this.session.userName)
   }
 
   get_roles(): string[] {
-    return this.store.state.roles || []
+    return this.session.roles || []
   }
 
   get_username(): string {
-    return this.store.state.userName || ''
+    return this.session.userName || ''
   }
 }

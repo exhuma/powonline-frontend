@@ -31,7 +31,7 @@
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable"
           >Logged in as
-          <span class="accent--text">{{ appUserName }}</span></span
+          <span class="accent--text">{{ session.userName }}</span></span
         >
         <v-tooltip bottom v-if="tokenIsAvailable">
           <template v-slot:activator="{ on }">
@@ -58,7 +58,11 @@
         class="hidden-sm-and-up"
       >
         <v-list>
-          <v-list-item v-for="route in routes" :to="route.to" :key="route.to">
+          <v-list-item
+            v-for="route in navRoutes"
+            :to="route.to"
+            :key="route.to"
+          >
             <v-list-item-action
               ><v-icon>{{ route.icon }}</v-icon></v-list-item-action
             >
@@ -153,7 +157,7 @@
           v-if="isBottomNavVisible"
         >
           <v-btn
-            v-for="route in routes"
+            v-for="route in navRoutes"
             :to="route.to"
             :key="route.to"
             text
@@ -182,10 +186,34 @@ SMALL {
 import { startSocialLogin } from '@/auth/social'
 import EventBus from '@/plugins/eventBus'
 import Vue from 'vue'
-import type { AuthProvider } from '@/remote'
+import { api } from '@/main'
+import { init as initRealtime } from '@/events'
+import type { AuthProvider, EventInfo } from '@/api'
+
+declare const __APP_VERSION__: string
+
+export type Session = {
+  userName: string
+  roles: string[]
+}
 
 const App = Vue.extend({
   name: 'App',
+  provide() {
+    return {
+      api,
+      session: (this as any).session,
+      getSelectedEventId: () => (this as any).selectedEventId,
+      setSelectedEventId: (id: number | null) => {
+        ;(this as any).selectedEventId = id
+      },
+      getEvents: () => (this as any).events,
+      setEvents: (evts: EventInfo[]) => {
+        ;(this as any).events = evts
+      },
+      checkSession: () => (this as any).refreshSession()
+    }
+  },
   mounted() {
     EventBus.$on('activityEvent', (payload) => {
       this.onActivityChange(payload)
@@ -199,8 +227,9 @@ const App = Vue.extend({
     EventBus.$on('refresh-progress-updated', (payload) => {
       this.onRefreshProgressUpdated(payload)
     })
+
     // Load available social auth providers
-    this.$remoteProxy
+    api
       .getAuthProviders()
       .then((providers: AuthProvider[]) => {
         this.authProviders = providers
@@ -208,9 +237,60 @@ const App = Vue.extend({
       .catch(() => {
         this.authProviders = []
       })
+
+    // Check for an existing server-side session
+    this.refreshSession()
+
+    // Load events list
+    api
+      .fetchEvents()
+      .then((evts) => {
+        this.events = evts
+      })
+      .catch(() => {
+        this.events = []
+      })
+
+    // Init realtime (Pusher)
+    document.title = import.meta.env.VITE_PAGE_TITLE || 'powonline'
+    initRealtime(
+      api,
+      {
+        key: import.meta.env.VITE_PUSHER_KEY,
+        debug: Boolean(import.meta.env.VITE_PUSHER_DEBUG),
+        teamChannel: import.meta.env.VITE_PUSHER_TEAM_CHANNEL,
+        fileChannel: import.meta.env.VITE_PUSHER_FILE_CHANNEL
+      },
+      {
+        onTeamStateChange: () => {
+          /* handled locally in views */
+        },
+        onQuestionnaireScoreChange: () => {
+          /* handled locally in views */
+        },
+        onTeamDetailsChange: () => {
+          /* handled locally in views */
+        },
+        onTeamDeleted: () => {
+          /* handled locally in views */
+        },
+        onFileAdded: () => {
+          /* handled locally in views */
+        },
+        onFileDeleted: () => {
+          /* handled locally in views */
+        }
+      }
+    )
   },
   data() {
     return {
+      session: {
+        userName: '',
+        roles: [] as string[]
+      } as Session,
+      selectedEventId: null as number | null,
+      events: [] as EventInfo[],
       activeLoginTab: 'socialLogin',
       loginDialogVisible: false,
       sideMenuVisible: false,
@@ -234,6 +314,21 @@ const App = Vue.extend({
     }
   },
   methods: {
+    async refreshSession() {
+      try {
+        const info = await api.checkSession()
+        if (info) {
+          this.session.userName = info.user
+          this.session.roles = info.roles
+        } else {
+          this.session.userName = ''
+          this.session.roles = []
+        }
+      } catch {
+        this.session.userName = ''
+        this.session.roles = []
+      }
+    },
     setFullscreen(state) {
       this.isBottomNavVisible = !state
       this.isTitleBarVisible = !state
@@ -265,42 +360,40 @@ const App = Vue.extend({
       this.loginDialogVisible = false
       startSocialLogin(provider)
     },
-    loginUser() {
-      this.$remoteProxy
-        .loginUser(this.username, this.password)
-        .then((data) => {
-          this.username = ''
-          this.password = ''
-          this.$store.commit('updateUserData', data)
-        })
-        .catch((e) => {
-          let message = 'Unknown Error'
-          if (e.response) {
-            message = e.response.data
-          } else {
-            message = e.message
-          }
-          this.$store.commit('clearUserData')
-          this.globalSnackText = message
-          this.globalSnack = true
-          this.globalSnackColor = 'error'
-        })
+    async loginUser() {
       this.loginDialogVisible = false
-    },
-    logoutUser() {
-      this.$store.dispatch('logout').then(() => {
-        this.$router.push('/')
+      try {
+        const data = await api.loginUser(this.username, this.password)
         this.username = ''
         this.password = ''
-      })
+        this.session.userName = data.user
+        this.session.roles = data.roles
+      } catch (e: any) {
+        let message = 'Unknown Error'
+        if (e.response) {
+          message = e.response.data
+        } else {
+          message = e.message
+        }
+        this.session.userName = ''
+        this.session.roles = []
+        this.globalSnackText = message
+        this.globalSnack = true
+        this.globalSnackColor = 'error'
+      }
+    },
+    async logoutUser() {
+      await api.logout()
+      this.session.userName = ''
+      this.session.roles = []
+      this.username = ''
+      this.password = ''
+      this.$router.push('/')
     },
     cancelLogin() {
       this.loginDialogVisible = false
       this.username = ''
       this.password = ''
-    },
-    hasRole(roleName) {
-      return this.$store.getters.hasRole(roleName)
     }
   },
   computed: {
@@ -310,10 +403,10 @@ const App = Vue.extend({
     pageTitle() {
       return import.meta.env.VITE_PAGE_TITLE
     },
-    appUserName() {
-      return this.$store.state.userName
-    },
-    routes() {
+    navRoutes() {
+      const roles: string[] = this.session.roles
+      const hasRole = (r: string) =>
+        roles.includes('admin') || roles.includes(r)
       const output = [
         { label: 'Dashboard', to: '/dashboard', icon: 'mdi-border-all' },
         {
@@ -323,21 +416,21 @@ const App = Vue.extend({
         },
         { label: 'Photos', to: '/gallery', icon: 'mdi-image' }
       ]
-      if (this.$store.getters.hasRole('station_manager')) {
+      if (hasRole('station_manager')) {
         output.push({
           label: 'Stations',
           to: '/station',
           icon: 'mdi-map-marker'
         })
       }
-      if (this.$store.getters.hasRole('admin')) {
+      if (hasRole('admin')) {
         output.push({
           label: 'Questionnaires',
           to: '/questionnaire',
           icon: 'mdi-script-text'
         })
       }
-      if (this.$store.getters.hasRole('admin')) {
+      if (hasRole('admin')) {
         output.push({ label: 'Teams', to: '/team', icon: 'mdi-account-group' })
       }
       if (this.tokenIsAvailable) {
@@ -347,7 +440,7 @@ const App = Vue.extend({
           icon: 'mdi-cloud-upload'
         })
       }
-      if (this.$store.getters.hasRole('admin')) {
+      if (hasRole('admin')) {
         output.push({ label: 'Routes', to: '/route', icon: 'mdi-gesture' })
         output.push({ label: 'Users', to: '/user', icon: 'mdi-face-man' })
         output.push({
@@ -374,12 +467,12 @@ const App = Vue.extend({
       return output
     },
     tokenIsAvailable() {
-      return Boolean(this.$store.state.userName)
+      return Boolean((this as any).session.userName)
     },
     selectedEventName(): string {
-      const eventId = this.$store.state.selectedEventId
+      const eventId = this.selectedEventId
       if (!eventId) return ''
-      const event = this.$store.state.events.find((e: any) => e.id === eventId)
+      const event = this.events.find((e: EventInfo) => e.id === eventId)
       return event ? event.name : ''
     },
     here() {

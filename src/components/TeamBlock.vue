@@ -14,8 +14,8 @@
     <v-list-item-action class="ml-3" v-if="hasRole('admin')">
       <confirmation-dialog
         buttonText="Delete"
-        :actionArgument="name"
-        actionName="deleteTeamRemote"
+        :actionArgument="team.name"
+        @confirmed="deleteTeam"
       >
         <span slot="title"
           >Do you want to delete the team "{{ team.name }}"?</span
@@ -35,63 +35,62 @@
 <script lang="ts">
 import model from '@/model'
 import Vue from 'vue'
+import { api } from '@/main'
+import type { Team } from '@/remote/model/team'
+import type { Route } from '@/remote/model/route'
+import type { Session } from '@/App.vue'
+
 const TeamBlock = Vue.extend({
   name: 'team-block',
-  data() {
-    return {
-      stations: []
-    }
-  },
+  inject: ['session', 'getSelectedEventId'],
   props: {
     team: {
-      type: Object,
+      type: Object as () => Team,
       default: model.team.makeEmpty()
+    },
+    teams: {
+      type: Array as () => Team[],
+      default: () => []
+    },
+    routes: {
+      type: Array as () => Route[],
+      default: () => []
     }
   },
 
   computed: {
-    routeColor() {
-      let selectedTeam = null
-      this.$store.state.teams.forEach((team) => {
-        if (team.name !== this.team.name) {
-          return
-        }
-        selectedTeam = team
-      })
-
-      let selectedRoute = null
-      this.$store.state.routes.forEach((route) => {
-        if (route.name !== selectedTeam.route_name) {
-          return
-        }
-        selectedRoute = route
-      })
-
-      if (selectedRoute === null) {
-        return null
-      }
-      if (selectedRoute.color) {
-        return `color: ${selectedRoute.color};`
-      } else {
-        return 'color: #000000;'
-      }
+    routeColor(): string | null {
+      const teamData = (this.teams as Team[]).find(
+        (t: Team) => t.name === this.team.name
+      )
+      if (!teamData) return null
+      const route = (this.routes as Route[]).find(
+        (r: Route) => r.name === teamData.route_name
+      )
+      if (!route) return null
+      return route.color ? `color: ${route.color};` : 'color: #000000;'
     }
   },
 
-  created() {
-    const eventId = this.$store.state.selectedEventId
-    this.$remoteProxy
-      .fetchTeamStations(this.team.name, eventId)
-      .then((items) => {
-        this.stations = items
-      })
-  },
   methods: {
-    hasRole(roleName) {
-      return this.$store.getters.hasRole(roleName)
+    hasRole(roleName: string): boolean {
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return session.roles.includes(roleName)
     },
     openEditDialog() {
       this.$emit('openEditDialog')
+    },
+    async deleteTeam(teamName: string) {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        await api.deleteTeam(teamName, eventId)
+        this.$emit('deleted', teamName)
+      } catch (e) {
+        console.error('Failed to delete team', e)
+      }
     }
   }
 })

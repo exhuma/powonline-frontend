@@ -92,7 +92,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import type { EventMember } from '@/remote'
+import { api } from '@/main'
+import type { EventMember } from '@/api'
+import type { User } from '@/remote/model/user'
 
 export default Vue.extend({
   name: 'EventMemberManager',
@@ -110,6 +112,7 @@ export default Vue.extend({
     return {
       dialog: false,
       members: [] as EventMember[],
+      availableUsers: [] as User[],
       selectedUser: null as string | null,
       selectedRole: 'event_co_admin' as string,
       availableRoles: [
@@ -117,11 +120,6 @@ export default Vue.extend({
         { text: 'Owner', value: 'event_owner' }
       ],
       loading: false
-    }
-  },
-  computed: {
-    availableUsers(): Array<{ name: string }> {
-      return this.$store.state.users || []
     }
   },
   watch: {
@@ -132,7 +130,7 @@ export default Vue.extend({
         if (val) {
           this.loadMembers()
           if (this.availableUsers.length === 0) {
-            this.$store.dispatch('refreshUsers')
+            this.loadUsers()
           }
         }
       }
@@ -144,10 +142,17 @@ export default Vue.extend({
     }
   },
   methods: {
+    async loadUsers() {
+      try {
+        this.availableUsers = await api.fetchUsers()
+      } catch (e) {
+        console.error('Failed to fetch users', e)
+      }
+    },
     async loadMembers() {
       this.loading = true
       try {
-        this.members = await this.$remoteProxy.fetchEventMembers(this.eventId)
+        this.members = await api.fetchEventMembers(this.eventId)
       } catch (e) {
         console.error('Failed to fetch event members', e)
       } finally {
@@ -161,10 +166,7 @@ export default Vue.extend({
         role_name: this.selectedRole
       }
       try {
-        const added = await this.$remoteProxy.addEventMember(
-          this.eventId,
-          member
-        )
+        const added = await api.addEventMember(this.eventId, member)
         this.members.push(added)
         this.selectedUser = null
       } catch (e) {
@@ -173,7 +175,7 @@ export default Vue.extend({
     },
     async removeMember(member: EventMember) {
       try {
-        await this.$remoteProxy.removeEventMember(
+        await api.removeEventMember(
           this.eventId,
           member.user_name,
           member.role_name

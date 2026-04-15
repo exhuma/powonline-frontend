@@ -54,7 +54,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
-import type { EventInfo } from '@/remote'
+import type { EventInfo } from '@/api'
+import { api } from '@/main'
 import DateTimePicker from './DateTimePicker.vue'
 
 export default Vue.extend({
@@ -134,12 +135,9 @@ export default Vue.extend({
       }
       try {
         if (this.isEditMode && this.event) {
-          await this.$store.dispatch('updateEvent', {
-            eventId: this.event.id,
-            eventData
-          })
+          await api.updateEvent(this.event.id, eventData)
         } else {
-          await this.$store.dispatch('createEvent', eventData)
+          await api.createEvent(eventData)
         }
         this.$emit('save')
         this.closeDialog()

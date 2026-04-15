@@ -24,14 +24,15 @@ const ConfirmationDialog = Vue.extend({
       isDialogVisible: false
     }
   },
-  props: ['actionArgument', 'actionName', 'buttonText'],
+  props: ['actionArgument', 'buttonText'],
   methods: {
     discardAction() {
       this.isDialogVisible = false
     },
     acceptAction() {
-      this.$store.dispatch(this.actionName, this.actionArgument)
       this.isDialogVisible = false
+      this.$emit('confirmed', this.actionArgument)
+      // kept for backward compat with any callers still listening for actionAccepted
       this.$emit('actionAccepted', this.actionArgument)
     }
   }

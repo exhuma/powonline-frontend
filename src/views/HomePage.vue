@@ -92,12 +92,15 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
-import type { EventInfo } from '@/remote'
-import EventDialog from './EventDialog.vue'
+import type { EventInfo } from '@/api'
+import EventDialog from '@/components/EventDialog.vue'
+import { api } from '@/main'
+import type { Session } from '@/App.vue'
 
 export default Vue.extend({
   name: 'HomePage',
   components: { EventDialog },
+  inject: ['session', 'getEvents', 'setEvents', 'setSelectedEventId'],
   data() {
     return {
       loading: true,
@@ -107,32 +110,39 @@ export default Vue.extend({
   computed: {
     futureEvents(): EventInfo[] {
       const now = moment()
-      return this.$store.state.events.filter((event: EventInfo) => {
+      // @ts-expect-error inject
+      const events: EventInfo[] = (this.getEvents as () => EventInfo[])()
+      return events.filter((event: EventInfo) => {
         const end = moment(event.time_range.end)
         const start = moment(event.time_range.start)
         return end.isAfter(now) || start.isAfter(now)
       })
     },
     isEventAdmin(): boolean {
-      const roles: string[] = this.$store.state.roles || []
+      // @ts-expect-error inject
+      const roles: string[] = (this.session as Session).roles || []
       return roles.includes('admin_events') || roles.includes('admin')
     }
   },
   async mounted() {
-    this.$store.commit('changeTitle', 'PowOnline – Select Event')
     await this.loadEvents()
   },
   methods: {
     async loadEvents() {
       this.loading = true
       try {
-        await this.$store.dispatch('fetchEvents')
+        const events = await api.fetchEvents()
+        // @ts-expect-error inject
+        ;(this.setEvents as (e: EventInfo[]) => void)(events)
+      } catch (e) {
+        console.error('Unable to load events', e)
       } finally {
         this.loading = false
       }
     },
     selectEvent(event: EventInfo) {
-      this.$store.dispatch('selectEvent', event.id)
+      // @ts-expect-error inject
+      ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push('/dashboard')
     },
     formatDateRange(timeRange: { start: string; end: string }): string {

@@ -67,60 +67,73 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import type { Team } from '@/remote/model/team'
+import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
+
 const SmallStationDashboardIcon = Vue.extend({
   name: 'small-station-dashboard-item',
-  props: ['state', 'cancelled'],
+  props: {
+    state: {
+      type: Object,
+      default: () => ({})
+    },
+    cancelled: {
+      type: Boolean,
+      default: false
+    },
+    // Array of all teams so we can look up cancelled status
+    teams: {
+      type: Array as () => Team[],
+      default: () => []
+    },
+    // QuestionnaireScores: { [teamName]: { [stationName]: { name, score } } }
+    questionnaireScores: {
+      type: Object as () => QuestionnaireScores,
+      default: () => ({})
+    }
+  },
   computed: {
     hasCancelled(): boolean {
-      const teamDetails = this.$store.getters.findTeam(this.state.team)
-      if (teamDetails === null) {
-        return false
-      }
-      return teamDetails.cancelled
+      const teamDetails = (this.teams as Team[]).find(
+        (t) => t.name === this.state.team
+      )
+      return teamDetails ? teamDetails.cancelled : false
     },
     questionnaireScore(): { name: string; score: number } {
-      const team = this.$store.state.questionnaireScores[this.state.team]
-      if (!team) {
-        return {
-          name: 'unknown',
-          score: 0
-        }
-      }
-      const score = team[this.state.station]
-      if (!score) {
-        return {
-          name: 'unknown',
-          score: 0
-        }
-      }
+      const teamScores = (this.questionnaireScores as QuestionnaireScores)[
+        this.state.team
+      ]
+      if (!teamScores) return { name: 'unknown', score: 0 }
+      const score = teamScores[this.state.station]
+      if (!score) return { name: 'unknown', score: 0 }
       return score
     }
   },
   methods: {
-    advanceState: function () {
+    advanceState: function (_state?: any) {
       this.$emit('stateAdvanced', this.state)
     },
-    onScoreEnter: function (event) {
-      const newValue = event.target.value
+    onScoreEnter: function (event: Event) {
+      const newValue = (event.target as HTMLInputElement).value
       this.$emit('scoreUpdated', this.state, newValue)
     },
-    updateScore: function (newValue) {
+    updateScore: function (newValue: string) {
       this.$emit('scoreUpdated', this.state, newValue)
     },
-    onQuestionnaireScoreEnter: function (event) {
-      const newValue = event.target.value
+    onQuestionnaireScoreEnter: function (event: Event) {
+      const newValue = (event.target as HTMLInputElement).value
       this.$emit('questionnaireScoreUpdated', {
         score: newValue,
         team: this.state.team
       })
     },
-    updateQuestionnaireScore: function (newValue) {
+    updateQuestionnaireScore: function (newValue: string) {
       this.$emit('questionnaireScoreUpdated', {
         score: newValue,
         team: this.state.team
       })
     },
-    saveChanges: function () {
+    saveChanges: function (_event?: Event) {
       this.$emit('scoreUpdated', this.state, this.state.score)
       this.$emit('questionnaireScoreUpdated', {
         score: this.questionnaireScore.score,

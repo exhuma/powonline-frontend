@@ -91,17 +91,16 @@
 <script lang="ts">
 import moment from 'moment'
 import { type Upload } from '@/remote/model/upload'
+import Vue from 'vue'
+import { api } from '@/main'
 
-/**
- * Flatten the upload data and sort it by time
- */
 function sortUploads(uploads: { [key: string]: Upload[] }) {
   if (!uploads) {
     return []
   }
-  let allImages = []
+  let allImages: any[] = []
   Object.entries(uploads).forEach(([username, files]) => {
-    files.map((file) => {
+    files.map((file: any) => {
       file.username = username
     })
     allImages = allImages.concat(files)
@@ -111,11 +110,10 @@ function sortUploads(uploads: { [key: string]: Upload[] }) {
     item.formattedDate = formatTs(item.parsedDate)
   })
   allImages.sort((a, b) => a.parsedDate - b.parsedDate)
-  console.log(allImages)
   return allImages
 }
 
-function formatTs(ts) {
+function formatTs(ts: Date) {
   const obj = moment(ts)
   const now = moment()
   const duration = moment.duration(now.diff(obj))
@@ -125,17 +123,19 @@ function formatTs(ts) {
   return obj.fromNow()
 }
 
-import Vue from 'vue'
-const Uploads = Vue.extend({
-  created() {
-    this.$store.dispatch('refreshUploads')
+export default Vue.extend({
+  name: 'Uploads',
+  inject: ['getSelectedEventId'],
+  async created() {
+    await this.refreshImages()
   },
   data() {
     return {
       dialog: false,
-      previewImage: { href: '', tiny: '' },
+      previewImage: { href: '', tiny: '' } as { href: string; tiny: string },
       confirmDelete: '',
       deleteDialogVisible: false,
+      uploadsRaw: {} as { [key: string]: Upload[] },
       headers: [
         { text: 'Thumbnail', sortable: false, align: 'left' },
         { text: 'User', sortable: true, align: 'left' },
@@ -147,16 +147,21 @@ const Uploads = Vue.extend({
   },
   computed: {
     files(): Upload[] {
-      const groupedData = this.$store.state.uploads
-      const flattened = sortUploads(groupedData)
-      return flattened
+      return sortUploads(this.uploadsRaw) as unknown as Upload[]
     }
   },
   methods: {
-    refreshImages() {
-      this.$store.dispatch('refreshUploads')
+    async refreshImages() {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        this.uploadsRaw = await api.fetchUploads(eventId)
+      } catch (e) {
+        console.error('Unable to fetch uploads', e)
+      }
     },
-    openPreview(image) {
+    openPreview(image: { href: string; tiny: string }) {
       this.previewImage = image
       this.dialog = true
     },
@@ -168,49 +173,35 @@ const Uploads = Vue.extend({
       })
     },
     onUploadDone() {
-      this.$emit('snackRequested', {
-        message: 'Upload successful'
-      })
+      this.$emit('snackRequested', { message: 'Upload successful' })
       this.refreshImages()
-      this.$emit('changeActivity', {
-        visible: false,
-        progress: -1,
-        text: ''
-      })
+      this.$emit('changeActivity', { visible: false, progress: -1, text: '' })
     },
-    onUploadFailed(event) {
+    onUploadFailed(event: { message: string }) {
       this.$emit('snackRequested', {
         message: `Unable to upload image (${event.message})`,
         color: 'red'
       })
-      this.$emit('changeActivity', {
-        visible: false,
-        progress: -1,
-        text: ''
-      })
+      this.$emit('changeActivity', { visible: false, progress: -1, text: '' })
     },
-    deleteFile(uuid) {
+    async deleteFile(uuid: string) {
       this.deleteDialogVisible = false
-      const eventId = this.$store.state.selectedEventId
-      this.$remoteProxy
-        .deleteFile(uuid, eventId)
-        .then((data) => {
-          this.$emit('snackRequested', {
-            message: 'File deleted'
-          })
-          this.refreshImages()
-          this.confirmDelete = ''
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      try {
+        await api.deleteFile(uuid, eventId)
+        this.$emit('snackRequested', { message: 'File deleted' })
+        this.refreshImages()
+        this.confirmDelete = ''
+      } catch (e) {
+        console.error(e)
+        this.$emit('snackRequested', {
+          message: 'Unable to delete file',
+          color: 'red'
         })
-        .catch((e) => {
-          console.error(e)
-          this.$emit('snackRequested', {
-            message: 'Unable to delete file',
-            color: 'red'
-          })
-          this.confirmDelete = ''
-        })
+        this.confirmDelete = ''
+      }
     }
   }
 })
-export default Uploads
 </script>

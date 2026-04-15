@@ -1,0 +1,117 @@
+<template>
+  <center-col id="TeamPanel">
+    <div v-if="loading" class="text-center py-6">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </div>
+    <template v-else-if="team">
+      <team-form :team="team" :routes="routes" @update:team="onTeamUpdated" />
+      <div v-if="hasRole('admin')">
+        <confirmation-dialog
+          buttonText="Delete"
+          :actionArgument="team.name"
+          @confirmed="onTeamDeleted"
+        >
+          <span slot="title"
+            >Do you want to delete the team "{{ team.name }}"?</span
+          >
+          <div slot="text">
+            <p>
+              This will delete the team with the name "{{ team.name }}" and all
+              related information!
+            </p>
+            <p>Are you sure?</p>
+          </div>
+        </confirmation-dialog>
+        <v-btn class="mt-2" @click="save">Save</v-btn>
+      </div>
+    </template>
+    <v-alert v-else type="warning">Team not found.</v-alert>
+  </center-col>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import { api } from '@/main'
+import TeamForm from '@/components/forms/TeamForm.vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import type { Team } from '@/remote/model/team'
+import type { Route } from '@/remote/model/route'
+import type { Session } from '@/App.vue'
+
+const TeamPanel = Vue.extend({
+  name: 'team-panel',
+  components: { TeamForm, ConfirmationDialog },
+  inject: ['getSelectedEventId', 'session'],
+
+  data() {
+    return {
+      loading: false,
+      team: null as Team | null,
+      routes: [] as Route[]
+    }
+  },
+
+  async created() {
+    // @ts-expect-error inject
+    const eventId = this.getSelectedEventId()
+    this.loading = true
+    try {
+      const [team, routes] = await Promise.all([
+        api.fetchTeam(this.$route.params.teamName, eventId),
+        api.fetchRoutes(eventId)
+      ])
+      this.team = team
+      this.routes = routes
+    } catch (e) {
+      console.error('Failed to fetch team data', e)
+    } finally {
+      this.loading = false
+    }
+  },
+
+  methods: {
+    hasRole(roleName: string): boolean {
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return session.roles.includes(roleName)
+    },
+    onTeamUpdated(team: Team) {
+      this.team = team
+    },
+    async onTeamDeleted() {
+      // @ts-expect-error inject
+      const eventId = this.getSelectedEventId()
+      if (!this.team) return
+      try {
+        await api.deleteTeam(this.team.name, eventId)
+        this.$emit('snackRequested', {
+          message: `Team "${this.team.name}" deleted`
+        })
+        this.$router.push({ name: 'team_list' })
+      } catch (e) {
+        console.error('Failed to delete team', e)
+      }
+    },
+    async save() {
+      if (!this.team) return
+      // @ts-expect-error inject
+      const eventId = this.getSelectedEventId()
+      this.team.comments = this.team.comments || ''
+      try {
+        await api.updateTeam(this.$route.params.teamName, this.team, eventId)
+        this.$emit('snackRequested', { message: 'Save successful' })
+        this.$router.push({ name: 'team_list' })
+      } catch (e) {
+        console.error('Failed to save team', e)
+      }
+    }
+  }
+})
+export default TeamPanel
+</script>
+
+<style scoped>
+#TeamPanel {
+  padding-bottom: 5em;
+}
+</style>

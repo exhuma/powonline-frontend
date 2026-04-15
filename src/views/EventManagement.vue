@@ -121,16 +121,19 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
-import type { EventInfo } from '@/remote'
-import EventDialog from './EventDialog.vue'
-import EventMemberManager from './EventMemberManager.vue'
+import type { EventInfo } from '@/api'
+import EventDialog from '@/components/EventDialog.vue'
+import EventMemberManager from '@/components/EventMemberManager.vue'
+import { api } from '@/main'
 
 export default Vue.extend({
   name: 'EventManagement',
   components: { EventDialog, EventMemberManager },
+  inject: ['getSelectedEventId', 'setSelectedEventId'],
   data() {
     return {
       loading: true,
+      events: [] as EventInfo[],
       showEventDialog: false,
       showMembersDialog: false,
       showDeleteDialog: false,
@@ -145,20 +148,14 @@ export default Vue.extend({
       ]
     }
   },
-  computed: {
-    events(): EventInfo[] {
-      return this.$store.state.events
-    }
-  },
   async mounted() {
-    this.$store.commit('changeTitle', 'Event Management')
     await this.loadEvents()
   },
   methods: {
     async loadEvents() {
       this.loading = true
       try {
-        await this.$store.dispatch('fetchEvents')
+        this.events = await api.fetchEvents()
       } finally {
         this.loading = false
       }
@@ -183,7 +180,8 @@ export default Vue.extend({
       return 'grey'
     },
     selectEvent(event: EventInfo) {
-      this.$store.dispatch('selectEvent', event.id)
+      // @ts-expect-error inject
+      ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push('/dashboard')
     },
     openCreateDialog() {
@@ -205,16 +203,21 @@ export default Vue.extend({
     async doDelete() {
       this.showDeleteDialog = false
       if (!this.deletingEvent) return
-      await this.$store.dispatch('deleteEvent', this.deletingEvent.id)
+      await api.deleteEvent(this.deletingEvent.id)
       // If we deleted the selected event, clear selection
-      if (this.$store.state.selectedEventId === this.deletingEvent.id) {
-        this.$store.dispatch('selectEvent', null)
+      // @ts-expect-error inject
+      const currentId = (this.getSelectedEventId as () => number | null)()
+      if (currentId === this.deletingEvent.id) {
+        // @ts-expect-error inject
+        ;(this.setSelectedEventId as (id: number | null) => void)(null)
       }
       this.deletingEvent = null
+      await this.loadEvents()
     },
     onEventSaved() {
       this.showEventDialog = false
       this.editingEvent = null
+      this.loadEvents()
     }
   }
 })

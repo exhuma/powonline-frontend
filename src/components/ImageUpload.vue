@@ -17,7 +17,7 @@
         'wide-margin': fab && !isMobile
       }"
       :fab="fab"
-      @click="$refs.fileInput.click()"
+      @click="triggerFileInput()"
       ><span class="mr-2" v-if="label">{{ label }}</span
       ><v-icon>mdi-cloud-upload</v-icon></v-btn
     >
@@ -26,8 +26,12 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { api } from '@/main'
+import type { Session } from '@/App.vue'
+
 const ImageUpload = Vue.extend({
   name: 'image-upload',
+  inject: ['session', 'getSelectedEventId'],
   props: {
     fab: {
       type: Boolean,
@@ -40,7 +44,9 @@ const ImageUpload = Vue.extend({
   },
   computed: {
     tokenIsAvailable(): boolean {
-      return Boolean(this.$store.state.userName)
+      // @ts-expect-error inject
+      const session = this.session as Session
+      return Boolean(session.userName)
     }
   },
   data() {
@@ -49,24 +55,31 @@ const ImageUpload = Vue.extend({
     }
   },
   methods: {
-    sendUpload() {
+    triggerFileInput() {
+      ;(this.$refs.fileInput as HTMLElement).click()
+    },
+    async sendUpload() {
       this.$emit('uploadStarted')
-      const eventId = this.$store.state.selectedEventId
-      this.$remoteProxy
-        .sendUpload(this.$refs.fileInput.files[0], eventId)
-        .then((data) => {
-          this.$emit('uploadFinished')
-        })
-        .catch((e) => {
-          console.error(e)
-          let message = 'Unknown Error'
-          if (e.response.status < 500) {
-            message = e.response.data
-          }
-          this.$emit('uploadFailed', {
-            message: message
-          })
-        })
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) {
+        this.$emit('uploadFailed', { message: 'No event selected' })
+        return
+      }
+      const input = this.$refs.fileInput as HTMLInputElement
+      const file = input.files?.[0]
+      if (!file) return
+      try {
+        await api.sendUpload(file, eventId)
+        this.$emit('uploadFinished')
+      } catch (e: any) {
+        console.error(e)
+        let message = 'Unknown Error'
+        if (e?.response?.status < 500) {
+          message = e.response.data
+        }
+        this.$emit('uploadFailed', { message })
+      }
     },
     onResize() {
       this.isMobile = window.innerWidth < 600

@@ -7,21 +7,16 @@
       :headers="tableHeaders"
       :items="tableItems"
     >
-      <template slot="item" slot-scope="props">
+      <template v-slot:item="{ item }">
         <tr>
           <td
-            :class="
-              props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'
-            "
+            :class="item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'"
           >
-            {{ props.item.team }}
+            {{ item.team }}
           </td>
-          <td
-            v-for="cell in props.item.stations"
-            :key="props.item.team + cell.station"
-          >
+          <td v-for="cell in item.stations" :key="item.team + cell.station">
             <v-icon
-              :title="props.item.team + '@' + cell.station"
+              :title="item.team + '@' + cell.station"
               v-if="cell.state !== 'unreachable'"
             >
               {{ getStateIcon(cell.state) }}</v-icon
@@ -42,9 +37,10 @@
 
 <script lang="ts">
 import util from '@/util'
-import { DashboardRow } from '@/remote/model/dashboardRow'
-import type { VueTableHeader } from '@/types'
+import type { VueTableHeaders } from '@/types'
+import type { Team } from '@/remote/model/team'
 import type { Station } from '@/remote/model/station'
+import type { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
 
 import Vue from 'vue'
 const RouteDashboardIcons = Vue.extend({
@@ -53,58 +49,52 @@ const RouteDashboardIcons = Vue.extend({
     route: {
       type: Object,
       default: null
+    },
+    globalDashboard: {
+      type: Array as () => RemoteDashboardRow[],
+      default: () => []
+    },
+    routeTeams: {
+      type: Object as () => { [routeName: string]: Team[] },
+      default: () => ({})
+    },
+    routeStations: {
+      type: Object as () => { [routeName: string]: Station[] },
+      default: () => ({})
+    },
+    teams: {
+      type: Array as () => Team[],
+      default: () => []
     }
   },
   computed: {
     routeColor(): string {
-      if (this.route.color) {
-        return this.route.color
-      } else {
-        return '#000000'
-      }
+      return this.route.color || '#000000'
     },
     assignedStations(): Station[] {
-      const map = this.$store.state.route_station_map as {
-        [key: string]: Station[]
-      }
-      const output = map[this.route.name] || []
-      output.sort((a, b) => {
-        return a.order - b.order
+      const list = (this.routeStations[this.route.name] || []).slice()
+      list.sort((a: Station, b: Station) => a.order - b.order)
+      return list
+    },
+    tableHeaders(): VueTableHeaders[] {
+      const output: VueTableHeaders[] = [
+        { text: 'Team', align: 'left', value: 'team' }
+      ]
+      this.assignedStations.forEach((station: Station) => {
+        output.push({
+          text: station.name,
+          align: 'center',
+          value: 'state',
+          sortable: false
+        })
       })
       return output
     },
-    tableHeaders(): VueTableHeader[] {
-      const output: VueTableHeader[] = [
-        {
-          text: 'Team',
-          align: 'left',
-          value: 'team'
-        }
-      ]
-      const assignedStations = this.assignedStations
-      // (not really a side-effect, I think)
-      // eslint-disable-next-line
-      if (this.assignedStations) {
-        assignedStations.forEach((station) => {
-          output.push({
-            text: station.name,
-            align: 'center',
-            value: 'state',
-            sortable: false
-          })
-        })
-      }
-      return output
-    },
-    stateMapping() {
-      // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
-      const output = {}
-      const dashBoard = this.$store.state.global_dashboard as DashboardRow[]
-      dashBoard.forEach((teamState) => {
+    stateMapping(): Record<string, Record<string, any>> {
+      const output: Record<string, Record<string, any>> = {}
+      ;(this.globalDashboard as RemoteDashboardRow[]).forEach((teamState) => {
         teamState.stations.forEach((stationState) => {
-          if (output[stationState.name] === undefined) {
-            output[stationState.name] = {}
-          }
+          if (!output[stationState.name]) output[stationState.name] = {}
           if (stationState.state !== 'unreachable') {
             output[stationState.name][teamState.team] = stationState
           }
@@ -112,44 +102,36 @@ const RouteDashboardIcons = Vue.extend({
       })
       return output
     },
-    tableItems() {
-      const rows = []
+    tableItems(): any[] {
+      const rows: any[] = []
       const mapping = this.stateMapping
-      const routeTeams = this.$store.state.route_team_map
+      const assignedTeams: Team[] = this.routeTeams[this.route.name] || []
       const assignedStations = this.assignedStations
 
-      for (const teamName in routeTeams) {
-        if (routeTeams.hasOwnProperty(teamName)) {
-          const route = routeTeams[teamName]
-          if (this.route.name !== route) {
-            continue
-          }
-          const teamDetails = this.$store.getters.findTeam(teamName)
-          const row = {
-            stations: [],
-            team: teamName,
-            cancelled: teamDetails.cancelled
-          }
-          assignedStations.forEach((station) => {
-            const stationData = mapping[station.name]
-            if (!stationData) {
-              return
-            }
-            const state = stationData[teamName]
-            row.stations.push({
-              state: state.state,
-              score: state.score,
-              station: state.name
-            })
-          })
-          rows.push(row)
+      assignedTeams.forEach((team) => {
+        const teamDetails = this.teams.find((t: Team) => t.name === team.name)
+        const row: any = {
+          stations: [],
+          team: team.name,
+          cancelled: teamDetails ? teamDetails.cancelled : false
         }
-      }
+        assignedStations.forEach((station: Station) => {
+          const stationData = mapping[station.name]
+          if (!stationData) return
+          const state = stationData[team.name]
+          row.stations.push({
+            state: state ? state.state : 'unknown',
+            score: state ? state.score : 0,
+            station: station.name
+          })
+        })
+        rows.push(row)
+      })
       return rows
     }
   },
   methods: {
-    getStateIcon(state) {
+    getStateIcon(state: string): string {
       return util.getStateIcon(state)
     }
   }

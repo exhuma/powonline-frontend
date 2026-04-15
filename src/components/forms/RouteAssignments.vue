@@ -61,7 +61,10 @@
           </div>
 
           <div class="assignment-section__chips">
-            <span v-if="assignedStationObjects.length === 0" class="no-items-hint">
+            <span
+              v-if="assignedStationObjects.length === 0"
+              class="no-items-hint"
+            >
               No stations assigned
             </span>
             <v-chip
@@ -84,14 +87,16 @@
                 color="green darken-2"
                 text-color="white"
                 class="ml-1 px-1"
-              >S</v-chip>
+                >S</v-chip
+              >
               <v-chip
                 v-if="station.is_end"
                 x-small
                 color="red darken-2"
                 text-color="white"
                 class="ml-1 px-1"
-              >E</v-chip>
+                >E</v-chip
+              >
             </v-chip>
           </div>
 
@@ -116,7 +121,7 @@
                 size="28"
                 color="grey lighten-2"
                 class="mr-2 my-1"
-                style="font-size: 0.75rem; font-weight: bold;"
+                style="font-size: 0.75rem; font-weight: bold"
               >
                 {{ item.order }}
               </v-list-item-avatar>
@@ -124,8 +129,21 @@
                 <v-list-item-title>{{ item.name }}</v-list-item-title>
               </v-list-item-content>
               <v-list-item-action class="flex-row align-center my-0">
-                <v-chip v-if="item.is_start" x-small color="green darken-2" text-color="white" class="mr-1">START</v-chip>
-                <v-chip v-if="item.is_end" x-small color="red darken-2" text-color="white">END</v-chip>
+                <v-chip
+                  v-if="item.is_start"
+                  x-small
+                  color="green darken-2"
+                  text-color="white"
+                  class="mr-1"
+                  >START</v-chip
+                >
+                <v-chip
+                  v-if="item.is_end"
+                  x-small
+                  color="red darken-2"
+                  text-color="white"
+                  >END</v-chip
+                >
               </v-list-item-action>
             </template>
           </v-autocomplete>
@@ -138,11 +156,13 @@
 <script lang="ts">
 import model from '@/model'
 import Vue from 'vue'
-import { Station } from '@/remote/model/station'
-import { Team } from '@/remote/model/team'
+import { api } from '@/main'
+import type { Station } from '@/remote/model/station'
+import type { Team } from '@/remote/model/team'
 
 const RouteAssignments = Vue.extend({
   name: 'route-assignments',
+  inject: ['getSelectedEventId'],
 
   props: {
     route: {
@@ -156,50 +176,39 @@ const RouteAssignments = Vue.extend({
   data() {
     return {
       selectedTeam: null as string | null,
-      selectedStation: null as string | null
+      selectedStation: null as string | null,
+      allTeams: [] as Team[],
+      allStations: [] as Station[],
+      // teams assigned to this route: Team[]
+      assignedTeams: [] as Team[],
+      // stations assigned to this route: Station[]
+      assignedStations: [] as Station[]
     }
   },
 
   computed: {
-    // Compute directly from raw state so Vue can track reactive dependencies.
-    // Parametrised Vuex getters (getter-factories) return plain functions whose
-    // internal state reads are invisible to Vue's dependency tracking, so
-    // computed properties that only call them will NOT re-run when the
-    // underlying state mutates.
-
     assignedTeamObjects(): Team[] {
-      // route_team_map: { [teamName]: [routeName, ...] }
-      const map: { [key: string]: string[] } = this.$store.state.route_team_map
-      const assignedNames = Object.keys(map).filter((teamName) =>
-        map[teamName].includes(this.route.name)
-      )
-      return (this.$store.state.teams as Team[])
-        .filter((t: Team) => assignedNames.includes(t.name))
-        .sort((a: Team, b: Team) => a.name.localeCompare(b.name))
+      return this.assignedTeams
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name))
     },
 
     unassignedTeamObjects(): Team[] {
-      const map: { [key: string]: string[] } = this.$store.state.route_team_map
-      const assignedNames = Object.keys(map).filter((teamName) =>
-        map[teamName].includes(this.route.name)
-      )
-      return (this.$store.state.teams as Team[])
-        .filter((t: Team) => !assignedNames.includes(t.name))
-        .sort((a: Team, b: Team) => a.name.localeCompare(b.name))
+      const assignedNames = new Set(this.assignedTeams.map((t) => t.name))
+      return this.allTeams
+        .filter((t) => !assignedNames.has(t.name))
+        .sort((a, b) => a.name.localeCompare(b.name))
     },
 
     assignedStationObjects(): Station[] {
-      // route_station_map: { [routeName]: Station[] }
-      const list: Station[] = this.$store.state.route_station_map[this.route.name] || []
-      return list.slice().sort((a: Station, b: Station) => a.order - b.order)
+      return this.assignedStations.slice().sort((a, b) => a.order - b.order)
     },
 
     unassignedStationObjects(): Station[] {
-      const list: Station[] = this.$store.state.route_station_map[this.route.name] || []
-      const assignedNames = list.map((s: Station) => s.name)
-      return (this.$store.state.stations as Station[])
-        .filter((s: Station) => !assignedNames.includes(s.name))
-        .sort((a: Station, b: Station) => a.order - b.order)
+      const assignedNames = new Set(this.assignedStations.map((s) => s.name))
+      return this.allStations
+        .filter((s) => !assignedNames.has(s.name))
+        .sort((a, b) => a.order - b.order)
     },
 
     unassignedStationItems(): (Station & { label: string })[] {
@@ -210,41 +219,100 @@ const RouteAssignments = Vue.extend({
     }
   },
 
+  created() {
+    this.loadData()
+  },
+
   methods: {
-    onTeamSelected(teamName: string | null) {
+    async loadData() {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        const [teams, stations, assignments] = await Promise.all([
+          api.fetchTeams(eventId),
+          api.fetchStations(eventId),
+          api.fetchAssignments(eventId)
+        ])
+        this.allTeams = teams
+        this.allStations = stations
+        this.assignedTeams = assignments.teams[this.route.name] || []
+        this.assignedStations = assignments.stations[this.route.name] || []
+      } catch (e) {
+        console.error('Failed to load route assignments data', e)
+      }
+    },
+
+    async onTeamSelected(teamName: string | null) {
       if (!teamName) return
-      this.$store.dispatch('assignTeamToRouteRemote', {
-        teamName,
-        routeName: this.route.name
-      })
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      const team = this.allTeams.find((t) => t.name === teamName)
+      if (!team) return
+      try {
+        await api.addTeamToRoute(this.route.name, team, eventId)
+        if (!this.assignedTeams.find((t) => t.name === teamName)) {
+          this.assignedTeams.push(team)
+        }
+      } catch (e) {
+        console.error('Failed to assign team to route', e)
+      }
       this.$nextTick(() => {
         this.selectedTeam = null
       })
     },
 
-    onStationSelected(stationName: string | null) {
+    async onStationSelected(stationName: string | null) {
       if (!stationName) return
-      this.$store.dispatch('assignStationToRouteRemote', {
-        stationName,
-        routeName: this.route.name
-      })
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      const station = this.allStations.find((s) => s.name === stationName)
+      if (!station) return
+      try {
+        await api.assignStationToRoute(this.route.name, station, eventId)
+        if (!this.assignedStations.find((s) => s.name === stationName)) {
+          this.assignedStations.push(station)
+        }
+      } catch (e) {
+        console.error('Failed to assign station to route', e)
+      }
       this.$nextTick(() => {
         this.selectedStation = null
       })
     },
 
-    unassignTeam(teamName: string) {
-      this.$store.dispatch('unassignTeamFromRouteRemote', {
-        teamName,
-        routeName: this.route.name
-      })
+    async unassignTeam(teamName: string) {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        await api.unassignTeamFromRoute(this.route.name, teamName, eventId)
+        this.assignedTeams = this.assignedTeams.filter(
+          (t) => t.name !== teamName
+        )
+      } catch (e) {
+        console.error('Failed to unassign team from route', e)
+      }
     },
 
-    unassignStation(stationName: string) {
-      this.$store.dispatch('unassignStationFromRouteRemote', {
-        stationName,
-        routeName: this.route.name
-      })
+    async unassignStation(stationName: string) {
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      if (!eventId) return
+      try {
+        await api.unassignStationFromRoute(
+          this.route.name,
+          stationName,
+          eventId
+        )
+        this.assignedStations = this.assignedStations.filter(
+          (s) => s.name !== stationName
+        )
+      } catch (e) {
+        console.error('Failed to unassign station from route', e)
+      }
     },
 
     stationChipColor(station: Station): string {
