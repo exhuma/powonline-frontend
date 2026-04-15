@@ -112,12 +112,15 @@ export default Vue.extend({
     }
   },
   watch: {
-    visible(val: boolean) {
-      this.dialog = val
-      if (val) {
-        this.loadMembers()
-        if (this.availableUsers.length === 0) {
-          this.$store.dispatch('refreshUsers')
+    visible: {
+      immediate: true,
+      handler(val: boolean) {
+        this.dialog = val
+        if (val) {
+          this.loadMembers()
+          if (this.availableUsers.length === 0) {
+            this.$store.dispatch('refreshUsers')
+          }
         }
       }
     },
