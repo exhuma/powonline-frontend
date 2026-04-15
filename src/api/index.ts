@@ -622,6 +622,11 @@ export class ApiClient {
     return data.items
   }
 
+  async fetchMyAdminEvents(): Promise<EventInfo[]> {
+    const data: any = await this._json(`${this.baseUrl}/user/me/admin-events`)
+    return data.items
+  }
+
   async addUser(user: User): Promise<User> {
     await this._json(`${this.baseUrl}/user`, {
       method: 'POST',

@@ -18,18 +18,34 @@
         :read-only="loading"
       >
       </v-combobox>
+      <v-select
+        label="Event"
+        hint="Select an event to manage station access for that event"
+        persistent-hint
+        clearable
+        v-model="selectedEvent"
+        :items="events"
+        item-text="name"
+        item-value="id"
+        return-object
+        :loading="loading"
+        :disabled="loading"
+        @change="onEventChanged"
+      >
+      </v-select>
       <v-combobox
+        v-if="selectedEvent !== null"
         multiple
         chips
         deletable-chips
         small-chips
         label="Stations"
-        hint="Select one or more stations for the user in this system"
+        hint="Select one or more stations to grant this user access"
         v-model="selectedStations"
         @change="onStationsChanged"
-        :items="stations"
-        :loading="loading"
-        :read-only="loading"
+        :items="availableStations"
+        :loading="loadingStations"
+        :read-only="loadingStations"
       >
       </v-combobox>
     </v-card-text>
@@ -58,6 +74,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { api } from '@/main'
+import type { EventInfo } from '@/api/index'
 import type { Session } from '@/App.vue'
 
 const UserBlock = Vue.extend({
@@ -67,11 +84,19 @@ const UserBlock = Vue.extend({
     return {
       roles: [] as string[],
       selectedRoles: [] as string[],
-      stations: [] as string[],
+      /** All station names the user is currently assigned to (across all events). */
+      assignedStations: new Set<string>(),
+      /** Stations belonging to the currently selected event. */
+      availableStations: [] as string[],
+      /** Subset of availableStations that the user is assigned to. */
       selectedStations: [] as string[],
+      /** Upcoming events where the auth user has admin rights. */
+      events: [] as EventInfo[],
+      selectedEvent: null as EventInfo | null,
       refreshingItems: new Set<string>(),
       spinnerKey: 0,
-      loading: false
+      loading: false,
+      loadingStations: false
     }
   },
   props: {
@@ -96,13 +121,40 @@ const UserBlock = Vue.extend({
         }
       })
     },
+    async onEventChanged(newEvent: EventInfo | null) {
+      this.selectedEvent = newEvent
+      this.availableStations = []
+      this.selectedStations = []
+      if (!newEvent) return
+      await this.refreshAvailableStations(newEvent.id)
+    },
+    async refreshAvailableStations(eventId: number) {
+      this.loadingStations = true
+      try {
+        const stations = await api.fetchStations(eventId)
+        this.availableStations = stations.map((s) => s.name)
+        // Pre-select stations already assigned to this user
+        this.selectedStations = this.availableStations.filter((name) =>
+          this.assignedStations.has(name)
+        )
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.loadingStations = false
+      }
+    },
     onStationsChanged(newStations: string[]) {
-      this.stations.forEach((stationName) => {
-        if (newStations.includes(stationName)) {
+      // Diff against the current event's available stations only
+      this.availableStations.forEach((stationName) => {
+        const wasSelected = this.assignedStations.has(stationName)
+        const isNowSelected = newStations.includes(stationName)
+        if (!wasSelected && isNowSelected) {
+          this.assignedStations.add(stationName)
           api
             .addStationToUser(this.name, stationName)
             .catch((e) => console.error(e))
-        } else {
+        } else if (wasSelected && !isNowSelected) {
+          this.assignedStations.delete(stationName)
           api
             .removeStationFromUser(this.name, stationName)
             .catch((e) => console.error(e))
@@ -112,6 +164,7 @@ const UserBlock = Vue.extend({
     refresh() {
       this.refreshRoles()
       this.refreshStations()
+      this.refreshEvents()
     },
     async refreshStations() {
       const refreshKey = 'stations'
@@ -121,15 +174,33 @@ const UserBlock = Vue.extend({
       this.spinnerKey += 1
       try {
         const items = await api.fetchUserStations(this.name)
+        this.assignedStations = new Set(
+          items
+            .filter(([, isActive]) => isActive)
+            .map(([stationName]) => stationName)
+        )
+        // Reset event-specific state — the event dropdown drives further loads
+        this.availableStations = []
         this.selectedStations = []
-        items.forEach(([stationName, isActive]) => {
-          if (!this.stations.includes(stationName)) {
-            this.stations.push(stationName)
-          }
-          if (isActive) {
-            this.selectedStations.push(stationName)
-          }
-        })
+        this.selectedEvent = null
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.refreshingItems.delete(refreshKey)
+        if (this.refreshingItems.size === 0) {
+          this.loading = false
+        }
+        this.spinnerKey += 1
+      }
+    },
+    async refreshEvents() {
+      const refreshKey = 'events'
+      if (this.refreshingItems.has(refreshKey)) return
+      this.refreshingItems.add(refreshKey)
+      this.loading = true
+      this.spinnerKey += 1
+      try {
+        this.events = await api.fetchMyAdminEvents()
       } catch (e) {
         console.error(e)
       } finally {
