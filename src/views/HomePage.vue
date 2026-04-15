@@ -143,7 +143,7 @@ export default Vue.extend({
     selectEvent(event: EventInfo) {
       // @ts-expect-error inject
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
-      this.$router.push('/dashboard')
+      this.$router.push(`/event/${event.id}/dashboard`)
     },
     formatDateRange(timeRange: { start: string; end: string }): string {
       const start = moment(timeRange.start).format('MMM D, YYYY HH:mm')

@@ -2,7 +2,7 @@
   <div class="route-assignments">
     <v-row no-gutters>
       <!-- Teams column -->
-      <v-col cols="12" md="6" class="pr-md-3">
+      <v-col cols="6" class="pr-md-3">
         <div class="assignment-section">
           <div class="assignment-section__header">
             <v-icon small class="mr-1">mdi-account-group</v-icon>
@@ -50,7 +50,7 @@
       <v-divider vertical class="d-none d-md-flex mx-2" />
 
       <!-- Stations column -->
-      <v-col cols="12" md="6" class="pl-md-3 mt-4 mt-md-0">
+      <v-col cols="6" class="pl-md-3 mt-4 mt-md-0">
         <div class="assignment-section">
           <div class="assignment-section__header">
             <v-icon small class="mr-1">mdi-map-marker</v-icon>

@@ -197,7 +197,9 @@ const StationDashboard = Vue.extend({
       const target =
         relation === 'previous' ? this.previousStation : this.nextStation
       if (target) {
-        this.$router.push(`/station/${target}`)
+        // @ts-expect-error inject
+        const eventId = this.getSelectedEventId()
+        this.$router.push(`/event/${eventId}/station/${target}`)
       } else {
         console.warn(`No station "${relation}" of ${this.stationName}`)
       }

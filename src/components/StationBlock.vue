@@ -51,7 +51,9 @@ const StationBlock = Vue.extend({
   },
   methods: {
     openDashBoard(station: { name: string }) {
-      this.$router.push('/station/' + station.name)
+      // @ts-expect-error inject
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      this.$router.push(`/event/${eventId}/station/${station.name}`)
     },
     hasRole(roleName: string): boolean {
       // @ts-expect-error inject

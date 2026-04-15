@@ -87,7 +87,10 @@ const TeamPanel = Vue.extend({
         this.$emit('snackRequested', {
           message: `Team "${this.team.name}" deleted`
         })
-        this.$router.push({ name: 'team_list' })
+        this.$router.push({
+          name: 'team_list',
+          params: { eventId: String(eventId) }
+        })
       } catch (e) {
         console.error('Failed to delete team', e)
       }
@@ -100,7 +103,10 @@ const TeamPanel = Vue.extend({
       try {
         await api.updateTeam(this.$route.params.teamName, this.team, eventId)
         this.$emit('snackRequested', { message: 'Save successful' })
-        this.$router.push({ name: 'team_list' })
+        this.$router.push({
+          name: 'team_list',
+          params: { eventId: String(eventId) }
+        })
       } catch (e) {
         console.error('Failed to save team', e)
       }

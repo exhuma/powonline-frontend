@@ -182,7 +182,7 @@ export default Vue.extend({
     selectEvent(event: EventInfo) {
       // @ts-expect-error inject
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
-      this.$router.push('/dashboard')
+      this.$router.push(`/event/${event.id}/dashboard`)
     },
     openCreateDialog() {
       this.editingEvent = null
@@ -204,12 +204,15 @@ export default Vue.extend({
       this.showDeleteDialog = false
       if (!this.deletingEvent) return
       await api.deleteEvent(this.deletingEvent.id)
-      // If we deleted the selected event, clear selection
+      // If we deleted the selected event, clear selection and go back to landing page
       // @ts-expect-error inject
       const currentId = (this.getSelectedEventId as () => number | null)()
       if (currentId === this.deletingEvent.id) {
         // @ts-expect-error inject
         ;(this.setSelectedEventId as (id: number | null) => void)(null)
+        this.deletingEvent = null
+        this.$router.push('/')
+        return
       }
       this.deletingEvent = null
       await this.loadEvents()

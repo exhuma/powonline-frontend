@@ -214,7 +214,28 @@ const App = Vue.extend({
       checkSession: () => (this as any).refreshSession()
     }
   },
+  watch: {
+    $route(to) {
+      // Sync selectedEventId from the URL on every navigation (handles hard reloads too)
+      const rawId = to.params.eventId
+      if (rawId) {
+        const id = Number(rawId)
+        if (!isNaN(id) && id > 0) {
+          this.selectedEventId = id
+        }
+      }
+    }
+  },
   mounted() {
+    // Sync selectedEventId on initial load in case the page is hard-reloaded on an event-scoped URL
+    const rawId = this.$route.params.eventId
+    if (rawId) {
+      const id = Number(rawId)
+      if (!isNaN(id) && id > 0) {
+        this.selectedEventId = id
+      }
+    }
+
     EventBus.$on('activityEvent', (payload) => {
       this.onActivityChange(payload)
     })
@@ -407,53 +428,92 @@ const App = Vue.extend({
       const roles: string[] = this.session.roles
       const hasRole = (r: string) =>
         roles.includes('admin') || roles.includes(r)
-      const output = [
-        { label: 'Dashboard', to: '/dashboard', icon: 'mdi-border-all' },
-        {
+      const eventId = this.selectedEventId
+      const ep = (path: string) =>
+        eventId ? `/event/${eventId}/${path}` : null
+
+      const output: { label: string; to: string; icon: string }[] = []
+
+      // Event-scoped routes — only shown when an event is selected
+      const dashboard = ep('dashboard')
+      if (dashboard) {
+        output.push({
+          label: 'Dashboard',
+          to: dashboard,
+          icon: 'mdi-border-all'
+        })
+      }
+      const scoreboard = ep('scoreboard')
+      if (scoreboard) {
+        output.push({
           label: 'Scoreboard',
-          to: '/scoreboard',
+          to: scoreboard,
           icon: 'mdi-format-list-numbered'
-        },
-        { label: 'Photos', to: '/gallery', icon: 'mdi-image' }
-      ]
+        })
+      }
+      const gallery = ep('gallery')
+      if (gallery) {
+        output.push({ label: 'Photos', to: gallery, icon: 'mdi-image' })
+      }
       if (hasRole('station_manager')) {
-        output.push({
-          label: 'Stations',
-          to: '/station',
-          icon: 'mdi-map-marker'
-        })
+        const station = ep('station')
+        if (station) {
+          output.push({
+            label: 'Stations',
+            to: station,
+            icon: 'mdi-map-marker'
+          })
+        }
       }
       if (hasRole('admin')) {
-        output.push({
-          label: 'Questionnaires',
-          to: '/questionnaire',
-          icon: 'mdi-script-text'
-        })
+        const questionnaire = ep('questionnaire')
+        if (questionnaire) {
+          output.push({
+            label: 'Questionnaires',
+            to: questionnaire,
+            icon: 'mdi-script-text'
+          })
+        }
       }
       if (hasRole('admin')) {
-        output.push({ label: 'Teams', to: '/team', icon: 'mdi-account-group' })
+        const team = ep('team')
+        if (team) {
+          output.push({ label: 'Teams', to: team, icon: 'mdi-account-group' })
+        }
       }
       if (this.tokenIsAvailable) {
-        output.push({
-          label: 'Uploads',
-          to: '/uploads',
-          icon: 'mdi-cloud-upload'
-        })
+        const uploads = ep('uploads')
+        if (uploads) {
+          output.push({
+            label: 'Uploads',
+            to: uploads,
+            icon: 'mdi-cloud-upload'
+          })
+        }
       }
       if (hasRole('admin')) {
-        output.push({ label: 'Routes', to: '/route', icon: 'mdi-gesture' })
+        const route = ep('route')
+        if (route) {
+          output.push({ label: 'Routes', to: route, icon: 'mdi-gesture' })
+        }
+        const audit = ep('auditlog')
+        if (audit) {
+          output.push({
+            label: 'Audit',
+            to: audit,
+            icon: 'mdi-receipt-text'
+          })
+        }
+        // Non-event-scoped admin routes — always shown to admins
         output.push({ label: 'Users', to: '/user', icon: 'mdi-face-man' })
-        output.push({
-          label: 'Audit',
-          to: '/auditlog',
-          icon: 'mdi-receipt-text'
-        })
         output.push({
           label: 'Events',
           to: '/events',
           icon: 'mdi-calendar-multiple'
         })
       }
+
+      // Non-event-scoped routes — always shown
       output.push({
         label: 'Changelog',
         to: '/changelog',

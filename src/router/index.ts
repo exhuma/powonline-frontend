@@ -20,6 +20,7 @@ import Slideshow from '@/views/Slideshow.vue'
 import HomePage from '@/views/HomePage.vue'
 import EventManagement from '@/views/EventManagement.vue'
 import AuthCallback from '@/views/AuthCallback.vue'
+import EventLayout from '@/views/EventLayout.vue'
 
 Vue.use(VueRouter)
 
@@ -27,29 +28,26 @@ const router = new VueRouter({
   mode: 'history',
   base: import.meta.env.VITE_BASE_URL,
   routes: [
+    // ── Non-event-scoped routes ──────────────────────────────────────────
+    {
+      path: '/',
+      component: HomePage
+    },
     {
       path: '/auth/callback',
       component: AuthCallback
     },
     {
-      path: '/auditlog',
-      component: AuditLog
+      path: '/events',
+      component: EventManagement
     },
     {
-      path: '/privacy-policy',
-      component: PrivacyPolicy
+      path: '/user',
+      component: UserList
     },
     {
       path: '/live-image',
       component: LiveImage
-    },
-    {
-      path: '/gallery',
-      component: Gallery
-    },
-    {
-      path: '/uploads',
-      component: Uploads
     },
     {
       path: '/changelog',
@@ -60,59 +58,83 @@ const router = new VueRouter({
       component: Manual
     },
     {
-      path: '/slideshow',
-      component: Slideshow
+      path: '/privacy-policy',
+      component: PrivacyPolicy
     },
+
+    // ── Event-scoped routes (/event/:eventId/...) ────────────────────────
     {
-      path: '/team/:teamName',
-      component: TeamPanel
-    },
-    {
-      path: '/dashboard',
-      component: GlobalDashboard
-    },
-    {
-      path: '/',
-      component: HomePage
-    },
-    {
-      path: '/events',
-      component: EventManagement
-    },
-    {
-      path: '/matrix',
-      component: GlobalDashboard
-    },
-    {
-      path: '/station',
-      component: StationList
-    },
-    {
-      path: '/questionnaire',
-      component: QuestionnaireList
-    },
-    {
-      path: '/scoreboard',
-      component: ScoreBoard
-    },
-    {
-      path: '/station/:stationName',
-      component: StationDashboard
-    },
-    {
-      path: '/team',
-      component: TeamList,
-      name: 'team_list'
-    },
-    {
-      path: '/route',
-      component: RouteList
-    },
-    {
-      path: '/user',
-      component: UserList
+      path: '/event/:eventId',
+      component: EventLayout,
+      children: [
+        {
+          path: 'dashboard',
+          component: GlobalDashboard
+        },
+        {
+          path: 'matrix',
+          component: GlobalDashboard
+        },
+        {
+          path: 'scoreboard',
+          component: ScoreBoard
+        },
+        {
+          path: 'station',
+          component: StationList
+        },
+        {
+          path: 'station/:stationName',
+          component: StationDashboard
+        },
+        {
+          path: 'team',
+          component: TeamList,
+          name: 'team_list'
+        },
+        {
+          path: 'team/:teamName',
+          component: TeamPanel
+        },
+        {
+          path: 'route',
+          component: RouteList
+        },
+        {
+          path: 'questionnaire',
+          component: QuestionnaireList
+        },
+        {
+          path: 'auditlog',
+          component: AuditLog
+        },
+        {
+          path: 'uploads',
+          component: Uploads
+        },
+        {
+          path: 'gallery',
+          component: Gallery
+        },
+        {
+          path: 'slideshow',
+          component: Slideshow
+        }
+      ]
     }
   ]
+})
+
+// Guard: redirect to / when an event-scoped route is accessed without a valid eventId
+router.beforeEach((to, _from, next) => {
+  const eventId = to.params.eventId
+  if (to.matched.some((record) => record.path.startsWith('/event/:eventId'))) {
+    const id = Number(eventId)
+    if (!eventId || isNaN(id) || id <= 0) {
+      return next('/')
+    }
+  }
+  next()
 })
 
 export default router

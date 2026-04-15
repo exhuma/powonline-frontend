@@ -69,10 +69,12 @@ export type RelatedTeamEntry = {
 
 export class ApiClient {
   readonly baseUrl: string
+  readonly timeoutMs: number
   private _refreshing: Promise<void> | null = null
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, timeoutMs = 15_000) {
     this.baseUrl = baseUrl
+    this.timeoutMs = timeoutMs
   }
 
   // -------------------------------------------------------------------------
@@ -80,14 +82,27 @@ export class ApiClient {
   // -------------------------------------------------------------------------
 
   /**
-   * Wraps fetch with credentials and automatic 401-refresh-retry logic.
+   * Wraps fetch with credentials, a configurable timeout, and automatic
+   * 401-refresh-retry logic.  If the server does not respond within
+   * `timeoutMs` milliseconds the request is aborted and an error is thrown,
+   * which lets callers' `finally` blocks run and clears any loading spinners.
    */
   private async _fetch(
     input: string,
     init: RequestInit = {}
   ): Promise<Response> {
-    const defaults: RequestInit = { credentials: 'include' }
-    const response = await fetch(input, { ...defaults, ...init })
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs)
+    const defaults: RequestInit = {
+      credentials: 'include',
+      signal: controller.signal
+    }
+    let response: Response
+    try {
+      response = await fetch(input, { ...defaults, ...init })
+    } finally {
+      clearTimeout(timer)
+    }
 
     if (response.status !== 401) {
       return response
@@ -128,6 +143,9 @@ export class ApiClient {
       const err: any = new Error(text)
       err.response = { status: response.status, data: text }
       throw err
+    }
+    if (response.status === 204) {
+      return null as unknown as T
     }
     return response.json() as Promise<T>
   }
