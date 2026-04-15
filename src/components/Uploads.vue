@@ -95,7 +95,7 @@ import { type Upload } from '@/remote/model/upload'
 /**
  * Flatten the upload data and sort it by time
  */
-  function sortUploads(uploads: { [key: string]: Upload[] }) {
+function sortUploads(uploads: { [key: string]: Upload[] }) {
   if (!uploads) {
     return []
   }

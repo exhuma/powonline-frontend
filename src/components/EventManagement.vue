@@ -16,7 +16,10 @@
 
             <v-card-text>
               <div v-if="loading" class="text-center py-6">
-                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                ></v-progress-circular>
               </div>
 
               <v-data-table
@@ -35,16 +38,40 @@
                   </v-chip>
                 </template>
                 <template v-slot:item.actions="{ item }">
-                  <v-btn icon small class="mr-1" @click="selectEvent(item)" title="Select event">
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    @click="selectEvent(item)"
+                    title="Select event"
+                  >
                     <v-icon small>mdi-check-circle</v-icon>
                   </v-btn>
-                  <v-btn icon small class="mr-1" @click="openEditDialog(item)" title="Edit event">
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    @click="openEditDialog(item)"
+                    title="Edit event"
+                  >
                     <v-icon small>mdi-pencil</v-icon>
                   </v-btn>
-                  <v-btn icon small class="mr-1" @click="openMembersDialog(item)" title="Manage members">
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    @click="openMembersDialog(item)"
+                    title="Manage members"
+                  >
                     <v-icon small>mdi-account-multiple</v-icon>
                   </v-btn>
-                  <v-btn icon small color="red" @click="confirmDelete(item)" title="Delete event">
+                  <v-btn
+                    icon
+                    small
+                    color="red"
+                    @click="confirmDelete(item)"
+                    title="Delete event"
+                  >
                     <v-icon small>mdi-delete</v-icon>
                   </v-btn>
                 </template>
@@ -77,8 +104,9 @@
       <v-card>
         <v-card-title>Delete Event</v-card-title>
         <v-card-text>
-          Are you sure you want to delete <strong>{{ deletingEvent && deletingEvent.name }}</strong>?
-          This action cannot be undone.
+          Are you sure you want to delete
+          <strong>{{ deletingEvent && deletingEvent.name }}</strong
+          >? This action cannot be undone.
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

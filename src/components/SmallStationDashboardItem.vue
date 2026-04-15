@@ -78,7 +78,7 @@ const SmallStationDashboardIcon = Vue.extend({
       }
       return teamDetails.cancelled
     },
-    questionnaireScore(): { name: string, score: number } {
+    questionnaireScore(): { name: string; score: number } {
       const team = this.$store.state.questionnaireScores[this.state.team]
       if (!team) {
         return {

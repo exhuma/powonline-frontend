@@ -1,6 +1,11 @@
 <template>
   <v-container class="text-center mt-12">
-    <v-progress-circular v-if="loading" indeterminate color="primary" size="64" />
+    <v-progress-circular
+      v-if="loading"
+      indeterminate
+      color="primary"
+      size="64"
+    />
     <div v-if="error" class="red--text mt-4">{{ error }}</div>
   </v-container>
 </template>

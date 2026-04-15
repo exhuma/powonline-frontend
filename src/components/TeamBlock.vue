@@ -80,9 +80,11 @@ const TeamBlock = Vue.extend({
 
   created() {
     const eventId = this.$store.state.selectedEventId
-    this.$remoteProxy.fetchTeamStations(this.team.name, eventId).then((items) => {
-      this.stations = items
-    })
+    this.$remoteProxy
+      .fetchTeamStations(this.team.name, eventId)
+      .then((items) => {
+        this.stations = items
+      })
   },
   methods: {
     hasRole(roleName) {

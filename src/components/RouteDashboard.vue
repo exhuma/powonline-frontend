@@ -90,10 +90,15 @@ const RouteDashboard = Vue.extend({
       })
       return output
     },
-    stateMapping(): { [key: string]: { [key: string]: { name: string; score: number; state: string } } } {
+    stateMapping(): {
+      [key: string]: {
+        [key: string]: { name: string; score: number; state: string }
+      }
+    } {
       // TODO: Is may make sense to use the structure below as value for the main "global_dashboard"
       const output = {}
-      const teamStates = this.$store.state.global_dashboard as RemoteDashboardRow[]
+      const teamStates = this.$store.state
+        .global_dashboard as RemoteDashboardRow[]
 
       teamStates.forEach((teamState) => {
         teamState.stations.forEach((stationState) => {

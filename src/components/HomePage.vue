@@ -11,12 +11,20 @@
 
             <v-card-text class="pt-4">
               <div v-if="loading" class="text-center py-6">
-                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                ></v-progress-circular>
                 <div class="mt-3 text-subtitle1">Loading events…</div>
               </div>
 
-              <div v-else-if="futureEvents.length === 0" class="text-center py-6">
-                <v-icon size="64" color="grey lighten-1">mdi-calendar-remove</v-icon>
+              <div
+                v-else-if="futureEvents.length === 0"
+                class="text-center py-6"
+              >
+                <v-icon size="64" color="grey lighten-1"
+                  >mdi-calendar-remove</v-icon
+                >
                 <p class="text-h6 mt-4 mb-2">No accessible events found</p>
                 <p class="text-body-2 grey--text mb-4">
                   There are no upcoming events you can access.
@@ -40,7 +48,7 @@
                   :key="event.id"
                   @click="selectEvent(event)"
                   class="rounded mb-1"
-                  style="border: 1px solid rgba(0,0,0,0.12);"
+                  style="border: 1px solid rgba(0, 0, 0, 0.12)"
                 >
                   <v-list-item-avatar color="primary">
                     <v-icon dark>mdi-calendar</v-icon>

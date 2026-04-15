@@ -13,7 +13,7 @@
             label="Event Name"
             required
             outlined
-            :rules="[v => !!v || 'Event name is required']"
+            :rules="[(v) => !!v || 'Event name is required']"
             class="mb-2"
           ></v-text-field>
 
@@ -38,7 +38,12 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="closeDialog">Cancel</v-btn>
-        <v-btn color="primary" :disabled="!formValid || saving" :loading="saving" @click="saveEvent">
+        <v-btn
+          color="primary"
+          :disabled="!formValid || saving"
+          :loading="saving"
+          @click="saveEvent"
+        >
           {{ isEditMode ? 'Update' : 'Create' }}
         </v-btn>
       </v-card-actions>
@@ -102,12 +107,18 @@ export default Vue.extend({
     resetForm() {
       if (this.event) {
         this.form.name = this.event.name
-        this.form.startDateTime = moment(this.event.time_range.start).format('YYYY-MM-DDTHH:mm:00')
-        this.form.endDateTime = moment(this.event.time_range.end).format('YYYY-MM-DDTHH:mm:00')
+        this.form.startDateTime = moment(this.event.time_range.start).format(
+          'YYYY-MM-DDTHH:mm:00'
+        )
+        this.form.endDateTime = moment(this.event.time_range.end).format(
+          'YYYY-MM-DDTHH:mm:00'
+        )
       } else {
         this.form.name = ''
         this.form.startDateTime = moment().format('YYYY-MM-DDTHH:mm:00')
-        this.form.endDateTime = moment().add(1, 'day').format('YYYY-MM-DDTHH:mm:00')
+        this.form.endDateTime = moment()
+          .add(1, 'day')
+          .format('YYYY-MM-DDTHH:mm:00')
       }
     },
     async saveEvent() {

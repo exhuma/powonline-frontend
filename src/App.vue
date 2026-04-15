@@ -116,8 +116,13 @@
                 <v-divider class="mt-4 mb-4"></v-divider>
                 <v-layout row wrap align-center>
                   <v-flex> Or login with: </v-flex>
-                  <v-flex v-for="provider in authProviders" :key="provider.name">
-                    <v-btn @click="loginSocial(provider.name)">{{ provider.label }}</v-btn>
+                  <v-flex
+                    v-for="provider in authProviders"
+                    :key="provider.name"
+                  >
+                    <v-btn @click="loginSocial(provider.name)">{{
+                      provider.label
+                    }}</v-btn>
                   </v-flex>
                 </v-layout>
                 <v-divider class="mt-4 mb-4"></v-divider>
@@ -195,11 +200,14 @@ const App = Vue.extend({
       this.onRefreshProgressUpdated(payload)
     })
     // Load available social auth providers
-    this.$remoteProxy.getAuthProviders().then((providers: AuthProvider[]) => {
-      this.authProviders = providers
-    }).catch(() => {
-      this.authProviders = []
-    })
+    this.$remoteProxy
+      .getAuthProviders()
+      .then((providers: AuthProvider[]) => {
+        this.authProviders = providers
+      })
+      .catch(() => {
+        this.authProviders = []
+      })
   },
   data() {
     return {

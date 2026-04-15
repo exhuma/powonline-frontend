@@ -324,12 +324,9 @@ function makeStore(remoteProxy: Proxy) {
        *    * team: Object with the key "name" representing the team name.
        */
       assignTeamToRoute(state, payload) {
-        const current = state.route_team_map[payload.routeName]
-        if (current === undefined) {
-          state.route_team_map[payload.routeName] = [payload.team.name]
-        } else {
-          state.route_team_map[payload.routeName].push(payload.team.name)
-        }
+        // route_team_map is keyed by team name, value is list of route names
+        // (matches the structure written by replaceAssignments)
+        Vue.set(state.route_team_map, payload.team.name, [payload.routeName])
       },
 
       /**
@@ -340,12 +337,8 @@ function makeStore(remoteProxy: Proxy) {
        *    * teamName: The name of the team to remove
        */
       unassignTeamFromRoute(state, payload) {
-        const current = state.route_team_map[payload.routeName]
-        if (current === undefined) {
-          state.route_team_map[payload.routeName] = []
-        } else {
-          // XXX TODO implement
-        }
+        // route_team_map is keyed by team name; remove the team's entry entirely
+        Vue.delete(state.route_team_map, payload.teamName)
       },
 
       /**
@@ -357,11 +350,11 @@ function makeStore(remoteProxy: Proxy) {
        *      name
        */
       assignStationToRoute(state, payload) {
-        const current = state.route_station_map[payload.routeName]
-        if (current === undefined) {
-          state.route_station_map[payload.routeName] = [payload.station.name]
-        } else {
-          state.route_station_map[payload.routeName].push(payload.station.name)
+        // route_station_map is keyed by route name, value is list of Station objects
+        // (matches the structure written by replaceAssignments)
+        const current = state.route_station_map[payload.routeName] || []
+        if (!current.find((s) => s.name === payload.station.name)) {
+          Vue.set(state.route_station_map, payload.routeName, [...current, payload.station])
         }
       },
 
@@ -373,12 +366,12 @@ function makeStore(remoteProxy: Proxy) {
        *    * stationName: The name of the station to remove
        */
       unassignStationFromRoute(state, payload) {
-        const current = state.route_station_map[payload.routeName]
-        if (current === undefined) {
-          state.route_station_map[payload.routeName] = []
-        } else {
-          // XXX TODO implement
-        }
+        const current = state.route_station_map[payload.routeName] || []
+        Vue.set(
+          state.route_station_map,
+          payload.routeName,
+          current.filter((s) => s.name !== payload.stationName)
+        )
       },
 
       /**
@@ -600,15 +593,26 @@ function makeStore(remoteProxy: Proxy) {
       },
 
       async fetchEvents(context) {
-        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: '' })
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: ''
+        })
         try {
           const events = await remoteProxy.fetchEvents()
           context.commit('setEvents', events)
         } catch (e) {
           console.error(e)
-          EventBus.$emit('snackRequested', { message: 'Unable to fetch events', color: 'red' })
+          EventBus.$emit('snackRequested', {
+            message: 'Unable to fetch events',
+            color: 'red'
+          })
         } finally {
-          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
         }
       },
 
@@ -616,50 +620,89 @@ function makeStore(remoteProxy: Proxy) {
         context.commit('setSelectedEventId', eventId)
       },
 
-      async createEvent(context, eventData: { name: string; time_range: { start: string; end: string } }) {
-        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: 'Creating event...' })
+      async createEvent(
+        context,
+        eventData: { name: string; time_range: { start: string; end: string } }
+      ) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: 'Creating event...'
+        })
         try {
           const newEvent = await remoteProxy.createEvent(eventData)
           context.commit('addEvent', newEvent)
-          EventBus.$emit('snackRequested', { message: 'Event created successfully' })
+          EventBus.$emit('snackRequested', {
+            message: 'Event created successfully'
+          })
           return newEvent
         } catch (e: any) {
           console.error(e)
           const message = e?.response?.data ?? 'Unable to create event'
           EventBus.$emit('snackRequested', { message, color: 'red' })
         } finally {
-          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
         }
       },
 
-      async updateEvent(context, payload: { eventId: number; eventData: object }) {
-        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: 'Updating event...' })
+      async updateEvent(
+        context,
+        payload: { eventId: number; eventData: object }
+      ) {
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: 'Updating event...'
+        })
         try {
-          const updated = await remoteProxy.updateEvent(payload.eventId, payload.eventData)
+          const updated = await remoteProxy.updateEvent(
+            payload.eventId,
+            payload.eventData
+          )
           context.commit('updateEventInStore', updated)
-          EventBus.$emit('snackRequested', { message: 'Event updated successfully' })
+          EventBus.$emit('snackRequested', {
+            message: 'Event updated successfully'
+          })
           return updated
         } catch (e: any) {
           console.error(e)
           const message = e?.response?.data ?? 'Unable to update event'
           EventBus.$emit('snackRequested', { message, color: 'red' })
         } finally {
-          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
         }
       },
 
       async deleteEvent(context, eventId: number) {
-        EventBus.$emit('activityEvent', { visible: true, progress: -1, text: 'Deleting event...' })
+        EventBus.$emit('activityEvent', {
+          visible: true,
+          progress: -1,
+          text: 'Deleting event...'
+        })
         try {
           await remoteProxy.deleteEvent(eventId)
           context.commit('deleteEventFromStore', eventId)
-          EventBus.$emit('snackRequested', { message: 'Event deleted successfully' })
+          EventBus.$emit('snackRequested', {
+            message: 'Event deleted successfully'
+          })
         } catch (e: any) {
           console.error(e)
           const message = e?.response?.data ?? 'Unable to delete event'
           EventBus.$emit('snackRequested', { message, color: 'red' })
         } finally {
-          EventBus.$emit('activityEvent', { visible: false, progress: -1, text: '' })
+          EventBus.$emit('activityEvent', {
+            visible: false,
+            progress: -1,
+            text: ''
+          })
         }
       },
 
@@ -725,7 +768,12 @@ function makeStore(remoteProxy: Proxy) {
         })
         const eventId = context.state.selectedEventId
         remoteProxy
-          .setStationScore(payload.stationName, payload.teamName, payload.score, eventId)
+          .setStationScore(
+            payload.stationName,
+            payload.teamName,
+            payload.score,
+            eventId
+          )
           .then(() => {
             EventBus.$emit('activityEvent', {
               visible: false,
@@ -1390,7 +1438,7 @@ function makeStore(remoteProxy: Proxy) {
               progress: -1,
               text: ''
             })
-            context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+            context.dispatch('refreshAssignments') // keep remote in sync
           })
           .catch((e) => {
             EventBus.$emit('activityEvent', {
@@ -1424,7 +1472,7 @@ function makeStore(remoteProxy: Proxy) {
               progress: -1,
               text: ''
             })
-            context.dispatch('refreshRemote') // TODO Why is this not happening automatically?
+            context.dispatch('refreshAssignments') // keep remote in sync
           })
           .catch((e) => {
             EventBus.$emit('activityEvent', {
@@ -1469,7 +1517,7 @@ function makeStore(remoteProxy: Proxy) {
               progress: -1,
               text: ''
             })
-            context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+            context.dispatch('refreshAssignments') // keep remote in sync
           })
           .catch((e) => {
             EventBus.$emit('activityEvent', {
@@ -1503,7 +1551,7 @@ function makeStore(remoteProxy: Proxy) {
               progress: -1,
               text: ''
             })
-            context.dispatch('refreshRemote') // TODO Something causes a non-rective change which is why this is needed. Investigate!
+            context.dispatch('refreshAssignments') // keep remote in sync
           })
           .catch((e) => {
             EventBus.$emit('activityEvent', {

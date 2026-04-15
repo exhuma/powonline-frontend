@@ -32,7 +32,12 @@
             ></v-select>
           </v-col>
           <v-col cols="12" sm="2">
-            <v-btn color="primary" :disabled="!selectedUser" @click="addMember" block>
+            <v-btn
+              color="primary"
+              :disabled="!selectedUser"
+              @click="addMember"
+              block
+            >
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </v-col>
@@ -41,10 +46,16 @@
         <v-divider class="my-4"></v-divider>
 
         <div v-if="loading" class="text-center py-4">
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          <v-progress-circular
+            indeterminate
+            color="primary"
+          ></v-progress-circular>
         </div>
 
-        <div v-else-if="members.length === 0" class="text-center py-4 grey--text">
+        <div
+          v-else-if="members.length === 0"
+          class="text-center py-4 grey--text"
+        >
           No members assigned yet.
         </div>
 
@@ -58,7 +69,9 @@
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title>{{ member.user_name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ member.role_name }}</v-list-item-subtitle>
+              <v-list-item-subtitle>{{
+                member.role_name
+              }}</v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
               <v-btn icon small color="red" @click="removeMember(member)">
@@ -148,7 +161,10 @@ export default Vue.extend({
         role_name: this.selectedRole
       }
       try {
-        const added = await this.$remoteProxy.addEventMember(this.eventId, member)
+        const added = await this.$remoteProxy.addEventMember(
+          this.eventId,
+          member
+        )
         this.members.push(added)
         this.selectedUser = null
       } catch (e) {
@@ -163,7 +179,8 @@ export default Vue.extend({
           member.role_name
         )
         const idx = this.members.findIndex(
-          (m) => m.user_name === member.user_name && m.role_name === member.role_name
+          (m) =>
+            m.user_name === member.user_name && m.role_name === member.role_name
         )
         if (idx > -1) {
           this.members.splice(idx, 1)
