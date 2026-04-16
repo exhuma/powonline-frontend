@@ -21,8 +21,29 @@ import HomePage from '@/views/HomePage.vue'
 import EventManagement from '@/views/EventManagement.vue'
 import AuthCallback from '@/views/AuthCallback.vue'
 import EventLayout from '@/views/EventLayout.vue'
+import { pinnedEvent } from '@/pinnedEvent'
 
 Vue.use(VueRouter)
+
+/**
+ * Event-scoped child route definitions shared between the standard
+ * `/event/:eventId/...` tree and the domain-pinned `/.../` tree.
+ */
+const eventChildren = [
+  { path: 'dashboard', component: GlobalDashboard },
+  { path: 'matrix', component: GlobalDashboard },
+  { path: 'scoreboard', component: ScoreBoard },
+  { path: 'station', component: StationList },
+  { path: 'station/:stationName', component: StationDashboard },
+  { path: 'team', component: TeamList, name: 'team_list' },
+  { path: 'team/:teamName', component: TeamPanel },
+  { path: 'route', component: RouteList },
+  { path: 'questionnaire', component: QuestionnaireList },
+  { path: 'auditlog', component: AuditLog },
+  { path: 'uploads', component: Uploads },
+  { path: 'gallery', component: Gallery },
+  { path: 'slideshow', component: Slideshow }
+]
 
 const router = new VueRouter({
   mode: 'history',
@@ -66,67 +87,30 @@ const router = new VueRouter({
     {
       path: '/event/:eventId',
       component: EventLayout,
-      children: [
-        {
-          path: 'dashboard',
-          component: GlobalDashboard
-        },
-        {
-          path: 'matrix',
-          component: GlobalDashboard
-        },
-        {
-          path: 'scoreboard',
-          component: ScoreBoard
-        },
-        {
-          path: 'station',
-          component: StationList
-        },
-        {
-          path: 'station/:stationName',
-          component: StationDashboard
-        },
-        {
-          path: 'team',
-          component: TeamList,
-          name: 'team_list'
-        },
-        {
-          path: 'team/:teamName',
-          component: TeamPanel
-        },
-        {
-          path: 'route',
-          component: RouteList
-        },
-        {
-          path: 'questionnaire',
-          component: QuestionnaireList
-        },
-        {
-          path: 'auditlog',
-          component: AuditLog
-        },
-        {
-          path: 'uploads',
-          component: Uploads
-        },
-        {
-          path: 'gallery',
-          component: Gallery
-        },
-        {
-          path: 'slideshow',
-          component: Slideshow
-        }
-      ]
+      children: eventChildren
+    },
+
+    // ── Domain-pinned short routes (/:section) ───────────────────────────
+    // Accessible only when a domain→event mapping is active (pinnedEvent).
+    // The beforeEach guard below enforces this.
+    {
+      path: '/',
+      component: EventLayout,
+      meta: { requiresPin: true },
+      children: eventChildren.map((r) => ({ ...r, name: r.name ? `pinned_${r.name}` : undefined }))
     }
   ]
 })
 
-// Guard: redirect to / when an event-scoped route is accessed without a valid eventId
+// Guard: enforce route access rules
 router.beforeEach((to, _from, next) => {
+  // Pinned short routes: only accessible when a domain pin is active
+  if (to.meta?.requiresPin) {
+    if (!pinnedEvent.value) return next('/')
+    return next()
+  }
+
+  // Standard /event/:eventId routes: require a valid numeric eventId
   const eventId = to.params.eventId
   if (to.matched.some((record) => record.path.startsWith('/event/:eventId'))) {
     const id = Number(eventId)

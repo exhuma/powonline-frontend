@@ -113,10 +113,10 @@
           >
             <v-list-item-content>
               <v-list-item-content>
-                <v-btn
-                  :to="`/event/${$route.params.eventId}/team/${item.data.name}`"
-                  >Open Team Panel</v-btn
-                >
+                 <v-btn
+                   :to="teamPanelPath(item.data.name)"
+                   >Open Team Panel</v-btn
+                 >
               </v-list-item-content>
             </v-list-item-content>
           </v-list-item>
@@ -136,6 +136,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { api } from '@/main'
+import { pinnedEvent } from '@/pinnedEvent'
 import model from '@/model'
 import type { Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
@@ -185,6 +186,10 @@ const TeamList = Vue.extend({
   },
 
   methods: {
+    teamPanelPath(teamName: string): string {
+      if (pinnedEvent.value) return `/team/${teamName}`
+      return `/event/${this.$route.params.eventId}/team/${teamName}`
+    },
     hasRole(roleNames: string[]): boolean {
       // @ts-expect-error inject
       const session = this.session as Session

@@ -44,6 +44,12 @@ export type EventMember = {
   role_name: string
 }
 
+export type EventDomain = {
+  id: number
+  event_id: number
+  domain: string
+}
+
 export type SessionInfo = {
   user: string
   roles: string[]
@@ -245,6 +251,45 @@ export class ApiClient {
   ): Promise<void> {
     await this._json(
       `${this.baseUrl}/events/${eventId}/members/${userName}/${roleName}`,
+      { method: 'DELETE' }
+    )
+  }
+
+  // -------------------------------------------------------------------------
+  // Event domains
+  // -------------------------------------------------------------------------
+
+  /**
+   * Look up the event pinned to a given hostname.
+   * Returns null if no mapping exists (404 is treated as a normal "no match").
+   */
+  async fetchEventByDomain(domain: string): Promise<EventInfo | null> {
+    const url = `${this.baseUrl}/domain-lookup?domain=${encodeURIComponent(domain)}`
+    const response = await this._fetch(url, {
+      headers: { 'Content-Type': 'application/json' }
+    })
+    if (response.status === 404) return null
+    if (!response.ok) throw new Error(`Unexpected status ${response.status}`)
+    return response.json()
+  }
+
+  async fetchEventDomains(eventId: number): Promise<EventDomain[]> {
+    const data: any = await this._json(
+      `${this.baseUrl}/events/${eventId}/domains`
+    )
+    return data.items
+  }
+
+  async addEventDomain(eventId: number, domain: string): Promise<EventDomain> {
+    return this._json(`${this.baseUrl}/events/${eventId}/domains`, {
+      method: 'POST',
+      body: JSON.stringify({ domain })
+    })
+  }
+
+  async removeEventDomain(eventId: number, domain: string): Promise<void> {
+    await this._json(
+      `${this.baseUrl}/events/${eventId}/domains/${encodeURIComponent(domain)}`,
       { method: 'DELETE' }
     )
   }

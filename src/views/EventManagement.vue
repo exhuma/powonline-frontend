@@ -38,43 +38,53 @@
                   </v-chip>
                 </template>
                 <template v-slot:item.actions="{ item }">
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    @click="selectEvent(item)"
-                    title="Select event"
-                  >
-                    <v-icon small>mdi-check-circle</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    @click="openEditDialog(item)"
-                    title="Edit event"
-                  >
-                    <v-icon small>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    @click="openMembersDialog(item)"
-                    title="Manage members"
-                  >
-                    <v-icon small>mdi-account-multiple</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    color="red"
-                    @click="confirmDelete(item)"
-                    title="Delete event"
-                  >
-                    <v-icon small>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
+                   <v-btn
+                     icon
+                     small
+                     class="mr-1"
+                     @click="selectEvent(item)"
+                     title="Select event"
+                   >
+                     <v-icon small>mdi-check-circle</v-icon>
+                   </v-btn>
+                   <v-btn
+                     icon
+                     small
+                     class="mr-1"
+                     @click="openEditDialog(item)"
+                     title="Edit event"
+                   >
+                     <v-icon small>mdi-pencil</v-icon>
+                   </v-btn>
+                   <v-btn
+                     icon
+                     small
+                     class="mr-1"
+                     @click="openMembersDialog(item)"
+                     title="Manage members"
+                   >
+                     <v-icon small>mdi-account-multiple</v-icon>
+                   </v-btn>
+                    <v-btn
+                      icon
+                      small
+                      class="mr-1"
+                      :color="pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''"
+                      @click="openDomainsDialog(item)"
+                      :title="pinnedEvent && pinnedEvent.id === item.id ? 'Current domain is mapped to this event' : 'Manage domains'"
+                    >
+                      <v-icon small>mdi-web</v-icon>
+                    </v-btn>
+                   <v-btn
+                     icon
+                     small
+                     color="red"
+                     @click="confirmDelete(item)"
+                     title="Delete event"
+                   >
+                     <v-icon small>mdi-delete</v-icon>
+                   </v-btn>
+                 </template>
               </v-data-table>
             </v-card-text>
           </v-card>
@@ -99,6 +109,55 @@
       @close="showMembersDialog = false"
     />
 
+    <!-- Domain management dialog -->
+    <v-dialog v-model="showDomainsDialog" max-width="520px">
+      <v-card>
+        <v-card-title>
+          <v-icon class="mr-2">mdi-web</v-icon>
+          Domains for <em class="ml-1">{{ domainsEvent && domainsEvent.name }}</em>
+        </v-card-title>
+        <v-card-text>
+          <v-list dense v-if="eventDomains.length">
+            <v-list-item v-for="d in eventDomains" :key="d.id">
+              <v-list-item-content>
+                <v-list-item-title>{{ d.domain }}</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  icon
+                  small
+                  color="red"
+                  @click="removeDomain(d.domain)"
+                  title="Remove domain"
+                >
+                  <v-icon small>mdi-delete</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+          <div v-else class="text--secondary mb-2">No domains configured.</div>
+
+          <v-divider class="my-3"></v-divider>
+
+          <v-form @submit.prevent="addDomain">
+            <v-text-field
+              v-model="newDomain"
+              label="Add domain (e.g. event.example.com)"
+              dense
+              outlined
+              :error-messages="domainError"
+              append-icon="mdi-plus"
+              @click:append="addDomain"
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="showDomainsDialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete confirmation dialog -->
     <v-dialog v-model="showDeleteDialog" max-width="400px">
       <v-card>
@@ -121,10 +180,11 @@
 <script lang="ts">
 import Vue from 'vue'
 import moment from 'moment'
-import type { EventInfo } from '@/api'
+import type { EventInfo, EventDomain } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
 import EventMemberManager from '@/components/EventMemberManager.vue'
 import { api } from '@/main'
+import { pinnedEvent } from '@/pinnedEvent'
 
 export default Vue.extend({
   name: 'EventManagement',
@@ -137,15 +197,25 @@ export default Vue.extend({
       showEventDialog: false,
       showMembersDialog: false,
       showDeleteDialog: false,
+      showDomainsDialog: false,
       editingEvent: null as EventInfo | null,
       managingEvent: null as EventInfo | null,
       deletingEvent: null as EventInfo | null,
+      domainsEvent: null as EventInfo | null,
+      eventDomains: [] as EventDomain[],
+      newDomain: '',
+      domainError: '' as string,
       headers: [
         { text: 'Name', value: 'name', sortable: true },
         { text: 'Date Range', value: 'time_range', sortable: false },
         { text: 'Status', value: 'status', sortable: false },
         { text: 'Actions', value: 'actions', sortable: false, align: 'right' }
       ]
+    }
+  },
+  computed: {
+    pinnedEvent(): EventInfo | null {
+      return pinnedEvent.value
     }
   },
   async mounted() {
@@ -221,6 +291,29 @@ export default Vue.extend({
       this.showEventDialog = false
       this.editingEvent = null
       this.loadEvents()
+    },
+    async openDomainsDialog(event: EventInfo) {
+      this.domainsEvent = event
+      this.newDomain = ''
+      this.domainError = ''
+      this.eventDomains = await api.fetchEventDomains(event.id)
+      this.showDomainsDialog = true
+    },
+    async addDomain() {
+      this.domainError = ''
+      const domain = this.newDomain.trim()
+      if (!domain) return
+      try {
+        const created = await api.addEventDomain(this.domainsEvent!.id, domain)
+        this.eventDomains.push(created)
+        this.newDomain = ''
+      } catch {
+        this.domainError = 'Could not add domain (it may already be in use).'
+      }
+    },
+    async removeDomain(domain: string) {
+      await api.removeEventDomain(this.domainsEvent!.id, domain)
+      this.eventDomains = this.eventDomains.filter((d) => d.domain !== domain)
     }
   }
 })

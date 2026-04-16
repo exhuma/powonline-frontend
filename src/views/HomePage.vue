@@ -94,7 +94,7 @@ import Vue from 'vue'
 import moment from 'moment'
 import type { EventInfo } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
-import { api } from '@/main'
+import { api, pinnedEvent } from '@/main'
 import type { Session } from '@/App.vue'
 
 export default Vue.extend({
@@ -125,6 +125,13 @@ export default Vue.extend({
     }
   },
   async mounted() {
+    // If a domain is pinned to an event, skip the event selector entirely
+    if (pinnedEvent.value) {
+      // @ts-expect-error inject
+      ;(this.setSelectedEventId as (id: number) => void)(pinnedEvent.value.id)
+      this.$router.replace('/dashboard')
+      return
+    }
     await this.loadEvents()
   },
   methods: {

@@ -3,6 +3,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import { ApiClient } from './api'
+import { pinnedEvent } from './pinnedEvent'
 
 import ConfirmationDialog from './components/ConfirmationDialog.vue'
 import CenterCol from './components/CenterCol.vue'
@@ -27,6 +28,9 @@ import vuetify from './plugins/vuetify'
 
 export const api = new ApiClient(import.meta.env.VITE_BACKEND_URL)
 
+// Re-export so existing consumers of `@/main` continue to work unchanged.
+export { pinnedEvent }
+
 Vue.component('confirmation-dialog', ConfirmationDialog)
 Vue.component('center-col', CenterCol)
 Vue.component('route-dashboard', RouteDashboard)
@@ -46,10 +50,22 @@ Vue.component('image-upload', ImageUpload)
 Vue.component('combined-dashboard', CombinedDashboard)
 Vue.component('dashboard-progress-line', DashboardProgressLine)
 
-/* eslint-disable no-new */
-new Vue({
-  router,
-  // @ts-expect-error - passing this as an option is causing a type error
-  vuetify,
-  render: (h) => h(App)
-}).$mount('#app')
+// Resolve domain-pinned event before mounting so every component and the
+// router guard can read pinnedEvent.value synchronously on first render.
+api
+  .fetchEventByDomain(window.location.hostname)
+  .then((event) => {
+    if (event) pinnedEvent.value = event
+  })
+  .catch(() => {
+    // Non-fatal: if the lookup fails we just run in normal multi-event mode.
+  })
+  .finally(() => {
+    /* eslint-disable no-new */
+    new Vue({
+      router,
+      // @ts-expect-error - passing this as an option is causing a type error
+      vuetify,
+      render: (h) => h(App)
+    }).$mount('#app')
+  })

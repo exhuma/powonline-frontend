@@ -23,7 +23,7 @@
           color="secondary"
           label
           small
-          to="/"
+          :to="pinnedEvent ? undefined : '/'"
         >
           <v-icon left small>mdi-calendar</v-icon>
           {{ selectedEventName }}
@@ -186,7 +186,7 @@ SMALL {
 import { startSocialLogin } from '@/auth/social'
 import EventBus from '@/plugins/eventBus'
 import Vue from 'vue'
-import { api } from '@/main'
+import { api, pinnedEvent } from '@/main'
 import { init as initRealtime } from '@/events'
 import type { AuthProvider, EventInfo } from '@/api'
 
@@ -203,7 +203,7 @@ const App = Vue.extend({
     return {
       api,
       session: (this as any).session,
-      getSelectedEventId: () => (this as any).selectedEventId,
+      getSelectedEventId: () => pinnedEvent.value?.id ?? (this as any).selectedEventId,
       setSelectedEventId: (id: number | null) => {
         ;(this as any).selectedEventId = id
       },
@@ -216,6 +216,9 @@ const App = Vue.extend({
   },
   watch: {
     $route(to) {
+      // When a domain pin is active, selectedEventId comes from pinnedEvent — never from the URL
+      if (pinnedEvent.value) return
+
       // Sync selectedEventId from the URL on every navigation (handles hard reloads too)
       const rawId = to.params.eventId
       if (rawId) {
@@ -227,12 +230,18 @@ const App = Vue.extend({
     }
   },
   mounted() {
-    // Sync selectedEventId on initial load in case the page is hard-reloaded on an event-scoped URL
-    const rawId = this.$route.params.eventId
-    if (rawId) {
-      const id = Number(rawId)
-      if (!isNaN(id) && id > 0) {
-        this.selectedEventId = id
+    // If a domain pin is already resolved, use it immediately.
+    // Do NOT redirect — the domain itself is the event context; the URL stays clean.
+    if (pinnedEvent.value) {
+      this.selectedEventId = pinnedEvent.value.id
+    } else {
+      // Sync selectedEventId on initial load in case the page is hard-reloaded on an event-scoped URL
+      const rawId = this.$route.params.eventId
+      if (rawId) {
+        const id = Number(rawId)
+        if (!isNaN(id) && id > 0) {
+          this.selectedEventId = id
+        }
       }
     }
 
@@ -421,6 +430,9 @@ const App = Vue.extend({
     appVersion() {
       return __APP_VERSION__
     },
+    pinnedEvent() {
+      return pinnedEvent.value
+    },
     pageTitle() {
       return import.meta.env.VITE_PAGE_TITLE
     },
@@ -429,8 +441,12 @@ const App = Vue.extend({
       const hasRole = (r: string) =>
         roles.includes('admin') || roles.includes(r)
       const eventId = this.selectedEventId
-      const ep = (path: string) =>
-        eventId ? `/event/${eventId}/${path}` : null
+      // When a domain is pinned, emit clean paths (e.g. /dashboard).
+      // Otherwise prefix with /event/<id>/ as usual.
+      const ep = (path: string): string | null => {
+        if (pinnedEvent.value) return `/${path}`
+        return eventId ? `/event/${eventId}/${path}` : null
+      }
 
       const output: { label: string; to: string; icon: string }[] = []
 
