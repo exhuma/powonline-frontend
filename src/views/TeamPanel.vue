@@ -11,16 +11,20 @@
           :actionArgument="team.name"
           @confirmed="onTeamDeleted"
         >
-          <span slot="title"
-            >Do you want to delete the team "{{ team.name }}"?</span
+          <template #title
+            ><span
+              >Do you want to delete the team "{{ team.name }}"?</span
+            ></template
           >
-          <div slot="text">
-            <p>
-              This will delete the team with the name "{{ team.name }}" and all
-              related information!
-            </p>
-            <p>Are you sure?</p>
-          </div>
+          <template #text>
+            <div>
+              <p>
+                This will delete the team with the name "{{ team.name }}" and
+                all related information!
+              </p>
+              <p>Are you sure?</p>
+            </div>
+          </template>
         </confirmation-dialog>
         <v-btn class="mt-2" @click="save">Save</v-btn>
       </div>
@@ -30,15 +34,15 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
+import type { Session } from '@/App.vue'
 import { api } from '@/main'
-import TeamForm from '@/components/forms/TeamForm.vue'
-import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import type { Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
-import type { Session } from '@/App.vue'
+import TeamForm from '@/components/forms/TeamForm.vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 
-const TeamPanel = Vue.extend({
+const TeamPanel = defineComponent({
   name: 'team-panel',
   components: { TeamForm, ConfirmationDialog },
   inject: ['getSelectedEventId', 'session'],
@@ -52,12 +56,11 @@ const TeamPanel = Vue.extend({
   },
 
   async created() {
-    // @ts-expect-error inject
-    const eventId = this.getSelectedEventId()
+    const eventId = (this as any).getSelectedEventId()
     this.loading = true
     try {
       const [team, routes] = await Promise.all([
-        api.fetchTeam(this.$route.params.teamName, eventId),
+        api.fetchTeam(String(this.$route.params.teamName), eventId),
         api.fetchRoutes(eventId)
       ])
       this.team = team
@@ -71,7 +74,6 @@ const TeamPanel = Vue.extend({
 
   methods: {
     hasRole(roleName: string): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return session.roles.includes(roleName)
     },
@@ -79,8 +81,7 @@ const TeamPanel = Vue.extend({
       this.team = team
     },
     async onTeamDeleted() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       if (!this.team) return
       try {
         await api.deleteTeam(this.team.name, eventId)
@@ -97,11 +98,14 @@ const TeamPanel = Vue.extend({
     },
     async save() {
       if (!this.team) return
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       this.team.comments = this.team.comments || ''
       try {
-        await api.updateTeam(this.$route.params.teamName, this.team, eventId)
+        await api.updateTeam(
+          String(this.$route.params.teamName),
+          this.team,
+          eventId
+        )
         this.$emit('snackRequested', { message: 'Save successful' })
         this.$router.push({
           name: 'team_list',

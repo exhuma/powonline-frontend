@@ -6,20 +6,20 @@
       <v-tab v-if="isStaff">Staff</v-tab>
       <v-tab v-if="isAdmin">Admin</v-tab>
     </v-tabs>
-    <v-tabs-items v-model="activeTab" class="pa-5">
-      <v-tab-item>
+    <v-window v-model="activeTab" class="pa-5">
+      <v-window-item>
         <div v-html="publicManual"></div>
-      </v-tab-item>
-      <v-tab-item>
+      </v-window-item>
+      <v-window-item>
         <div v-html="registeredManual"></div>
-      </v-tab-item>
-      <v-tab-item>
+      </v-window-item>
+      <v-window-item>
         <div v-html="staffManual"></div>
-      </v-tab-item>
-      <v-tab-item>
+      </v-window-item>
+      <v-window-item>
         <div v-html="adminManual"></div>
-      </v-tab-item>
-    </v-tabs-items>
+      </v-window-item>
+    </v-window>
   </center-col>
 </template>
 
@@ -28,10 +28,9 @@ import * as publicManualMd from '@/assets/manual/manual-public.md'
 import * as registeredManualMd from '@/assets/manual/manual-user.md'
 import * as staffManualMd from '@/assets/manual/manual-staff.md'
 import * as adminManualMd from '@/assets/manual/manual-admin.md'
-import Vue from 'vue'
-import type { Session } from '@/App.vue'
+import { defineComponent } from 'vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Manual',
   inject: ['session'],
   data() {

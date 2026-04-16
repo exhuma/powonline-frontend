@@ -9,7 +9,7 @@
               Event Management
               <v-spacer></v-spacer>
               <v-btn color="primary" @click="openCreateDialog">
-                <v-icon left>mdi-plus</v-icon>
+                <v-icon start>mdi-plus</v-icon>
                 New Event
               </v-btn>
             </v-card-title>
@@ -33,7 +33,7 @@
                   {{ formatDateRange(item.time_range) }}
                 </template>
                 <template v-slot:item.status="{ item }">
-                  <v-chip small :color="statusColor(item)" dark>
+                  <v-chip size="small" :color="statusColor(item)" dark>
                     {{ statusLabel(item) }}
                   </v-chip>
                 </template>
@@ -160,7 +160,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="showDomainsDialog = false">Close</v-btn>
+          <v-btn variant="text" @click="showDomainsDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -176,7 +176,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
           <v-btn color="error" @click="doDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
@@ -185,7 +185,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import moment from 'moment'
 import type { EventInfo, EventDomain } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
@@ -193,7 +193,7 @@ import EventMemberManager from '@/components/EventMemberManager.vue'
 import { api } from '@/main'
 import { pinnedEvent } from '@/pinnedEvent'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'EventManagement',
   components: { EventDialog, EventMemberManager },
   inject: ['getSelectedEventId', 'setSelectedEventId'],
@@ -213,10 +213,10 @@ export default Vue.extend({
       newDomain: '',
       domainError: '' as string,
       headers: [
-        { text: 'Name', value: 'name', sortable: true },
-        { text: 'Date Range', value: 'time_range', sortable: false },
-        { text: 'Status', value: 'status', sortable: false },
-        { text: 'Actions', value: 'actions', sortable: false, align: 'right' }
+        { title: 'Name', key: 'name', sortable: true },
+        { title: 'Date Range', key: 'time_range', sortable: false },
+        { title: 'Status', key: 'status', sortable: false },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
     }
   },
@@ -257,7 +257,6 @@ export default Vue.extend({
       return 'grey'
     },
     selectEvent(event: EventInfo) {
-      // @ts-expect-error inject
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push(`/event/${event.id}/dashboard`)
     },
@@ -282,10 +281,8 @@ export default Vue.extend({
       if (!this.deletingEvent) return
       await api.deleteEvent(this.deletingEvent.id)
       // If we deleted the selected event, clear selection and go back to landing page
-      // @ts-expect-error inject
       const currentId = (this.getSelectedEventId as () => number | null)()
       if (currentId === this.deletingEvent.id) {
-        // @ts-expect-error inject
         ;(this.setSelectedEventId as (id: number | null) => void)(null)
         this.deletingEvent = null
         this.$router.push('/')

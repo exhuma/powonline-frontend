@@ -9,7 +9,7 @@
         height="3"
         class="mt-0"
         :color="route.color"
-        :value="overall_pct_finished"
+        :model-value="overall_pct_finished"
         :buffer-value="overall_pct_finished + overall_pct_waiting"
       ></v-progress-linear>
       <v-card-text>
@@ -35,7 +35,7 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import type { Team } from '@/remote/model/team'
 import type { Station } from '@/remote/model/station'
 import type { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
@@ -51,7 +51,7 @@ interface DashboardRow {
   pct_finished: number
 }
 
-const RouteDashboard = Vue.extend({
+const RouteDashboard = defineComponent({
   name: 'route-dashboard',
   props: {
     route: {

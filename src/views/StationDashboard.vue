@@ -34,16 +34,16 @@
           class="ml-5 mr-5"
         ></v-text-field>
 
-        <v-layout row class="pl-5 pr-5">
-          <v-flex xs-4>
+        <v-row class="pl-5 pr-5">
+          <v-col cols="4">
             <v-checkbox
               class="ml-4"
               name="showFinished"
               label="Show finished teams"
               v-model="showFinished"
             />
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
         <small-station-dashboard-item
           v-for="(state, idx) in filteredAllTeams"
@@ -64,7 +64,7 @@
           v-model="snackbar"
         >
           {{ snacktext }}
-          <v-btn text @click="snackbar = false">Close</v-btn>
+          <v-btn variant="text" @click="snackbar = false">Close</v-btn>
         </v-snackbar>
       </v-col>
       <v-col
@@ -85,7 +85,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
@@ -110,7 +110,7 @@ function applyAgeClasses(data: RelatedTeamEntryWithAge[]) {
   })
 }
 
-const StationDashboard = Vue.extend({
+const StationDashboard = defineComponent({
   name: 'station_dashboard',
   inject: ['getSelectedEventId'],
 
@@ -135,7 +135,7 @@ const StationDashboard = Vue.extend({
 
   computed: {
     stationName(): string {
-      return this.$route.params.stationName
+      return String(this.$route.params.stationName)
     },
     selectedStates(): string[] {
       const output: string[] = []

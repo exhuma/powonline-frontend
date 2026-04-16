@@ -18,25 +18,23 @@
           </v-btn>
         </v-toolbar>
       </template>
-      <template v-slot:item="props">
-        <tr>
-          <td>{{ format_ts(props.item.timestamp) }}</td>
-          <td>{{ props.item.username }}</td>
-          <td>{{ props.item.type }}</td>
-          <td>{{ props.item.message }}</td>
-        </tr>
-      </template>
+      <template v-slot:item.timestamp="{ item }">{{
+        format_ts(item.timestamp)
+      }}</template>
+      <template v-slot:item.username="{ item }">{{ item.username }}</template>
+      <template v-slot:item.type="{ item }">{{ item.type }}</template>
+      <template v-slot:item.message="{ item }">{{ item.message }}</template>
     </v-data-table>
   </div>
 </template>
 
 <script lang="ts">
 import moment from 'moment'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { AuditLogRow } from '@/remote/model/auditLogRow'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'AuditLog',
   inject: ['getSelectedEventId'],
   data() {
@@ -44,10 +42,10 @@ export default Vue.extend({
       entries: [] as AuditLogRow[],
       entryFilter: '',
       headers: [
-        { text: 'Timestamp', sortable: false },
-        { text: 'User', sortable: false },
-        { text: 'Type', sortable: false },
-        { text: 'Message', sortable: false }
+        { title: 'Timestamp', sortable: false },
+        { title: 'User', sortable: false },
+        { title: 'Type', sortable: false },
+        { title: 'Message', sortable: false }
       ]
     }
   },

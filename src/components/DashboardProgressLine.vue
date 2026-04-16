@@ -1,30 +1,30 @@
 <template>
-  <v-layout>
-    <v-flex
-      xs5
-      sm4
-      md2
+  <v-row>
+    <v-col
+      cols="5"
+      sm="4"
+      md="2"
       :class="{
         'd-flex': true,
         'align-center': true,
         'justify-end': true,
-        'white--text': true,
+        'text-white': true,
         'mr-3': true,
         'text-xs-left': true,
         cancelled: data.cancelled
       }"
     >
       {{ data.team }}
-    </v-flex>
-    <v-flex class="d-flex align-center" xs7 sm8 md10>
+    </v-col>
+    <v-col class="d-flex align-center" cols="7" sm="8" md="10">
       <v-progress-linear
         style="background: rgba(0, 0, 0, 0.2)"
         :color="dynamicColor"
-        :value="data.pct_finished"
+        :model-value="data.pct_finished"
         :buffer-value="data.pct_finished + data.pct_waiting"
       ></v-progress-linear>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>
@@ -35,8 +35,8 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
-const DashboardProgressLine = Vue.extend({
+import { defineComponent } from 'vue'
+const DashboardProgressLine = defineComponent({
   name: 'dashboard-progress-line',
   props: {
     color: {

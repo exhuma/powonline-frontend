@@ -1,7 +1,7 @@
 <template>
   <div class="imgbox">
-    <div v-if="!fullScreen" class="white--text">{{ counter }}</div>
-    <div v-if="queuelength" class="white--text">
+    <div v-if="!fullScreen" class="text-white">{{ counter }}</div>
+    <div v-if="queuelength" class="text-white">
       {{ queuelength }} images in queue
     </div>
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
@@ -50,9 +50,9 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'LiveImage',
   // liveImageQueue is a reactive array provided by App.vue via Pusher callbacks
   inject: { liveImageQueue: { default: () => [] } },
@@ -61,7 +61,7 @@ export default Vue.extend({
       this.countdown()
     }, 1000)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.clearInterval(this.intervalId as number)
   },
   watch: {

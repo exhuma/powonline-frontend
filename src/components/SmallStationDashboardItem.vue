@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title class="primary darken-3 pa-1 pl-3 pr-3">
+    <v-card-title class="bg-primary darken-3 pa-1 pl-3 pr-3">
       <span :class="hasCancelled ? 'cancelled' : ''"
         ><h4>{{ state.team }}</h4></span
       >
@@ -8,8 +8,8 @@
     </v-card-title>
     <v-card-text>
       <v-container>
-        <v-layout row align-center>
-          <v-flex xs12>
+        <v-row align="center">
+          <v-col cols="12">
             <v-text-field
               @keyup.enter="onScoreEnter"
               @change="updateScore"
@@ -17,10 +17,10 @@
               v-model="state.score"
               label="Score"
             />
-          </v-flex>
-        </v-layout>
-        <v-layout row align-center>
-          <v-flex xs12>
+          </v-col>
+        </v-row>
+        <v-row align="center">
+          <v-col cols="12">
             <v-text-field
               @keyup.enter="onQuestionnaireScoreEnter"
               @change="updateQuestionnaireScore"
@@ -28,20 +28,20 @@
               v-model="questionnaireScore.score"
               :label="'Questionnaire Score (' + questionnaireScore.name + ')'"
             />
-          </v-flex>
-        </v-layout>
-        <v-layout row align-center>
-          <v-flex xs6>
+          </v-col>
+        </v-row>
+        <v-row align="center">
+          <v-col cols="6">
             <v-btn class="action-button" @click="advanceState(state)"
               ><state-icon :state="state.state"></state-icon
             ></v-btn>
-          </v-flex>
-          <v-flex xs6>
+          </v-col>
+          <v-col cols="6">
             <v-btn class="action-button" @click="saveChanges" color="success"
               ><v-icon>mdi-content-save</v-icon></v-btn
             >
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </v-card-text>
   </v-card>
@@ -66,11 +66,11 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import type { Team } from '@/remote/model/team'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 
-const SmallStationDashboardIcon = Vue.extend({
+const SmallStationDashboardIcon = defineComponent({
   name: 'small-station-dashboard-item',
   props: {
     state: {

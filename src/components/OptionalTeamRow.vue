@@ -1,23 +1,23 @@
 <template>
-  <v-layout row>
-    <v-flex xs1
-      ><v-icon :title="tooltip">{{ icon }}</v-icon></v-flex
+  <v-row>
+    <v-col cols="1"
+      ><v-icon :title="tooltip">{{ icon }}</v-icon></v-col
     >
-    <v-flex
+    <v-col
       v-if="isConstructed()"
-      xs11
+      cols="11"
       class="text-xs-left"
       v-html="muvalue"
-    ></v-flex>
-    <v-flex v-if="!isConstructed()" xs11 class="text-xs-left">{{
+    ></v-col>
+    <v-col v-if="!isConstructed()" cols="11" class="text-xs-left">{{
       value
-    }}</v-flex>
-  </v-layout>
+    }}</v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-const OptionalTeamRow = Vue.extend({
+import { defineComponent } from 'vue'
+const OptionalTeamRow = defineComponent({
   name: 'optional-team-row',
   props: {
     tooltip: { type: String, default: '' },

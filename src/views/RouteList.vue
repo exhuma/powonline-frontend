@@ -6,35 +6,30 @@
       :dialogVisible="isAddBlockVisible"
       title="Add New Route"
     >
-      <v-layout row class="text-xs-left">
-        <v-flex xs12>
+      <v-row class="text-xs-left">
+        <v-col cols="12">
           <v-text-field
             name="route-input"
-            @keyup.enter.native="onDialogConfirmed"
+            @keyup.enter="onDialogConfirmed"
             type="text"
             v-model="selectedRoute.name"
             label="Enter a new route name"
           />
-        </v-flex>
-      </v-layout>
-      <v-layout row class="text-xs-left" style="min-height: 30em">
-        <v-flex xs3>Color</v-flex>
-        <v-flex xs9>
-          <swatches
-            colors="text-advanced"
-            v-model="selectedRoute.color"
-            shapes="circles"
-            swatch-size="30"
-          />
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
+      <v-row class="text-xs-left" style="min-height: 30em">
+        <v-col cols="3">Color</v-col>
+        <v-col cols="9">
+          <v-color-picker v-model="selectedRoute.color" mode="hex" />
+        </v-col>
+      </v-row>
     </popup-dialog>
 
     <div v-if="loading" class="text-center py-6">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>
 
-    <v-list v-else two-line>
+    <v-list v-else lines="two">
       <route-block
         v-for="route in sortedRoutes"
         :route="route"
@@ -53,17 +48,15 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import model from '@/model'
-import Swatches from 'vue-swatches'
-import 'vue-swatches/dist/vue-swatches.min.css'
 import type { Route } from '@/remote/model/route'
 import type { Session } from '@/App.vue'
 
-const RouteList = Vue.extend({
+const RouteList = defineComponent({
   name: 'route_list',
-  components: { Swatches },
+  components: {},
   inject: ['getSelectedEventId', 'session'],
 
   data() {
@@ -93,13 +86,11 @@ const RouteList = Vue.extend({
 
   methods: {
     hasRole(roleNames: string[]): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },
     async fetchRoutes() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       if (!eventId) return
       this.loading = true
       try {
@@ -119,8 +110,7 @@ const RouteList = Vue.extend({
       this.isAddBlockVisible = false
     },
     async onDialogConfirmed() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       const route = this.selectedRoute
 
       if (this.sendMode === model.SEND_MODE.CREATE) {

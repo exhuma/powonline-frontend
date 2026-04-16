@@ -2,14 +2,16 @@
   <div id="app">
     <v-app>
       <v-snackbar
-        :top="true"
+        location="top"
         :color="globalSnackColor"
         :timeout="2000"
         v-model="globalSnack"
       >
         {{ globalSnackText }}
-        <v-btn text @click="globalSnack = false">Close</v-btn></v-snackbar
-      >
+        <template #actions>
+          <v-btn variant="text" @click="globalSnack = false">Close</v-btn>
+        </template>
+      </v-snackbar>
       <v-app-bar app v-if="isTitleBarVisible" extension-height="0">
         <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"
           ><v-icon>mdi-menu</v-icon></v-btn
@@ -22,28 +24,28 @@
           class="ml-3"
           color="secondary"
           label
-          small
+          size="small"
           :to="pinnedEvent ? undefined : '/'"
         >
-          <v-icon left small>mdi-calendar</v-icon>
+          <v-icon start size="small">mdi-calendar</v-icon>
           {{ selectedEventName }}
         </v-chip>
         <v-spacer></v-spacer>
         <span v-if="tokenIsAvailable"
           >Logged in as
-          <span class="accent--text">{{ session.userName }}</span></span
+          <span class="text-accent">{{ session.userName }}</span></span
         >
-        <v-tooltip bottom v-if="tokenIsAvailable">
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click.native.stop="logoutUser" icon
+        <v-tooltip location="bottom" v-if="tokenIsAvailable">
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" @click.stop="logoutUser" icon
               ><v-icon>mdi-logout</v-icon></v-btn
             >
           </template>
           <span>Logout</span>
         </v-tooltip>
-        <v-tooltip bottom v-else>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click.native.stop="showLoginDialog" icon
+        <v-tooltip location="bottom" v-else>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" @click.stop="showLoginDialog" icon
               ><v-icon>mdi-account-outline</v-icon></v-btn
             >
           </template>
@@ -63,12 +65,10 @@
             :to="route.to"
             :key="route.to"
           >
-            <v-list-item-action
-              ><v-icon>{{ route.icon }}</v-icon></v-list-item-action
-            >
-            <v-list-item-content>
-              <v-list-item-title>{{ route.label }}</v-list-item-title>
-            </v-list-item-content>
+            <template #prepend>
+              <v-icon>{{ route.icon }}</v-icon>
+            </template>
+            <v-list-item-title>{{ route.label }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -84,7 +84,7 @@
         <v-progress-linear
           v-show="refreshProgress.visible"
           height="1"
-          v-model="refreshProgress.progress"
+          :model-value="refreshProgress.progress"
         ></v-progress-linear>
         <v-progress-linear
           v-if="!activity.visible"
@@ -93,48 +93,45 @@
         <v-progress-linear
           v-if="activity.visible"
           height="1"
-          v-model="activity.progress"
+          :model-value="activity.progress"
           :indeterminate="activity.progress === -1"
         ></v-progress-linear>
         <v-container fluid>
           <v-dialog max-width="500px" v-model="loginDialogVisible">
             <v-card>
-              <v-card-title class="primary">
+              <v-card-title class="bg-primary">
                 <span>Login</span>
               </v-card-title>
               <v-card-text>
                 <v-text-field
                   type="text"
-                  @keyup.enter.native="loginUser"
+                  @keyup.enter="loginUser"
                   v-model="username"
                   ref="LoginDialogUsername"
                   label="Enter a new username"
                   autofocus
                 />
                 <v-text-field
-                  @keyup.enter.native="loginUser"
+                  @keyup.enter="loginUser"
                   type="password"
                   v-model="password"
                   label="Password"
                 />
                 <v-divider class="mt-4 mb-4"></v-divider>
-                <v-layout row wrap align-center>
-                  <v-flex> Or login with: </v-flex>
-                  <v-flex
-                    v-for="provider in authProviders"
-                    :key="provider.name"
-                  >
+                <v-row align="center">
+                  <v-col> Or login with: </v-col>
+                  <v-col v-for="provider in authProviders" :key="provider.name">
                     <v-btn @click="loginSocial(provider.name)">{{
                       provider.label
                     }}</v-btn>
-                  </v-flex>
-                </v-layout>
+                  </v-col>
+                </v-row>
                 <v-divider class="mt-4 mb-4"></v-divider>
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn text @click.native="cancelLogin">Cancel</v-btn>
-                <v-btn @click.native="loginUser">Login</v-btn>
+                <v-btn variant="text" @click="cancelLogin">Cancel</v-btn>
+                <v-btn @click="loginUser">Login</v-btn>
               </v-card-actions>
               <v-footer class="pa-3 ma-0">
                 <v-spacer></v-spacer>
@@ -160,7 +157,7 @@
             v-for="route in navRoutes"
             :to="route.to"
             :key="route.to"
-            text
+            variant="text"
             :value="here === route.to"
           >
             <span>{{ route.label }}</span>
@@ -175,7 +172,7 @@
 <style scoped>
 .activity-text {
   font-size: 60%;
-  background-color: var(--v-primary-darken4);
+  background-color: rgb(var(--v-theme-primary));
 }
 SMALL {
   font-size: 60%;
@@ -185,7 +182,7 @@ SMALL {
 <script lang="ts">
 import { startSocialLogin } from '@/auth/social'
 import EventBus from '@/plugins/eventBus'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api, pinnedEvent } from '@/main'
 import { init as initRealtime } from '@/events'
 import type { AuthProvider, EventInfo } from '@/api'
@@ -197,12 +194,12 @@ export type Session = {
   roles: string[]
 }
 
-const App = Vue.extend({
+const App = defineComponent({
   name: 'App',
   provide() {
     return {
       api,
-      session: (this as any).session,
+      session: this.session,
       getSelectedEventId: () =>
         pinnedEvent.value?.id ?? (this as any).selectedEventId,
       setSelectedEventId: (id: number | null) => {
@@ -246,16 +243,16 @@ const App = Vue.extend({
       }
     }
 
-    EventBus.$on('activityEvent', (payload) => {
+    EventBus.on('activityEvent', (payload) => {
       this.onActivityChange(payload)
     })
-    EventBus.$on('fileUploadProgress', (payload) => {
+    EventBus.on('fileUploadProgress', (payload) => {
       this.onActivityChange(payload)
     })
-    EventBus.$on('snackRequested', (payload) => {
+    EventBus.on('snackRequested', (payload) => {
       this.onSnackRequested(payload)
     })
-    EventBus.$on('refresh-progress-updated', (payload) => {
+    EventBus.on('refresh-progress-updated', (payload) => {
       this.onRefreshProgressUpdated(payload)
     })
 

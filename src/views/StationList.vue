@@ -3,7 +3,7 @@
     <v-dialog v-model="errorDialog">
       <v-card>
         <v-card-title>Error</v-card-title>
-        <v-card-text class="white--text">{{ errorText }}</v-card-text>
+        <v-card-text class="text-white">{{ errorText }}</v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -20,7 +20,7 @@
       title="Add New Station"
     >
       <v-text-field
-        @keyup.enter.native="onDialogConfirmed"
+        @keyup.enter="onDialogConfirmed"
         type="text"
         v-model="selectedStation.name"
         label="Enter a new station name"
@@ -58,7 +58,7 @@
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>
 
-    <v-list v-else two-line>
+    <v-list v-else lines="two">
       <station-block
         v-for="station in sortedStations"
         @openEditDialog="onOpenEditDialog(station)"
@@ -78,13 +78,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
+import type { Session } from '@/App.vue'
 import { api } from '@/main'
 import model from '@/model'
 import type { Station } from '@/remote/model/station'
-import type { Session } from '@/App.vue'
 
-const StationList = Vue.extend({
+const StationList = defineComponent({
   name: 'station_list',
   inject: ['getSelectedEventId', 'session'],
 
@@ -118,13 +118,11 @@ const StationList = Vue.extend({
 
   methods: {
     hasRole(roleNames: string[]): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },
     async fetchStations() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       if (!eventId) return
       this.loading = true
       try {
@@ -149,8 +147,7 @@ const StationList = Vue.extend({
       this.isAddBlockVisible = false
     },
     async onDialogConfirmed() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       const station = this.selectedStation
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
@@ -172,7 +169,7 @@ const StationList = Vue.extend({
             eventId
           )
           const idx = this.stations.findIndex((s) => s.name === station.name)
-          if (idx >= 0) this.$set(this.stations, idx, updated)
+          if (idx >= 0) this.stations[idx] = updated
         } catch (e: any) {
           this.errorDialog = true
           this.errorText = e?.response?.data ?? String(e)

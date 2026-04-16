@@ -8,7 +8,7 @@
       title="Add New Questionnaire"
     >
       <v-text-field
-        @keyup.enter.native="onDialogConfirmed"
+        @keyup.enter="onDialogConfirmed"
         type="text"
         v-model="selectedQuestionnaire.name"
         label="Enter a new questionnaire name"
@@ -37,7 +37,7 @@
         <v-select
           v-model="item.station_name"
           :items="[{ id: null, name: '-- None --' }, ...stations]"
-          item-text="name"
+          item-title="name"
           item-value="id"
           hide-details
           solo
@@ -53,16 +53,21 @@
           :actionArgument="item.name"
           @confirmed="deleteQuestionnaire(item)"
         >
-          <span slot="title"
-            >Do you want to delete the questionnaire "{{ item.name }}"?</span
+          <template #title
+            ><span
+              >Do you want to delete the questionnaire "{{ item.name }}"?</span
+            ></template
           >
-          <div slot="text">
-            <p>
-              This will delete the questionnaire with the name "{{ item.name }}"
-              and all related information!
-            </p>
-            <p>Are you sure?</p>
-          </div>
+          <template #text>
+            <div>
+              <p>
+                This will delete the questionnaire with the name "{{
+                  item.name
+                }}" and all related information!
+              </p>
+              <p>Are you sure?</p>
+            </div>
+          </template>
         </confirmation-dialog>
       </template>
       <template v-slot:item.max_score="{ item }">
@@ -96,14 +101,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import model from '@/model'
-import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import type { Questionnaire } from '@/remote/model/questionnaire'
 import type { Station } from '@/remote/model/station'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 
-const QuestionnaireList = Vue.extend({
+const QuestionnaireList = defineComponent({
   name: 'questionnaire_list',
   components: { ConfirmationDialog },
   inject: ['getSelectedEventId'],
@@ -119,10 +124,10 @@ const QuestionnaireList = Vue.extend({
       sendMode: model.SEND_MODE.CREATE,
       SEND_MODE: model.SEND_MODE,
       questionnaireHeaders: [
-        { text: 'Name', value: 'name', sortable: true, width: '200' },
-        { text: 'Max. Score', value: 'max_score' },
-        { text: 'Station', value: 'station_name' },
-        { text: 'Actions', value: 'actions', sortable: false, align: 'end' }
+        { title: 'Name', key: 'name', sortable: true, width: '200' },
+        { title: 'Max. Score', key: 'max_score' },
+        { title: 'Station', key: 'station_name' },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
     }
   },
@@ -133,8 +138,7 @@ const QuestionnaireList = Vue.extend({
 
   methods: {
     async fetchData() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       if (!eventId) return
       this.loading = true
       try {
@@ -159,8 +163,7 @@ const QuestionnaireList = Vue.extend({
       this.isAddBlockVisible = false
     },
     async onDialogConfirmed() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       const questionnaire = this.selectedQuestionnaire
 
       if (this.sendMode === model.SEND_MODE.CREATE) {
@@ -176,8 +179,7 @@ const QuestionnaireList = Vue.extend({
       this.isAddBlockVisible = false
     },
     async deleteQuestionnaire(questionnaire: Questionnaire) {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       try {
         await api.deleteQuestionnaire(questionnaire.name, eventId)
         this.questionnaires = this.questionnaires.filter(
@@ -191,8 +193,7 @@ const QuestionnaireList = Vue.extend({
       station: Station | { id: null; name: string },
       questionnaire: Questionnaire
     ) {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       this.saving = true
       try {
         if ((station as any).id !== null) {
@@ -214,8 +215,7 @@ const QuestionnaireList = Vue.extend({
       }
     },
     async questionnaireUpdated(questionnaire: Questionnaire, oldName: string) {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       this.saving = true
       try {
         await api.updateQuestionnaire(oldName, questionnaire, eventId)

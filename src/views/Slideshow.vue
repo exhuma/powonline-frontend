@@ -5,10 +5,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Slideshow',
   inject: ['getSelectedEventId'],
   data() {
@@ -33,7 +33,7 @@ export default Vue.extend({
     this.startAutoRefresh()
     this.$emit('fullScreenRequested', true)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.stopAutoRefresh()
   },
   methods: {
@@ -67,7 +67,6 @@ export default Vue.extend({
       }
     },
     async updateImages() {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {

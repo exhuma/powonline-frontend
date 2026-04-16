@@ -5,15 +5,15 @@
       <v-tab>Separate Dashboard</v-tab>
       <v-tab>Legacy Dashboard</v-tab>
     </v-tabs>
-    <v-tabs-items v-model="activeTab" class="pa-5">
-      <v-tab-item>
+    <v-window v-model="activeTab" class="pa-5">
+      <v-window-item>
         <combined-dashboard
           :routes="routes"
           :teams="teams"
           :global-dashboard="globalDashboard"
         ></combined-dashboard>
-      </v-tab-item>
-      <v-tab-item>
+      </v-window-item>
+      <v-window-item>
         <route-dashboard
           v-for="route in routes"
           :key="route.name"
@@ -23,9 +23,9 @@
           :route-stations="routeStations"
           :teams="teams"
         ></route-dashboard>
-      </v-tab-item>
-      <v-tab-item>
-        <div class="grey--text text-right">
+      </v-window-item>
+      <v-window-item>
+        <div class="text-grey text-right">
           <strong class="mr-3">Legend:</strong>
           <state-icon state="unknown"></state-icon>
           Not arrived yet
@@ -43,8 +43,8 @@
           :route-stations="routeStations"
           :teams="teams"
         ></route-dashboard-legacy>
-      </v-tab-item>
-    </v-tabs-items>
+      </v-window-item>
+    </v-window>
   </v-container>
 </template>
 
@@ -52,7 +52,7 @@
 import RouteDashboardLegacy from '@/components/RouteDashboardLegacy.vue'
 import RouteDashboard from '@/components/RouteDashboard.vue'
 import CombinedDashboard from '@/components/CombinedDashboard.vue'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { Route } from '@/remote/model/route'
 import type { Team } from '@/remote/model/team'
@@ -62,7 +62,7 @@ import type { DashboardRow } from '@/remote/model/dashboardRow'
 const AUTO_REFRESH_INTERVAL_SECONDS =
   Number((import.meta as any).env?.VITE_DASHBOARD_REFRESH) || 0
 
-export default Vue.extend({
+export default defineComponent({
   name: 'GlobalDashboard',
   components: {
     'route-dashboard-legacy': RouteDashboardLegacy,
@@ -88,12 +88,11 @@ export default Vue.extend({
     this.refresh()
     this.startAutoRefresh()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.stopAutoRefresh()
   },
   methods: {
     async refresh() {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {

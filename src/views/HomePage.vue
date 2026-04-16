@@ -4,7 +4,7 @@
       <v-row align="center" justify="center">
         <v-col cols="12" sm="9" md="7" lg="5">
           <v-card class="elevation-8">
-            <v-card-title class="primary white--text">
+            <v-card-title class="bg-primary text-white">
               <v-icon dark class="mr-2">mdi-calendar-check</v-icon>
               Select an Event
             </v-card-title>
@@ -26,7 +26,7 @@
                   >mdi-calendar-remove</v-icon
                 >
                 <p class="text-h6 mt-4 mb-2">No accessible events found</p>
-                <p class="text-body-2 grey--text mb-4">
+                <p class="text-body-2 text-grey mb-4">
                   There are no upcoming events you can access.
                 </p>
                 <v-btn
@@ -34,7 +34,7 @@
                   color="primary"
                   @click="showCreateDialog = true"
                 >
-                  <v-icon left>mdi-plus</v-icon>
+                  <v-icon start>mdi-plus</v-icon>
                   Create New Event
                 </v-btn>
                 <p v-else class="text-body-2">
@@ -42,7 +42,7 @@
                 </p>
               </div>
 
-              <v-list v-else two-line>
+              <v-list v-else lines="two">
                 <v-list-item
                   v-for="event in futureEvents"
                   :key="event.id"
@@ -70,8 +70,12 @@
 
             <v-card-actions v-if="isEventAdmin && futureEvents.length > 0">
               <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="showCreateDialog = true">
-                <v-icon left>mdi-plus</v-icon>
+              <v-btn
+                variant="text"
+                color="primary"
+                @click="showCreateDialog = true"
+              >
+                <v-icon start>mdi-plus</v-icon>
                 Create Event
               </v-btn>
             </v-card-actions>
@@ -90,14 +94,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import moment from 'moment'
 import type { EventInfo } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
 import { api, pinnedEvent } from '@/main'
 import type { Session } from '@/App.vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'HomePage',
   components: { EventDialog },
   inject: ['session', 'getEvents', 'setEvents', 'setSelectedEventId'],
@@ -110,7 +114,6 @@ export default Vue.extend({
   computed: {
     futureEvents(): EventInfo[] {
       const now = moment()
-      // @ts-expect-error inject
       const events: EventInfo[] = (this.getEvents as () => EventInfo[])()
       return events.filter((event: EventInfo) => {
         const end = moment(event.time_range.end)
@@ -119,7 +122,6 @@ export default Vue.extend({
       })
     },
     isEventAdmin(): boolean {
-      // @ts-expect-error inject
       const roles: string[] = (this.session as Session).roles || []
       return roles.includes('admin_events') || roles.includes('admin')
     }
@@ -127,7 +129,6 @@ export default Vue.extend({
   async mounted() {
     // If a domain is pinned to an event, skip the event selector entirely
     if (pinnedEvent.value) {
-      // @ts-expect-error inject
       ;(this.setSelectedEventId as (id: number) => void)(pinnedEvent.value.id)
       this.$router.replace('/dashboard')
       return
@@ -139,7 +140,6 @@ export default Vue.extend({
       this.loading = true
       try {
         const events = await api.fetchEvents()
-        // @ts-expect-error inject
         ;(this.setEvents as (e: EventInfo[]) => void)(events)
       } catch (e) {
         console.error('Unable to load events', e)
@@ -148,7 +148,6 @@ export default Vue.extend({
       }
     },
     selectEvent(event: EventInfo) {
-      // @ts-expect-error inject
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push(`/event/${event.id}/dashboard`)
     },

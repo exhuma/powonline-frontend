@@ -1,137 +1,103 @@
 <template>
-  <v-layout row wrap>
-    <v-flex xs6>
-      <v-dialog
-        ref="dateDialog"
-        persistent
-        v-model="dateDialogVisible"
-        width="290px"
-      >
-        <template v-slot:activator="{ on }">
+  <v-row>
+    <v-col cols="6">
+      <v-menu v-model="dateMenuOpen" :close-on-content-click="false">
+        <template #activator="{ props: menuProps }">
           <v-text-field
             :label="label"
-            v-model="innerDateValue"
+            :model-value="innerDateValue"
             prepend-icon="mdi-calendar"
             readonly
-            v-on="on"
-          >
-          </v-text-field>
+            v-bind="menuProps"
+          />
         </template>
-        <v-date-picker v-model="innerDateValue" :hint="hint" :label="label">
-          <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="dateDialogVisible = false">
-            Cancel
-          </v-btn>
-          <v-btn
-            text
-            color="primary"
-            @click="$refs.dateDialog.save(innerDateValue)"
-          >
-            OK
-          </v-btn>
-        </v-date-picker>
-      </v-dialog>
-    </v-flex>
-    <v-flex xs6>
-      <v-dialog
-        ref="timeDialog"
-        persistent
-        v-model="timeDialogVisible"
-        width="290px"
-      >
-        <template v-slot:activator="{ on }">
+        <v-date-picker
+          :model-value="innerDateValue"
+          @update:model-value="onDateSelected"
+        />
+      </v-menu>
+    </v-col>
+    <v-col cols="6">
+      <v-menu v-model="timeMenuOpen" :close-on-content-click="false">
+        <template #activator="{ props: menuProps }">
           <v-text-field
             :label="label"
-            v-model="innerTimeValue"
+            :model-value="innerTimeValue"
             prepend-icon="mdi-clock"
             readonly
-            v-on="on"
-          >
-          </v-text-field>
+            v-bind="menuProps"
+          />
         </template>
         <v-time-picker
-          v-model="innerTimeValue"
-          :hint="hint"
+          :model-value="innerTimeValue"
           format="24hr"
-          :label="label"
-        >
-          <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="timeDialogVisible = false">
-            Cancel
-          </v-btn>
-          <v-btn
-            text
-            color="primary"
-            @click="$refs.timeDialog.save(innerTimeValue)"
-          >
-            OK
-          </v-btn>
-        </v-time-picker>
-      </v-dialog>
-    </v-flex>
-  </v-layout>
+          @update:model-value="onTimeSelected"
+        />
+      </v-menu>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
 import moment from 'moment'
-import Vue from 'vue'
-const DateTimePicker = Vue.extend({
+import { defineComponent } from 'vue'
+const DateTimePicker = defineComponent({
   name: 'date-time-picker',
   props: ['label', 'hint', 'timeValue'],
   computed: {
-    innerTimeValue: {
-      get: function (): string {
-        let output = null
-        if (this.timeValue) {
-          output = moment(this.timeValue)
-        } else {
-          output = moment('2019-10-05T19:00')
-        }
-        return output.format('HH:mm')
-      },
-      set: function (newValue: string): void {
-        let old = moment(this.timeValue)
-        if (!old.isValid()) {
-          console.debug('Old for planned start time invalid. Using default')
-          old = moment('2019-10-05T19:00')
-        }
-        const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
-        if (nw.isValid()) {
-          this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
-        } else {
-          console.error({ 'Cannot set date value to': nw })
-        }
+    innerTimeValue(): string {
+      let output = null
+      if (this.timeValue) {
+        output = moment(this.timeValue)
+      } else {
+        output = moment('2019-10-05T19:00')
       }
+      return output.format('HH:mm')
     },
-    innerDateValue: {
-      get: function (): string {
-        let output = null
-        if (this.timeValue) {
-          output = moment(this.timeValue)
-        } else {
-          output = moment('2019-10-05T19:00')
-        }
-        return output.format('YYYY-MM-DD')
-      },
-      set: function (newValue: string): void {
-        let old = moment(this.timeValue)
-        if (!old.isValid()) {
-          console.debug('Old for planned start date invalid. Using default')
-          old = moment('2019-10-05T19:00')
-        }
-        const nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
-        if (nw.isValid()) {
-          this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
-        } else {
-          console.error({ 'Cannot set date value to': nw })
-        }
+    innerDateValue(): string {
+      let output = null
+      if (this.timeValue) {
+        output = moment(this.timeValue)
+      } else {
+        output = moment('2019-10-05T19:00')
       }
+      return output.format('YYYY-MM-DD')
     }
   },
   data() {
     return {
-      timeDialogVisible: false,
-      dateDialogVisible: false
+      timeMenuOpen: false,
+      dateMenuOpen: false
+    }
+  },
+  methods: {
+    onDateSelected(newValue: string) {
+      let old = moment(this.timeValue)
+      if (!old.isValid()) {
+        console.debug('Old for planned start date invalid. Using default')
+        old = moment('2019-10-05T19:00')
+      }
+      const nw = moment(`${newValue}T${old.format('HH:mm')}:00`)
+      if (nw.isValid()) {
+        this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
+      } else {
+        console.error({ 'Cannot set date value to': nw })
+      }
+      this.dateMenuOpen = false
+    },
+    onTimeSelected(newValue: string) {
+      let old = moment(this.timeValue)
+      if (!old.isValid()) {
+        console.debug('Old for planned start time invalid. Using default')
+        old = moment('2019-10-05T19:00')
+      }
+      const nw = moment(`${old.format('YYYY-MM-DD')}T${newValue}:00`)
+      if (nw.isValid()) {
+        this.$emit('timeValueChanged', nw.format('YYYY-MM-DDTHH:mm:00'))
+      } else {
+        console.error({ 'Cannot set date value to': nw })
+      }
+      this.timeMenuOpen = false
     }
   }
 })

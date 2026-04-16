@@ -25,7 +25,7 @@
         clearable
         v-model="selectedEvent"
         :items="events"
-        item-text="name"
+        item-title="name"
         item-value="id"
         return-object
         :loading="loading"
@@ -57,14 +57,16 @@
         :actionArgument="name"
         @confirmed="deleteUser"
       >
-        <span slot="title">Do you want to delete the user "{{ name }}"?</span>
-        <div slot="text">
-          <p>
-            this will delete the user with the name "{{ name }}" and all related
-            information!
-          </p>
-          <p>Are you sure?</p>
-        </div>
+        <template #title>Do you want to delete the user "{{ name }}"?</template>
+        <template #text>
+          <div>
+            <p>
+              this will delete the user with the name "{{ name }}" and all
+              related information!
+            </p>
+            <p>Are you sure?</p>
+          </div>
+        </template>
       </confirmation-dialog>
       <v-btn @click="closeDialog">Close</v-btn>
     </v-card-actions>
@@ -72,12 +74,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { EventInfo } from '@/api/index'
 import type { Session } from '@/App.vue'
 
-const UserBlock = Vue.extend({
+const UserBlock = defineComponent({
   name: 'user-block',
   inject: ['session'],
   data() {
@@ -242,7 +244,6 @@ const UserBlock = Vue.extend({
       }
     },
     hasRole(roleName: string): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return session.roles.includes(roleName)
     },

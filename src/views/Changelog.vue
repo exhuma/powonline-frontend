@@ -11,8 +11,8 @@
 <script lang="ts">
 import { parse } from 'marked'
 import changelogContent from '@/assets/changelog.md?raw'
-import Vue from 'vue'
-const ChangeLog = Vue.extend({
+import { defineComponent } from 'vue'
+const ChangeLog = defineComponent({
   computed: {
     parsedChangelog() {
       return parse(changelogContent)

@@ -3,7 +3,7 @@
     <v-dialog v-model="errorDialog">
       <v-card>
         <v-card-title>Error</v-card-title>
-        <v-card-text class="white--text">{{ errorText }}</v-card-text>
+        <v-card-text class="text-white">{{ errorText }}</v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -70,7 +70,7 @@
           >
             <v-list-item-content>
               <v-list-item-title>
-                <a class="yellow--text" :href="`tel:${item.data.phone}`">{{
+                <a class="text-yellow" :href="`tel:${item.data.phone}`">{{
                   item.data.phone
                 }}</a>
               </v-list-item-title>
@@ -78,7 +78,7 @@
             </v-list-item-content>
             <v-list-item-action>
               <a :href="`tel:${item.data.phone}`">
-                <v-btn icon text class="yellow--text"
+                <v-btn icon variant="text" class="text-yellow"
                   ><v-icon>mdi-card-account-phone</v-icon></v-btn
                 >
               </a>
@@ -91,7 +91,7 @@
           >
             <v-list-item-content>
               <v-list-item-title>
-                <a class="yellow--text" :href="`mailto:${item.data.email}`">{{
+                <a class="text-yellow" :href="`mailto:${item.data.email}`">{{
                   item.data.email
                 }}</a>
               </v-list-item-title>
@@ -99,7 +99,7 @@
             </v-list-item-content>
             <v-list-item-action>
               <a :href="`mailto:${item.data.email}`">
-                <v-btn icon text class="yellow--text"
+                <v-btn icon variant="text" class="text-yellow"
                   ><v-icon>mdi-card-account-mail</v-icon></v-btn
                 >
               </a>
@@ -133,15 +133,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { api } from '@/main'
-import { pinnedEvent } from '@/pinnedEvent'
+import { defineComponent } from 'vue'
+import type { Session } from '@/App.vue'
+import { api, pinnedEvent } from '@/main'
 import model from '@/model'
 import type { Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
-import type { Session } from '@/App.vue'
 
-const TeamList = Vue.extend({
+const TeamList = defineComponent({
   name: 'team_list',
   inject: ['getSelectedEventId', 'session'],
 
@@ -190,13 +189,11 @@ const TeamList = Vue.extend({
       return `/event/${this.$route.params.eventId}/team/${teamName}`
     },
     hasRole(roleNames: string[]): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },
     async fetchData() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       if (!eventId) return
       this.loading = true
       try {
@@ -230,8 +227,7 @@ const TeamList = Vue.extend({
       this.isAddBlockVisible = false
     },
     async onDialogConfirmed() {
-      // @ts-expect-error inject
-      const eventId = this.getSelectedEventId()
+      const eventId = (this as any).getSelectedEventId()
       const team = this.selectedTeam
 
       if (!team.route_name) {
@@ -263,7 +259,7 @@ const TeamList = Vue.extend({
         try {
           const updated = await api.updateTeam(team.name, team, eventId)
           const idx = this.teams.findIndex((t) => t.name === team.name)
-          if (idx >= 0) this.$set(this.teams, idx, updated)
+          if (idx >= 0) this.teams[idx] = updated
           this.$emit('snackRequested', { message: 'Save successful' })
         } catch (e: any) {
           this.errorDialog = true

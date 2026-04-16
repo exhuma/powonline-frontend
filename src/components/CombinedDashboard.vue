@@ -13,7 +13,7 @@
       :color="row.color"
     ></dashboard-progress-line>
     <v-divider class="ma-3"></v-divider>
-    <h1 class="primary--text text-center">Finished Teams</h1>
+    <h1 class="text-primary text-center">Finished Teams</h1>
     <dashboard-progress-line
       row
       v-for="row in finishedTeams"
@@ -34,7 +34,7 @@ function isFinished(item: UIDashboardRow) {
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Route } from '@/remote/model/route'
 import type { Team } from '@/remote/model/team'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 
 interface UIDashboardRow {
   pending: number
@@ -48,7 +48,7 @@ interface UIDashboardRow {
   pct_waiting: number
   pct_finished: number
 }
-const CombinedDashboard = Vue.extend({
+const CombinedDashboard = defineComponent({
   name: 'combined-dashboard',
   props: {
     routes: {

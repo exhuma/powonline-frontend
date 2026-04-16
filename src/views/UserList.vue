@@ -9,14 +9,14 @@
       <v-text-field
         name="user-input"
         id="UserNameInput"
-        @keyup.enter.native="onDialogConfirmed"
+        @keyup.enter="onDialogConfirmed"
         type="text"
         v-model="selectedUser.name"
         label="Enter a new username"
       />
       <v-text-field
         name="password"
-        @keyup.enter.native="onDialogConfirmed"
+        @keyup.enter="onDialogConfirmed"
         type="password"
         v-model="selectedUser.password"
         label="Password"
@@ -31,7 +31,7 @@
       ></user-block>
     </v-dialog>
 
-    <v-alert :value="errorMessage !== ''" type="error">
+    <v-alert :model-value="errorMessage !== ''" type="error">
       {{ errorMessage }}
     </v-alert>
 
@@ -46,21 +46,23 @@
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>
 
-    <v-list v-else two-line>
-      <template v-for="item in filteredUsers">
-        <v-list-item :key="item.name" @click="openUserDialog(item.name)">
-          <v-list-item-avatar v-if="item.avatar_url">
+    <v-list v-else lines="two">
+      <v-list-item
+        v-for="item in filteredUsers"
+        :key="item.name"
+        @click="openUserDialog(item.name)"
+      >
+        <template #prepend>
+          <v-avatar v-if="item.avatar_url">
             <img :src="item.avatar_url" />
-          </v-list-item-avatar>
-          <v-list-item-avatar v-else>
+          </v-avatar>
+          <v-avatar v-else>
             <v-icon>mdi-face-man</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </template>
+          </v-avatar>
+        </template>
+        <v-list-item-title>{{ item.name }}</v-list-item-title>
+        <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
+      </v-list-item>
     </v-list>
 
     <v-list-item v-if="hasRole(['admin'])">
@@ -73,14 +75,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
+import type { Session } from '@/App.vue'
 import { api } from '@/main'
 import model from '@/model'
-import UserBlock from '@/components/UserBlock.vue'
 import type { User } from '@/remote/model/user'
-import type { Session } from '@/App.vue'
+import UserBlock from '@/components/UserBlock.vue'
 
-const UserList = Vue.extend({
+const UserList = defineComponent({
   name: 'user_list',
   components: { UserBlock },
   inject: ['session'],
@@ -122,7 +124,6 @@ const UserList = Vue.extend({
 
   methods: {
     hasRole(roleNames: string[]): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },

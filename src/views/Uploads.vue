@@ -4,8 +4,8 @@
       <v-card>
         <v-card-text>
           <v-container>
-            <v-layout row align-center justify-center>
-              <v-flex xs12>
+            <v-row align="center" justify="center">
+              <v-col cols="12">
                 <v-img
                   style="margin: auto"
                   :src="previewImage.href"
@@ -13,23 +13,23 @@
                   max-width="100vh"
                   max-height="100vh"
                 ></v-img>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-container>
-            <v-layout row align-center justify-center>
-              <v-flex>
+            <v-row align="center" justify="center">
+              <v-col>
                 <v-btn target="_blank" :href="previewImage.href">
-                  <v-icon left>mdi-open-in-new</v-icon>
+                  <v-icon start>mdi-open-in-new</v-icon>
                   Open Image in new Tab
                 </v-btn>
                 <v-btn color="primary" @click="dialog = false">
                   Close Preview
                 </v-btn>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
           </v-container>
         </v-card-actions>
       </v-card>
@@ -52,32 +52,32 @@
           >
         </v-toolbar>
       </template>
-      <template v-slot:item="props">
+      <template v-slot:item="{ item }">
         <tr>
           <td>
             <v-img
-              @click="() => openPreview(props.item)"
+              @click="() => openPreview(item)"
               max-height="150"
-              :lazy-src="props.item.tiny"
-              :src="props.item.thumbnail"
+              :lazy-src="item.tiny"
+              :src="item.thumbnail"
             />
           </td>
-          <td>{{ props.item.username }}</td>
+          <td>{{ item.username }}</td>
           <td>
-            <a :href="props.item.href">{{ props.item.name }}</a>
+            <a :href="item.href">{{ item.name }}</a>
           </td>
-          <td>{{ props.item.formattedDate }}</td>
+          <td>{{ item.formattedDate }}</td>
           <td>
-            <template v-if="confirmDelete === props.item.uuid">
-              <v-btn icon @click.native="deleteFile(props.item.uuid)">
+            <template v-if="confirmDelete === item.uuid">
+              <v-btn icon @click="deleteFile(item.uuid)">
                 <v-icon>mdi-check</v-icon>
               </v-btn>
-              <v-btn icon @click.native="confirmDelete = ''">
+              <v-btn icon @click="confirmDelete = ''">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </template>
             <template v-else>
-              <v-btn @click.native="confirmDelete = props.item.uuid" icon
+              <v-btn @click="confirmDelete = item.uuid" icon
                 ><v-icon>mdi-delete-forever</v-icon></v-btn
               >
             </template>
@@ -91,39 +91,16 @@
 <script lang="ts">
 import moment from 'moment'
 import { type Upload } from '@/remote/model/upload'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 
-function sortUploads(uploads: { [key: string]: Upload[] }) {
-  if (!uploads) {
-    return []
-  }
-  let allImages: any[] = []
-  Object.entries(uploads).forEach(([username, files]) => {
-    files.map((file: any) => {
-      file.username = username
-    })
-    allImages = allImages.concat(files)
-  })
-  allImages.map((item) => {
-    item.parsedDate = new Date(item.when)
-    item.formattedDate = formatTs(item.parsedDate)
-  })
-  allImages.sort((a, b) => a.parsedDate - b.parsedDate)
-  return allImages
+function sortUploads(uploadsRaw: { [key: string]: Upload[] }): Upload[] {
+  return Object.values(uploadsRaw)
+    .flat()
+    .sort((a, b) => (a.when > b.when ? -1 : a.when < b.when ? 1 : 0))
 }
 
-function formatTs(ts: Date) {
-  const obj = moment(ts)
-  const now = moment()
-  const duration = moment.duration(now.diff(obj))
-  if (duration.asHours() > 5) {
-    return obj.format('YYYY-MM-DD HH:mm:ss')
-  }
-  return obj.fromNow()
-}
-
-export default Vue.extend({
+export default defineComponent({
   name: 'Uploads',
   inject: ['getSelectedEventId'],
   async created() {
@@ -137,11 +114,21 @@ export default Vue.extend({
       deleteDialogVisible: false,
       uploadsRaw: {} as { [key: string]: Upload[] },
       headers: [
-        { text: 'Thumbnail', sortable: false, align: 'left' },
-        { text: 'User', sortable: true, align: 'left' },
-        { text: 'File Name', sortable: true, align: 'left' },
-        { text: 'Upload Time', sortable: true, align: 'left' },
-        { text: 'Actions', sortable: false, align: 'left' }
+        {
+          title: 'Thumbnail',
+          key: 'thumbnail',
+          sortable: false,
+          align: 'left'
+        },
+        { title: 'User', key: 'username', sortable: true, align: 'left' },
+        { title: 'File Name', key: 'name', sortable: true, align: 'left' },
+        {
+          title: 'Upload Time',
+          key: 'formattedDate',
+          sortable: true,
+          align: 'left'
+        },
+        { title: 'Actions', key: 'uuid', sortable: false, align: 'left' }
       ]
     }
   },
@@ -152,7 +139,6 @@ export default Vue.extend({
   },
   methods: {
     async refreshImages() {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {
@@ -186,7 +172,6 @@ export default Vue.extend({
     },
     async deleteFile(uuid: string) {
       this.deleteDialogVisible = false
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       try {
         await api.deleteFile(uuid, eventId)

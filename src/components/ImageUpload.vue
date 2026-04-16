@@ -25,11 +25,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { Session } from '@/App.vue'
 
-const ImageUpload = Vue.extend({
+const ImageUpload = defineComponent({
   name: 'image-upload',
   inject: ['session', 'getSelectedEventId'],
   props: {
@@ -44,7 +44,6 @@ const ImageUpload = Vue.extend({
   },
   computed: {
     tokenIsAvailable(): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return Boolean(session.userName)
     }
@@ -60,7 +59,6 @@ const ImageUpload = Vue.extend({
     },
     async sendUpload() {
       this.$emit('uploadStarted')
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) {
         this.$emit('uploadFailed', { message: 'No event selected' })
@@ -85,7 +83,7 @@ const ImageUpload = Vue.extend({
       this.isMobile = window.innerWidth < 600
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (typeof window === 'undefined') return
     window.removeEventListener('resize', this.onResize)
   },
