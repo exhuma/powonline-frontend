@@ -78,7 +78,9 @@ export default Vue.extend({
       } catch (e: any) {
         console.error(e)
         this.$emit('snackRequested', {
-          message: `Unable to update audit-log (${e?.response?.data ?? e?.message})`,
+          message: `Unable to update audit-log (${
+            e?.response?.data ?? e?.message
+          })`,
           color: 'red'
         })
       }

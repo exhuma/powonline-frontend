@@ -97,7 +97,10 @@ const router = new VueRouter({
       path: '/',
       component: EventLayout,
       meta: { requiresPin: true },
-      children: eventChildren.map((r) => ({ ...r, name: r.name ? `pinned_${r.name}` : undefined }))
+      children: eventChildren.map((r) => ({
+        ...r,
+        name: r.name ? `pinned_${r.name}` : undefined
+      }))
     }
   ]
 })

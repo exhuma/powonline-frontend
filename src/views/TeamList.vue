@@ -113,10 +113,9 @@
           >
             <v-list-item-content>
               <v-list-item-content>
-                 <v-btn
-                   :to="teamPanelPath(item.data.name)"
-                   >Open Team Panel</v-btn
-                 >
+                <v-btn :to="teamPanelPath(item.data.name)"
+                  >Open Team Panel</v-btn
+                >
               </v-list-item-content>
             </v-list-item-content>
           </v-list-item>

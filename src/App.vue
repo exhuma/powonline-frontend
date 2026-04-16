@@ -203,7 +203,8 @@ const App = Vue.extend({
     return {
       api,
       session: (this as any).session,
-      getSelectedEventId: () => pinnedEvent.value?.id ?? (this as any).selectedEventId,
+      getSelectedEventId: () =>
+        pinnedEvent.value?.id ?? (this as any).selectedEventId,
       setSelectedEventId: (id: number | null) => {
         ;(this as any).selectedEventId = id
       },

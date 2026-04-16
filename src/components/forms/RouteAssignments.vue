@@ -214,7 +214,9 @@ const RouteAssignments = Vue.extend({
     unassignedStationItems(): (Station & { label: string })[] {
       return this.unassignedStationObjects.map((s: Station) => ({
         ...s,
-        label: `#${s.order} ${s.name}${s.is_start ? ' [START]' : ''}${s.is_end ? ' [END]' : ''}`
+        label: `#${s.order} ${s.name}${s.is_start ? ' [START]' : ''}${
+          s.is_end ? ' [END]' : ''
+        }`
       }))
     }
   },

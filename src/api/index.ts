@@ -264,7 +264,9 @@ export class ApiClient {
    * Returns null if no mapping exists (404 is treated as a normal "no match").
    */
   async fetchEventByDomain(domain: string): Promise<EventInfo | null> {
-    const url = `${this.baseUrl}/domain-lookup?domain=${encodeURIComponent(domain)}`
+    const url = `${this.baseUrl}/domain-lookup?domain=${encodeURIComponent(
+      domain
+    )}`
     const response = await this._fetch(url, {
       headers: { 'Content-Type': 'application/json' }
     })

@@ -38,53 +38,59 @@
                   </v-chip>
                 </template>
                 <template v-slot:item.actions="{ item }">
-                   <v-btn
-                     icon
-                     small
-                     class="mr-1"
-                     @click="selectEvent(item)"
-                     title="Select event"
-                   >
-                     <v-icon small>mdi-check-circle</v-icon>
-                   </v-btn>
-                   <v-btn
-                     icon
-                     small
-                     class="mr-1"
-                     @click="openEditDialog(item)"
-                     title="Edit event"
-                   >
-                     <v-icon small>mdi-pencil</v-icon>
-                   </v-btn>
-                   <v-btn
-                     icon
-                     small
-                     class="mr-1"
-                     @click="openMembersDialog(item)"
-                     title="Manage members"
-                   >
-                     <v-icon small>mdi-account-multiple</v-icon>
-                   </v-btn>
-                    <v-btn
-                      icon
-                      small
-                      class="mr-1"
-                      :color="pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''"
-                      @click="openDomainsDialog(item)"
-                      :title="pinnedEvent && pinnedEvent.id === item.id ? 'Current domain is mapped to this event' : 'Manage domains'"
-                    >
-                      <v-icon small>mdi-web</v-icon>
-                    </v-btn>
-                   <v-btn
-                     icon
-                     small
-                     color="red"
-                     @click="confirmDelete(item)"
-                     title="Delete event"
-                   >
-                     <v-icon small>mdi-delete</v-icon>
-                   </v-btn>
-                 </template>
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    @click="selectEvent(item)"
+                    title="Select event"
+                  >
+                    <v-icon small>mdi-check-circle</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    @click="openEditDialog(item)"
+                    title="Edit event"
+                  >
+                    <v-icon small>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    @click="openMembersDialog(item)"
+                    title="Manage members"
+                  >
+                    <v-icon small>mdi-account-multiple</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                    class="mr-1"
+                    :color="
+                      pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''
+                    "
+                    @click="openDomainsDialog(item)"
+                    :title="
+                      pinnedEvent && pinnedEvent.id === item.id
+                        ? 'Current domain is mapped to this event'
+                        : 'Manage domains'
+                    "
+                  >
+                    <v-icon small>mdi-web</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                    color="red"
+                    @click="confirmDelete(item)"
+                    title="Delete event"
+                  >
+                    <v-icon small>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
               </v-data-table>
             </v-card-text>
           </v-card>
@@ -114,7 +120,8 @@
       <v-card>
         <v-card-title>
           <v-icon class="mr-2">mdi-web</v-icon>
-          Domains for <em class="ml-1">{{ domainsEvent && domainsEvent.name }}</em>
+          Domains for
+          <em class="ml-1">{{ domainsEvent && domainsEvent.name }}</em>
         </v-card-title>
         <v-card-text>
           <v-list dense v-if="eventDomains.length">
