@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-center ga-1">
+  <div class="d-flex align-center ga-1 justify-end">
     <slot name="pinned" />
     <v-menu location="bottom end" :close-on-content-click="true">
       <template #activator="{ props }">
