@@ -3,97 +3,85 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-icon class="mr-2">mdi-calendar-multiple</v-icon>
-              Event Management
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="openCreateDialog">
-                <v-icon start>mdi-plus</v-icon>
-                New Event
-              </v-btn>
-            </v-card-title>
-
-            <v-card-text>
-              <div v-if="loading" class="text-center py-6">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                ></v-progress-circular>
-              </div>
-
-              <v-data-table
-                v-else
-                :headers="headers"
-                :items="events"
-                :items-per-page="15"
-                class="elevation-0"
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-calendar-multiple</v-icon>
+            <v-toolbar-title>Event Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-btn color="primary" @click="openCreateDialog">
+              <v-icon start>mdi-plus</v-icon>
+              New Event
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="headers"
+            :items="events"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.time_range="{ item }">
+              {{ formatDateRange(item.time_range) }}
+            </template>
+            <template v-slot:item.status="{ item }">
+              <v-chip size="small" :color="statusColor(item)" dark>
+                {{ statusLabel(item) }}
+              </v-chip>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-btn
+                icon
+                small
+                class="mr-1"
+                @click="selectEvent(item)"
+                title="Select event"
               >
-                <template v-slot:item.time_range="{ item }">
-                  {{ formatDateRange(item.time_range) }}
-                </template>
-                <template v-slot:item.status="{ item }">
-                  <v-chip size="small" :color="statusColor(item)" dark>
-                    {{ statusLabel(item) }}
-                  </v-chip>
-                </template>
-                <template v-slot:item.actions="{ item }">
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    @click="selectEvent(item)"
-                    title="Select event"
-                  >
-                    <v-icon small>mdi-check-circle</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    @click="openEditDialog(item)"
-                    title="Edit event"
-                  >
-                    <v-icon small>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    @click="openMembersDialog(item)"
-                    title="Manage members"
-                  >
-                    <v-icon small>mdi-account-multiple</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    :color="
-                      pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''
-                    "
-                    @click="openDomainsDialog(item)"
-                    :title="
-                      pinnedEvent && pinnedEvent.id === item.id
-                        ? 'Current domain is mapped to this event'
-                        : 'Manage domains'
-                    "
-                  >
-                    <v-icon small>mdi-web</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    color="red"
-                    @click="confirmDelete(item)"
-                    title="Delete event"
-                  >
-                    <v-icon small>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
+                <v-icon small>mdi-check-circle</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                small
+                class="mr-1"
+                @click="openEditDialog(item)"
+                title="Edit event"
+              >
+                <v-icon small>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                small
+                class="mr-1"
+                @click="openMembersDialog(item)"
+                title="Manage members"
+              >
+                <v-icon small>mdi-account-multiple</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                small
+                class="mr-1"
+                :color="
+                  pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''
+                "
+                @click="openDomainsDialog(item)"
+                :title="
+                  pinnedEvent && pinnedEvent.id === item.id
+                    ? 'Current domain is mapped to this event'
+                    : 'Manage domains'
+                "
+              >
+                <v-icon small>mdi-web</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                small
+                color="red"
+                @click="confirmDelete(item)"
+                title="Delete event"
+              >
+                <v-icon small>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
         </v-col>
       </v-row>
     </v-container>
