@@ -1,77 +1,108 @@
 <template>
-  <center-col>
-    <popup-dialog
-      @dialogConfirmed="onDialogConfirmed"
-      @dialogDismissed="closeAddBlock"
-      :dialogVisible="isAddBlockVisible"
-      title="Add new User"
-    >
-      <v-text-field
-        name="user-input"
-        id="UserNameInput"
-        @keyup.enter="onDialogConfirmed"
-        type="text"
-        v-model="selectedUser.name"
-        label="Enter a new username"
-      />
-      <v-text-field
-        name="password"
-        @keyup.enter="onDialogConfirmed"
-        type="password"
-        v-model="selectedUser.password"
-        label="Password"
-      />
-    </popup-dialog>
+  <div id="UserList">
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-account-multiple</v-icon>
+            <v-toolbar-title>User Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-text-field
+              v-model="userFilterText"
+              append-inner-icon="mdi-magnify"
+              label="Filter users"
+              hide-details
+              density="compact"
+              style="max-width: 250px"
+              class="mr-2"
+            ></v-text-field>
+            <v-btn
+              v-if="hasRole(['admin'])"
+              color="primary"
+              @click="openCreateDialog"
+            >
+              <v-icon start>mdi-plus</v-icon>
+              New User
+            </v-btn>
+          </v-toolbar>
 
-    <v-dialog max-width="500px" v-model="isEditDialogVisible">
-      <user-block
-        ref="userDialog"
-        :name="selectedUserName"
-        @closeButtonClicked="closeUserDialog"
-      ></user-block>
+          <v-alert v-if="errorMessage" type="error" class="mb-2">
+            {{ errorMessage }}
+          </v-alert>
+
+          <v-data-table
+            :headers="headers"
+            :items="filteredUsers"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.name="{ item }">
+              <div class="d-flex align-center ga-2">
+                <v-avatar size="32" v-if="item.avatar_url">
+                  <img :src="item.avatar_url" />
+                </v-avatar>
+                <v-avatar size="32" v-else>
+                  <v-icon>mdi-face-man</v-icon>
+                </v-avatar>
+                {{ item.name }}
+              </div>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <RowActions>
+                <template #pinned>
+                  <v-btn
+                    icon
+                    size="small"
+                    variant="text"
+                    @click="openEditDialog(item.name)"
+                    title="Edit user"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                </template>
+              </RowActions>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
+
+    <!-- Create dialog -->
+    <v-dialog v-model="showCreateDialog" max-width="400px">
+      <v-card>
+        <v-card-title>New User</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newUser.name"
+            label="Username"
+            @keyup.enter="onCreateConfirmed"
+          />
+          <v-text-field
+            v-model="newUser.password"
+            type="password"
+            label="Password"
+            @keyup.enter="onCreateConfirmed"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showCreateDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="onCreateConfirmed">Save</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
-    <v-alert :model-value="errorMessage !== ''" type="error">
-      {{ errorMessage }}
-    </v-alert>
-
-    <v-text-field
-      label="Filter"
-      v-model="userFilterText"
-      append-icon="mdi-magnify"
-      hint="Filter list of users by name"
-    ></v-text-field>
-
-    <div v-if="loading" class="text-center py-6">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
-
-    <v-list v-else lines="two">
-      <v-list-item
-        v-for="item in filteredUsers"
-        :key="item.name"
-        @click="openUserDialog(item.name)"
-      >
-        <template #prepend>
-          <v-avatar v-if="item.avatar_url">
-            <img :src="item.avatar_url" />
-          </v-avatar>
-          <v-avatar v-else>
-            <v-icon>mdi-face-man</v-icon>
-          </v-avatar>
-        </template>
-        <v-list-item-title>{{ item.name }}</v-list-item-title>
-        <v-list-item-subtitle>{{ item.email }}</v-list-item-subtitle>
-      </v-list-item>
-    </v-list>
-
-    <v-list-item v-if="hasRole(['admin'])">
-      <v-spacer />
-      <v-list-item-action>
-        <v-btn @click="openCreateDialog">Add new User</v-btn>
-      </v-list-item-action>
-    </v-list-item>
-  </center-col>
+    <!-- Edit user dialog (roles, stations) -->
+    <v-dialog v-model="showEditDialog" max-width="500px">
+      <UserBlock
+        ref="userDialog"
+        :name="editingUserName"
+        @closeButtonClicked="showEditDialog = false"
+        @deleted="onUserDeleted"
+      />
+    </v-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -81,10 +112,11 @@ import { api } from '@/main'
 import model from '@/model'
 import type { User } from '@/remote/model/user'
 import UserBlock from '@/components/UserBlock.vue'
+import RowActions from '@/components/RowActions.vue'
 
-const UserList = defineComponent({
-  name: 'user_list',
-  components: { UserBlock },
+export default defineComponent({
+  name: 'UserList',
+  components: { UserBlock, RowActions },
   inject: ['session'],
 
   data() {
@@ -93,12 +125,15 @@ const UserList = defineComponent({
       users: [] as User[],
       userFilterText: '',
       errorMessage: '',
-      isAddBlockVisible: false,
-      selectedUserName: '',
-      isEditDialogVisible: false,
-      selectedUser: model.user.makeEmpty() as any,
-      sendMode: model.SEND_MODE.CREATE,
-      SEND_MODE: model.SEND_MODE
+      showCreateDialog: false,
+      showEditDialog: false,
+      editingUserName: '',
+      newUser: model.user.makeEmpty() as any,
+      headers: [
+        { title: 'Name', key: 'name', sortable: true },
+        { title: 'Email', key: 'email', sortable: true },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+      ]
     }
   },
 
@@ -110,7 +145,7 @@ const UserList = defineComponent({
     }
   },
 
-  async created() {
+  async mounted() {
     this.loading = true
     try {
       this.users = await api.fetchUsers()
@@ -127,59 +162,32 @@ const UserList = defineComponent({
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },
-    closeUserDialog() {
-      this.selectedUserName = ''
-      this.isEditDialogVisible = false
+    openCreateDialog() {
+      this.newUser = model.user.makeEmpty()
+      this.showCreateDialog = true
     },
-    openUserDialog(userName: string) {
-      this.selectedUserName = userName
-      this.isEditDialogVisible = true
+    openEditDialog(userName: string) {
+      this.editingUserName = userName
+      this.showEditDialog = true
       this.$nextTick(() => {
         // @ts-expect-error - ref typing
         this.$refs.userDialog?.refresh?.()
       })
     },
-    openCreateDialog() {
-      this.selectedUser = model.user.makeEmpty()
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.CREATE
+    onUserDeleted(userName: string) {
+      this.users = this.users.filter((u) => u.name !== userName)
+      this.showEditDialog = false
     },
-    closeAddBlock() {
-      this.isAddBlockVisible = false
-    },
-    async onDialogConfirmed() {
-      const user = this.selectedUser
-
-      if (this.sendMode === model.SEND_MODE.CREATE) {
-        try {
-          const created = await api.addUser(user)
-          this.users.push(created)
-        } catch (e) {
-          console.error('Failed to add user', e)
-        }
-      } else {
-        console.warn('Updating users is not implemented yet!')
+    async onCreateConfirmed() {
+      try {
+        const created = await api.addUser(this.newUser)
+        this.users.push(created)
+      } catch (e) {
+        console.error('Failed to add user', e)
       }
-
-      this.selectedUser = model.user.makeEmpty()
-      this.isAddBlockVisible = false
+      this.newUser = model.user.makeEmpty()
+      this.showCreateDialog = false
     }
   }
 })
-export default UserList
 </script>
-
-<style scoped>
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s;
-}
-.slide-enter {
-  transform: translateY(-100px);
-  opacity: 0;
-}
-.slide-leave-to {
-  transform: translateY(-100px);
-  opacity: 0;
-}
-</style>

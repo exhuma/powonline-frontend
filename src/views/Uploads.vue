@@ -1,6 +1,61 @@
 <template>
-  <v-container>
-    <v-dialog v-model="dialog" fullscreen>
+  <div id="Uploads">
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-image-multiple</v-icon>
+            <v-toolbar-title>Upload Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <image-upload
+              class="mr-2"
+              :fab="false"
+              label="Upload"
+              @uploadStarted="onUploadStarted"
+              @uploadFailed="onUploadFailed"
+              @uploadFinished="onUploadDone"
+            ></image-upload>
+            <v-btn @click="refreshImages">
+              <v-icon start>mdi-refresh</v-icon>
+              Refresh
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="headers"
+            :items="files"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.thumbnail="{ item }">
+              <v-img
+                @click="openPreview(item)"
+                max-height="150"
+                :lazy-src="item.tiny"
+                :src="item.thumbnail"
+                style="cursor: pointer"
+              />
+            </template>
+            <template v-slot:item.name="{ item }">
+              <a :href="item.href">{{ item.name }}</a>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <RowActions>
+                <v-list-item
+                  prepend-icon="mdi-delete-forever"
+                  title="Delete"
+                  class="text-error"
+                  @click="confirmDelete(item)"
+                />
+              </RowActions>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
+
+    <!-- Image preview dialog -->
+    <v-dialog v-model="previewDialog" fullscreen>
       <v-card>
         <v-card-text>
           <v-container>
@@ -25,7 +80,7 @@
                   <v-icon start>mdi-open-in-new</v-icon>
                   Open Image in new Tab
                 </v-btn>
-                <v-btn color="primary" @click="dialog = false">
+                <v-btn color="primary" @click="previewDialog = false">
                   Close Preview
                 </v-btn>
               </v-col>
@@ -35,57 +90,23 @@
       </v-card>
     </v-dialog>
 
-    <v-data-table :headers="headers" :items="files">
-      <template v-slot:top>
-        <v-toolbar flat>
+    <!-- Delete confirmation dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="400px">
+      <v-card>
+        <v-card-title>Delete File</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete
+          <strong>{{ deletingFile && deletingFile.name }}</strong
+          >? This action cannot be undone.
+        </v-card-text>
+        <v-card-actions>
           <v-spacer></v-spacer>
-          <image-upload
-            class="mr-1"
-            :fab="false"
-            label="Upload"
-            @uploadStarted="onUploadStarted"
-            @uploadFailed="onUploadFailed"
-            @uploadFinished="onUploadDone"
-          ></image-upload>
-          <v-btn class="secondary" @click="refreshImages" dark
-            >Refresh&nbsp;<v-icon>mdi-refresh</v-icon></v-btn
-          >
-        </v-toolbar>
-      </template>
-      <template v-slot:item="{ item }">
-        <tr>
-          <td>
-            <v-img
-              @click="() => openPreview(item)"
-              max-height="150"
-              :lazy-src="item.tiny"
-              :src="item.thumbnail"
-            />
-          </td>
-          <td>{{ item.username }}</td>
-          <td>
-            <a :href="item.href">{{ item.name }}</a>
-          </td>
-          <td>{{ item.formattedDate }}</td>
-          <td>
-            <template v-if="confirmDelete === item.uuid">
-              <v-btn icon @click="deleteFile(item.uuid)">
-                <v-icon>mdi-check</v-icon>
-              </v-btn>
-              <v-btn icon @click="confirmDelete = ''">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-            <template v-else>
-              <v-btn @click="confirmDelete = item.uuid" icon
-                ><v-icon>mdi-delete-forever</v-icon></v-btn
-              >
-            </template>
-          </td>
-        </tr>
-      </template>
-    </v-data-table>
-  </v-container>
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="doDelete">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -93,6 +114,7 @@ import moment from 'moment'
 import { type Upload } from '@/remote/model/upload'
 import { defineComponent } from 'vue'
 import { api } from '@/main'
+import RowActions from '@/components/RowActions.vue'
 
 function sortUploads(uploadsRaw: { [key: string]: Upload[] }): Upload[] {
   return Object.values(uploadsRaw)
@@ -102,54 +124,74 @@ function sortUploads(uploadsRaw: { [key: string]: Upload[] }): Upload[] {
 
 export default defineComponent({
   name: 'Uploads',
+  components: { RowActions },
   inject: ['getSelectedEventId'],
-  async created() {
-    await this.refreshImages()
-  },
+
   data() {
     return {
-      dialog: false,
+      loading: false,
+      previewDialog: false,
+      showDeleteDialog: false,
       previewImage: { href: '', tiny: '' } as { href: string; tiny: string },
-      confirmDelete: '',
-      deleteDialogVisible: false,
+      deletingFile: null as Upload | null,
       uploadsRaw: {} as { [key: string]: Upload[] },
       headers: [
-        {
-          title: 'Thumbnail',
-          key: 'thumbnail',
-          sortable: false,
-          align: 'left'
-        },
-        { title: 'User', key: 'username', sortable: true, align: 'left' },
-        { title: 'File Name', key: 'name', sortable: true, align: 'left' },
-        {
-          title: 'Upload Time',
-          key: 'formattedDate',
-          sortable: true,
-          align: 'left'
-        },
-        { title: 'Actions', key: 'uuid', sortable: false, align: 'left' }
+        { title: 'Thumbnail', key: 'thumbnail', sortable: false },
+        { title: 'User', key: 'username', sortable: true },
+        { title: 'File Name', key: 'name', sortable: true },
+        { title: 'Upload Time', key: 'formattedDate', sortable: true },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
     }
   },
+
   computed: {
     files(): Upload[] {
       return sortUploads(this.uploadsRaw) as unknown as Upload[]
     }
   },
+
+  async mounted() {
+    await this.refreshImages()
+  },
+
   methods: {
     async refreshImages() {
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
+      this.loading = true
       try {
         this.uploadsRaw = await api.fetchUploads(eventId)
       } catch (e) {
         console.error('Unable to fetch uploads', e)
+      } finally {
+        this.loading = false
       }
     },
     openPreview(image: { href: string; tiny: string }) {
       this.previewImage = image
-      this.dialog = true
+      this.previewDialog = true
+    },
+    confirmDelete(file: Upload) {
+      this.deletingFile = file
+      this.showDeleteDialog = true
+    },
+    async doDelete() {
+      this.showDeleteDialog = false
+      if (!this.deletingFile) return
+      const eventId = (this.getSelectedEventId as () => number | null)()
+      try {
+        await api.deleteFile((this.deletingFile as any).uuid, eventId)
+        this.$emit('snackRequested', { message: 'File deleted' })
+        await this.refreshImages()
+      } catch (e) {
+        console.error(e)
+        this.$emit('snackRequested', {
+          message: 'Unable to delete file',
+          color: 'red'
+        })
+      }
+      this.deletingFile = null
     },
     onUploadStarted() {
       this.$emit('changeActivity', {
@@ -169,23 +211,6 @@ export default defineComponent({
         color: 'red'
       })
       this.$emit('changeActivity', { visible: false, progress: -1, text: '' })
-    },
-    async deleteFile(uuid: string) {
-      this.deleteDialogVisible = false
-      const eventId = (this.getSelectedEventId as () => number | null)()
-      try {
-        await api.deleteFile(uuid, eventId)
-        this.$emit('snackRequested', { message: 'File deleted' })
-        this.refreshImages()
-        this.confirmDelete = ''
-      } catch (e) {
-        console.error(e)
-        this.$emit('snackRequested', {
-          message: 'Unable to delete file',
-          color: 'red'
-        })
-        this.confirmDelete = ''
-      }
     }
   }
 })

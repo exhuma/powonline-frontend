@@ -1,103 +1,123 @@
 <template>
-  <center-col id="QuestionnaireList">
-    <popup-dialog
-      @dialogConfirmed="onDialogConfirmed"
-      @dialogDismissed="closeAddBlock"
-      :dialogVisible="isAddBlockVisible"
-      :editMode="sendMode === SEND_MODE.UPDATE"
-      title="Add New Questionnaire"
-    >
-      <v-text-field
-        @keyup.enter="onDialogConfirmed"
-        type="text"
-        v-model="selectedQuestionnaire.name"
-        label="Enter a new questionnaire name"
-      />
-      <v-text-field
-        name="order"
-        type="number"
-        v-model="selectedQuestionnaire.order"
-        hint="This field is used to sort questionnaires"
-        label="Questionnaire Ordering"
-      />
-    </popup-dialog>
-
-    <div v-if="loading" class="text-center py-6">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
-
-    <v-data-table
-      v-else
-      :headers="questionnaireHeaders"
-      :items="questionnaires"
-      :sort-by="['order', 'name']"
-      :multi-sort="true"
-    >
-      <template v-slot:item.station_name="{ item }">
-        <v-select
-          v-model="item.station_name"
-          :items="[{ id: null, name: '-- None --' }, ...stations]"
-          item-title="name"
-          item-value="id"
-          hide-details
-          solo
-          dense
-          return-object
-          @change="stationUpdated($event, item)"
-          :menu-props="{ closeOnContentClick: false }"
-        ></v-select>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <confirmation-dialog
-          buttonText="Delete"
-          :actionArgument="item.name"
-          @confirmed="deleteQuestionnaire(item)"
-        >
-          <template #title
-            ><span
-              >Do you want to delete the questionnaire "{{ item.name }}"?</span
-            ></template
+  <div id="QuestionnaireList">
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-comment-question</v-icon>
+            <v-toolbar-title>Questionnaire Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-btn color="primary" @click="openCreateDialog">
+              <v-icon start>mdi-plus</v-icon>
+              New Questionnaire
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="questionnaireHeaders"
+            :items="questionnaires"
+            :items-per-page="15"
+            :loading="loading"
+            :sort-by="[{ key: 'order' }, { key: 'name' }]"
+            class="elevation-0"
           >
-          <template #text>
-            <div>
-              <p>
-                This will delete the questionnaire with the name "{{
-                  item.name
-                }}" and all related information!
-              </p>
-              <p>Are you sure?</p>
-            </div>
-          </template>
-        </confirmation-dialog>
-      </template>
-      <template v-slot:item.max_score="{ item }">
-        <v-text-field
-          v-model="item.max_score"
-          type="number"
-          dense
-          solo
-          hide-details
-          @change="questionnaireUpdated(item, item.originalName || item.name)"
-          @focus="item.originalName = item.name"
-        ></v-text-field>
-      </template>
-      <template v-slot:item.name="{ item }">
-        <v-text-field
-          v-model="item.name"
-          dense
-          solo
-          hide-details
-          style="font-size: 90%"
-          @change="questionnaireUpdated(item, item.originalName || item.name)"
-          @focus="item.originalName = item.name"
-        ></v-text-field>
-      </template>
-    </v-data-table>
+            <template v-slot:item.station_name="{ item }">
+              <v-select
+                v-model="item.station_name"
+                :items="[{ id: null, name: '-- None --' }, ...stations]"
+                item-title="name"
+                item-value="id"
+                hide-details
+                variant="plain"
+                density="compact"
+                return-object
+                @update:model-value="stationUpdated($event, item)"
+              ></v-select>
+            </template>
+            <template v-slot:item.name="{ item }">
+              <v-text-field
+                v-model="item.name"
+                hide-details
+                variant="plain"
+                density="compact"
+                style="font-size: 90%"
+                @change="
+                  questionnaireUpdated(item, item.originalName || item.name)
+                "
+                @focus="item.originalName = item.name"
+              ></v-text-field>
+            </template>
+            <template v-slot:item.max_score="{ item }">
+              <v-text-field
+                v-model="item.max_score"
+                type="number"
+                hide-details
+                variant="plain"
+                density="compact"
+                @change="
+                  questionnaireUpdated(item, item.originalName || item.name)
+                "
+                @focus="item.originalName = item.name"
+              ></v-text-field>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <RowActions>
+                <v-list-item
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  class="text-error"
+                  @click="confirmDelete(item)"
+                />
+              </RowActions>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
 
-    <v-btn class="pa-3 mt-2" @click="openCreateDialog"
-      >Add new Questionnaire</v-btn
-    >
-  </center-col>
+    <!-- Create dialog -->
+    <v-dialog v-model="showCreateDialog" max-width="500px">
+      <v-card>
+        <v-card-title>New Questionnaire</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newQuestionnaire.name"
+            label="Questionnaire name"
+            @keyup.enter="onCreateConfirmed"
+          />
+          <v-text-field
+            v-model.number="newQuestionnaire.order"
+            type="number"
+            label="Questionnaire Ordering"
+            hint="This field is used to sort questionnaires"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showCreateDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="onCreateConfirmed">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Delete confirmation dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="400px">
+      <v-card>
+        <v-card-title>Delete Questionnaire</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete
+          <strong>{{
+            deletingQuestionnaire && deletingQuestionnaire.name
+          }}</strong
+          >? This will remove the questionnaire and all related information.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="doDelete">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -106,11 +126,11 @@ import { api } from '@/main'
 import model from '@/model'
 import type { Questionnaire } from '@/remote/model/questionnaire'
 import type { Station } from '@/remote/model/station'
-import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import RowActions from '@/components/RowActions.vue'
 
-const QuestionnaireList = defineComponent({
-  name: 'questionnaire_list',
-  components: { ConfirmationDialog },
+export default defineComponent({
+  name: 'QuestionnaireList',
+  components: { RowActions },
   inject: ['getSelectedEventId'],
 
   data() {
@@ -119,20 +139,20 @@ const QuestionnaireList = defineComponent({
       saving: false,
       questionnaires: [] as Questionnaire[],
       stations: [] as Station[],
-      isAddBlockVisible: false,
-      selectedQuestionnaire: model.questionnaire.makeEmpty() as any,
-      sendMode: model.SEND_MODE.CREATE,
-      SEND_MODE: model.SEND_MODE,
+      showCreateDialog: false,
+      showDeleteDialog: false,
+      newQuestionnaire: model.questionnaire.makeEmpty() as any,
+      deletingQuestionnaire: null as Questionnaire | null,
       questionnaireHeaders: [
-        { title: 'Name', key: 'name', sortable: true, width: '200' },
-        { title: 'Max. Score', key: 'max_score' },
-        { title: 'Station', key: 'station_name' },
+        { title: 'Name', key: 'name', sortable: true },
+        { title: 'Max. Score', key: 'max_score', sortable: true },
+        { title: 'Station', key: 'station_name', sortable: true },
         { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
     }
   },
 
-  async created() {
+  async mounted() {
     await this.fetchData()
   },
 
@@ -155,39 +175,40 @@ const QuestionnaireList = defineComponent({
       }
     },
     openCreateDialog() {
-      this.selectedQuestionnaire = model.questionnaire.makeEmpty()
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.CREATE
+      this.newQuestionnaire = model.questionnaire.makeEmpty()
+      this.showCreateDialog = true
     },
-    closeAddBlock() {
-      this.isAddBlockVisible = false
+    confirmDelete(questionnaire: Questionnaire) {
+      this.deletingQuestionnaire = questionnaire
+      this.showDeleteDialog = true
     },
-    async onDialogConfirmed() {
-      const eventId = (this as any).getSelectedEventId()
-      const questionnaire = this.selectedQuestionnaire
-
-      if (this.sendMode === model.SEND_MODE.CREATE) {
-        try {
-          const created = await api.addQuestionnaire(questionnaire, eventId)
-          this.questionnaires.push(created)
-        } catch (e) {
-          console.error('Failed to add questionnaire', e)
-        }
-      }
-
-      this.selectedQuestionnaire = model.questionnaire.makeEmpty()
-      this.isAddBlockVisible = false
-    },
-    async deleteQuestionnaire(questionnaire: Questionnaire) {
+    async onCreateConfirmed() {
       const eventId = (this as any).getSelectedEventId()
       try {
-        await api.deleteQuestionnaire(questionnaire.name, eventId)
+        const created = await api.addQuestionnaire(
+          this.newQuestionnaire,
+          eventId
+        )
+        this.questionnaires.push(created)
+      } catch (e) {
+        console.error('Failed to add questionnaire', e)
+      }
+      this.newQuestionnaire = model.questionnaire.makeEmpty()
+      this.showCreateDialog = false
+    },
+    async doDelete() {
+      this.showDeleteDialog = false
+      if (!this.deletingQuestionnaire) return
+      const eventId = (this as any).getSelectedEventId()
+      try {
+        await api.deleteQuestionnaire(this.deletingQuestionnaire.name, eventId)
         this.questionnaires = this.questionnaires.filter(
-          (q) => q.name !== questionnaire.name
+          (q) => q.name !== this.deletingQuestionnaire!.name
         )
       } catch (e) {
         console.error('Failed to delete questionnaire', e)
       }
+      this.deletingQuestionnaire = null
     },
     async stationUpdated(
       station: Station | { id: null; name: string },
@@ -227,11 +248,4 @@ const QuestionnaireList = defineComponent({
     }
   }
 })
-export default QuestionnaireList
 </script>
-
-<style scoped>
-#QuestionnaireList {
-  padding-bottom: 5em;
-}
-</style>

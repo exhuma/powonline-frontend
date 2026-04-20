@@ -1,80 +1,137 @@
 <template>
-  <center-col id="StationList">
-    <v-dialog v-model="errorDialog">
+  <div id="StationList">
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
+            <v-toolbar-title>Station Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-btn
+              v-if="hasRole(['admin'])"
+              color="primary"
+              @click="openCreateDialog"
+            >
+              <v-icon start>mdi-plus</v-icon>
+              New Station
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="headers"
+            :items="sortedStations"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.is_start="{ item }">
+              <v-icon v-if="item.is_start" color="green">mdi-check</v-icon>
+            </template>
+            <template v-slot:item.is_end="{ item }">
+              <v-icon v-if="item.is_end" color="green">mdi-check</v-icon>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <RowActions>
+                <template #pinned>
+                  <v-btn
+                    v-if="hasRole(['admin'])"
+                    icon
+                    size="small"
+                    variant="text"
+                    @click="openEditDialog(item)"
+                    title="Edit station"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-if="hasRole(['station_manager'])"
+                    icon
+                    size="small"
+                    variant="text"
+                    @click="openDashboard(item)"
+                    title="Open dashboard"
+                  >
+                    <v-icon>mdi-clipboard-text</v-icon>
+                  </v-btn>
+                </template>
+                <v-list-item
+                  v-if="hasRole(['admin'])"
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  class="text-error"
+                  @click="confirmDelete(item)"
+                />
+              </RowActions>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
+
+    <!-- Create / Edit dialog -->
+    <v-dialog v-model="showStationDialog" max-width="500px">
+      <v-card>
+        <v-card-title>{{
+          editingStation ? 'Edit Station' : 'New Station'
+        }}</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="stationForm.name"
+            label="Station name"
+            :disabled="!!editingStation"
+          />
+          <v-text-field
+            v-model.number="stationForm.order"
+            type="number"
+            label="Station Ordering"
+            hint="This field is used to sort stations"
+          />
+          <v-checkbox
+            v-model="stationForm.is_start"
+            label="Departure Station"
+          />
+          <v-checkbox v-model="stationForm.is_end" label="Arrival Station" />
+          <v-text-field v-model="stationForm.phone" label="Phone Number" />
+          <v-text-field v-model="stationForm.contact" label="Contact" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showStationDialog = false"
+            >Cancel</v-btn
+          >
+          <v-btn color="primary" @click="onSaveStation">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Delete confirmation dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="400px">
+      <v-card>
+        <v-card-title>Delete Station</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete
+          <strong>{{ deletingStation && deletingStation.name }}</strong
+          >? This will remove the station and all related information.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="doDelete">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Error dialog -->
+    <v-dialog v-model="errorDialog" max-width="400px">
       <v-card>
         <v-card-title>Error</v-card-title>
-        <v-card-text class="text-white">{{ errorText }}</v-card-text>
-        <v-divider></v-divider>
+        <v-card-text>{{ errorText }}</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="errorDialog = false">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <popup-dialog
-      @dialogConfirmed="onDialogConfirmed"
-      @dialogDismissed="closeAddBlock"
-      :dialogVisible="isAddBlockVisible"
-      :editMode="sendMode === SEND_MODE.UPDATE"
-      title="Add New Station"
-    >
-      <v-text-field
-        @keyup.enter="onDialogConfirmed"
-        type="text"
-        v-model="selectedStation.name"
-        label="Enter a new station name"
-      />
-      <v-text-field
-        name="order"
-        type="number"
-        v-model="selectedStation.order"
-        hint="This field is used to sort stations"
-        label="Station Ordering"
-      />
-      <v-checkbox
-        name="is_start"
-        label="Departure Station"
-        v-model="selectedStation.is_start"
-      />
-      <v-checkbox
-        name="is_end"
-        label="Arrival Station"
-        v-model="selectedStation.is_end"
-      />
-      <v-text-field
-        name="phone"
-        v-model="selectedStation.phone"
-        label="Phone Number"
-      />
-      <v-text-field
-        name="contact"
-        v-model="selectedStation.contact"
-        label="Contact"
-      />
-    </popup-dialog>
-
-    <div v-if="loading" class="text-center py-6">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
-
-    <v-list v-else lines="two">
-      <station-block
-        v-for="station in sortedStations"
-        @openEditDialog="onOpenEditDialog(station)"
-        @deleted="onStationDeleted(station)"
-        :station="station"
-        :key="station.name"
-      ></station-block>
-    </v-list>
-
-    <v-list-item v-if="hasRole(['admin'])">
-      <v-spacer />
-      <v-list-item-action>
-        <v-btn class="pa-3" @click="openCreateDialog">Add new Station</v-btn>
-      </v-list-item-action>
-    </v-list-item>
-  </center-col>
+  </div>
 </template>
 
 <script lang="ts">
@@ -83,21 +140,33 @@ import type { Session } from '@/App.vue'
 import { api } from '@/main'
 import model from '@/model'
 import type { Station } from '@/remote/model/station'
+import RowActions from '@/components/RowActions.vue'
 
-const StationList = defineComponent({
-  name: 'station_list',
+export default defineComponent({
+  name: 'StationList',
+  components: { RowActions },
   inject: ['getSelectedEventId', 'session'],
 
   data() {
     return {
       loading: false,
       stations: [] as Station[],
-      isAddBlockVisible: false,
-      selectedStation: model.station.makeEmpty() as any,
-      sendMode: model.SEND_MODE.CREATE,
+      showStationDialog: false,
+      showDeleteDialog: false,
       errorDialog: false,
       errorText: '',
-      SEND_MODE: model.SEND_MODE
+      editingStation: null as Station | null,
+      deletingStation: null as Station | null,
+      stationForm: model.station.makeEmpty() as any,
+      headers: [
+        { title: 'Name', key: 'name', sortable: true },
+        { title: 'Order', key: 'order', sortable: true },
+        { title: 'Contact', key: 'contact', sortable: true },
+        { title: 'Phone', key: 'phone', sortable: false },
+        { title: 'Departure', key: 'is_start', sortable: false },
+        { title: 'Arrival', key: 'is_end', sortable: false },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+      ]
     }
   },
 
@@ -112,7 +181,7 @@ const StationList = defineComponent({
     }
   },
 
-  async created() {
+  async mounted() {
     await this.fetchStations()
   },
 
@@ -133,35 +202,30 @@ const StationList = defineComponent({
         this.loading = false
       }
     },
-    onOpenEditDialog(station: Station) {
-      this.selectedStation = { ...station }
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.UPDATE
-    },
     openCreateDialog() {
-      this.selectedStation = model.station.makeEmpty()
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.CREATE
+      this.editingStation = null
+      this.stationForm = model.station.makeEmpty()
+      this.showStationDialog = true
     },
-    closeAddBlock() {
-      this.isAddBlockVisible = false
+    openEditDialog(station: Station) {
+      this.editingStation = station
+      this.stationForm = { ...station }
+      this.showStationDialog = true
     },
-    async onDialogConfirmed() {
+    confirmDelete(station: Station) {
+      this.deletingStation = station
+      this.showDeleteDialog = true
+    },
+    openDashboard(station: Station) {
       const eventId = (this as any).getSelectedEventId()
-      const station = this.selectedStation
-
-      if (this.sendMode === model.SEND_MODE.CREATE) {
-        try {
-          const created = await api.addStation(station, eventId)
-          this.stations.push(created)
-        } catch (e: any) {
-          this.errorDialog = true
-          this.errorText = e?.response?.data ?? String(e)
-          return
-        }
-      } else if (this.sendMode === model.SEND_MODE.UPDATE) {
-        station.contact = station.contact || ''
-        station.phone = station.phone || ''
+      this.$router.push(`/event/${eventId}/station/${station.name}`)
+    },
+    async onSaveStation() {
+      const eventId = (this as any).getSelectedEventId()
+      const station = this.stationForm
+      station.contact = station.contact || ''
+      station.phone = station.phone || ''
+      if (this.editingStation) {
         try {
           const updated = await api.updateStation(
             station.name,
@@ -171,25 +235,36 @@ const StationList = defineComponent({
           const idx = this.stations.findIndex((s) => s.name === station.name)
           if (idx >= 0) this.stations[idx] = updated
         } catch (e: any) {
-          this.errorDialog = true
           this.errorText = e?.response?.data ?? String(e)
+          this.errorDialog = true
+          return
+        }
+      } else {
+        try {
+          const created = await api.addStation(station, eventId)
+          this.stations.push(created)
+        } catch (e: any) {
+          this.errorText = e?.response?.data ?? String(e)
+          this.errorDialog = true
           return
         }
       }
-
-      this.selectedStation = model.station.makeEmpty()
-      this.isAddBlockVisible = false
+      this.showStationDialog = false
     },
-    onStationDeleted(station: Station) {
-      this.stations = this.stations.filter((s) => s.name !== station.name)
+    async doDelete() {
+      this.showDeleteDialog = false
+      if (!this.deletingStation) return
+      const eventId = (this as any).getSelectedEventId()
+      try {
+        await api.deleteStation(this.deletingStation.name, eventId)
+        this.stations = this.stations.filter(
+          (s) => s.name !== this.deletingStation!.name
+        )
+      } catch (e) {
+        console.error('Failed to delete station', e)
+      }
+      this.deletingStation = null
     }
   }
 })
-export default StationList
 </script>
-
-<style scoped>
-#StationList {
-  padding-bottom: 5em;
-}
-</style>

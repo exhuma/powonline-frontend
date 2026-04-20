@@ -1,135 +1,124 @@
 <template>
-  <center-col id="TeamList">
-    <v-dialog v-model="errorDialog">
+  <div id="TeamList">
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-account-group</v-icon>
+            <v-toolbar-title>Team Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-text-field
+              v-model="teamFilter"
+              append-inner-icon="mdi-magnify"
+              clearable
+              label="Filter teams"
+              hide-details
+              density="compact"
+              style="max-width: 250px"
+              class="mr-2"
+              @click:clear="teamFilter = ''"
+            ></v-text-field>
+            <v-btn
+              v-if="hasRole(['admin'])"
+              color="primary"
+              @click="openCreateDialog"
+            >
+              <v-icon start>mdi-plus</v-icon>
+              New Team
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="headers"
+            :items="filteredTeams"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.route_name="{ item }">
+              <v-chip v-if="item.route_name" size="small">{{
+                item.route_name
+              }}</v-chip>
+            </template>
+            <template v-slot:item.status="{ item }">
+              <v-chip size="small" :color="teamStatusColor(item)">
+                {{ teamStatusLabel(item) }}
+              </v-chip>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <RowActions>
+                <template #pinned>
+                  <v-btn
+                    v-if="hasRole(['admin'])"
+                    icon
+                    size="small"
+                    variant="text"
+                    @click="openEditDialog(item)"
+                    title="Edit team"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    size="small"
+                    variant="text"
+                    :to="teamPanelPath(item.name)"
+                    title="Open team panel"
+                  >
+                    <v-icon>mdi-clipboard-account</v-icon>
+                  </v-btn>
+                </template>
+                <v-list-item
+                  v-if="hasRole(['admin'])"
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  class="text-error"
+                  @click="confirmDelete(item)"
+                />
+              </RowActions>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
+
+    <!-- Create / Edit dialog -->
+    <v-dialog v-model="showTeamDialog" max-width="700px">
       <v-card>
-        <v-card-title>Error</v-card-title>
-        <v-card-text class="text-white">{{ errorText }}</v-card-text>
-        <v-divider></v-divider>
+        <v-card-title>{{
+          editingTeam ? 'Edit Team' : 'New Team'
+        }}</v-card-title>
+        <v-card-text>
+          <TeamForm
+            :team="teamForm"
+            :routes="routes"
+            @update:team="onTeamFormUpdated"
+          />
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="errorDialog = false">OK</v-btn>
+          <v-btn variant="text" @click="showTeamDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="onSaveTeam">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <popup-dialog
-      @dialogConfirmed="onDialogConfirmed"
-      @dialogDismissed="closeAddBlock"
-      :dialogVisible="isAddBlockVisible"
-      :editMode="sendMode === SEND_MODE.UPDATE"
-      title="Add New Team"
-    >
-      <team-form
-        :send-mode="sendMode"
-        :team="selectedTeam"
-        :routes="routes"
-        @update:team="onTeamUpdated"
-      />
-    </popup-dialog>
-
-    <div v-if="loading" class="text-center py-6">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
-
-    <template v-else>
-      <v-text-field
-        v-model="teamFilter"
-        append-icon="mdi-magnify"
-        clearable
-        label="Filter"
-        @click:clear="onFilterCleared"
-        hint="Filter list of teams by name and/or contact"
-      ></v-text-field>
-
-      <v-list>
-        <v-list-group
-          v-for="item in listItems"
-          :key="item.data.name"
-          v-model="item.active"
-        >
-          <template v-slot:activator>
-            <v-list-item-title>{{ item.data.name }}</v-list-item-title>
-          </template>
-
-          <v-list-item
-            v-if="hasRole(['admin', 'staff']) && item.data.contact"
-            :key="item.data.name + 'contact'"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ item.data.contact }}</v-list-item-title>
-              <v-list-item-subtitle>Contact</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-icon>mdi-contacts</v-icon>
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item
-            v-if="hasRole(['admin', 'staff']) && item.data.phone"
-            :key="item.data.name + 'phone'"
-          >
-            <v-list-item-content>
-              <v-list-item-title>
-                <a class="text-yellow" :href="`tel:${item.data.phone}`">{{
-                  item.data.phone
-                }}</a>
-              </v-list-item-title>
-              <v-list-item-subtitle>Phone</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <a :href="`tel:${item.data.phone}`">
-                <v-btn icon variant="text" class="text-yellow"
-                  ><v-icon>mdi-card-account-phone</v-icon></v-btn
-                >
-              </a>
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item
-            v-if="hasRole(['admin', 'staff']) && item.data.email"
-            :key="item.data.name + 'email'"
-          >
-            <v-list-item-content>
-              <v-list-item-title>
-                <a class="text-yellow" :href="`mailto:${item.data.email}`">{{
-                  item.data.email
-                }}</a>
-              </v-list-item-title>
-              <v-list-item-subtitle>e-mail</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <a :href="`mailto:${item.data.email}`">
-                <v-btn icon variant="text" class="text-yellow"
-                  ><v-icon>mdi-card-account-mail</v-icon></v-btn
-                >
-              </a>
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item
-            v-if="hasRole(['admin'])"
-            :key="item.data.name + 'info'"
-            no-action
-          >
-            <v-list-item-content>
-              <v-list-item-content>
-                <v-btn :to="teamPanelPath(item.data.name)"
-                  >Open Team Panel</v-btn
-                >
-              </v-list-item-content>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
-      </v-list>
-
-      <v-list-item v-if="hasRole(['admin'])">
-        <v-spacer />
-        <v-list-item-action>
-          <v-btn @click="openCreateDialog">Add new Team</v-btn>
-        </v-list-item-action>
-      </v-list-item>
-    </template>
-  </center-col>
+    <!-- Delete confirmation dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="400px">
+      <v-card>
+        <v-card-title>Delete Team</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete
+          <strong>{{ deletingTeam && deletingTeam.name }}</strong
+          >? This action cannot be undone.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="doDelete">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -139,9 +128,12 @@ import { api, pinnedEvent } from '@/main'
 import model from '@/model'
 import type { Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
+import RowActions from '@/components/RowActions.vue'
+import TeamForm from '@/components/forms/TeamForm.vue'
 
-const TeamList = defineComponent({
-  name: 'team_list',
+export default defineComponent({
+  name: 'TeamList',
+  components: { RowActions, TeamForm },
   inject: ['getSelectedEventId', 'session'],
 
   data() {
@@ -149,37 +141,37 @@ const TeamList = defineComponent({
       loading: false,
       teams: [] as Team[],
       routes: [] as Route[],
-      isAddBlockVisible: false,
-      selectedTeam: model.team.makeEmpty() as any,
-      sendMode: model.SEND_MODE.CREATE,
-      errorDialog: false,
-      errorText: '',
-      SEND_MODE: model.SEND_MODE,
-      teamFilter: ''
+      teamFilter: '',
+      showTeamDialog: false,
+      showDeleteDialog: false,
+      editingTeam: null as Team | null,
+      deletingTeam: null as Team | null,
+      teamForm: model.team.makeEmpty() as any,
+      headers: [
+        { title: 'Name', key: 'name', sortable: true },
+        { title: 'Route', key: 'route_name', sortable: true },
+        { title: 'Contact', key: 'contact', sortable: true },
+        { title: 'Email', key: 'email', sortable: true },
+        { title: 'Status', key: 'status', sortable: false },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+      ]
     }
   },
 
   computed: {
-    listItems(): { active: boolean; data: Team }[] {
-      const all = this.teams
-      let filtered: Team[]
-      if (!this.teamFilter || this.teamFilter.length < 3) {
-        filtered = all
-      } else {
-        const fltr = this.teamFilter.toLowerCase()
-        filtered = all.filter((item) => {
-          const nameMatches = item.name.toLowerCase().includes(fltr)
-          const contactMatches = (item.contact || '')
-            .toLowerCase()
-            .includes(fltr)
-          return nameMatches || contactMatches
-        })
-      }
-      return filtered.map((item) => ({ active: false, data: item }))
+    filteredTeams(): Team[] {
+      if (!this.teamFilter || this.teamFilter.length < 3) return this.teams
+      const fltr = this.teamFilter.toLowerCase()
+      return this.teams.filter((t) => {
+        return (
+          t.name.toLowerCase().includes(fltr) ||
+          (t.contact || '').toLowerCase().includes(fltr)
+        )
+      })
     }
   },
 
-  async created() {
+  async mounted() {
     await this.fetchData()
   },
 
@@ -191,6 +183,18 @@ const TeamList = defineComponent({
     hasRole(roleNames: string[]): boolean {
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
+    },
+    teamStatusLabel(team: Team): string {
+      if (team.cancelled) return 'Cancelled'
+      if (team.completed) return 'Completed'
+      if (!team.accepted) return 'Pending'
+      return 'Active'
+    },
+    teamStatusColor(team: Team): string {
+      if (team.cancelled) return 'error'
+      if (team.completed) return 'success'
+      if (!team.accepted) return 'warning'
+      return 'primary'
     },
     async fetchData() {
       const eventId = (this as any).getSelectedEventId()
@@ -209,27 +213,29 @@ const TeamList = defineComponent({
         this.loading = false
       }
     },
-    onFilterCleared() {
-      this.teamFilter = ''
-    },
-    onTeamUpdated(team: Team) {
-      this.selectedTeam = team
-    },
     openCreateDialog() {
+      this.editingTeam = null
       const newTeam = model.team.makeEmpty() as any
       newTeam.accepted = true
       newTeam.is_confirmed = true
-      this.selectedTeam = newTeam
-      this.isAddBlockVisible = true
-      this.sendMode = model.SEND_MODE.CREATE
+      this.teamForm = newTeam
+      this.showTeamDialog = true
     },
-    closeAddBlock() {
-      this.isAddBlockVisible = false
+    openEditDialog(team: Team) {
+      this.editingTeam = team
+      this.teamForm = { ...team }
+      this.showTeamDialog = true
     },
-    async onDialogConfirmed() {
+    onTeamFormUpdated(team: Team) {
+      this.teamForm = team
+    },
+    confirmDelete(team: Team) {
+      this.deletingTeam = team
+      this.showDeleteDialog = true
+    },
+    async onSaveTeam() {
       const eventId = (this as any).getSelectedEventId()
-      const team = this.selectedTeam
-
+      const team = this.teamForm
       if (!team.route_name) {
         this.$emit('snackRequested', {
           message: 'You must select a route!',
@@ -244,40 +250,49 @@ const TeamList = defineComponent({
         })
         return
       }
-
-      if (this.sendMode === model.SEND_MODE.CREATE) {
-        try {
-          const created = await api.addTeam(team, eventId)
-          this.teams.push(created)
-          this.$emit('snackRequested', { message: 'Save successful' })
-        } catch (e: any) {
-          this.errorDialog = true
-          this.errorText = e?.response?.data ?? String(e)
-          return
-        }
-      } else if (this.sendMode === model.SEND_MODE.UPDATE) {
+      if (this.editingTeam) {
         try {
           const updated = await api.updateTeam(team.name, team, eventId)
           const idx = this.teams.findIndex((t) => t.name === team.name)
           if (idx >= 0) this.teams[idx] = updated
           this.$emit('snackRequested', { message: 'Save successful' })
         } catch (e: any) {
-          this.errorDialog = true
-          this.errorText = e?.response?.data ?? String(e)
+          this.$emit('snackRequested', {
+            message: e?.response?.data ?? String(e),
+            color: 'red'
+          })
+          return
+        }
+      } else {
+        try {
+          const created = await api.addTeam(team, eventId)
+          this.teams.push(created)
+          this.$emit('snackRequested', { message: 'Save successful' })
+        } catch (e: any) {
+          this.$emit('snackRequested', {
+            message: e?.response?.data ?? String(e),
+            color: 'red'
+          })
           return
         }
       }
-
-      this.selectedTeam = model.team.makeEmpty()
-      this.isAddBlockVisible = false
+      this.teamForm = model.team.makeEmpty()
+      this.showTeamDialog = false
+    },
+    async doDelete() {
+      this.showDeleteDialog = false
+      if (!this.deletingTeam) return
+      const eventId = (this as any).getSelectedEventId()
+      try {
+        await api.deleteTeam(this.deletingTeam.name, eventId)
+        this.teams = this.teams.filter(
+          (t) => t.name !== this.deletingTeam!.name
+        )
+      } catch (e) {
+        console.error('Failed to delete team', e)
+      }
+      this.deletingTeam = null
     }
   }
 })
-export default TeamList
 </script>
-
-<style scoped>
-#TeamList {
-  padding-bottom: 5em;
-}
-</style>
