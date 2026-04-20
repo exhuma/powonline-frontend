@@ -28,58 +28,54 @@
               </v-chip>
             </template>
             <template v-slot:item.actions="{ item }">
-              <v-btn
-                icon
-                small
-                class="mr-1"
-                @click="selectEvent(item)"
-                title="Select event"
-              >
-                <v-icon small>mdi-check-circle</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                small
-                class="mr-1"
-                @click="openEditDialog(item)"
-                title="Edit event"
-              >
-                <v-icon small>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                small
-                class="mr-1"
-                @click="openMembersDialog(item)"
-                title="Manage members"
-              >
-                <v-icon small>mdi-account-multiple</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                small
-                class="mr-1"
-                :color="
-                  pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''
-                "
-                @click="openDomainsDialog(item)"
-                :title="
-                  pinnedEvent && pinnedEvent.id === item.id
-                    ? 'Current domain is mapped to this event'
-                    : 'Manage domains'
-                "
-              >
-                <v-icon small>mdi-web</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                small
-                color="red"
-                @click="confirmDelete(item)"
-                title="Delete event"
-              >
-                <v-icon small>mdi-delete</v-icon>
-              </v-btn>
+              <RowActions>
+                <template #pinned>
+                  <v-btn
+                    icon
+                    size="small"
+                    variant="text"
+                    @click="selectEvent(item)"
+                    title="Select event"
+                  >
+                    <v-icon>mdi-check-circle</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    size="small"
+                    variant="text"
+                    @click="openEditDialog(item)"
+                    title="Edit event"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    size="small"
+                    variant="text"
+                    :color="pinnedEvent?.id === item.id ? 'primary' : undefined"
+                    :title="
+                      pinnedEvent?.id === item.id
+                        ? 'Current domain is mapped to this event'
+                        : 'Manage domains'
+                    "
+                    @click="openDomainsDialog(item)"
+                  >
+                    <v-icon>mdi-web</v-icon>
+                  </v-btn>
+                </template>
+
+                <v-list-item
+                  prepend-icon="mdi-account-multiple"
+                  title="Manage members"
+                  @click="openMembersDialog(item)"
+                />
+                <v-list-item
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  class="text-error"
+                  @click="confirmDelete(item)"
+                />
+              </RowActions>
             </template>
           </v-data-table>
         </v-col>
@@ -178,12 +174,13 @@ import moment from 'moment'
 import type { EventInfo, EventDomain } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
 import EventMemberManager from '@/components/EventMemberManager.vue'
+import RowActions from '@/components/RowActions.vue'
 import { api } from '@/main'
 import { pinnedEvent } from '@/pinnedEvent'
 
 export default defineComponent({
   name: 'EventManagement',
-  components: { EventDialog, EventMemberManager },
+  components: { EventDialog, EventMemberManager, RowActions },
   inject: ['getSelectedEventId', 'setSelectedEventId'],
   data() {
     return {
