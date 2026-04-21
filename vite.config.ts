@@ -9,6 +9,7 @@ import MdContainer from 'markdown-it-container'
 import MarkdownIt from 'markdown-it'
 import mdPlugin from 'vite-plugin-markdown'
 import { Mode } from 'vite-plugin-markdown'
+import { VitePWA } from 'vite-plugin-pwa'
 import packageJson from './package.json'
 
 const mdi = MarkdownIt()
@@ -60,6 +61,40 @@ export default defineConfig({
     mdPlugin({
       mode: [Mode.HTML],
       markdownIt: mdi
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      // Use injectManifest so we can write our own service-worker logic
+      // (BackgroundSync requires custom SW code).
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectRegister: 'auto',
+      manifest: {
+        name: 'Powonline',
+        short_name: 'Powonline',
+        description: 'Station management and scoring for outdoor events',
+        theme_color: '#1976d2',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        icons: [
+          {
+            src: 'icons/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      devOptions: {
+        enabled: true
+      }
     })
   ],
   resolve: {

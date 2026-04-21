@@ -1,0 +1,11 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["src/sw.ts"],
+  "compilerOptions": {
+    "lib": ["ESNext", "WebWorker"],
+    "types": ["vite/client"],
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "noEmit": true
+  }
+}

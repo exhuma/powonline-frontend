@@ -31,6 +31,28 @@
           {{ selectedEventName }}
         </v-chip>
         <v-spacer></v-spacer>
+        <!-- Offline / pending-sync indicators -->
+        <v-tooltip location="bottom" v-if="isOffline">
+          <template v-slot:activator="{ props }">
+            <v-chip v-bind="props" color="error" size="small" class="mr-2">
+              <v-icon start size="small">mdi-wifi-off</v-icon>
+              Offline
+            </v-chip>
+          </template>
+          <span>No network connection — last-known data shown</span>
+        </v-tooltip>
+        <v-tooltip location="bottom" v-if="pendingSyncCount > 0">
+          <template v-slot:activator="{ props }">
+            <v-chip v-bind="props" color="warning" size="small" class="mr-2">
+              <v-icon start size="small">mdi-cloud-sync-outline</v-icon>
+              {{ pendingSyncCount }} pending
+            </v-chip>
+          </template>
+          <span
+            >{{ pendingSyncCount }} write(s) queued and will sync when
+            online</span
+          >
+        </v-tooltip>
         <span v-if="tokenIsAvailable"
           >Logged in as
           <span class="text-accent">{{ session.userName }}</span></span
@@ -186,6 +208,7 @@ import { defineComponent } from 'vue'
 import { api, pinnedEvent } from '@/main'
 import { init as initRealtime } from '@/events'
 import type { AuthProvider, EventInfo } from '@/api'
+import { useOfflineStatus } from '@/composables/useOfflineStatus'
 
 declare const __APP_VERSION__: string
 
@@ -196,6 +219,10 @@ export type Session = {
 
 const App = defineComponent({
   name: 'App',
+  setup() {
+    const { isOffline, pendingSyncCount } = useOfflineStatus()
+    return { isOffline, pendingSyncCount }
+  },
   provide() {
     return {
       api,
