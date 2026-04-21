@@ -57,15 +57,6 @@
           :questionnaire-scores="questionnaireScores"
           :key="'small' + idx"
         ></small-station-dashboard-item>
-        <v-snackbar
-          :top="true"
-          :timeout="2000"
-          :color="snackColor"
-          v-model="snackbar"
-        >
-          {{ snacktext }}
-          <v-btn variant="text" @click="snackbar = false">Close</v-btn>
-        </v-snackbar>
       </v-col>
       <v-col
         cols="1"
@@ -87,6 +78,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { api } from '@/main'
+import EventBus from '@/plugins/eventBus'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
@@ -116,9 +108,6 @@ const StationDashboard = defineComponent({
 
   data() {
     return {
-      snackbar: false,
-      snacktext: '',
-      snackColor: 'success',
       teamFilter: '',
       showPending: true,
       showArrived: true,
@@ -222,6 +211,10 @@ const StationDashboard = defineComponent({
         await this.fetchDashboard()
       } catch (err) {
         console.error('Failed to advance state', err)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to advance state',
+          color: 'error'
+        })
       }
     },
     async onScoreUpdated(state: any, newScore: string) {
@@ -237,6 +230,10 @@ const StationDashboard = defineComponent({
         this.updateTeamStationState(state)
       } catch (err) {
         console.error('Failed to set station score', err)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to set score',
+          color: 'error'
+        })
       }
     },
     async onQuestionnaireScoreUpdated(payload: {
@@ -256,12 +253,17 @@ const StationDashboard = defineComponent({
         this.questionnaireScores = await api.fetchQuestionnaireScores(eventId)
       } catch (err) {
         console.error('Failed to set questionnaire score', err)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to set questionnaire score',
+          color: 'error'
+        })
       }
     },
     onSaveClicked() {
-      this.snacktext = 'Changes saved'
-      this.snackColor = 'success'
-      this.snackbar = true
+      EventBus.emit('snackRequested', {
+        message: 'Changes saved',
+        color: 'success'
+      })
     },
     async fetchDashboard() {
       // @ts-expect-error inject
@@ -281,10 +283,18 @@ const StationDashboard = defineComponent({
       const [teams, questionnaireScores] = await Promise.all([
         api.fetchTeams(eventId).catch((e) => {
           console.error('Failed to fetch teams', e)
+          EventBus.emit('snackRequested', {
+            message: 'Failed to fetch teams',
+            color: 'error'
+          })
           return []
         }),
         api.fetchQuestionnaireScores(eventId).catch((e) => {
           console.error('Failed to fetch questionnaire scores', e)
+          EventBus.emit('snackRequested', {
+            message: 'Failed to fetch questionnaire scores',
+            color: 'error'
+          })
           return {}
         })
       ])
@@ -301,6 +311,10 @@ const StationDashboard = defineComponent({
         this.previousStates = prevStates
       } catch (e) {
         console.error(`Unable to fetch 'previous' station states (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch previous station states',
+          color: 'error'
+        })
       }
 
       try {
@@ -313,6 +327,10 @@ const StationDashboard = defineComponent({
         this.nextStates = nextStates
       } catch (e) {
         console.error(`Unable to fetch 'next' station states (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch next station states',
+          color: 'error'
+        })
       }
 
       try {
@@ -323,6 +341,10 @@ const StationDashboard = defineComponent({
         )
       } catch (e) {
         console.error(`Unable to fetch 'previous' station (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch previous station',
+          color: 'error'
+        })
       }
 
       try {
@@ -333,6 +355,10 @@ const StationDashboard = defineComponent({
         )
       } catch (e) {
         console.error(`Unable to fetch 'next' station (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch next station',
+          color: 'error'
+        })
       }
     }
   }
