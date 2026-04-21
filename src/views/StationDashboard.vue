@@ -410,6 +410,7 @@ export default StationDashboard
   display: flex;
   flex-direction: column;
   justify-items: center;
+  align-items: center;
 }
 .quick-stat-column:hover,
 .related-stations:hover > DIV {
