@@ -572,14 +572,15 @@ export class ApiClient {
     teamName: string,
     score: number,
     eventId: number
-  ): Promise<void> {
-    await this._json(`${this.baseUrl}/events/${eventId}/job`, {
+  ): Promise<number> {
+    const result = await this._json(`${this.baseUrl}/events/${eventId}/job`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'set_score',
         args: { station_name: stationName, team_name: teamName, score }
       })
     })
+    return result.new_score
   }
 
   async setQuestionnaireScore(

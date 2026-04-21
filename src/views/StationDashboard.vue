@@ -190,6 +190,16 @@ const StationDashboard = defineComponent({
   },
 
   methods: {
+    updateTeamStationState(state: any) {
+      const teamInfo = this.dashboard.find((t) => t.team === state.team)
+      if (!teamInfo) return
+      const stationState = teamInfo.stations.find(
+        (s) => s.name === this.stationName
+      )
+      if (!stationState) return
+      stationState.score = parseFloat(state.score)
+      stationState.state = state.state
+    },
     onFilterCleared() {
       this.teamFilter = ''
     },
@@ -224,6 +234,7 @@ const StationDashboard = defineComponent({
           parseFloat(newScore),
           eventId
         )
+        this.updateTeamStationState(state)
       } catch (err) {
         console.error('Failed to set station score', err)
       }
