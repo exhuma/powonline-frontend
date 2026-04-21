@@ -5,172 +5,172 @@
       <v-tab value="contactInfo" key="contactInfo" ripple>Contact Info</v-tab>
       <v-tab value="regInfo" key="regInfo" ripple>Registration Info</v-tab>
       <v-tab value="commentsTab" key="commentsTab" ripple>Comments</v-tab>
-
-      <v-window v-model="activeTab">
-        <v-window-item key="teamInfo" value="teamInfo">
-          <v-card flat
-            ><v-card-text>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    name="team-input"
-                    type="text"
-                    v-model="localTeam.name"
-                    label="Enter a new teamname"
-                    @input="emitChangeEvent"
-                  />
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12">
-                  <v-select
-                    v-bind:items="routes"
-                    v-model="localTeam.route_name"
-                    item-value="name"
-                    item-title="name"
-                    label="Route"
-                    @update:model-value="emitChangeEvent"
-                  />
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    name="email-input"
-                    type="text"
-                    v-model="localTeam.email"
-                    label="Enter a new email"
-                    @input="emitChangeEvent"
-                  />
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    name="numParticipants"
-                    type="number"
-                    v-model="localTeam.num_participants"
-                    label="Total number of particibpants"
-                    @input="emitChangeEvent"
-                  />
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    name="numVegetarians"
-                    type="number"
-                    v-model="localTeam.num_vegetarians"
-                    hint="How many people of the team are vegetarians"
-                    label="Total number of vegetarians"
-                    @input="emitChangeEvent"
-                  />
-                </v-col>
-              </v-row>
-
-              <date-time-picker
-                @timeValueChanged="updatePlannedTime"
-                :time-value="localTeam.planned_start_time"
-                hint="The time the team was scheduled to start"
-                label="Planned Start Time"
-              />
-
-              <date-time-picker
-                @timeValueChanged="updateEffectiveTime"
-                :time-value="localTeam.effective_start_time"
-                hint="The time the team effectively left the departure station"
-                label="Effective Start Time"
-              />
-
-              <date-time-picker
-                @timeValueChanged="updateFinishTime"
-                :time-value="localTeam.finish_time"
-                hint="The time the team finished the event"
-                label="Finish Time"
-              />
-
-              <v-row>
-                <v-col cols="12">
-                  <h1>Status</h1>
-                </v-col>
-              </v-row>
-              <v-checkbox
-                label="Team has cancelled the event"
-                v-model="localTeam.cancelled"
-                @change="emitChangeEvent"
-              />
-              <v-checkbox
-                label="Team has completed the event"
-                v-model="localTeam.completed"
-                @change="emitChangeEvent"
-              /> </v-card-text
-          ></v-card>
-        </v-window-item>
-
-        <v-window-item key="contactInfo" value="contactInfo">
-          <v-card flat
-            ><v-card-text>
-              <v-text-field
-                name="email-input"
-                type="text"
-                v-model="localTeam.email"
-                label="Enter a new email"
-                @input="emitChangeEvent"
-              />
-              <v-text-field
-                name="contactName"
-                type="text"
-                v-model="localTeam.contact"
-                label="Contact Name"
-                @input="emitChangeEvent"
-              />
-              <v-text-field
-                name="contactPhone"
-                type="text"
-                v-model="localTeam.phone"
-                label="Contact Phone #"
-                @input="emitChangeEvent"
-              /> </v-card-text
-          ></v-card>
-        </v-window-item>
-
-        <v-window-item key="regInfo" value="regInfo">
-          <v-card flat
-            ><v-card-text>
-              <v-checkbox
-                label="Team has accepted the registration"
-                v-model="localTeam.accepted"
-                @change="emitChangeEvent"
-              />
-              <v-checkbox
-                label="Team was confirmed by the registration staff"
-                v-model="localTeam.is_confirmed"
-                @change="emitChangeEvent"
-              />
-              <v-select
-                v-bind:items="routes"
-                v-model="localTeam.route_name"
-                item-value="name"
-                item-title="name"
-                label="Route"
-                @update:model-value="emitChangeEvent"
-              /> </v-card-text
-          ></v-card>
-        </v-window-item>
-
-        <v-window-item key="commentsTab" value="commentsTab">
-          <v-card flat
-            ><v-card-text>
-              <v-textarea
-                name="comments"
-                type="text"
-                v-model="localTeam.comments"
-                @input="emitChangeEvent"
-              /> </v-card-text
-          ></v-card>
-        </v-window-item>
-      </v-window>
     </v-tabs>
+
+    <v-tabs-window v-model="activeTab">
+      <v-tabs-window-item key="teamInfo" value="teamInfo">
+        <v-card flat
+          ><v-card-text>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  name="team-input"
+                  type="text"
+                  v-model="localTeam.name"
+                  label="Enter a new teamname"
+                  @input="emitChangeEvent"
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-select
+                  v-bind:items="routes"
+                  v-model="localTeam.route_name"
+                  item-value="name"
+                  item-title="name"
+                  label="Route"
+                  @update:model-value="emitChangeEvent"
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  name="email-input"
+                  type="text"
+                  v-model="localTeam.email"
+                  label="Enter a new email"
+                  @input="emitChangeEvent"
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  name="numParticipants"
+                  type="number"
+                  v-model="localTeam.num_participants"
+                  label="Total number of particibpants"
+                  @input="emitChangeEvent"
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  name="numVegetarians"
+                  type="number"
+                  v-model="localTeam.num_vegetarians"
+                  hint="How many people of the team are vegetarians"
+                  label="Total number of vegetarians"
+                  @input="emitChangeEvent"
+                />
+              </v-col>
+            </v-row>
+
+            <date-time-picker
+              @timeValueChanged="updatePlannedTime"
+              :time-value="localTeam.planned_start_time"
+              hint="The time the team was scheduled to start"
+              label="Planned Start Time"
+            />
+
+            <date-time-picker
+              @timeValueChanged="updateEffectiveTime"
+              :time-value="localTeam.effective_start_time"
+              hint="The time the team effectively left the departure station"
+              label="Effective Start Time"
+            />
+
+            <date-time-picker
+              @timeValueChanged="updateFinishTime"
+              :time-value="localTeam.finish_time"
+              hint="The time the team finished the event"
+              label="Finish Time"
+            />
+
+            <v-row>
+              <v-col cols="12">
+                <h1>Status</h1>
+              </v-col>
+            </v-row>
+            <v-checkbox
+              label="Team has cancelled the event"
+              v-model="localTeam.cancelled"
+              @change="emitChangeEvent"
+            />
+            <v-checkbox
+              label="Team has completed the event"
+              v-model="localTeam.completed"
+              @change="emitChangeEvent"
+            /> </v-card-text
+        ></v-card>
+      </v-tabs-window-item>
+
+      <v-tabs-window-item key="contactInfo" value="contactInfo">
+        <v-card flat
+          ><v-card-text>
+            <v-text-field
+              name="email-input"
+              type="text"
+              v-model="localTeam.email"
+              label="Enter a new email"
+              @input="emitChangeEvent"
+            />
+            <v-text-field
+              name="contactName"
+              type="text"
+              v-model="localTeam.contact"
+              label="Contact Name"
+              @input="emitChangeEvent"
+            />
+            <v-text-field
+              name="contactPhone"
+              type="text"
+              v-model="localTeam.phone"
+              label="Contact Phone #"
+              @input="emitChangeEvent"
+            /> </v-card-text
+        ></v-card>
+      </v-tabs-window-item>
+
+      <v-tabs-window-item key="regInfo" value="regInfo">
+        <v-card flat
+          ><v-card-text>
+            <v-checkbox
+              label="Team has accepted the registration"
+              v-model="localTeam.accepted"
+              @change="emitChangeEvent"
+            />
+            <v-checkbox
+              label="Team was confirmed by the registration staff"
+              v-model="localTeam.is_confirmed"
+              @change="emitChangeEvent"
+            />
+            <v-select
+              v-bind:items="routes"
+              v-model="localTeam.route_name"
+              item-value="name"
+              item-title="name"
+              label="Route"
+              @update:model-value="emitChangeEvent"
+            /> </v-card-text
+        ></v-card>
+      </v-tabs-window-item>
+
+      <v-tabs-window-item key="commentsTab" value="commentsTab">
+        <v-card flat
+          ><v-card-text>
+            <v-textarea
+              name="comments"
+              type="text"
+              v-model="localTeam.comments"
+              @input="emitChangeEvent"
+            /> </v-card-text
+        ></v-card>
+      </v-tabs-window-item>
+    </v-tabs-window>
   </div>
 </template>
 
