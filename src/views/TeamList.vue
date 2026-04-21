@@ -57,15 +57,6 @@
                   >
                     <v-icon>mdi-pencil</v-icon>
                   </v-btn>
-                  <v-btn
-                    icon
-                    size="small"
-                    variant="text"
-                    :to="teamPanelPath(item.name)"
-                    title="Open team panel"
-                  >
-                    <v-icon>mdi-clipboard-account</v-icon>
-                  </v-btn>
                 </template>
                 <v-list-item
                   v-if="hasRole(['admin'])"
