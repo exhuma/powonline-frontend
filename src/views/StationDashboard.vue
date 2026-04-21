@@ -14,7 +14,7 @@
           :key="`${state.team}-previous`"
         ></state-icon>
       </v-col>
-      <v-col cols="10" md="4" class="pa-0">
+      <v-col cols="10" md="6" class="pa-0">
         <div class="related-stations">
           <div class="left" v-ripple @click="goTo('previous')">
             {{ previousStation }}
