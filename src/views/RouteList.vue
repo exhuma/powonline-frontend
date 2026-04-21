@@ -35,6 +35,116 @@
               ></span>
               <span class="ml-2">{{ item.color }}</span>
             </template>
+
+            <template v-slot:item.assignedTeams="{ item }">
+              <v-menu :close-on-content-click="false" max-height="300">
+                <template #activator="{ props: menuProps }">
+                  <v-btn
+                    variant="outlined"
+                    size="small"
+                    v-bind="menuProps"
+                    :color="
+                      assignedTeamNames(item).length > 0 ? 'primary' : undefined
+                    "
+                  >
+                    <v-icon start>mdi-account-group</v-icon>
+                    {{ assignedTeamNames(item).length }}
+                    <v-icon end>mdi-chevron-down</v-icon>
+                  </v-btn>
+                </template>
+                <v-list density="compact">
+                  <v-list-item v-if="allTeams.length === 0">
+                    <v-list-item-title class="text-disabled"
+                      >No teams available</v-list-item-title
+                    >
+                  </v-list-item>
+                  <v-list-item
+                    v-for="team in allTeams"
+                    :key="team.name"
+                    :value="team.name"
+                    @click.stop
+                  >
+                    <template #prepend>
+                      <v-checkbox-btn
+                        :model-value="isTeamAssigned(item, team.name)"
+                        :loading="isTeamToggling(item, team.name)"
+                        @update:model-value="
+                          (val) => toggleTeam(item, team, val)
+                        "
+                        @click.stop
+                      />
+                    </template>
+                    <v-list-item-title>{{ team.name }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+
+            <template v-slot:item.assignedStations="{ item }">
+              <v-menu :close-on-content-click="false" max-height="300">
+                <template #activator="{ props: menuProps }">
+                  <v-btn
+                    variant="outlined"
+                    size="small"
+                    v-bind="menuProps"
+                    :color="
+                      assignedStationNames(item).length > 0
+                        ? 'primary'
+                        : undefined
+                    "
+                  >
+                    <v-icon start>mdi-map-marker</v-icon>
+                    {{ assignedStationNames(item).length }}
+                    <v-icon end>mdi-chevron-down</v-icon>
+                  </v-btn>
+                </template>
+                <v-list density="compact">
+                  <v-list-item v-if="allStations.length === 0">
+                    <v-list-item-title class="text-disabled"
+                      >No stations available</v-list-item-title
+                    >
+                  </v-list-item>
+                  <v-list-item
+                    v-for="station in sortedStations"
+                    :key="station.name"
+                    :value="station.name"
+                    @click.stop
+                  >
+                    <template #prepend>
+                      <v-checkbox-btn
+                        :model-value="isStationAssigned(item, station.name)"
+                        :loading="isStationToggling(item, station.name)"
+                        @update:model-value="
+                          (val) => toggleStation(item, station, val)
+                        "
+                        @click.stop
+                      />
+                    </template>
+                    <v-list-item-title>
+                      <span class="text-caption text-disabled mr-1"
+                        >#{{ station.order }}</span
+                      >
+                      {{ station.name }}
+                      <v-chip
+                        v-if="station.is_start"
+                        size="x-small"
+                        color="success"
+                        class="ml-1"
+                        >S</v-chip
+                      >
+                      <v-chip
+                        v-if="station.is_end"
+                        size="x-small"
+                        color="error"
+                        class="ml-1"
+                        >E</v-chip
+                      >
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+
             <template v-slot:item.actions="{ item }">
               <RowActions>
                 <template #pinned>
@@ -60,16 +170,6 @@
                       mode="hex"
                     />
                   </v-menu>
-                  <v-btn
-                    v-if="hasRole(['admin'])"
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openAssignments(item)"
-                    title="Manage assignments"
-                  >
-                    <v-icon>mdi-puzzle</v-icon>
-                  </v-btn>
                 </template>
                 <v-list-item
                   v-if="hasRole(['admin'])"
@@ -110,26 +210,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Assignments dialog -->
-    <v-dialog v-model="showAssignmentsDialog" max-width="600px">
-      <v-card v-if="assigningRoute">
-        <v-card-title>
-          <v-icon class="mr-2">mdi-puzzle</v-icon>
-          Assignments for
-          <em class="ml-1">{{ assigningRoute.name }}</em>
-        </v-card-title>
-        <v-card-text>
-          <RouteAssignments :route="assigningRoute" />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="showAssignmentsDialog = false"
-            >Close</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <!-- Delete confirmation dialog -->
     <v-dialog v-model="showDeleteDialog" max-width="400px">
       <v-card>
@@ -154,28 +234,40 @@ import { defineComponent } from 'vue'
 import { api } from '@/main'
 import model from '@/model'
 import type { Route } from '@/remote/model/route'
+import type { Team } from '@/remote/model/team'
+import type { Station } from '@/remote/model/station'
+import type { AssignmentMap } from '@/remote/model/assignmentMap'
 import type { Session } from '@/App.vue'
 import RowActions from '@/components/RowActions.vue'
-import RouteAssignments from '@/components/forms/RouteAssignments.vue'
 
 export default defineComponent({
   name: 'RouteList',
-  components: { RowActions, RouteAssignments },
+  components: { RowActions },
   inject: ['getSelectedEventId', 'session'],
 
   data() {
     return {
       loading: false,
       routes: [] as Route[],
+      allTeams: [] as Team[],
+      allStations: [] as Station[],
+      assignments: { teams: {}, stations: {} } as AssignmentMap,
+      // tracks in-flight toggles to show loading state: "routeName:itemName"
+      togglingTeams: new Set<string>(),
+      togglingStations: new Set<string>(),
       showCreateDialog: false,
       showDeleteDialog: false,
-      showAssignmentsDialog: false,
       newRoute: model.route.makeEmpty() as any,
       deletingRoute: null as Route | null,
-      assigningRoute: null as Route | null,
       headers: [
         { title: 'Name', key: 'name', sortable: true },
         { title: 'Color', key: 'color', sortable: false },
+        { title: 'Assigned Teams', key: 'assignedTeams', sortable: false },
+        {
+          title: 'Assigned Stations',
+          key: 'assignedStations',
+          sortable: false
+        },
         { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
     }
@@ -188,11 +280,14 @@ export default defineComponent({
         if (a.name > b.name) return 1
         return 0
       })
+    },
+    sortedStations(): Station[] {
+      return this.allStations.slice().sort((a, b) => a.order - b.order)
     }
   },
 
   async mounted() {
-    await this.fetchRoutes()
+    await this.fetchData()
   },
 
   methods: {
@@ -200,30 +295,129 @@ export default defineComponent({
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },
-    async fetchRoutes() {
+
+    async fetchData() {
       const eventId = (this as any).getSelectedEventId()
       if (!eventId) return
       this.loading = true
       try {
-        this.routes = await api.fetchRoutes(eventId)
+        const [routes, teams, stations, assignments] = await Promise.all([
+          api.fetchRoutes(eventId),
+          api.fetchTeams(eventId),
+          api.fetchStations(eventId),
+          api.fetchAssignments(eventId)
+        ])
+        this.routes = routes
+        this.allTeams = teams
+        this.allStations = stations
+        this.assignments = assignments
       } catch (e) {
-        console.error('Failed to fetch routes', e)
+        console.error('Failed to fetch route management data', e)
       } finally {
         this.loading = false
       }
     },
+
+    assignedTeamNames(route: Route): string[] {
+      return (this.assignments.teams[route.name] || []).map((t) => t.name)
+    },
+
+    assignedStationNames(route: Route): string[] {
+      return (this.assignments.stations[route.name] || []).map((s) => s.name)
+    },
+
+    isTeamAssigned(route: Route, teamName: string): boolean {
+      return this.assignedTeamNames(route).includes(teamName)
+    },
+
+    isStationAssigned(route: Route, stationName: string): boolean {
+      return this.assignedStationNames(route).includes(stationName)
+    },
+
+    isTeamToggling(route: Route, teamName: string): boolean {
+      return this.togglingTeams.has(`${route.name}:${teamName}`)
+    },
+
+    isStationToggling(route: Route, stationName: string): boolean {
+      return this.togglingStations.has(`${route.name}:${stationName}`)
+    },
+
+    async toggleTeam(route: Route, team: Team, assign: boolean) {
+      const eventId = (this as any).getSelectedEventId()
+      if (!eventId) return
+      const key = `${route.name}:${team.name}`
+      this.togglingTeams = new Set([...this.togglingTeams, key])
+      try {
+        if (assign) {
+          await api.addTeamToRoute(route.name, team, eventId)
+          if (!this.assignments.teams[route.name]) {
+            this.assignments.teams[route.name] = []
+          }
+          if (
+            !this.assignments.teams[route.name].find(
+              (t) => t.name === team.name
+            )
+          ) {
+            this.assignments.teams[route.name].push(team)
+          }
+        } else {
+          await api.unassignTeamFromRoute(route.name, team.name, eventId)
+          this.assignments.teams[route.name] = (
+            this.assignments.teams[route.name] || []
+          ).filter((t) => t.name !== team.name)
+        }
+      } catch (e) {
+        console.error('Failed to toggle team assignment', e)
+      } finally {
+        const next = new Set(this.togglingTeams)
+        next.delete(key)
+        this.togglingTeams = next
+      }
+    },
+
+    async toggleStation(route: Route, station: Station, assign: boolean) {
+      const eventId = (this as any).getSelectedEventId()
+      if (!eventId) return
+      const key = `${route.name}:${station.name}`
+      this.togglingStations = new Set([...this.togglingStations, key])
+      try {
+        if (assign) {
+          await api.assignStationToRoute(route.name, station, eventId)
+          if (!this.assignments.stations[route.name]) {
+            this.assignments.stations[route.name] = []
+          }
+          if (
+            !this.assignments.stations[route.name].find(
+              (s) => s.name === station.name
+            )
+          ) {
+            this.assignments.stations[route.name].push(station)
+          }
+        } else {
+          await api.unassignStationFromRoute(route.name, station.name, eventId)
+          this.assignments.stations[route.name] = (
+            this.assignments.stations[route.name] || []
+          ).filter((s) => s.name !== station.name)
+        }
+      } catch (e) {
+        console.error('Failed to toggle station assignment', e)
+      } finally {
+        const next = new Set(this.togglingStations)
+        next.delete(key)
+        this.togglingStations = next
+      }
+    },
+
     openCreateDialog() {
       this.newRoute = model.route.makeEmpty()
       this.showCreateDialog = true
     },
-    openAssignments(route: Route) {
-      this.assigningRoute = route
-      this.showAssignmentsDialog = true
-    },
+
     confirmDelete(route: Route) {
       this.deletingRoute = route
       this.showDeleteDialog = true
     },
+
     async onCreateConfirmed() {
       const eventId = (this as any).getSelectedEventId()
       try {
@@ -235,6 +429,7 @@ export default defineComponent({
       this.newRoute = model.route.makeEmpty()
       this.showCreateDialog = false
     },
+
     async setRouteColor(route: Route, newColor: string) {
       const eventId = (this as any).getSelectedEventId()
       if (!eventId) return
@@ -245,6 +440,7 @@ export default defineComponent({
         console.error('Failed to set route color', e)
       }
     },
+
     async doDelete() {
       this.showDeleteDialog = false
       if (!this.deletingRoute) return
