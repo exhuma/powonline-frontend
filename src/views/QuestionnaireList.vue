@@ -22,10 +22,9 @@
           >
             <template v-slot:item.station_name="{ item }">
               <v-select
-                v-model="item.station_name"
-                :items="[{ id: null, name: '-- None --' }, ...stations]"
+                :items="[{ name: '-- None --' }, ...stations]"
                 item-title="name"
-                item-value="id"
+                item-value="name"
                 hide-details
                 variant="plain"
                 density="compact"
@@ -211,13 +210,13 @@ export default defineComponent({
       this.deletingQuestionnaire = null
     },
     async stationUpdated(
-      station: Station | { id: null; name: string },
+      station: Station | { name: '' },
       questionnaire: Questionnaire
     ) {
       const eventId = (this as any).getSelectedEventId()
       this.saving = true
       try {
-        if ((station as any).id !== null) {
+        if ((station as any).name !== '-- None --') {
           await api.assignQuestionnaireToStation(
             (station as Station).name,
             questionnaire,
