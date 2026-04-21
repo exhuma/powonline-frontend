@@ -13,7 +13,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const IDB_DB_NAME = 'workbox-background-sync'
 const IDB_STORE_NAME = 'requests'
-const SYNC_QUEUE_NAME = 'powonline-score-sync'
 const POLL_INTERVAL_MS = 5_000
 
 async function readPendingCount(): Promise<number> {
@@ -74,6 +73,7 @@ export function useOfflineStatus() {
   function handleSwMessage(event: MessageEvent) {
     const { type } = event.data ?? {}
     if (
+      type === 'SYNC_QUEUED' ||
       type === 'SYNC_SUCCESS' ||
       type === 'QUEUE_EMPTY' ||
       type === 'SYNC_FAILED'

@@ -5,10 +5,10 @@
  *   - App shell / static assets: precached by Workbox (injected manifest).
  *   - Read API endpoints: NetworkFirst with a 10 s timeout; falls back to
  *     cache so the Station Dashboard loads with last-known data when offline.
- *   - Write API endpoints (POST .../job): NetworkOnly with BackgroundSync so
- *     queued writes are replayed automatically when connectivity is restored.
- *     A manual-retry fallback message is broadcast when BackgroundSync is not
- *     supported.
+ *   - Write API endpoints (POST .../job): custom handler with a 10 s
+ *     AbortController timeout + workbox Queue.  Requests that fail or time
+ *     out are queued in IndexedDB and replayed when connectivity is restored.
+ *     A SYNC_QUEUED message is broadcast so the UI can update immediately.
  *
  * Build note: this file is compiled by vite-plugin-pwa (injectManifest
  * strategy).  The `self.__WB_MANIFEST` injection point is required.
@@ -17,8 +17,8 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
-import { NetworkFirst, NetworkOnly } from 'workbox-strategies'
-import { BackgroundSyncPlugin } from 'workbox-background-sync'
+import { NetworkFirst } from 'workbox-strategies'
+import { Queue } from 'workbox-background-sync'
 import { ExpirationPlugin } from 'workbox-expiration'
 
 declare const self: ServiceWorkerGlobalScope
@@ -38,11 +38,17 @@ async function broadcastToClients(data: object) {
 }
 
 // ---------------------------------------------------------------------------
-// BackgroundSync plugin for queued write operations
+// Background-sync queue for queued write operations
 // ---------------------------------------------------------------------------
 const SYNC_TAG = 'powonline-score-sync'
 
-const bgSyncPlugin = new BackgroundSyncPlugin(SYNC_TAG, {
+// Using Queue directly (instead of BackgroundSyncPlugin) so we can drive
+// fetch ourselves with an explicit timeout.  BackgroundSyncPlugin only
+// enqueues on fetchDidFail, but Chrome DevTools "Offline" throttle hangs
+// fetch indefinitely rather than rejecting it, so the plugin's hook is
+// never triggered.  The custom handler below uses AbortController to force
+// a timeout and then pushes to this queue.
+const syncQueue = new Queue(SYNC_TAG, {
   maxRetentionTime: 24 * 60, // keep queued requests for up to 24 hours
   async onSync({ queue }) {
     let entry
@@ -86,15 +92,42 @@ registerRoute(
 )
 
 // ---------------------------------------------------------------------------
-// Write API: NetworkOnly + BackgroundSync
+// Write API: custom handler with explicit timeout + BackgroundSync queue
 //   POST /events/{id}/job  – score update, questionnaire score, advance state
+//
+// NetworkOnly has no networkTimeoutSeconds option.  Chrome DevTools "Offline"
+// throttle hangs fetch indefinitely (never rejects), so BackgroundSyncPlugin
+// would never fire.  Instead we drive fetch ourselves with a 10 s
+// AbortController timeout: on any failure we push to syncQueue immediately
+// and return a synthetic 202 so the page is not left waiting.
 // ---------------------------------------------------------------------------
+const WRITE_TIMEOUT_MS = 10_000
+
 registerRoute(
   ({ url, request }) =>
     request.method === 'POST' && /\/events\/\d+\/job$/.test(url.pathname),
-  new NetworkOnly({
-    plugins: [bgSyncPlugin]
-  }),
+  async ({ request }) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), WRITE_TIMEOUT_MS)
+    try {
+      const response = await fetch(request.clone(), {
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      return response
+    } catch (_error) {
+      clearTimeout(timeoutId)
+      // Push the original (unconsumed) request to the sync queue
+      await syncQueue.pushRequest({ request })
+      broadcastToClients({ type: 'SYNC_QUEUED', url: request.url })
+      // Return a minimal valid response so callers don't hang or throw on
+      // missing response fields (e.g. advanceState reads result.state)
+      return new Response(
+        JSON.stringify({ result: { state: 'queued' }, queued: true }),
+        { status: 202, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  },
   'POST'
 )
 
