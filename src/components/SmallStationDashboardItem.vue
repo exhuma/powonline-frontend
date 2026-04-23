@@ -117,8 +117,8 @@ const SmallStationDashboardIcon = defineComponent({
       const newValue = (event.target as HTMLInputElement).value
       this.$emit('scoreUpdated', this.state, newValue)
     },
-    updateScore: function (evt: ChangeEvent<HTMLInputElement>) {
-      const newValue = evt.target.value
+    updateScore: function (evt: Event) {
+      const newValue = (evt.target as HTMLInputElement).value
       this.$emit('scoreUpdated', this.state, newValue)
     },
     onQuestionnaireScoreEnter: function (event: Event) {
@@ -128,8 +128,8 @@ const SmallStationDashboardIcon = defineComponent({
         team: this.state.team
       })
     },
-    updateQuestionnaireScore: function (evt: ChangeEvent<HTMLInputElement>) {
-      const newValue = evt.target.value
+    updateQuestionnaireScore: function (evt: Event) {
+      const newValue = (evt.target as HTMLInputElement).value
       this.$emit('questionnaireScoreUpdated', {
         score: newValue,
         team: this.state.team
