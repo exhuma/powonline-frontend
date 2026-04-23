@@ -43,7 +43,7 @@
                     <v-icon>mdi-pencil</v-icon>
                   </v-btn>
                   <v-btn
-                    v-if="hasRole(['station_manager'])"
+                    v-if="hasRole(['station_manager']) || canOpenAnyDashboard"
                     icon
                     size="small"
                     variant="text"
@@ -141,6 +141,7 @@ import { api } from '@/main'
 import model from '@/model'
 import type { Station } from '@/remote/model/station'
 import RowActions from '@/components/RowActions.vue'
+import { hasPermission } from '@/permissions'
 
 export default defineComponent({
   name: 'StationList',
@@ -171,6 +172,10 @@ export default defineComponent({
   },
 
   computed: {
+    canOpenAnyDashboard(): boolean {
+      const session = this.session as Session
+      return hasPermission(session.roles, 'manage-all-stations')
+    },
     sortedStations(): Station[] {
       return this.stations
         .slice()

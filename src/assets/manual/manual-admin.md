@@ -62,6 +62,12 @@ For users to have access to the station dashboard they must be flagged as
 "station_manager" and need to have at least one station assigned to them!
 :::
 
+::: admonition note
+Users with the `admin` role are granted the `manage-all-stations` permission,
+which allows them to open the dashboard for any station directly from the
+Station List.
+:::
+
 ![User Panel](/manual/images/user-panel.png 'User Panel')
 
 ## Audit Log
