@@ -15,11 +15,7 @@ jobs:
       - name: Get Version
         run: echo "PROJECT_VERSION=$(jq -r .version package.json)"
           >> "${GITHUB_ENV}"
-      - name: Add secrets to .env file
-        run: echo "VITE_PUSHER_KEY=${{secrets.VITE_PUSHER_KEY}}"
-          >> .env.local
       - name: Build Image
-        # env-vars need to be "pushed" through to the build-context
         run: "
           docker buildx build
           -t \"${{secrets.DOCKER_REGISTRY}}/\
@@ -28,19 +24,6 @@ jobs:
           -t \"${{secrets.DOCKER_REGISTRY}}/\
           ${{secrets.DOCKER_REGISTRY_NAMESPACE}}/\
           powonline-frontend:dev\"
-          --build-arg=\"VITE_BACKEND_URL=${{vars.VITE_BACKEND_URL}}\"
-          --build-arg=\"VITE_FACEBOOK_PUBLIC_KEY=\
-          ${{secrets.VITE_FACEBOOK_PUBLIC_KEY}}\"
-          --build-arg=\"VITE_GOOGLE_PUBLIC_KEY=\
-          ${{secrets.VITE_GOOGLE_PUBLIC_KEY}}\"
-          --build-arg=\"VITE_NODE_ENV=${{vars.VITE_NODE_ENV}}\"
-          --build-arg=\"VITE_PAGE_TITLE=${{vars.VITE_PAGE_TITLE}}\"
-          --build-arg=\"VITE_PUSHER_DEBUG=${{vars.VITE_PUSHER_DEBUG}}\"
-          --build-arg=\"VITE_PUSHER_FILE_CHANNEL=\
-          ${{vars.VITE_PUSHER_FILE_CHANNEL}}\"
-          --build-arg=\"VITE_PUSHER_KEY=${{secrets.VITE_PUSHER_KEY}}\"
-          --build-arg=\"VITE_PUSHER_TEAM_CHANNEL=\
-          ${{vars.VITE_PUSHER_TEAM_CHANNEL}}\"
           ."
       - name: Login to Private Docker Registry
         uses: docker/login-action@v3
