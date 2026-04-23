@@ -183,17 +183,13 @@
             <!-- Actions column -->
             <template v-slot:item.actions="{ item }">
               <RowActions>
-                <template #pinned>
-                  <v-btn
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openEditDialog(item.name)"
-                    title="Edit user"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
+                <v-list-item
+                  v-if="hasRole(['admin'])"
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  base-color="error"
+                  @click="openDeleteDialog(item.name)"
+                />
               </RowActions>
             </template>
           </v-data-table>
@@ -226,16 +222,19 @@
       </v-card>
     </v-dialog>
 
-    <!-- Edit user dialog (roles, stations) -->
-    <v-dialog v-model="showEditDialog" max-width="500px">
-      <UserBlock
-        ref="userDialog"
-        :name="editingUserName"
-        @closeButtonClicked="showEditDialog = false"
-        @deleted="onUserDeleted"
-        @roles-changed="onUserRolesChanged"
-        @stations-changed="onUserStationsChanged"
-      />
+    <!-- Delete confirmation dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="400px">
+      <v-card>
+        <v-card-title>Delete user "{{ deletingUserName }}"?</v-card-title>
+        <v-card-text>
+          This will permanently delete the user and all related information.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" @click="onDeleteConfirmed">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </div>
 </template>
@@ -247,12 +246,11 @@ import { api } from '@/main'
 import type { EventInfo } from '@/api/index'
 import model from '@/model'
 import type { User } from '@/remote/model/user'
-import UserBlock from '@/components/UserBlock.vue'
 import RowActions from '@/components/RowActions.vue'
 
 export default defineComponent({
   name: 'UserList',
-  components: { UserBlock, RowActions },
+  components: { RowActions },
   inject: ['session'],
 
   data() {
@@ -263,8 +261,8 @@ export default defineComponent({
       userFilterText: '',
       errorMessage: '',
       showCreateDialog: false,
-      showEditDialog: false,
-      editingUserName: '',
+      showDeleteDialog: false,
+      deletingUserName: '',
       newUser: model.user.makeEmpty() as any,
       events: [] as EventInfo[],
       selectedEvent: null as EventInfo | null,
@@ -332,20 +330,22 @@ export default defineComponent({
       this.showCreateDialog = true
     },
 
-    openEditDialog(userName: string) {
-      this.editingUserName = userName
-      this.showEditDialog = true
-      this.$nextTick(() => {
-        // @ts-expect-error - ref typing
-        this.$refs.userDialog?.refresh?.()
-      })
+    openDeleteDialog(userName: string) {
+      this.deletingUserName = userName
+      this.showDeleteDialog = true
     },
 
-    onUserDeleted(userName: string) {
-      this.users = this.users.filter((u) => u.name !== userName)
-      delete this.userRoles[userName]
-      delete this.userStations[userName]
-      this.showEditDialog = false
+    async onDeleteConfirmed() {
+      try {
+        await api.deleteUser(this.deletingUserName)
+        this.users = this.users.filter((u) => u.name !== this.deletingUserName)
+        delete this.userRoles[this.deletingUserName]
+        delete this.userStations[this.deletingUserName]
+      } catch (e) {
+        console.error('Failed to delete user', e)
+      }
+      this.showDeleteDialog = false
+      this.deletingUserName = ''
     },
 
     async onCreateConfirmed() {
@@ -467,19 +467,6 @@ export default defineComponent({
         // Revert
         this.userStations[userName] = current
       }
-    },
-
-    /** Called by UserBlock when it changes roles internally, so the table stays in sync. */
-    onUserRolesChanged(userName: string, roles: string[]) {
-      this.userRoles[userName] = roles
-    },
-
-    /** Called by UserBlock when it changes stations internally. */
-    onUserStationsChanged(userName: string, stations: string[]) {
-      if (!this.selectedEvent) return
-      this.userStations[userName] = this.availableStations.filter((s) =>
-        stations.includes(s)
-      )
     }
   }
 })
