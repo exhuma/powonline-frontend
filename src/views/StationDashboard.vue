@@ -76,9 +76,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, watch } from 'vue'
 import { api } from '@/main'
 import EventBus from '@/plugins/eventBus'
+import {
+  lastStateChange,
+  lastScoreChange,
+  lastQuestionnaireScoreChange
+} from '@/composables/useRealtimeStream'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
@@ -105,6 +110,34 @@ function applyAgeClasses(data: RelatedTeamEntryWithAge[]) {
 const StationDashboard = defineComponent({
   name: 'station_dashboard',
   inject: ['getSelectedEventId'],
+
+  setup() {
+    const stopHandles: (() => void)[] = []
+
+    function registerCallbacks(
+      onStateOrScore: () => void,
+      onQScore: () => void
+    ) {
+      stopHandles.push(
+        watch(lastStateChange, (val) => {
+          if (val !== null) onStateOrScore()
+        }),
+        watch(lastScoreChange, (val) => {
+          if (val !== null) onStateOrScore()
+        }),
+        watch(lastQuestionnaireScoreChange, (val) => {
+          if (val !== null) onQScore()
+        })
+      )
+    }
+
+    function stopWatchers() {
+      stopHandles.forEach((s) => s())
+      stopHandles.length = 0
+    }
+
+    return { registerCallbacks, stopWatchers }
+  },
 
   data() {
     return {
@@ -170,6 +203,19 @@ const StationDashboard = defineComponent({
 
   async created() {
     await this.refresh()
+    // SSE-driven refresh: re-fetch dashboard on state/score changes, questionnaire scores on q-score changes
+    ;(this as any).registerCallbacks(
+      () => this.fetchDashboard(),
+      async () => {
+        // @ts-expect-error inject
+        const eventId = this.getSelectedEventId()
+        this.questionnaireScores = await api.fetchQuestionnaireScores(eventId)
+      }
+    )
+  },
+
+  beforeUnmount() {
+    ;(this as any).stopWatchers()
   },
 
   watch: {

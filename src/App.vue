@@ -184,7 +184,10 @@ import { startSocialLogin } from '@/auth/social'
 import EventBus from '@/plugins/eventBus'
 import { defineComponent } from 'vue'
 import { api, pinnedEvent } from '@/main'
-import { init as initRealtime } from '@/events'
+import {
+  selectedEventId as sseSelectedEventId,
+  disconnect as sseDisconnect
+} from '@/composables/useRealtimeStream'
 import type { AuthProvider, EventInfo } from '@/api'
 
 declare const __APP_VERSION__: string
@@ -204,6 +207,7 @@ const App = defineComponent({
         pinnedEvent.value?.id ?? (this as any).selectedEventId,
       setSelectedEventId: (id: number | null) => {
         ;(this as any).selectedEventId = id
+        sseSelectedEventId.value = id
       },
       getEvents: () => (this as any).events,
       setEvents: (evts: EventInfo[]) => {
@@ -212,8 +216,11 @@ const App = defineComponent({
       checkSession: () => (this as any).refreshSession()
     }
   },
+  beforeUnmount() {
+    sseDisconnect()
+  },
   watch: {
-    $route(to) {
+    $route(to: any) {
       // When a domain pin is active, selectedEventId comes from pinnedEvent — never from the URL
       if (pinnedEvent.value) return
 
@@ -223,6 +230,7 @@ const App = defineComponent({
         const id = Number(rawId)
         if (!isNaN(id) && id > 0) {
           this.selectedEventId = id
+          sseSelectedEventId.value = id
         }
       }
     }
@@ -232,6 +240,7 @@ const App = defineComponent({
     // Do NOT redirect — the domain itself is the event context; the URL stays clean.
     if (pinnedEvent.value) {
       this.selectedEventId = pinnedEvent.value.id
+      sseSelectedEventId.value = pinnedEvent.value.id
     } else {
       // Sync selectedEventId on initial load in case the page is hard-reloaded on an event-scoped URL
       const rawId = this.$route.params.eventId
@@ -239,6 +248,7 @@ const App = defineComponent({
         const id = Number(rawId)
         if (!isNaN(id) && id > 0) {
           this.selectedEventId = id
+          sseSelectedEventId.value = id
         }
       }
     }
@@ -279,37 +289,9 @@ const App = defineComponent({
         this.events = []
       })
 
-    // Init realtime (Pusher)
+    // Init realtime (SSE) — connection is managed by the composable watcher.
+    // The title is set here as this is the root component mounted once.
     document.title = import.meta.env.VITE_PAGE_TITLE || 'powonline'
-    initRealtime(
-      api,
-      {
-        key: import.meta.env.VITE_PUSHER_KEY,
-        debug: Boolean(import.meta.env.VITE_PUSHER_DEBUG),
-        teamChannel: import.meta.env.VITE_PUSHER_TEAM_CHANNEL,
-        fileChannel: import.meta.env.VITE_PUSHER_FILE_CHANNEL
-      },
-      {
-        onTeamStateChange: () => {
-          /* handled locally in views */
-        },
-        onQuestionnaireScoreChange: () => {
-          /* handled locally in views */
-        },
-        onTeamDetailsChange: () => {
-          /* handled locally in views */
-        },
-        onTeamDeleted: () => {
-          /* handled locally in views */
-        },
-        onFileAdded: () => {
-          /* handled locally in views */
-        },
-        onFileDeleted: () => {
-          /* handled locally in views */
-        }
-      }
-    )
   },
   data() {
     return {

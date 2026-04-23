@@ -98,11 +98,18 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import RouteGroupedView from '@/components/RouteGroupedView.vue'
 import ScoreboardPanel from '@/components/ScoreboardPanel.vue'
 import { api } from '@/main'
+import {
+  lastStateChange,
+  lastScoreChange,
+  lastQuestionnaireScoreChange,
+  lastTeamDetailsChange,
+  lastTeamDeleted
+} from '@/composables/useRealtimeStream'
 import type { Route } from '@/remote/model/route'
 import type { Team } from '@/remote/model/team'
 import type { Station } from '@/remote/model/station'
@@ -130,7 +137,36 @@ export default defineComponent({
   setup() {
     const col0 = ref<HTMLElement | null>(null)
     const { width: col0Width } = useElementSize(col0)
-    return { col0, col0Width }
+
+    // SSE-driven refresh: trigger a full refresh on any state/score update.
+    // Using a thin wrapper so the watcher has access to the component instance.
+    // The watcher returns a stop-handle; we collect them for cleanup.
+    const stopHandles: (() => void)[] = []
+
+    // We return a callback that the component can use to register its refresh fn
+    function registerRefreshCallback(refreshFn: () => void) {
+      const watchRefs = [
+        lastStateChange,
+        lastScoreChange,
+        lastQuestionnaireScoreChange,
+        lastTeamDetailsChange,
+        lastTeamDeleted
+      ]
+      for (const r of watchRefs) {
+        stopHandles.push(
+          watch(r, (val) => {
+            if (val !== null) refreshFn()
+          })
+        )
+      }
+    }
+
+    function stopWatchers() {
+      stopHandles.forEach((s) => s())
+      stopHandles.length = 0
+    }
+
+    return { col0, col0Width, registerRefreshCallback, stopWatchers }
   },
 
   data() {
@@ -166,11 +202,14 @@ export default defineComponent({
     this.refresh()
     this.startAutoRefresh()
     document.addEventListener('fullscreenchange', this.onFullscreenChange)
+    // Register SSE-triggered refresh — fires whenever any realtime update arrives
+    ;(this as any).registerRefreshCallback(() => this.refresh())
   },
 
   beforeUnmount() {
     this.stopAutoRefresh()
     document.removeEventListener('fullscreenchange', this.onFullscreenChange)
+    ;(this as any).stopWatchers()
   },
 
   methods: {
