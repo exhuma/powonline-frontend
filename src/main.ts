@@ -53,7 +53,6 @@ api
     app.component('state-icon', StateIcon)
     app.component('station-block', StationBlock)
     app.component('team-block', TeamBlock)
-    app.component('user-block', UserBlock)
     app.component('small-station-dashboard-item', SmallStationDashboardItem)
     app.component('popup-dialog', PopupDialog)
     app.component('team-form', TeamForm)
