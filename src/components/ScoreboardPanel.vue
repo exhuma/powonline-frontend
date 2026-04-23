@@ -149,7 +149,9 @@
 }
 
 .score-highlight {
-  animation: score-pulse 0.9s ease-out forwards;
+  /* The animation time must be aligned with the PULSE_DURATION in the setup()
+   * function. */
+  animation: score-pulse 4s ease-out forwards;
 }
 </style>
 
@@ -181,7 +183,7 @@ const AnimatedNumber = defineComponent({
       }
     )
     const displayed = useTransition(source, {
-      duration: 700,
+      duration: 4000,
       transition: TransitionPresets.easeInOutCubic
     })
     return () => h('span', Math.round(displayed.value).toString())
@@ -304,7 +306,9 @@ export default defineComponent({
   emits: ['update:modelValue'],
 
   setup() {
-    const PULSE_DURATION = 900
+    // This must be aligned with the CSS animation duration for
+    // .score-highlight, defined below.
+    const PULSE_DURATION = 4000
 
     const highlightedTeams = ref<Set<string>>(new Set())
 
