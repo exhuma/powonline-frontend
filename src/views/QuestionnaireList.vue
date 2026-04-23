@@ -23,6 +23,11 @@
             <template v-slot:item.station_name="{ item }">
               <v-select
                 :items="[{ name: '-- None --' }, ...stations]"
+                :model-value="
+                  stations.find((s) => s.name === item.station_name) || {
+                    name: '-- None --'
+                  }
+                "
                 item-title="name"
                 item-value="name"
                 hide-details
@@ -125,6 +130,7 @@ import { api } from '@/main'
 import model from '@/model'
 import type { Questionnaire } from '@/remote/model/questionnaire'
 import type { Station } from '@/remote/model/station'
+import EventBus from '@/plugins/eventBus'
 import RowActions from '@/components/RowActions.vue'
 
 export default defineComponent({
@@ -228,8 +234,14 @@ export default defineComponent({
             eventId
           )
         }
+        const updatedQuestionnaires = await api.fetchQuestionnaires(eventId)
+        this.questionnaires = updatedQuestionnaires
       } catch (e) {
         console.error('Failed to update station assignment', e)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to update station assignment',
+          color: 'error'
+        })
       } finally {
         this.saving = false
       }
