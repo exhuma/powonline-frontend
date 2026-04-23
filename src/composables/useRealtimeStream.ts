@@ -4,12 +4,24 @@
  * Opens a single EventSource for the currently selected event and exposes
  * reactive refs that components can watch to react to server-push updates.
  *
- * Usage:
- *   const { lastStateChange, lastScoreChange, ... } = useRealtimeStream()
+ * Data ownership
+ * --------------
+ * In addition to signal refs (lastXxx), the composable owns the three data
+ * refs that change in real time:
+ *   • dashboardRows  — global dashboard (DashboardRow[])
+ *   • questionnaireScores — QuestionnaireScores map
+ *   • liveTeams      — Team[]
+ *
+ * On every SSE event these are mutated surgically in-place so bound
+ * components update without any HTTP re-fetch.
+ *
+ * initData(eventId) performs the initial fetch that seeds the three data
+ * refs; it is called automatically inside connect() and can also be called
+ * manually (e.g. for a manual refresh button).
  *
  * Lifecycle:
- *   • Call connect(eventId) to open (or switch) the stream.
- *   • Call disconnect() to close it (e.g. in app teardown).
+ *   • connect(eventId) opens (or switches) the stream and seeds data.
+ *   • disconnect() closes the stream (e.g. in app teardown).
  *   • The composable automatically closes the old stream before opening a
  *     new one, so switching events is safe to call at any time.
  *
@@ -20,6 +32,10 @@
 import { ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { pinnedEvent } from '@/pinnedEvent'
+import { api } from '@/main'
+import type { Team } from '@/remote/model/team'
+import type { DashboardRow } from '@/remote/model/dashboardRow'
+import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 
 // ---------------------------------------------------------------------------
 // Payload types — mirror the backend SSE event shapes
@@ -45,6 +61,11 @@ export type QuestionnaireScoreChangePayload = {
 
 export type TeamDetailsChangePayload = {
   name: string
+  route_name: string | null
+  cancelled: boolean
+  accepted: boolean
+  completed: boolean
+  order: number
 }
 
 export type TeamDeletedPayload = {
@@ -76,7 +97,8 @@ const connectedEventId: Ref<number | null> = ref(null)
 /** The manually-selected event ID (written by App.vue via setSelectedEventId). */
 export const selectedEventId: Ref<number | null> = ref(null)
 
-// Reactive refs — updated on every matching SSE message
+// Signal refs — written on every matching SSE message; components may watch
+// these directly to trigger their own side-effects (e.g. StationDashboard).
 export const lastStateChange: Ref<StateChangePayload | null> = ref(null)
 export const lastScoreChange: Ref<ScoreChangePayload | null> = ref(null)
 export const lastQuestionnaireScoreChange: Ref<QuestionnaireScoreChangePayload | null> =
@@ -86,6 +108,39 @@ export const lastTeamDetailsChange: Ref<TeamDetailsChangePayload | null> =
 export const lastTeamDeleted: Ref<TeamDeletedPayload | null> = ref(null)
 export const lastFileAdded: Ref<FileAddedPayload | null> = ref(null)
 export const lastFileDeleted: Ref<FileDeletedPayload | null> = ref(null)
+
+// ---------------------------------------------------------------------------
+// Live data refs — owned by the composable, mutated surgically on SSE events
+// ---------------------------------------------------------------------------
+
+/** Global dashboard rows — mutated in-place on state-change / score-change. */
+export const dashboardRows: Ref<DashboardRow[]> = ref([])
+
+/** Questionnaire scores map — mutated in-place on questionnaire-score-change. */
+export const questionnaireScores: Ref<QuestionnaireScores> = ref({})
+
+/** Live team list — mutated in-place on team-details-change / team-deleted. */
+export const liveTeams: Ref<Team[]> = ref([])
+
+// ---------------------------------------------------------------------------
+// Data initialisation
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch the three real-time data sets and populate the live refs.
+ * Called automatically by connect(); may also be called manually for a
+ * forced refresh.
+ */
+export async function initData(eventId: number): Promise<void> {
+  const [rows, teams, qScores] = await Promise.all([
+    api.fetchDashboard(eventId),
+    api.fetchTeams(eventId),
+    api.fetchQuestionnaireScores(eventId)
+  ])
+  dashboardRows.value = rows
+  liveTeams.value = teams
+  questionnaireScores.value = qScores
+}
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -106,22 +161,67 @@ function _handleMessage(raw: string): void {
   }
   const { type, data } = parsed
   switch (type) {
-    case 'state-change':
-      lastStateChange.value = data as StateChangePayload
+    case 'state-change': {
+      const p = data as StateChangePayload
+      lastStateChange.value = p
+      // Surgical update: patch the matching cell in dashboardRows
+      const row = dashboardRows.value.find((r) => r.team === p.team)
+      const cell = row?.stations.find((s) => s.name === p.station)
+      if (cell) cell.state = p.new_state
       break
-    case 'score-change':
-      lastScoreChange.value = data as ScoreChangePayload
+    }
+    case 'score-change': {
+      const p = data as ScoreChangePayload
+      lastScoreChange.value = p
+      // Surgical update: patch score in the matching cell
+      const row = dashboardRows.value.find((r) => r.team === p.team)
+      const cell = row?.stations.find((s) => s.name === p.station)
+      if (cell) cell.score = p.new_score
       break
-    case 'questionnaire-score-change':
-      lastQuestionnaireScoreChange.value =
-        data as QuestionnaireScoreChangePayload
+    }
+    case 'questionnaire-score-change': {
+      const p = data as QuestionnaireScoreChangePayload
+      lastQuestionnaireScoreChange.value = p
+      // Surgical update: patch score in questionnaireScores
+      const teamEntry = questionnaireScores.value[p.teamName]
+      const stationEntry = teamEntry?.[p.stationName]
+      if (stationEntry) {
+        stationEntry.score = p.score
+      } else {
+        // New entry not yet in the map — fall back to a full re-fetch
+        if (connectedEventId.value) {
+          api.fetchQuestionnaireScores(connectedEventId.value).then((fresh) => {
+            questionnaireScores.value = fresh
+          })
+        }
+      }
       break
-    case 'team-details-change':
-      lastTeamDetailsChange.value = data as TeamDetailsChangePayload
+    }
+    case 'team-details-change': {
+      const p = data as TeamDetailsChangePayload
+      lastTeamDetailsChange.value = p
+      // Surgical update: patch the relevant fields on the matching team
+      const idx = liveTeams.value.findIndex((t) => t.name === p.name)
+      if (idx !== -1) {
+        liveTeams.value[idx] = {
+          ...liveTeams.value[idx],
+          route_name: p.route_name,
+          cancelled: p.cancelled,
+          accepted: p.accepted,
+          completed: p.completed,
+          order: p.order
+        }
+      }
       break
-    case 'team-deleted':
-      lastTeamDeleted.value = data as TeamDeletedPayload
+    }
+    case 'team-deleted': {
+      const p = data as TeamDeletedPayload
+      lastTeamDeleted.value = p
+      // Remove from both liveTeams and dashboardRows
+      liveTeams.value = liveTeams.value.filter((t) => t.name !== p.name)
+      dashboardRows.value = dashboardRows.value.filter((r) => r.team !== p.name)
       break
+    }
     case 'file-added':
       lastFileAdded.value = data as FileAddedPayload
       break
@@ -138,7 +238,7 @@ function _handleMessage(raw: string): void {
 // ---------------------------------------------------------------------------
 
 /** Open (or switch to) the SSE stream for the given event. */
-function connect(eventId: number | null): void {
+async function connect(eventId: number | null): Promise<void> {
   if (!eventId) {
     disconnect()
     return
@@ -164,6 +264,9 @@ function connect(eventId: number | null): void {
   _eventSource.value = es
   connectedEventId.value = eventId
   console.debug(`[SSE] Connected to event ${eventId}`)
+
+  // Seed the live data refs now that we know the event ID
+  await initData(eventId)
 }
 
 /** Close the current SSE connection. */
@@ -198,8 +301,12 @@ export function useRealtimeStream() {
   return {
     connect,
     disconnect,
+    initData,
     connectedEventId,
     selectedEventId,
+    dashboardRows,
+    questionnaireScores,
+    liveTeams,
     lastStateChange,
     lastScoreChange,
     lastQuestionnaireScoreChange,

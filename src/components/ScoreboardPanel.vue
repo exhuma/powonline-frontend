@@ -29,7 +29,10 @@
       </v-btn>
     </v-toolbar>
 
-    <scoreboard-list :leaderboard="leaderboard" />
+    <scoreboard-list
+      :leaderboard="leaderboard"
+      :highlighted-teams="highlightedTeams"
+    />
   </v-navigation-drawer>
 
   <!-- ── Inline (always-visible) mode ────────────────────────────── -->
@@ -38,7 +41,10 @@
       <v-icon start size="small">mdi-trophy</v-icon>
       <span class="scoreboard-inline__title">Scoreboard</span>
     </div>
-    <scoreboard-list :leaderboard="leaderboard" />
+    <scoreboard-list
+      :leaderboard="leaderboard"
+      :highlighted-teams="highlightedTeams"
+    />
   </div>
 </template>
 
@@ -129,6 +135,22 @@
   text-transform: uppercase;
   opacity: 0.8;
 }
+
+@keyframes score-pulse {
+  0% {
+    background-color: transparent;
+  }
+  30% {
+    background-color: rgba(255, 220, 50, 0.35);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.score-highlight {
+  animation: score-pulse 0.9s ease-out forwards;
+}
 </style>
 
 <script lang="ts">
@@ -139,6 +161,10 @@ import { ref, watch } from 'vue'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
+import {
+  lastScoreChange,
+  lastQuestionnaireScoreChange
+} from '@/composables/useRealtimeStream'
 
 /** Inline micro-component: animated numeric counter. */
 const AnimatedNumber = defineComponent({
@@ -180,6 +206,10 @@ const ScoreboardList = defineComponent({
     leaderboard: {
       type: Array as () => LeaderboardEntry[],
       default: () => []
+    },
+    highlightedTeams: {
+      type: Object as () => Set<string>,
+      required: true
     }
   },
   setup(props) {
@@ -204,7 +234,11 @@ const ScoreboardList = defineComponent({
           VListItem,
           {
             key: entry.team,
-            class: ['scoreboard-row', entry.cancelled ? 'cancelled' : '']
+            class: [
+              'scoreboard-row',
+              entry.cancelled ? 'cancelled' : '',
+              props.highlightedTeams.has(entry.team) ? 'score-highlight' : ''
+            ]
           },
           {
             prepend: () =>
@@ -268,6 +302,30 @@ export default defineComponent({
   },
 
   emits: ['update:modelValue'],
+
+  setup() {
+    const PULSE_DURATION = 900
+
+    const highlightedTeams = ref<Set<string>>(new Set())
+
+    function flashTeam(teamName: string) {
+      highlightedTeams.value = new Set([...highlightedTeams.value, teamName])
+      setTimeout(() => {
+        const next = new Set(highlightedTeams.value)
+        next.delete(teamName)
+        highlightedTeams.value = next
+      }, PULSE_DURATION)
+    }
+
+    watch(lastScoreChange, (p) => {
+      if (p) flashTeam(p.team)
+    })
+    watch(lastQuestionnaireScoreChange, (p) => {
+      if (p) flashTeam(p.teamName)
+    })
+
+    return { highlightedTeams }
+  },
 
   computed: {
     leaderboard(): LeaderboardEntry[] {

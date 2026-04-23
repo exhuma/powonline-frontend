@@ -10,8 +10,8 @@
         <RouteGroupedView
           :routes="routes"
           :route-name="routes[0] ? routes[0].name : null"
-          :teams="teams"
-          :global-dashboard="globalDashboard"
+          :teams="liveTeams"
+          :global-dashboard="dashboardRows"
           :route-teams="routeTeams"
           :route-stations="routeStations"
           :track-width="colTrackWidth"
@@ -23,8 +23,8 @@
         <RouteGroupedView
           :routes="routes"
           :route-name="routes[1] ? routes[1].name : null"
-          :teams="teams"
-          :global-dashboard="globalDashboard"
+          :teams="liveTeams"
+          :global-dashboard="dashboardRows"
           :route-teams="routeTeams"
           :route-stations="routeStations"
           :track-width="colTrackWidth"
@@ -36,9 +36,9 @@
         <ScoreboardPanel
           inline
           :model-value="true"
-          :global-dashboard="globalDashboard"
+          :global-dashboard="dashboardRows"
           :questionnaire-scores="questionnaireScores"
-          :teams="teams"
+          :teams="liveTeams"
         />
       </div>
     </div>
@@ -98,23 +98,20 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import RouteGroupedView from '@/components/RouteGroupedView.vue'
 import ScoreboardPanel from '@/components/ScoreboardPanel.vue'
 import { api } from '@/main'
 import {
-  lastStateChange,
-  lastScoreChange,
-  lastQuestionnaireScoreChange,
-  lastTeamDetailsChange,
-  lastTeamDeleted
+  dashboardRows,
+  questionnaireScores,
+  liveTeams,
+  initData
 } from '@/composables/useRealtimeStream'
 import type { Route } from '@/remote/model/route'
 import type { Team } from '@/remote/model/team'
 import type { Station } from '@/remote/model/station'
-import type { DashboardRow } from '@/remote/model/dashboardRow'
-import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 
 const AUTO_REFRESH_INTERVAL_SECONDS =
   Number((import.meta as any).env?.VITE_DASHBOARD_REFRESH) || 0
@@ -137,36 +134,7 @@ export default defineComponent({
   setup() {
     const col0 = ref<HTMLElement | null>(null)
     const { width: col0Width } = useElementSize(col0)
-
-    // SSE-driven refresh: trigger a full refresh on any state/score update.
-    // Using a thin wrapper so the watcher has access to the component instance.
-    // The watcher returns a stop-handle; we collect them for cleanup.
-    const stopHandles: (() => void)[] = []
-
-    // We return a callback that the component can use to register its refresh fn
-    function registerRefreshCallback(refreshFn: () => void) {
-      const watchRefs = [
-        lastStateChange,
-        lastScoreChange,
-        lastQuestionnaireScoreChange,
-        lastTeamDetailsChange,
-        lastTeamDeleted
-      ]
-      for (const r of watchRefs) {
-        stopHandles.push(
-          watch(r, (val) => {
-            if (val !== null) refreshFn()
-          })
-        )
-      }
-    }
-
-    function stopWatchers() {
-      stopHandles.forEach((s) => s())
-      stopHandles.length = 0
-    }
-
-    return { col0, col0Width, registerRefreshCallback, stopWatchers }
+    return { col0, col0Width, dashboardRows, questionnaireScores, liveTeams }
   },
 
   data() {
@@ -175,11 +143,8 @@ export default defineComponent({
       pctUntilNextRefresh: 100.0,
       isFullscreen: false,
       routes: [] as Route[],
-      teams: [] as Team[],
-      globalDashboard: [] as DashboardRow[],
       routeTeams: {} as Record<string, Team[]>,
-      routeStations: {} as Record<string, Station[]>,
-      questionnaireScores: {} as QuestionnaireScores
+      routeStations: {} as Record<string, Station[]>
     }
   },
 
@@ -199,40 +164,31 @@ export default defineComponent({
   },
 
   created() {
-    this.refresh()
+    this.loadStaticData()
     this.startAutoRefresh()
     document.addEventListener('fullscreenchange', this.onFullscreenChange)
-    // Register SSE-triggered refresh — fires whenever any realtime update arrives
-    ;(this as any).registerRefreshCallback(() => this.refresh())
   },
 
   beforeUnmount() {
     this.stopAutoRefresh()
     document.removeEventListener('fullscreenchange', this.onFullscreenChange)
-    ;(this as any).stopWatchers()
   },
 
   methods: {
-    async refresh() {
+    /** Fetch routes and assignments — these don't change in real time. */
+    async loadStaticData() {
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {
-        const [routes, teams, dashboard, assignments, qScores] =
-          await Promise.all([
-            api.fetchRoutes(eventId),
-            api.fetchTeams(eventId),
-            api.fetchDashboard(eventId),
-            api.fetchAssignments(eventId),
-            api.fetchQuestionnaireScores(eventId)
-          ])
+        const [routes, assignments] = await Promise.all([
+          api.fetchRoutes(eventId),
+          api.fetchAssignments(eventId)
+        ])
         this.routes = routes
-        this.teams = teams
-        this.globalDashboard = dashboard
         this.routeTeams = assignments.teams || {}
         this.routeStations = assignments.stations || {}
-        this.questionnaireScores = qScores
       } catch (e) {
-        console.error('Unable to refresh global dashboard data', e)
+        console.error('Unable to load static dashboard data', e)
       }
     },
 
@@ -256,7 +212,9 @@ export default defineComponent({
         progress: this.pctUntilNextRefresh
       })
       if (this.pctUntilNextRefresh <= 0) {
-        this.refresh()
+        // Safety-net refresh: re-seed the composable live data
+        const eventId = (this.getSelectedEventId as () => number | null)()
+        if (eventId) initData(eventId)
         this.pctUntilNextRefresh = 100.0
       }
     },

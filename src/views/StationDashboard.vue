@@ -82,11 +82,11 @@ import EventBus from '@/plugins/eventBus'
 import {
   lastStateChange,
   lastScoreChange,
-  lastQuestionnaireScoreChange
+  lastQuestionnaireScoreChange,
+  questionnaireScores
 } from '@/composables/useRealtimeStream'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
-import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 import type { RelatedTeamEntry } from '@/api'
 
 type RelatedTeamEntryWithAge = RelatedTeamEntry & {
@@ -114,10 +114,7 @@ const StationDashboard = defineComponent({
   setup() {
     const stopHandles: (() => void)[] = []
 
-    function registerCallbacks(
-      onStateOrScore: () => void,
-      onQScore: () => void
-    ) {
+    function registerCallbacks(onStateOrScore: () => void) {
       stopHandles.push(
         watch(lastStateChange, (val) => {
           if (val !== null) onStateOrScore()
@@ -125,9 +122,9 @@ const StationDashboard = defineComponent({
         watch(lastScoreChange, (val) => {
           if (val !== null) onStateOrScore()
         }),
-        watch(lastQuestionnaireScoreChange, (val) => {
-          if (val !== null) onQScore()
-        })
+        // questionnaire-score-change is handled surgically in the composable;
+        // we still watch the signal so the component re-renders when the ref updates.
+        watch(lastQuestionnaireScoreChange, () => {})
       )
     }
 
@@ -136,7 +133,7 @@ const StationDashboard = defineComponent({
       stopHandles.length = 0
     }
 
-    return { registerCallbacks, stopWatchers }
+    return { registerCallbacks, stopWatchers, questionnaireScores }
   },
 
   data() {
@@ -150,8 +147,7 @@ const StationDashboard = defineComponent({
       previousStation: '' as string,
       nextStation: '' as string,
       dashboard: [] as DashboardRow[],
-      teams: [] as Team[],
-      questionnaireScores: {} as QuestionnaireScores
+      teams: [] as Team[]
     }
   },
 
@@ -203,15 +199,9 @@ const StationDashboard = defineComponent({
 
   async created() {
     await this.refresh()
-    // SSE-driven refresh: re-fetch dashboard on state/score changes, questionnaire scores on q-score changes
-    ;(this as any).registerCallbacks(
-      () => this.fetchDashboard(),
-      async () => {
-        // @ts-expect-error inject
-        const eventId = this.getSelectedEventId()
-        this.questionnaireScores = await api.fetchQuestionnaireScores(eventId)
-      }
-    )
+    // SSE-driven refresh: re-fetch per-station dashboard on state/score changes.
+    // Questionnaire scores are updated surgically in the composable — no callback needed.
+    ;(this as any).registerCallbacks(() => this.fetchDashboard())
   },
 
   beforeUnmount() {
@@ -295,8 +285,8 @@ const StationDashboard = defineComponent({
           parseFloat(payload.score),
           eventId
         )
-        // Refresh questionnaire scores locally
-        this.questionnaireScores = await api.fetchQuestionnaireScores(eventId)
+        // The SSE event from the backend will surgically update questionnaireScores
+        // in the composable; no local re-fetch needed.
       } catch (err) {
         console.error('Failed to set questionnaire score', err)
         EventBus.emit('snackRequested', {
@@ -326,26 +316,15 @@ const StationDashboard = defineComponent({
 
       await this.fetchDashboard()
 
-      const [teams, questionnaireScores] = await Promise.all([
-        api.fetchTeams(eventId).catch((e) => {
-          console.error('Failed to fetch teams', e)
-          EventBus.emit('snackRequested', {
-            message: 'Failed to fetch teams',
-            color: 'error'
-          })
-          return []
-        }),
-        api.fetchQuestionnaireScores(eventId).catch((e) => {
-          console.error('Failed to fetch questionnaire scores', e)
-          EventBus.emit('snackRequested', {
-            message: 'Failed to fetch questionnaire scores',
-            color: 'error'
-          })
-          return {}
+      const teams = await api.fetchTeams(eventId).catch((e) => {
+        console.error('Failed to fetch teams', e)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch teams',
+          color: 'error'
         })
-      ])
+        return []
+      })
       this.teams = teams as Team[]
-      this.questionnaireScores = questionnaireScores as QuestionnaireScores
 
       try {
         const prevStates = (await api.fetchRelatedTeams(
