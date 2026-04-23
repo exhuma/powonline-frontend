@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="640px">
     <v-card>
-      <v-card-title class="primary white--text">
+      <v-card-title class="bg-primary text-white">
         <v-icon dark class="mr-2">mdi-account-multiple</v-icon>
         Manage Event Members
       </v-card-title>
@@ -13,7 +13,7 @@
             <v-autocomplete
               v-model="selectedUser"
               :items="availableUsers"
-              item-text="name"
+              item-title="name"
               item-value="name"
               label="Select user to add"
               outlined
@@ -25,6 +25,8 @@
             <v-select
               v-model="selectedRole"
               :items="availableRoles"
+              item-title="text"
+              item-value="value"
               label="Role"
               outlined
               dense
@@ -54,7 +56,7 @@
 
         <div
           v-else-if="members.length === 0"
-          class="text-center py-4 grey--text"
+          class="text-center py-4 text-grey"
         >
           No members assigned yet.
         </div>
@@ -84,19 +86,19 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="closeDialog">Done</v-btn>
+        <v-btn variant="text" @click="closeDialog">Done</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { EventMember } from '@/api'
 import type { User } from '@/remote/model/user'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'EventMemberManager',
   props: {
     visible: {

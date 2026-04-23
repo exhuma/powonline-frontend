@@ -1,5 +1,5 @@
-import { Station } from './station'
-import { Team } from './team'
+import type { Station } from './station'
+import type { Team } from './team'
 
 export interface AssignmentMap {
   teams: { [key: string]: Team[] }

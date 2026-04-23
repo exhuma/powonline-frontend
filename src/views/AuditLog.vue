@@ -1,53 +1,64 @@
 <template>
-  <div>
-    <v-text-field
-      v-model="entryFilter"
-      append-icon="mdi-magnify"
-      clearable
-      label="Filter"
-      @click:clear="onFilterCleared"
-      hint="Filter entries"
-    ></v-text-field>
-    <v-data-table :headers="headers" :items="filteredEntries">
-      <template v-slot:top>
-        <v-toolbar flat>
-          <v-spacer></v-spacer>
-          <v-btn class="secondary" @click="refresh()">
-            Refresh
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
-        </v-toolbar>
-      </template>
-      <template v-slot:item="props">
-        <tr>
-          <td>{{ format_ts(props.item.timestamp) }}</td>
-          <td>{{ props.item.username }}</td>
-          <td>{{ props.item.type }}</td>
-          <td>{{ props.item.message }}</td>
-        </tr>
-      </template>
-    </v-data-table>
+  <div id="AuditLog">
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-clipboard-text-clock</v-icon>
+            <v-toolbar-title>Audit Log</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-text-field
+              v-model="entryFilter"
+              append-inner-icon="mdi-magnify"
+              clearable
+              label="Filter entries"
+              hide-details
+              density="compact"
+              style="max-width: 250px"
+              class="mr-2"
+              @click:clear="entryFilter = ''"
+            ></v-text-field>
+            <v-btn @click="refresh">
+              <v-icon start>mdi-refresh</v-icon>
+              Refresh
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="headers"
+            :items="filteredEntries"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.timestamp="{ item }">
+              {{ format_ts(item.timestamp) }}
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script lang="ts">
 import moment from 'moment'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { AuditLogRow } from '@/remote/model/auditLogRow'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'AuditLog',
   inject: ['getSelectedEventId'],
   data() {
     return {
+      loading: false,
       entries: [] as AuditLogRow[],
       entryFilter: '',
       headers: [
-        { text: 'Timestamp', sortable: false },
-        { text: 'User', sortable: false },
-        { text: 'Type', sortable: false },
-        { text: 'Message', sortable: false }
+        { title: 'Timestamp', key: 'timestamp', sortable: true },
+        { title: 'User', key: 'username', sortable: true },
+        { title: 'Type', key: 'type', sortable: true },
+        { title: 'Message', key: 'message', sortable: false }
       ]
     }
   },
@@ -57,14 +68,18 @@ export default Vue.extend({
       if (!this.entryFilter || this.entryFilter.length < 3) {
         return all
       }
+      const fltr = this.entryFilter.toLowerCase()
       return all.filter((item) => {
-        const fltr = this.entryFilter.toLowerCase()
-        const userMatches = item.username.toLowerCase().includes(fltr)
-        const typeMatches = item.type.toLowerCase().includes(fltr)
-        const msgMatches = item.message.toLowerCase().includes(fltr)
-        return userMatches || typeMatches || msgMatches
+        return (
+          item.username.toLowerCase().includes(fltr) ||
+          item.type.toLowerCase().includes(fltr) ||
+          item.message.toLowerCase().includes(fltr)
+        )
       })
     }
+  },
+  async mounted() {
+    await this.refresh()
   },
   methods: {
     format_ts(ts: string): string {
@@ -73,6 +88,7 @@ export default Vue.extend({
     async refresh() {
       const eventId: number | null = (this as any).getSelectedEventId()
       if (!eventId) return
+      this.loading = true
       try {
         this.entries = await api.fetchAuditLog(eventId)
       } catch (e: any) {
@@ -83,14 +99,10 @@ export default Vue.extend({
           })`,
           color: 'red'
         })
+      } finally {
+        this.loading = false
       }
-    },
-    onFilterCleared() {
-      this.entryFilter = ''
     }
-  },
-  created() {
-    this.refresh()
   }
 })
 </script>

@@ -572,14 +572,15 @@ export class ApiClient {
     teamName: string,
     score: number,
     eventId: number
-  ): Promise<void> {
-    await this._json(`${this.baseUrl}/events/${eventId}/job`, {
+  ): Promise<number> {
+    const result = (await this._json(`${this.baseUrl}/events/${eventId}/job`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'set_score',
         args: { station_name: stationName, team_name: teamName, score }
       })
-    })
+    })) as { new_score: number }
+    return result.new_score
   }
 
   async setQuestionnaireScore(
@@ -703,12 +704,23 @@ export class ApiClient {
     })
   }
 
-  async fetchUserStations(userName: string): Promise<[string, boolean][]> {
-    return this._json(`${this.baseUrl}/user/${userName}/stations`)
+  async fetchUserStations(
+    userName: string,
+    eventId?: number
+  ): Promise<[string, boolean][]> {
+    const url = new URL(`${this.baseUrl}/user/${userName}/stations`)
+    if (eventId !== undefined) url.searchParams.set('event_id', String(eventId))
+    return this._json(url.toString())
   }
 
-  async addStationToUser(userName: string, stationName: string): Promise<void> {
-    await this._json(`${this.baseUrl}/user/${userName}/stations`, {
+  async addStationToUser(
+    userName: string,
+    stationName: string,
+    eventId?: number
+  ): Promise<void> {
+    const url = new URL(`${this.baseUrl}/user/${userName}/stations`)
+    if (eventId !== undefined) url.searchParams.set('event_id', String(eventId))
+    await this._json(url.toString(), {
       method: 'POST',
       body: JSON.stringify({ name: stationName })
     })
@@ -716,14 +728,16 @@ export class ApiClient {
 
   async removeStationFromUser(
     userName: string,
-    stationName: string
+    stationName: string,
+    eventId?: number
   ): Promise<void> {
-    await this._json(
-      `${this.baseUrl}/user/${userName}/stations/${stationName}`,
-      {
-        method: 'DELETE'
-      }
+    const url = new URL(
+      `${this.baseUrl}/user/${userName}/stations/${stationName}`
     )
+    if (eventId !== undefined) url.searchParams.set('event_id', String(eventId))
+    await this._json(url.toString(), {
+      method: 'DELETE'
+    })
   }
 
   // -------------------------------------------------------------------------

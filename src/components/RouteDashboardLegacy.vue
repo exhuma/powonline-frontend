@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="grey--text mt-2">{{ route.name }}</h2>
+    <h2 class="text-grey mt-2">{{ route.name }}</h2>
     <v-data-table
       :style="'border-left: 3px solid ' + routeColor"
       hide-default-footer
@@ -8,21 +8,16 @@
       :items="tableItems"
       :items-per-page="-1"
     >
-      <template v-slot:item="props">
+      <template v-slot:item="{ item }">
         <tr>
           <td
-            :class="
-              props.item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'
-            "
+            :class="item.cancelled ? 'text-xs-left cancelled' : 'text-xs-left'"
           >
-            {{ props.item.team }}
+            {{ item.team }}
           </td>
-          <td
-            v-for="cell in props.item.stations"
-            :key="props.item.team + cell.station"
-          >
+          <td v-for="cell in item.stations" :key="item.team + cell.station">
             <state-icon
-              :title="props.item.team + '@' + cell.station"
+              :title="item.team + '@' + cell.station"
               :state="cell.state"
               v-if="cell.state !== 'unreachable'"
             ></state-icon>
@@ -41,13 +36,13 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
-import type { VueTableHeaders } from '@/types'
-import type { Team } from '@/remote/model/team'
+import { defineComponent } from 'vue'
 import type { Station } from '@/remote/model/station'
+import type { Team } from '@/remote/model/team'
 import type { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
+import type { VueTableHeaders } from '@/types'
 
-const RouteDashboardLegacy = Vue.extend({
+const RouteDashboardLegacy = defineComponent({
   name: 'route-dashboard-legacy',
   props: {
     route: {
@@ -84,13 +79,13 @@ const RouteDashboardLegacy = Vue.extend({
     },
     tableHeaders(): VueTableHeaders[] {
       const output: VueTableHeaders[] = [
-        { text: 'Team', align: 'left', value: 'team' }
+        { title: 'Team', align: 'left', key: 'team' }
       ]
       this.assignedStations.forEach((station: Station) => {
         output.push({
-          text: station.name,
+          title: station.name,
           align: 'center',
-          value: 'state',
+          key: 'state',
           sortable: false
         })
       })

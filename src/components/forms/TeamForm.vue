@@ -1,16 +1,18 @@
 <template>
   <div>
     <v-tabs slider-color="accent" v-model="activeTab" grow>
-      <v-tab href="#teamInfo" key="teamInfo" ripple>Team Info</v-tab>
-      <v-tab href="#contactInfo" key="contactInfo" ripple>Contact Info</v-tab>
-      <v-tab href="#regInfo" key="regInfo" ripple>Registration Info</v-tab>
-      <v-tab href="#commentsTab" key="commentsTab" ripple>Comments</v-tab>
+      <v-tab value="teamInfo" key="teamInfo" ripple>Team Info</v-tab>
+      <v-tab value="contactInfo" key="contactInfo" ripple>Contact Info</v-tab>
+      <v-tab value="regInfo" key="regInfo" ripple>Registration Info</v-tab>
+      <v-tab value="commentsTab" key="commentsTab" ripple>Comments</v-tab>
+    </v-tabs>
 
-      <v-tab-item key="teamInfo" value="teamInfo">
+    <v-tabs-window v-model="activeTab">
+      <v-tabs-window-item key="teamInfo" value="teamInfo">
         <v-card flat
           ><v-card-text>
-            <v-layout row wrap>
-              <v-flex xs12>
+            <v-row>
+              <v-col cols="12">
                 <v-text-field
                   name="team-input"
                   type="text"
@@ -18,22 +20,22 @@
                   label="Enter a new teamname"
                   @input="emitChangeEvent"
                 />
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap>
-              <v-flex xs12>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
                 <v-select
                   v-bind:items="routes"
                   v-model="localTeam.route_name"
                   item-value="name"
-                  item-text="name"
+                  item-title="name"
                   label="Route"
-                  @input="emitChangeEvent"
+                  @update:model-value="emitChangeEvent"
                 />
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap>
-              <v-flex xs12>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
                 <v-text-field
                   name="email-input"
                   type="text"
@@ -41,10 +43,10 @@
                   label="Enter a new email"
                   @input="emitChangeEvent"
                 />
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap>
-              <v-flex xs12>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
                 <v-text-field
                   name="numParticipants"
                   type="number"
@@ -52,10 +54,10 @@
                   label="Total number of particibpants"
                   @input="emitChangeEvent"
                 />
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap>
-              <v-flex xs12>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
                 <v-text-field
                   name="numVegetarians"
                   type="number"
@@ -64,8 +66,8 @@
                   label="Total number of vegetarians"
                   @input="emitChangeEvent"
                 />
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
 
             <date-time-picker
               @timeValueChanged="updatePlannedTime"
@@ -88,11 +90,11 @@
               label="Finish Time"
             />
 
-            <v-layout row>
-              <v-flex xs12>
+            <v-row>
+              <v-col cols="12">
                 <h1>Status</h1>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
             <v-checkbox
               label="Team has cancelled the event"
               v-model="localTeam.cancelled"
@@ -104,9 +106,9 @@
               @change="emitChangeEvent"
             /> </v-card-text
         ></v-card>
-      </v-tab-item>
+      </v-tabs-window-item>
 
-      <v-tab-item key="contactInfo" value="contactInfo">
+      <v-tabs-window-item key="contactInfo" value="contactInfo">
         <v-card flat
           ><v-card-text>
             <v-text-field
@@ -131,9 +133,9 @@
               @input="emitChangeEvent"
             /> </v-card-text
         ></v-card>
-      </v-tab-item>
+      </v-tabs-window-item>
 
-      <v-tab-item key="regInfo" value="regInfo">
+      <v-tabs-window-item key="regInfo" value="regInfo">
         <v-card flat
           ><v-card-text>
             <v-checkbox
@@ -150,14 +152,14 @@
               v-bind:items="routes"
               v-model="localTeam.route_name"
               item-value="name"
-              item-text="name"
+              item-title="name"
               label="Route"
-              @input="emitChangeEvent"
+              @update:model-value="emitChangeEvent"
             /> </v-card-text
         ></v-card>
-      </v-tab-item>
+      </v-tabs-window-item>
 
-      <v-tab-item key="commentsTab" value="commentsTab">
+      <v-tabs-window-item key="commentsTab" value="commentsTab">
         <v-card flat
           ><v-card-text>
             <v-textarea
@@ -167,8 +169,8 @@
               @input="emitChangeEvent"
             /> </v-card-text
         ></v-card>
-      </v-tab-item>
-    </v-tabs>
+      </v-tabs-window-item>
+    </v-tabs-window>
   </div>
 </template>
 
@@ -177,8 +179,8 @@ import model from '@/model'
 import moment from 'moment'
 import DateTimePicker from '@/components/DateTimePicker.vue'
 
-import Vue from 'vue'
-const TeamForm = Vue.extend({
+import { defineComponent } from 'vue'
+const TeamForm = defineComponent({
   name: 'team-form',
   components: { DateTimePicker },
   props: {

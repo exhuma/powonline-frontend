@@ -19,8 +19,8 @@
             <v-chip
               v-for="team in assignedTeamObjects"
               :key="team.name"
-              close
-              small
+              closable
+              size="small"
               class="ma-1"
               @click:close="unassignTeam(team.name)"
             >
@@ -31,7 +31,7 @@
           <v-autocomplete
             v-model="selectedTeam"
             :items="unassignedTeamObjects"
-            item-text="name"
+            item-title="name"
             item-value="name"
             label="Add team..."
             placeholder="Search teams"
@@ -70,8 +70,8 @@
             <v-chip
               v-for="station in assignedStationObjects"
               :key="station.name"
-              close
-              small
+              closable
+              size="small"
               class="ma-1"
               :color="stationChipColor(station)"
               :text-color="stationChipTextColor(station)"
@@ -103,7 +103,7 @@
           <v-autocomplete
             v-model="selectedStation"
             :items="unassignedStationItems"
-            item-text="label"
+            item-title="label"
             item-value="name"
             label="Add station..."
             placeholder="Search stations"
@@ -155,12 +155,12 @@
 
 <script lang="ts">
 import model from '@/model'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { Station } from '@/remote/model/station'
 import type { Team } from '@/remote/model/team'
 
-const RouteAssignments = Vue.extend({
+const RouteAssignments = defineComponent({
   name: 'route-assignments',
   inject: ['getSelectedEventId'],
 
@@ -227,7 +227,6 @@ const RouteAssignments = Vue.extend({
 
   methods: {
     async loadData() {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {
@@ -247,7 +246,6 @@ const RouteAssignments = Vue.extend({
 
     async onTeamSelected(teamName: string | null) {
       if (!teamName) return
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       const team = this.allTeams.find((t) => t.name === teamName)
@@ -267,7 +265,6 @@ const RouteAssignments = Vue.extend({
 
     async onStationSelected(stationName: string | null) {
       if (!stationName) return
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       const station = this.allStations.find((s) => s.name === stationName)
@@ -286,7 +283,6 @@ const RouteAssignments = Vue.extend({
     },
 
     async unassignTeam(teamName: string) {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {
@@ -300,7 +296,6 @@ const RouteAssignments = Vue.extend({
     },
 
     async unassignStation(stationName: string) {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {

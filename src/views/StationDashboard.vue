@@ -14,7 +14,7 @@
           :key="`${state.team}-previous`"
         ></state-icon>
       </v-col>
-      <v-col cols="10" md="4" class="pa-0">
+      <v-col cols="10" md="6" class="pa-0">
         <div class="related-stations">
           <div class="left" v-ripple @click="goTo('previous')">
             {{ previousStation }}
@@ -34,16 +34,16 @@
           class="ml-5 mr-5"
         ></v-text-field>
 
-        <v-layout row class="pl-5 pr-5">
-          <v-flex xs-4>
+        <v-row class="pl-5 pr-5">
+          <v-col cols="4">
             <v-checkbox
               class="ml-4"
               name="showFinished"
               label="Show finished teams"
               v-model="showFinished"
             />
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
         <small-station-dashboard-item
           v-for="(state, idx) in filteredAllTeams"
@@ -57,15 +57,6 @@
           :questionnaire-scores="questionnaireScores"
           :key="'small' + idx"
         ></small-station-dashboard-item>
-        <v-snackbar
-          :top="true"
-          :timeout="2000"
-          :color="snackColor"
-          v-model="snackbar"
-        >
-          {{ snacktext }}
-          <v-btn text @click="snackbar = false">Close</v-btn>
-        </v-snackbar>
       </v-col>
       <v-col
         cols="1"
@@ -85,11 +76,17 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent, watch } from 'vue'
 import { api } from '@/main'
+import EventBus from '@/plugins/eventBus'
+import {
+  lastStateChange,
+  lastScoreChange,
+  lastQuestionnaireScoreChange,
+  questionnaireScores
+} from '@/composables/useRealtimeStream'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
-import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 import type { RelatedTeamEntry } from '@/api'
 
 type RelatedTeamEntryWithAge = RelatedTeamEntry & {
@@ -110,15 +107,37 @@ function applyAgeClasses(data: RelatedTeamEntryWithAge[]) {
   })
 }
 
-const StationDashboard = Vue.extend({
+const StationDashboard = defineComponent({
   name: 'station_dashboard',
   inject: ['getSelectedEventId'],
 
+  setup() {
+    const stopHandles: (() => void)[] = []
+
+    function registerCallbacks(onStateOrScore: () => void) {
+      stopHandles.push(
+        watch(lastStateChange, (val) => {
+          if (val !== null) onStateOrScore()
+        }),
+        watch(lastScoreChange, (val) => {
+          if (val !== null) onStateOrScore()
+        }),
+        // questionnaire-score-change is handled surgically in the composable;
+        // we still watch the signal so the component re-renders when the ref updates.
+        watch(lastQuestionnaireScoreChange, () => {})
+      )
+    }
+
+    function stopWatchers() {
+      stopHandles.forEach((s) => s())
+      stopHandles.length = 0
+    }
+
+    return { registerCallbacks, stopWatchers, questionnaireScores }
+  },
+
   data() {
     return {
-      snackbar: false,
-      snacktext: '',
-      snackColor: 'success',
       teamFilter: '',
       showPending: true,
       showArrived: true,
@@ -128,14 +147,13 @@ const StationDashboard = Vue.extend({
       previousStation: '' as string,
       nextStation: '' as string,
       dashboard: [] as DashboardRow[],
-      teams: [] as Team[],
-      questionnaireScores: {} as QuestionnaireScores
+      teams: [] as Team[]
     }
   },
 
   computed: {
     stationName(): string {
-      return this.$route.params.stationName
+      return String(this.$route.params.stationName)
     },
     selectedStates(): string[] {
       const output: string[] = []
@@ -181,6 +199,13 @@ const StationDashboard = Vue.extend({
 
   async created() {
     await this.refresh()
+    // SSE-driven refresh: re-fetch per-station dashboard on state/score changes.
+    // Questionnaire scores are updated surgically in the composable — no callback needed.
+    ;(this as any).registerCallbacks(() => this.fetchDashboard())
+  },
+
+  beforeUnmount() {
+    ;(this as any).stopWatchers()
   },
 
   watch: {
@@ -190,6 +215,16 @@ const StationDashboard = Vue.extend({
   },
 
   methods: {
+    updateTeamStationState(state: any) {
+      const teamInfo = this.dashboard.find((t) => t.team === state.team)
+      if (!teamInfo) return
+      const stationState = teamInfo.stations.find(
+        (s) => s.name === this.stationName
+      )
+      if (!stationState) return
+      stationState.score = parseFloat(state.score)
+      stationState.state = state.state
+    },
     onFilterCleared() {
       this.teamFilter = ''
     },
@@ -212,6 +247,10 @@ const StationDashboard = Vue.extend({
         await this.fetchDashboard()
       } catch (err) {
         console.error('Failed to advance state', err)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to advance state',
+          color: 'error'
+        })
       }
     },
     async onScoreUpdated(state: any, newScore: string) {
@@ -224,8 +263,13 @@ const StationDashboard = Vue.extend({
           parseFloat(newScore),
           eventId
         )
+        this.updateTeamStationState(state)
       } catch (err) {
         console.error('Failed to set station score', err)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to set score',
+          color: 'error'
+        })
       }
     },
     async onQuestionnaireScoreUpdated(payload: {
@@ -241,16 +285,21 @@ const StationDashboard = Vue.extend({
           parseFloat(payload.score),
           eventId
         )
-        // Refresh questionnaire scores locally
-        this.questionnaireScores = await api.fetchQuestionnaireScores(eventId)
+        // The SSE event from the backend will surgically update questionnaireScores
+        // in the composable; no local re-fetch needed.
       } catch (err) {
         console.error('Failed to set questionnaire score', err)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to set questionnaire score',
+          color: 'error'
+        })
       }
     },
     onSaveClicked() {
-      this.snacktext = 'Changes saved'
-      this.snackColor = 'success'
-      this.snackbar = true
+      EventBus.emit('snackRequested', {
+        message: 'Changes saved',
+        color: 'success'
+      })
     },
     async fetchDashboard() {
       // @ts-expect-error inject
@@ -267,18 +316,15 @@ const StationDashboard = Vue.extend({
 
       await this.fetchDashboard()
 
-      const [teams, questionnaireScores] = await Promise.all([
-        api.fetchTeams(eventId).catch((e) => {
-          console.error('Failed to fetch teams', e)
-          return []
-        }),
-        api.fetchQuestionnaireScores(eventId).catch((e) => {
-          console.error('Failed to fetch questionnaire scores', e)
-          return {}
+      const teams = await api.fetchTeams(eventId).catch((e) => {
+        console.error('Failed to fetch teams', e)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch teams',
+          color: 'error'
         })
-      ])
+        return []
+      })
       this.teams = teams as Team[]
-      this.questionnaireScores = questionnaireScores as QuestionnaireScores
 
       try {
         const prevStates = (await api.fetchRelatedTeams(
@@ -290,6 +336,10 @@ const StationDashboard = Vue.extend({
         this.previousStates = prevStates
       } catch (e) {
         console.error(`Unable to fetch 'previous' station states (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch previous station states',
+          color: 'error'
+        })
       }
 
       try {
@@ -302,6 +352,10 @@ const StationDashboard = Vue.extend({
         this.nextStates = nextStates
       } catch (e) {
         console.error(`Unable to fetch 'next' station states (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch next station states',
+          color: 'error'
+        })
       }
 
       try {
@@ -312,6 +366,10 @@ const StationDashboard = Vue.extend({
         )
       } catch (e) {
         console.error(`Unable to fetch 'previous' station (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch previous station',
+          color: 'error'
+        })
       }
 
       try {
@@ -322,6 +380,10 @@ const StationDashboard = Vue.extend({
         )
       } catch (e) {
         console.error(`Unable to fetch 'next' station (${e})`)
+        EventBus.emit('snackRequested', {
+          message: 'Failed to fetch next station',
+          color: 'error'
+        })
       }
     }
   }
@@ -373,6 +435,7 @@ export default StationDashboard
   display: flex;
   flex-direction: column;
   justify-items: center;
+  align-items: center;
 }
 .quick-stat-column:hover,
 .related-stations:hover > DIV {

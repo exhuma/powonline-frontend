@@ -4,7 +4,12 @@
       <p><strong>No images yet.</strong></p>
       <p>Click on the upload button on the bottom right to add new images.</p>
     </v-alert>
-    <LightBox :media="media" :showLightBox="false" ref="lightBox"></LightBox>
+    <VueEasyLightbox
+      :visible="lightboxVisible"
+      :imgs="lightboxImgs"
+      :index="lightboxIndex"
+      @hide="lightboxVisible = false"
+    />
     <v-img
       class="image"
       v-for="(image, imageIndex) in images"
@@ -49,15 +54,14 @@
 </style>
 
 <script lang="ts">
-import LightBox from 'vue-it-bigger'
-import('vue-it-bigger/dist/vue-it-bigger.min.css')
-import Vue from 'vue'
+import VueEasyLightbox from 'vue-easy-lightbox'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { Session } from '@/App.vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Gallery',
-  components: { LightBox },
+  components: { VueEasyLightbox },
   inject: ['session', 'getSelectedEventId'],
   created() {
     this.refreshImages()
@@ -65,30 +69,25 @@ export default Vue.extend({
   data() {
     return {
       images: [] as { href: string; thumbnail: string }[],
-      showUploadSnack: true
+      showUploadSnack: true,
+      lightboxVisible: false,
+      lightboxIndex: 0
     }
   },
   computed: {
     tokenIsAvailable(): boolean {
-      // @ts-expect-error inject
       return Boolean((this.session as Session).userName)
     },
-    media(): { type: string; thumb: string; src: string; caption: string }[] {
-      return this.images.map((item) => ({
-        type: 'image',
-        thumb: item.thumbnail,
-        src: item.href,
-        caption: ''
-      }))
+    lightboxImgs(): string[] {
+      return this.images.map((item) => item.href)
     }
   },
   methods: {
     showLightbox(index: number) {
-      // @ts-expect-error - Don't know how to properly type this yet
-      this.$refs.lightBox.showImage(index)
+      this.lightboxIndex = index
+      this.lightboxVisible = true
     },
     async refreshImages() {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {

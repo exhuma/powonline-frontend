@@ -6,12 +6,12 @@
       color="primary"
       size="64"
     />
-    <div v-if="error" class="red--text mt-4">{{ error }}</div>
+    <div v-if="error" class="text-red mt-4">{{ error }}</div>
   </v-container>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 
 /**
@@ -22,7 +22,7 @@ import { api } from '@/main'
  *  1. Call checkSession to populate the session from /auth/me
  *  2. Redirect to the home page
  */
-export default Vue.extend({
+export default defineComponent({
   name: 'AuthCallback',
   inject: ['checkSession'],
   data() {

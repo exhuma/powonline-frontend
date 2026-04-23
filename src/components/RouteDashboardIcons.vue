@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="white--text">{{ route.name }}</h1>
+    <h1 class="text-white">{{ route.name }}</h1>
     <v-data-table
       :style="'border-left: 3px solid ' + routeColor"
       hide-default-footer
@@ -42,8 +42,8 @@ import type { Team } from '@/remote/model/team'
 import type { Station } from '@/remote/model/station'
 import type { DashboardRow as RemoteDashboardRow } from '@/remote/model/dashboardRow'
 
-import Vue from 'vue'
-const RouteDashboardIcons = Vue.extend({
+import { defineComponent } from 'vue'
+const RouteDashboardIcons = defineComponent({
   name: 'route-dashboard-icons',
   props: {
     route: {
@@ -78,13 +78,13 @@ const RouteDashboardIcons = Vue.extend({
     },
     tableHeaders(): VueTableHeaders[] {
       const output: VueTableHeaders[] = [
-        { text: 'Team', align: 'left', value: 'team' }
+        { title: 'Team', align: 'left', key: 'team' }
       ]
       this.assignedStations.forEach((station: Station) => {
         output.push({
-          text: station.name,
+          title: station.name,
           align: 'center',
-          value: 'state',
+          key: 'state',
           sortable: false
         })
       })

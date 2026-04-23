@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 
 import App from './App.vue'
 import router from './router'
@@ -31,25 +31,6 @@ export const api = new ApiClient(import.meta.env.VITE_BACKEND_URL)
 // Re-export so existing consumers of `@/main` continue to work unchanged.
 export { pinnedEvent }
 
-Vue.component('confirmation-dialog', ConfirmationDialog)
-Vue.component('center-col', CenterCol)
-Vue.component('route-dashboard', RouteDashboard)
-Vue.component('route-dashboard-icons', RouteDashboardIcons)
-Vue.component('mini-status', MiniStatus)
-Vue.component('route-block', RouteBlock)
-Vue.component('state-icon', StateIcon)
-Vue.component('station-block', StationBlock)
-Vue.component('team-block', TeamBlock)
-Vue.component('user-block', UserBlock)
-Vue.component('small-station-dashboard-item', SmallStationDashboardItem)
-Vue.component('popup-dialog', PopupDialog)
-Vue.component('team-form', TeamForm)
-Vue.component('route-assignments', RouteAssignments)
-Vue.component('optional-team-row', OptionalTeamRow)
-Vue.component('image-upload', ImageUpload)
-Vue.component('combined-dashboard', CombinedDashboard)
-Vue.component('dashboard-progress-line', DashboardProgressLine)
-
 // Resolve domain-pinned event before mounting so every component and the
 // router guard can read pinnedEvent.value synchronously on first render.
 api
@@ -61,11 +42,27 @@ api
     // Non-fatal: if the lookup fails we just run in normal multi-event mode.
   })
   .finally(() => {
-    /* eslint-disable no-new */
-    new Vue({
-      router,
-      // @ts-expect-error - passing this as an option is causing a type error
-      vuetify,
-      render: (h) => h(App)
-    }).$mount('#app')
+    const app = createApp(App)
+
+    app.component('confirmation-dialog', ConfirmationDialog)
+    app.component('center-col', CenterCol)
+    app.component('route-dashboard', RouteDashboard)
+    app.component('route-dashboard-icons', RouteDashboardIcons)
+    app.component('mini-status', MiniStatus)
+    app.component('route-block', RouteBlock)
+    app.component('state-icon', StateIcon)
+    app.component('station-block', StationBlock)
+    app.component('team-block', TeamBlock)
+    app.component('small-station-dashboard-item', SmallStationDashboardItem)
+    app.component('popup-dialog', PopupDialog)
+    app.component('team-form', TeamForm)
+    app.component('route-assignments', RouteAssignments)
+    app.component('optional-team-row', OptionalTeamRow)
+    app.component('image-upload', ImageUpload)
+    app.component('combined-dashboard', CombinedDashboard)
+    app.component('dashboard-progress-line', DashboardProgressLine)
+
+    app.use(router)
+    app.use(vuetify)
+    app.mount('#app')
   })

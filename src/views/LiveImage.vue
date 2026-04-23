@@ -1,7 +1,7 @@
 <template>
   <div class="imgbox">
-    <div v-if="!fullScreen" class="white--text">{{ counter }}</div>
-    <div v-if="queuelength" class="white--text">
+    <div v-if="!fullScreen" class="text-white">{{ counter }}</div>
+    <div v-if="queuelength" class="text-white">
       {{ queuelength }} images in queue
     </div>
     <img v-if="latestImage" class="center-fit" :src="latestImage.href" />
@@ -50,18 +50,37 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent, watch } from 'vue'
+import { lastFileAdded, lastFileDeleted } from '@/composables/useRealtimeStream'
+import type { FileAddedPayload } from '@/composables/useRealtimeStream'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'LiveImage',
-  // liveImageQueue is a reactive array provided by App.vue via Pusher callbacks
-  inject: { liveImageQueue: { default: () => [] } },
+  setup() {
+    return { lastFileAdded, lastFileDeleted }
+  },
   created() {
     this.intervalId = window.setInterval(() => {
       this.countdown()
     }, 1000)
+
+    // SSE: enqueue new files as they arrive
+    watch(lastFileAdded, (payload) => {
+      if (payload) {
+        ;(this as any).liveImageQueue.push(payload)
+      }
+    })
+
+    // SSE: remove deleted file from queue
+    watch(lastFileDeleted, (payload) => {
+      if (payload) {
+        const queue: FileAddedPayload[] = (this as any).liveImageQueue
+        const idx = queue.findIndex((f) => f.uuid === payload.id)
+        if (idx !== -1) queue.splice(idx, 1)
+      }
+    })
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.clearInterval(this.intervalId as number)
   },
   watch: {
@@ -71,12 +90,12 @@ export default Vue.extend({
   },
   data() {
     return {
-      latestImage: null as any,
+      latestImage: null as FileAddedPayload | null,
       intervalId: null as number | null,
       timeout: 10,
       counter: 10,
       fullScreen: false,
-      localQueue: [] as any[]
+      liveImageQueue: [] as FileAddedPayload[]
     }
   },
   computed: {
@@ -97,7 +116,7 @@ export default Vue.extend({
       }
     },
     loadNextImage() {
-      const queue: any[] = (this as any).liveImageQueue
+      const queue: FileAddedPayload[] = (this as any).liveImageQueue
       if (!queue.length) return
       this.latestImage = queue[0]
       queue.splice(0, 1)

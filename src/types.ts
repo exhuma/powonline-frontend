@@ -1,6 +1,8 @@
 export type VueTableHeaders = {
-  text: string
-  align: string
-  value: string
+  title?: string
+  text?: string
+  align?: string
+  key?: string
+  value?: string
   sortable?: boolean
 }

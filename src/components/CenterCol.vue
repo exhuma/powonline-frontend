@@ -1,14 +1,14 @@
 <template>
-  <v-layout row wrap justify-center>
-    <v-flex xs12 md8 lg6 xl4>
+  <v-row justify="center">
+    <v-col cols="12" md="8" lg="6" xl="4">
       <slot>Centered content</slot>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-const CenterCol = Vue.extend({
+import { defineComponent } from 'vue'
+const CenterCol = defineComponent({
   name: 'center-col'
 })
 export default CenterCol

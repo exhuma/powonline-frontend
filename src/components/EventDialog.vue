@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="560px" persistent>
     <v-card>
-      <v-card-title class="primary white--text">
+      <v-card-title class="bg-primary text-white">
         <v-icon dark class="mr-2">mdi-calendar-edit</v-icon>
         {{ isEditMode ? 'Edit Event' : 'Create Event' }}
       </v-card-title>
@@ -37,7 +37,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="closeDialog">Cancel</v-btn>
+        <v-btn variant="text" @click="closeDialog">Cancel</v-btn>
         <v-btn
           color="primary"
           :disabled="!formValid || saving"
@@ -52,13 +52,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import moment from 'moment'
 import type { EventInfo } from '@/api'
 import { api } from '@/main'
 import DateTimePicker from './DateTimePicker.vue'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'EventDialog',
   components: { DateTimePicker },
   props: {

@@ -3,97 +3,81 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-card>
-            <v-card-title>
-              <v-icon class="mr-2">mdi-calendar-multiple</v-icon>
-              Event Management
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="openCreateDialog">
-                <v-icon left>mdi-plus</v-icon>
-                New Event
-              </v-btn>
-            </v-card-title>
-
-            <v-card-text>
-              <div v-if="loading" class="text-center py-6">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                ></v-progress-circular>
-              </div>
-
-              <v-data-table
-                v-else
-                :headers="headers"
-                :items="events"
-                :items-per-page="15"
-                class="elevation-0"
-              >
-                <template v-slot:item.time_range="{ item }">
-                  {{ formatDateRange(item.time_range) }}
-                </template>
-                <template v-slot:item.status="{ item }">
-                  <v-chip small :color="statusColor(item)" dark>
-                    {{ statusLabel(item) }}
-                  </v-chip>
-                </template>
-                <template v-slot:item.actions="{ item }">
+          <v-toolbar flat color="transparent">
+            <v-icon class="mr-2">mdi-calendar-multiple</v-icon>
+            <v-toolbar-title>Event Management</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-btn color="primary" @click="openCreateDialog">
+              <v-icon start>mdi-plus</v-icon>
+              New Event
+            </v-btn>
+          </v-toolbar>
+          <v-data-table
+            :headers="headers"
+            :items="events"
+            :items-per-page="15"
+            :loading="loading"
+            class="elevation-0"
+          >
+            <template v-slot:item.time_range="{ item }">
+              {{ formatDateRange(item.time_range) }}
+            </template>
+            <template v-slot:item.status="{ item }">
+              <v-chip size="small" :color="statusColor(item)" dark>
+                {{ statusLabel(item) }}
+              </v-chip>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <RowActions>
+                <template #pinned>
                   <v-btn
                     icon
-                    small
-                    class="mr-1"
+                    size="small"
+                    variant="text"
                     @click="selectEvent(item)"
                     title="Select event"
                   >
-                    <v-icon small>mdi-check-circle</v-icon>
+                    <v-icon>mdi-check-circle</v-icon>
                   </v-btn>
                   <v-btn
                     icon
-                    small
-                    class="mr-1"
+                    size="small"
+                    variant="text"
                     @click="openEditDialog(item)"
                     title="Edit event"
                   >
-                    <v-icon small>mdi-pencil</v-icon>
+                    <v-icon>mdi-pencil</v-icon>
                   </v-btn>
                   <v-btn
                     icon
-                    small
-                    class="mr-1"
-                    @click="openMembersDialog(item)"
-                    title="Manage members"
-                  >
-                    <v-icon small>mdi-account-multiple</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    class="mr-1"
-                    :color="
-                      pinnedEvent && pinnedEvent.id === item.id ? 'primary' : ''
-                    "
-                    @click="openDomainsDialog(item)"
+                    size="small"
+                    variant="text"
+                    :color="pinnedEvent?.id === item.id ? 'primary' : undefined"
                     :title="
-                      pinnedEvent && pinnedEvent.id === item.id
+                      pinnedEvent?.id === item.id
                         ? 'Current domain is mapped to this event'
                         : 'Manage domains'
                     "
+                    @click="openDomainsDialog(item)"
                   >
-                    <v-icon small>mdi-web</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    small
-                    color="red"
-                    @click="confirmDelete(item)"
-                    title="Delete event"
-                  >
-                    <v-icon small>mdi-delete</v-icon>
+                    <v-icon>mdi-web</v-icon>
                   </v-btn>
                 </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
+
+                <v-list-item
+                  prepend-icon="mdi-account-multiple"
+                  title="Manage members"
+                  @click="openMembersDialog(item)"
+                />
+                <v-list-item
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  class="text-error"
+                  @click="confirmDelete(item)"
+                />
+              </RowActions>
+            </template>
+          </v-data-table>
         </v-col>
       </v-row>
     </v-container>
@@ -160,7 +144,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="showDomainsDialog = false">Close</v-btn>
+          <v-btn variant="text" @click="showDomainsDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -176,7 +160,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
           <v-btn color="error" @click="doDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
@@ -185,17 +169,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import moment from 'moment'
 import type { EventInfo, EventDomain } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
 import EventMemberManager from '@/components/EventMemberManager.vue'
+import RowActions from '@/components/RowActions.vue'
 import { api } from '@/main'
 import { pinnedEvent } from '@/pinnedEvent'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'EventManagement',
-  components: { EventDialog, EventMemberManager },
+  components: { EventDialog, EventMemberManager, RowActions },
   inject: ['getSelectedEventId', 'setSelectedEventId'],
   data() {
     return {
@@ -213,10 +198,10 @@ export default Vue.extend({
       newDomain: '',
       domainError: '' as string,
       headers: [
-        { text: 'Name', value: 'name', sortable: true },
-        { text: 'Date Range', value: 'time_range', sortable: false },
-        { text: 'Status', value: 'status', sortable: false },
-        { text: 'Actions', value: 'actions', sortable: false, align: 'right' }
+        { title: 'Name', key: 'name', sortable: true },
+        { title: 'Date Range', key: 'time_range', sortable: false },
+        { title: 'Status', key: 'status', sortable: false },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
     }
   },
@@ -257,7 +242,6 @@ export default Vue.extend({
       return 'grey'
     },
     selectEvent(event: EventInfo) {
-      // @ts-expect-error inject
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push(`/event/${event.id}/dashboard`)
     },
@@ -282,10 +266,8 @@ export default Vue.extend({
       if (!this.deletingEvent) return
       await api.deleteEvent(this.deletingEvent.id)
       // If we deleted the selected event, clear selection and go back to landing page
-      // @ts-expect-error inject
       const currentId = (this.getSelectedEventId as () => number | null)()
       if (currentId === this.deletingEvent.id) {
-        // @ts-expect-error inject
         ;(this.setSelectedEventId as (id: number | null) => void)(null)
         this.deletingEvent = null
         this.$router.push('/')

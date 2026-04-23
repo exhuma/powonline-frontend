@@ -13,14 +13,18 @@
 
       <!-- Color picker (admin only) -->
       <v-list-item-action v-if="hasRole('admin')">
-        <swatches
-          @input="setRouteColor"
-          colors="text-advanced"
-          v-model="route.color"
-          popover-to="left"
-          shapes="circles"
-          swatch-size="30"
-        />
+        <v-menu v-model="colorPickerOpen" :close-on-content-click="false">
+          <template #activator="{ props: menuProps }">
+            <v-btn icon v-bind="menuProps" :style="'color: ' + routeColor">
+              <v-icon>mdi-palette</v-icon>
+            </v-btn>
+          </template>
+          <v-color-picker
+            :model-value="route.color"
+            @update:model-value="setRouteColor"
+            mode="hex"
+          />
+        </v-menu>
       </v-list-item-action>
 
       <!-- Expand / collapse toggle (admin only) -->
@@ -41,16 +45,20 @@
           :actionArgument="route.name"
           @confirmed="deleteRoute"
         >
-          <span slot="title"
-            >Do you want to delete the route "{{ route.name }}"?</span
+          <template #title
+            ><span
+              >Do you want to delete the route "{{ route.name }}"?</span
+            ></template
           >
-          <div slot="text">
-            <p>
-              This will delete the route with the name "{{ route.name }}" and
-              all related information!
-            </p>
-            <p>Are you sure?</p>
-          </div>
+          <template #text>
+            <div>
+              <p>
+                This will delete the route with the name "{{ route.name }}" and
+                all related information!
+              </p>
+              <p>Are you sure?</p>
+            </div>
+          </template>
         </confirmation-dialog>
       </v-list-item-action>
     </v-list-item>
@@ -74,16 +82,14 @@
 </template>
 
 <script lang="ts">
-import Swatches from 'vue-swatches'
-import 'vue-swatches/dist/vue-swatches.min.css'
 import RouteAssignments from '@/components/forms/RouteAssignments.vue'
-import Vue from 'vue'
-import { api } from '@/main'
+import { defineComponent } from 'vue'
 import type { Session } from '@/App.vue'
+import { api } from '@/main'
 
-const RouteBlock = Vue.extend({
+const RouteBlock = defineComponent({
   name: 'route-block',
-  components: { Swatches, RouteAssignments },
+  components: { RouteAssignments },
   inject: ['session', 'getSelectedEventId'],
   props: {
     route: {
@@ -93,7 +99,8 @@ const RouteBlock = Vue.extend({
   },
   data() {
     return {
-      expanded: false
+      expanded: false,
+      colorPickerOpen: false
     }
   },
   computed: {
@@ -103,7 +110,6 @@ const RouteBlock = Vue.extend({
   },
   methods: {
     async setRouteColor(newColor: string) {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {
@@ -113,7 +119,6 @@ const RouteBlock = Vue.extend({
       }
     },
     async deleteRoute(routeName: string) {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {
@@ -124,7 +129,6 @@ const RouteBlock = Vue.extend({
       }
     },
     hasRole(roleName: string): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return session.roles.includes(roleName)
     }

@@ -17,16 +17,18 @@
         :actionArgument="team.name"
         @confirmed="deleteTeam"
       >
-        <span slot="title"
-          >Do you want to delete the team "{{ team.name }}"?</span
+        <template #title
+          >Do you want to delete the team "{{ team.name }}"?</template
         >
-        <div slot="text">
-          <p>
-            this will delete the team with the name "{{ team.name }}" and all
-            related information!
-          </p>
-          <p>Are you sure?</p>
-        </div>
+        <template #text>
+          <div>
+            <p>
+              this will delete the team with the name "{{ team.name }}" and all
+              related information!
+            </p>
+            <p>Are you sure?</p>
+          </div>
+        </template>
       </confirmation-dialog>
     </v-list-item-action>
   </v-list-item>
@@ -34,13 +36,13 @@
 
 <script lang="ts">
 import model from '@/model'
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
 import type { Session } from '@/App.vue'
 
-const TeamBlock = Vue.extend({
+const TeamBlock = defineComponent({
   name: 'team-block',
   inject: ['session', 'getSelectedEventId'],
   props: {
@@ -74,7 +76,6 @@ const TeamBlock = Vue.extend({
 
   methods: {
     hasRole(roleName: string): boolean {
-      // @ts-expect-error inject
       const session = this.session as Session
       return session.roles.includes(roleName)
     },
@@ -82,7 +83,6 @@ const TeamBlock = Vue.extend({
       this.$emit('openEditDialog')
     },
     async deleteTeam(teamName: string) {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {

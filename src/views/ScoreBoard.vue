@@ -4,11 +4,11 @@
       <v-list-item v-for="row in leaderboard" :key="row[2]">
         <v-list-item-content>
           <v-container>
-            <v-layout row :class="row[3]">
-              <v-flex xs1>{{ row[0] }}</v-flex>
-              <v-flex xs8>{{ row[2] }}</v-flex>
-              <v-flex xs3 class="text-right">{{ row[1] }} points</v-flex>
-            </v-layout>
+            <v-row :class="row[3]">
+              <v-col cols="1">{{ row[0] }}</v-col>
+              <v-col cols="8">{{ row[2] }}</v-col>
+              <v-col cols="3" class="text-right">{{ row[1] }} points</v-col>
+            </v-row>
           </v-container>
         </v-list-item-content>
       </v-list-item>
@@ -24,13 +24,13 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent } from 'vue'
 import { api } from '@/main'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { Team } from '@/remote/model/team'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Scoreboard',
   inject: ['getSelectedEventId'],
   data() {
@@ -47,12 +47,11 @@ export default Vue.extend({
       this.refresh()
     }, 15000)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.intervalId !== null) clearInterval(this.intervalId)
   },
   methods: {
     async refresh() {
-      // @ts-expect-error inject
       const eventId = (this.getSelectedEventId as () => number | null)()
       if (!eventId) return
       try {

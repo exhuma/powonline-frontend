@@ -5,8 +5,8 @@
 <script lang="ts">
 import util from '@/util'
 
-import Vue from 'vue'
-const StateIcon = Vue.extend({
+import { defineComponent } from 'vue'
+const StateIcon = defineComponent({
   name: 'state-icon',
   props: ['state'],
   computed: {

@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import RouteList from '@/views/RouteList.vue'
 import StationDashboard from '@/views/StationDashboard.vue'
 import ScoreBoard from '@/views/ScoreBoard.vue'
@@ -23,8 +22,6 @@ import AuthCallback from '@/views/AuthCallback.vue'
 import EventLayout from '@/views/EventLayout.vue'
 import { pinnedEvent } from '@/pinnedEvent'
 
-Vue.use(VueRouter)
-
 /**
  * Event-scoped child route definitions shared between the standard
  * `/event/:eventId/...` tree and the domain-pinned `/.../` tree.
@@ -45,9 +42,8 @@ const eventChildren = [
   { path: 'slideshow', component: Slideshow }
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: import.meta.env.VITE_BASE_URL,
+const router = createRouter({
+  history: createWebHistory(import.meta.env.VITE_BASE_URL),
   routes: [
     // ── Non-event-scoped routes ──────────────────────────────────────────
     {

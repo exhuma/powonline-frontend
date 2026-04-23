@@ -4,8 +4,8 @@
 
 <script lang="ts">
 import util from '@/util'
-import Vue from 'vue'
-const MiniStatus = Vue.extend({
+import { defineComponent } from 'vue'
+const MiniStatus = defineComponent({
   name: 'mini-status',
   props: {
     team: {

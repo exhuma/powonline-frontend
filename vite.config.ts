@@ -3,8 +3,8 @@ import { fileURLToPath, URL } from 'node:url'
 import path from 'path'
 
 import { defineConfig } from 'vite'
-import legacy from '@vitejs/plugin-legacy'
-import vue2 from '@vitejs/plugin-vue2'
+import vue from '@vitejs/plugin-vue'
+import vuetify from 'vite-plugin-vuetify'
 import MdContainer from 'markdown-it-container'
 import MarkdownIt from 'markdown-it'
 import mdPlugin from 'vite-plugin-markdown'
@@ -54,11 +54,8 @@ export default defineConfig({
     sourcemap: true
   },
   plugins: [
-    vue2(),
-    legacy({
-      targets: ['ie >= 11'],
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime']
-    }),
+    vue(),
+    vuetify({ autoImport: true }),
     writeVersionPlugin(),
     mdPlugin({
       mode: [Mode.HTML],

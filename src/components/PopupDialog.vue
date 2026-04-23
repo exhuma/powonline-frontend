@@ -16,7 +16,7 @@
       </v-card-text>
       <v-card-actions v-show="!customActionButtons">
         <v-spacer></v-spacer>
-        <v-btn text @click="dismiss">Cancel</v-btn>
+        <v-btn variant="text" @click="dismiss">Cancel</v-btn>
         <v-btn @click="confirm">{{ editMode === true ? 'Save' : 'Add' }}</v-btn>
       </v-card-actions>
     </v-card>
@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-const PopupDialog = Vue.extend({
+import { defineComponent } from 'vue'
+const PopupDialog = defineComponent({
   name: 'popup-dialog',
   props: ['title', 'dialogVisible', 'customActionButtons', 'editMode'],
   methods: {
