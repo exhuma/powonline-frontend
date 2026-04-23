@@ -43,7 +43,7 @@
                     <v-icon>mdi-pencil</v-icon>
                   </v-btn>
                   <v-btn
-                    v-if="hasRole(['station_manager']) || canOpenAnyDashboard"
+                    v-if="canManageStation(item.name)"
                     icon
                     size="small"
                     variant="text"
@@ -152,6 +152,8 @@ export default defineComponent({
     return {
       loading: false,
       stations: [] as Station[],
+      /** Names of stations assigned to the current user for the selected event */
+      myStations: new Set<string>(),
       showStationDialog: false,
       showDeleteDialog: false,
       errorDialog: false,
@@ -188,12 +190,39 @@ export default defineComponent({
 
   async mounted() {
     await this.fetchStations()
+    await this.fetchMyStations()
   },
 
   methods: {
     hasRole(roleNames: string[]): boolean {
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
+    },
+    /**
+     * Returns true when the current user may open the dashboard for the given
+     * station.  A user can manage a station when either:
+     *   - they have the 'manage-all-stations' permission (canOpenAnyDashboard), or
+     *   - they have the 'station_manager' role AND the station is assigned to them
+     *     for the currently selected event.
+     */
+    canManageStation(stationName: string): boolean {
+      if (this.canOpenAnyDashboard) return true
+      if (!this.hasRole(['station_manager'])) return false
+      return this.myStations.has(stationName)
+    },
+    async fetchMyStations() {
+      const eventId = (this as any).getSelectedEventId()
+      const session = this.session as Session
+      const userName = session.userName
+      if (!userName || !eventId) return
+      try {
+        const items = await api.fetchUserStations(userName, eventId)
+        this.myStations = new Set(
+          items.filter(([, active]) => active).map(([name]) => name)
+        )
+      } catch (e) {
+        console.error('Failed to fetch user station assignments', e)
+      }
     },
     async fetchStations() {
       const eventId = (this as any).getSelectedEventId()

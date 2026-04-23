@@ -394,11 +394,13 @@ export default defineComponent({
         })
         return
       }
+      const eventId = this.selectedEvent.id
       await Promise.all(
         this.users.map(async (u) => {
           try {
             const items: [string, boolean][] = await api.fetchUserStations(
-              u.name
+              u.name,
+              eventId
             )
             const stationSet = new Set(
               items.filter(([, active]) => active).map(([name]) => name)
@@ -456,11 +458,12 @@ export default defineComponent({
       this.userStations[userName] = hasStation
         ? current.filter((s) => s !== stationName)
         : [...current, stationName]
+      const eventId = this.selectedEvent?.id
       try {
         if (hasStation) {
-          await api.removeStationFromUser(userName, stationName)
+          await api.removeStationFromUser(userName, stationName, eventId)
         } else {
-          await api.addStationToUser(userName, stationName)
+          await api.addStationToUser(userName, stationName, eventId)
         }
       } catch (e) {
         console.error('Failed to toggle station', e)
