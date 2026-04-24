@@ -68,46 +68,20 @@
 
             <h2>Cookies</h2>
             <p>
-              This Service uses <strong>strictly necessary</strong> HttpOnly
-              cookies only. All cookies are required for authentication; the
-              Service cannot function without them. Because no non-essential
+              This Service uses <strong>strictly necessary</strong> cookies
+              only. All cookies are required for authentication and the Service
+              cannot function without them. The cookies are set by the server,
+              are not accessible to page scripts, and are automatically removed
+              when you log out or your session expires. Because no non-essential
               cookies are set, no consent banner is displayed.
             </p>
-            <v-table density="compact">
-              <thead>
-                <tr>
-                  <th>Cookie</th>
-                  <th>Purpose</th>
-                  <th>Lifetime</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>access_token</code></td>
-                  <td>
-                    Signed JWT authenticating your session. Read by the server
-                    on every request; never accessible to JavaScript.
-                  </td>
-                  <td>15 minutes</td>
-                </tr>
-                <tr>
-                  <td><code>refresh_token</code></td>
-                  <td>
-                    Long-lived JWT used solely to issue a new access token
-                    without requiring you to log in again.
-                  </td>
-                  <td>7 days</td>
-                </tr>
-                <tr>
-                  <td><code>pkce_state</code></td>
-                  <td>
-                    Transient PKCE state carried across the OAuth redirect
-                    round-trip. Deleted immediately after use.
-                  </td>
-                  <td>10 minutes</td>
-                </tr>
-              </tbody>
-            </v-table>
+            <p>
+              Three short-lived authentication cookies are used: one carries
+              your active session credential, one allows the session to be
+              renewed without requiring you to log in again, and one protects
+              the OAuth login flow against cross-site request forgery. All three
+              are cleared on logout or account deletion.
+            </p>
 
             <h2>Use of Data</h2>
             <ul>
@@ -277,45 +251,22 @@
             <h2>Cookies</h2>
             <p>
               Ce Service utilise uniquement des cookies
-              <strong>strictement nécessaires</strong> de type HttpOnly. Aucune
-              bannière de consentement n'est affichée car aucun cookie non
-              essentiel n'est déposé.
+              <strong>strictement nécessaires</strong>. Tous les cookies sont
+              requis pour l'authentification&nbsp;; le Service ne peut pas
+              fonctionner sans eux. Les cookies sont déposés par le serveur, ne
+              sont pas accessibles aux scripts de la page et sont
+              automatiquement supprimés à la déconnexion ou à l'expiration de la
+              session. Aucune bannière de consentement n'est affichée car aucun
+              cookie non essentiel n'est utilisé.
             </p>
-            <v-table density="compact">
-              <thead>
-                <tr>
-                  <th>Cookie</th>
-                  <th>Finalité</th>
-                  <th>Durée</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>access_token</code></td>
-                  <td>
-                    JWT signé authentifiant votre session. Lu par le serveur à
-                    chaque requête&nbsp;; inaccessible au JavaScript.
-                  </td>
-                  <td>15 minutes</td>
-                </tr>
-                <tr>
-                  <td><code>refresh_token</code></td>
-                  <td>
-                    JWT longue durée utilisé uniquement pour émettre un nouveau
-                    jeton d'accès sans reconnexion.
-                  </td>
-                  <td>7 jours</td>
-                </tr>
-                <tr>
-                  <td><code>pkce_state</code></td>
-                  <td>
-                    État PKCE transitoire transmis lors de la redirection OAuth.
-                    Supprimé immédiatement après utilisation.
-                  </td>
-                  <td>10 minutes</td>
-                </tr>
-              </tbody>
-            </v-table>
+            <p>
+              Trois cookies d'authentification à courte durée de vie sont
+              utilisés&nbsp;: l'un transporte votre identifiant de session
+              actif, l'un permet le renouvellement de session sans nouvelle
+              connexion, et l'un protège le flux de connexion OAuth contre les
+              attaques de type CSRF. Les trois sont supprimés à la déconnexion
+              ou lors de la suppression du compte.
+            </p>
 
             <h2>Utilisation des données</h2>
             <ul>
@@ -489,46 +440,21 @@
             <h2>Cookies</h2>
             <p>
               Dieser Dienst verwendet ausschließlich
-              <strong>technisch notwendige</strong> HttpOnly-Cookies. Da keine
-              nicht notwendigen Cookies gesetzt werden, wird kein
+              <strong>technisch notwendige</strong> Cookies. Alle Cookies sind
+              für die Authentifizierung erforderlich&nbsp;– ohne sie ist der
+              Dienst nicht nutzbar. Die Cookies werden vom Server gesetzt, sind
+              für Seitenscripts nicht zugänglich und werden bei der Abmeldung
+              oder nach Sitzungsablauf automatisch entfernt. Da keine nicht
+              notwendigen Cookies gesetzt werden, wird kein
               Cookie-Einwilligungsbanner angezeigt.
             </p>
-            <v-table density="compact">
-              <thead>
-                <tr>
-                  <th>Cookie</th>
-                  <th>Zweck</th>
-                  <th>Lebensdauer</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>access_token</code></td>
-                  <td>
-                    Signiertes JWT zur Sitzungsauthentifizierung. Wird vom
-                    Server bei jeder Anfrage gelesen; für JavaScript nicht
-                    zugänglich.
-                  </td>
-                  <td>15 Minuten</td>
-                </tr>
-                <tr>
-                  <td><code>refresh_token</code></td>
-                  <td>
-                    Langlebiges JWT, das ausschließlich zum Ausstellen eines
-                    neuen Zugriffstokens ohne erneute Anmeldung dient.
-                  </td>
-                  <td>7 Tage</td>
-                </tr>
-                <tr>
-                  <td><code>pkce_state</code></td>
-                  <td>
-                    Transienter PKCE-Zustand für den OAuth-Redirect. Wird
-                    unmittelbar nach Verwendung gelöscht.
-                  </td>
-                  <td>10 Minuten</td>
-                </tr>
-              </tbody>
-            </v-table>
+            <p>
+              Es werden drei kurzlebige Authentifizierungs-Cookies verwendet:
+              eines überträgt Ihre aktive Sitzungskennung, eines ermöglicht die
+              Sitzungserneuerung ohne erneute Anmeldung, und eines schützt den
+              OAuth-Anmeldeablauf vor CSRF-Angriffen. Alle drei werden bei der
+              Abmeldung oder Kontolöschung gelöscht.
+            </p>
 
             <h2>Datennutzung</h2>
             <ul>
