@@ -1,11 +1,13 @@
 <template>
-  <v-tabs v-model="selectedLanguage" grow slider-color="yellow">
-    <v-tab value="en" ripple>en</v-tab>
-    <v-tab value="fr" ripple>fr</v-tab>
-    <v-tab value="de" ripple>de</v-tab>
-    <v-window v-model="selectedLanguage">
+  <v-sheet>
+    <v-tabs v-model="selectedLanguage" grow slider-color="yellow">
+      <v-tab value="en" ripple>en</v-tab>
+      <v-tab value="fr" ripple>fr</v-tab>
+      <v-tab value="de" ripple>de</v-tab>
+    </v-tabs>
+    <v-tabs-window v-model="selectedLanguage">
       <!-- ═══════════════════════════════════════════════════════════ ENGLISH -->
-      <v-window-item value="en">
+      <v-tabs-window-item value="en">
         <v-card flat>
           <v-card-text class="text-xs-left">
             <h1>Privacy Policy</h1>
@@ -181,10 +183,10 @@
             </p>
           </v-card-text>
         </v-card>
-      </v-window-item>
+      </v-tabs-window-item>
 
       <!-- ══════════════════════════════════════════════════════════ FRANÇAIS -->
-      <v-window-item value="fr">
+      <v-tabs-window-item value="fr">
         <v-card flat>
           <v-card-text class="text-xs-left">
             <h1>Politique de Confidentialité</h1>
@@ -372,10 +374,10 @@
             </p>
           </v-card-text>
         </v-card>
-      </v-window-item>
+      </v-tabs-window-item>
 
       <!-- ══════════════════════════════════════════════════════════ DEUTSCH -->
-      <v-window-item value="de">
+      <v-tabs-window-item value="de">
         <v-card flat>
           <v-card-text class="text-xs-left">
             <h1>Datenschutzerklärung</h1>
@@ -560,9 +562,9 @@
             </p>
           </v-card-text>
         </v-card>
-      </v-window-item>
-    </v-window>
-  </v-tabs>
+      </v-tabs-window-item>
+    </v-tabs-window>
+  </v-sheet>
 </template>
 
 <script lang="ts">
