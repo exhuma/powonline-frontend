@@ -13,6 +13,8 @@ import Uploads from '@/views/Uploads.vue'
 import Gallery from '@/views/Gallery.vue'
 import LiveImage from '@/views/LiveImage.vue'
 import PrivacyPolicy from '@/views/PrivacyPolicy.vue'
+import TermsOfService from '@/views/TermsOfService.vue'
+import AccountSettings from '@/views/AccountSettings.vue'
 import AuditLog from '@/views/AuditLog.vue'
 import Manual from '@/views/Manual.vue'
 import Slideshow from '@/views/Slideshow.vue'
@@ -77,6 +79,14 @@ const router = createRouter({
     {
       path: '/privacy-policy',
       component: PrivacyPolicy
+    },
+    {
+      path: '/terms',
+      component: TermsOfService
+    },
+    {
+      path: '/account',
+      component: AccountSettings
     },
 
     // ── Event-scoped routes (/event/:eventId/...) ────────────────────────

@@ -136,6 +136,8 @@
               <v-footer class="pa-3 ma-0">
                 <v-spacer></v-spacer>
                 <router-link to="/privacy-policy">Privacy Policy</router-link>
+                &nbsp;&middot;&nbsp;
+                <router-link to="/terms">Terms of Service</router-link>
               </v-footer>
             </v-card>
           </v-dialog>
@@ -520,6 +522,13 @@ const App = defineComponent({
         to: '/manual',
         icon: 'mdi-book'
       })
+      if (this.tokenIsAvailable) {
+        output.push({
+          label: 'Account',
+          to: '/account',
+          icon: 'mdi-account-cog'
+        })
+      }
       return output
     },
     tokenIsAvailable() {

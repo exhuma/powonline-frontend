@@ -687,6 +687,10 @@ export class ApiClient {
     await this._json(`${this.baseUrl}/user/${userName}`, { method: 'DELETE' })
   }
 
+  async deleteMyAccount(): Promise<void> {
+    await this._json(`${this.baseUrl}/user/me`, { method: 'DELETE' })
+  }
+
   async fetchUserRoles(userName: string): Promise<string[]> {
     return this._json(`${this.baseUrl}/user/${userName}/roles`)
   }
