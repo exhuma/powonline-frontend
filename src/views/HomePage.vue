@@ -30,16 +30,13 @@
                   There are no upcoming events you can access.
                 </p>
                 <v-btn
-                  v-if="isEventAdmin"
+                  v-if="isLoggedIn"
                   color="primary"
                   @click="showCreateDialog = true"
                 >
                   <v-icon start>mdi-plus</v-icon>
                   Create New Event
                 </v-btn>
-                <p v-else class="text-body-2">
-                  Please contact an administrator to set up an event.
-                </p>
               </div>
 
               <v-list v-else lines="two">
@@ -68,7 +65,7 @@
               </v-list>
             </v-card-text>
 
-            <v-card-actions v-if="isEventAdmin && futureEvents.length > 0">
+            <v-card-actions v-if="isLoggedIn && futureEvents.length > 0">
               <v-spacer></v-spacer>
               <v-btn
                 variant="text"
@@ -121,9 +118,8 @@ export default defineComponent({
         return end.isAfter(now) || start.isAfter(now)
       })
     },
-    isEventAdmin(): boolean {
-      const roles: string[] = (this.session as Session).roles || []
-      return roles.includes('admin_events') || roles.includes('admin')
+    isLoggedIn(): boolean {
+      return Boolean((this.session as Session).userName)
     }
   },
   async mounted() {
