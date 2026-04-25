@@ -1,0 +1,26 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Node caches and installed modules (installed fresh inside the build stage)
+node_modules
+
+# Local build output (produced inside the build stage)
+dist
+
+# Dev tooling configs (not needed in the image)
+.vscode
+.devcontainer
+*.local
+
+# Test artefacts
+coverage/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Environment files (secrets must not leak into the image)
+.env
+.env.*
