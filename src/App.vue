@@ -192,8 +192,6 @@ import {
 } from '@/composables/useRealtimeStream'
 import type { AuthProvider, EventInfo } from '@/api'
 
-declare const __APP_VERSION__: string
-
 export type Session = {
   userName: string
   roles: string[]

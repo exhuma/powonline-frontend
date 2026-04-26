@@ -13,6 +13,10 @@ COPY package.json package-lock.json ./
 RUN npm clean-install
 
 # Copy the rest of the source and build the production bundle.
+# Pass the Git commit SHA at build time so it can be inlined into the bundle:
+#   docker build --build-arg COMMIT_SHA=$(git rev-parse HEAD) .
+ARG COMMIT_SHA=unknown
+ENV VITE_COMMIT_SHA=${COMMIT_SHA}
 COPY . .
 RUN npm run build-only
 

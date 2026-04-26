@@ -14,8 +14,13 @@ interface ImportMetaEnv {
   readonly VITE_SITE_URL: string
   /** Data-controller contact e-mail shown in legal documents. */
   readonly VITE_CONTACT_EMAIL: string
+  /** Git commit SHA baked in at Docker build time (VITE_COMMIT_SHA). */
+  readonly VITE_COMMIT_SHA?: string
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare const __APP_VERSION__: string
+declare const __COMMIT_SHA__: string

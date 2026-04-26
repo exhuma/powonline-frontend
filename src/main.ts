@@ -64,6 +64,7 @@ export { pinnedEvent }
 // ---------------------------------------------------------------------------
 // Boot sequence: load runtime config → resolve domain pin → mount Vue
 // ---------------------------------------------------------------------------
+console.info(`[powonline] version ${__APP_VERSION__}  commit ${__COMMIT_SHA__}`)
 loadConfig().then(({ backendUrl }) => {
   api = new ApiClient(backendUrl)
 
