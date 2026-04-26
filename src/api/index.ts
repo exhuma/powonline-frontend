@@ -34,6 +34,8 @@ export type TimeRange = {
 export type EventInfo = {
   id: number
   name: string
+  title?: string | null
+  has_favicon?: boolean
   time_range: TimeRange
   inserted?: string | null
   updated?: string | null
@@ -205,6 +207,7 @@ export class ApiClient {
 
   async createEvent(event: {
     name: string
+    title?: string | null
     time_range: TimeRange
   }): Promise<EventInfo> {
     return this._json(`${this.baseUrl}/events`, {
@@ -215,7 +218,7 @@ export class ApiClient {
 
   async updateEvent(
     eventId: number,
-    event: { name?: string; time_range?: TimeRange }
+    event: { name?: string; title?: string | null; time_range?: TimeRange }
   ): Promise<EventInfo> {
     return this._json(`${this.baseUrl}/events/${eventId}`, {
       method: 'PUT',
@@ -294,6 +297,37 @@ export class ApiClient {
       `${this.baseUrl}/events/${eventId}/domains/${encodeURIComponent(domain)}`,
       { method: 'DELETE' }
     )
+  }
+
+  // -------------------------------------------------------------------------
+  // Event favicon
+  // -------------------------------------------------------------------------
+
+  /**
+   * Returns the URL to fetch the favicon for an event.
+   * Suitable for use in a <link rel="icon"> href.
+   */
+  eventFaviconUrl(eventId: number): string {
+    return `${this.baseUrl}/events/${eventId}/favicon`
+  }
+
+  async uploadEventFavicon(eventId: number, file: File): Promise<void> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await this._fetch(
+      `${this.baseUrl}/events/${eventId}/favicon`,
+      { method: 'POST', body: formData }
+    )
+    if (!response.ok) {
+      const text = await response.text().catch(() => response.statusText)
+      throw new Error(text)
+    }
+  }
+
+  async deleteEventFavicon(eventId: number): Promise<void> {
+    await this._json(`${this.baseUrl}/events/${eventId}/favicon`, {
+      method: 'DELETE'
+    })
   }
 
   // -------------------------------------------------------------------------

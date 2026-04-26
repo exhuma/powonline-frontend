@@ -73,7 +73,26 @@ loadConfig().then(({ backendUrl }) => {
   api
     .fetchEventByDomain(window.location.hostname)
     .then((event) => {
-      if (event) pinnedEvent.value = event
+      if (event) {
+        pinnedEvent.value = event
+
+        // Apply site title
+        if (event.title) {
+          document.title = event.title
+        }
+
+        // Apply favicon
+        if (event.has_favicon) {
+          let link =
+            document.querySelector<HTMLLinkElement>("link[rel~='icon']")
+          if (!link) {
+            link = document.createElement('link')
+            link.rel = 'icon'
+            document.head.appendChild(link)
+          }
+          link.href = api.eventFaviconUrl(event.id)
+        }
+      }
     })
     .catch(() => {
       // Non-fatal: if the lookup fails we just run in normal multi-event mode.
