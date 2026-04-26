@@ -368,7 +368,7 @@ const App = defineComponent({
     },
     loginSocial(provider: string) {
       this.loginDialogVisible = false
-      startSocialLogin(provider)
+      startSocialLogin(provider, api.baseUrl)
     },
     async loginUser() {
       this.loginDialogVisible = false
