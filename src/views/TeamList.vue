@@ -3,71 +3,24 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-account-group</v-icon>
-            <v-toolbar-title>Team Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-text-field
-              v-model="teamFilter"
-              append-inner-icon="mdi-magnify"
-              clearable
-              label="Filter teams"
-              hide-details
-              density="compact"
-              style="max-width: 250px"
-              class="mr-2"
-              @click:clear="teamFilter = ''"
-            ></v-text-field>
-            <v-btn
-              v-if="hasRole(['admin'])"
-              color="primary"
-              @click="openCreateDialog"
-            >
-              <v-icon start>mdi-plus</v-icon>
-              New Team
-            </v-btn>
-          </v-toolbar>
-          <v-data-table
-            :headers="visibleHeaders"
-            :items="filteredTeams"
-            :items-per-page="15"
+          <TeamTable
+            v-if="!$vuetify.display.smAndDown"
+            :teams="teams"
             :loading="loading"
-            class="elevation-0"
-          >
-            <template v-slot:item.route_name="{ item }">
-              <v-chip v-if="item.route_name" size="small">{{
-                item.route_name
-              }}</v-chip>
-            </template>
-            <template v-slot:item.status="{ item }">
-              <v-chip size="small" :color="teamStatusColor(item)">
-                {{ teamStatusLabel(item) }}
-              </v-chip>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <template #pinned>
-                  <v-btn
-                    v-if="hasRole(['admin'])"
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openEditDialog(item)"
-                    title="Edit team"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
-                <v-list-item
-                  v-if="hasRole(['admin'])"
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  class="text-error"
-                  @click="confirmDelete(item)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            :can-edit="hasRole(['admin'])"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+          />
+          <TeamCards
+            v-else
+            :teams="teams"
+            :loading="loading"
+            :can-edit="hasRole(['admin'])"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -115,17 +68,18 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { Session } from '@/App.vue'
-import { api, pinnedEvent } from '@/main'
+import { api } from '@/main'
 import model from '@/model'
 import type { AnyTeam, Team } from '@/remote/model/team'
 import { isFullTeam } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
-import RowActions from '@/components/RowActions.vue'
+import TeamTable from '@/components/management/desktop/TeamTable.vue'
+import TeamCards from '@/components/management/mobile/TeamCards.vue'
 import TeamForm from '@/components/forms/TeamForm.vue'
 
 export default defineComponent({
   name: 'TeamList',
-  components: { RowActions, TeamForm },
+  components: { TeamTable, TeamCards, TeamForm },
   inject: ['getSelectedEventId', 'session'],
 
   data() {
@@ -133,47 +87,11 @@ export default defineComponent({
       loading: false,
       teams: [] as AnyTeam[],
       routes: [] as Route[],
-      teamFilter: '',
       showTeamDialog: false,
       showDeleteDialog: false,
       editingTeam: null as Team | null,
       deletingTeam: null as AnyTeam | null,
-      teamForm: model.team.makeEmpty() as any,
-      headers: [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Route', key: 'route_name', sortable: true },
-        { title: 'Status', key: 'status', sortable: false },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-      ]
-    }
-  },
-
-  computed: {
-    hasContactData(): boolean {
-      return this.teams.some((t) => isFullTeam(t))
-    },
-    visibleHeaders(): object[] {
-      if (this.hasContactData) {
-        return [
-          { title: 'Name', key: 'name', sortable: true },
-          { title: 'Route', key: 'route_name', sortable: true },
-          { title: 'Contact', key: 'contact', sortable: true },
-          { title: 'Email', key: 'email', sortable: true },
-          { title: 'Status', key: 'status', sortable: false },
-          { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-        ]
-      }
-      return (this as any).headers
-    },
-    filteredTeams(): AnyTeam[] {
-      if (!this.teamFilter || this.teamFilter.length < 3) return this.teams
-      const fltr = this.teamFilter.toLowerCase()
-      return this.teams.filter((t) => {
-        const contactMatch = isFullTeam(t)
-          ? (t.contact || '').toLowerCase().includes(fltr)
-          : false
-        return t.name.toLowerCase().includes(fltr) || contactMatch
-      })
+      teamForm: model.team.makeEmpty() as any
     }
   },
 
@@ -182,25 +100,9 @@ export default defineComponent({
   },
 
   methods: {
-    teamPanelPath(teamName: string): string {
-      if (pinnedEvent.value) return `/team/${teamName}`
-      return `/event/${this.$route.params.eventId}/team/${teamName}`
-    },
     hasRole(roleNames: string[]): boolean {
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
-    },
-    teamStatusLabel(team: Team): string {
-      if (team.cancelled) return 'Cancelled'
-      if (team.completed) return 'Completed'
-      if (!team.accepted) return 'Pending'
-      return 'Active'
-    },
-    teamStatusColor(team: Team): string {
-      if (team.cancelled) return 'error'
-      if (team.completed) return 'success'
-      if (!team.accepted) return 'warning'
-      return 'primary'
     },
     async fetchData() {
       const eventId = (this as any).getSelectedEventId()

@@ -3,66 +3,31 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
-            <v-toolbar-title>Station Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-btn
-              v-if="hasRole(['admin'])"
-              color="primary"
-              @click="openCreateDialog"
-            >
-              <v-icon start>mdi-plus</v-icon>
-              New Station
-            </v-btn>
-          </v-toolbar>
-          <v-data-table
-            :headers="visibleHeaders"
-            :items="sortedStations"
-            :items-per-page="15"
+          <StationTable
+            v-if="!$vuetify.display.smAndDown"
+            :stations="sortedStations"
             :loading="loading"
-            class="elevation-0"
-          >
-            <template v-slot:item.is_start="{ item }">
-              <v-icon v-if="item.is_start" color="green">mdi-check</v-icon>
-            </template>
-            <template v-slot:item.is_end="{ item }">
-              <v-icon v-if="item.is_end" color="green">mdi-check</v-icon>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <template #pinned>
-                  <v-btn
-                    v-if="hasRole(['admin'])"
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openEditDialog(item)"
-                    title="Edit station"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-if="canManageStation(item.name)"
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openDashboard(item)"
-                    title="Open dashboard"
-                  >
-                    <v-icon>mdi-clipboard-text</v-icon>
-                  </v-btn>
-                </template>
-                <v-list-item
-                  v-if="hasRole(['admin'])"
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  class="text-error"
-                  @click="confirmDelete(item)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            :can-edit="hasRole(['admin'])"
+            :my-stations="myStations"
+            :can-open-any-dashboard="canOpenAnyDashboard"
+            :has-contact-data="hasContactData"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+            @open-dashboard="openDashboard"
+          />
+          <StationCards
+            v-else
+            :stations="sortedStations"
+            :loading="loading"
+            :can-edit="hasRole(['admin'])"
+            :my-stations="myStations"
+            :can-open-any-dashboard="canOpenAnyDashboard"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+            @open-dashboard="openDashboard"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -141,12 +106,13 @@ import { api } from '@/main'
 import model from '@/model'
 import type { AnyStation, Station } from '@/remote/model/station'
 import { isFullStation } from '@/remote/model/station'
-import RowActions from '@/components/RowActions.vue'
+import StationTable from '@/components/management/desktop/StationTable.vue'
+import StationCards from '@/components/management/mobile/StationCards.vue'
 import { hasPermission } from '@/permissions'
 
 export default defineComponent({
   name: 'StationList',
-  components: { RowActions },
+  components: { StationTable, StationCards },
   inject: ['getSelectedEventId', 'session'],
 
   data() {
@@ -161,14 +127,7 @@ export default defineComponent({
       errorText: '',
       editingStation: null as Station | null,
       deletingStation: null as AnyStation | null,
-      stationForm: model.station.makeEmpty() as any,
-      headers: [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Order', key: 'order', sortable: true },
-        { title: 'Departure', key: 'is_start', sortable: false },
-        { title: 'Arrival', key: 'is_end', sortable: false },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-      ]
+      stationForm: model.station.makeEmpty() as any
     }
   },
 
@@ -179,20 +138,6 @@ export default defineComponent({
     },
     hasContactData(): boolean {
       return this.stations.some((s) => isFullStation(s))
-    },
-    visibleHeaders(): object[] {
-      if (this.hasContactData) {
-        return [
-          { title: 'Name', key: 'name', sortable: true },
-          { title: 'Order', key: 'order', sortable: true },
-          { title: 'Contact', key: 'contact', sortable: true },
-          { title: 'Phone', key: 'phone', sortable: false },
-          { title: 'Departure', key: 'is_start', sortable: false },
-          { title: 'Arrival', key: 'is_end', sortable: false },
-          { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-        ]
-      }
-      return (this as any).headers
     },
     sortedStations(): AnyStation[] {
       return this.stations
@@ -213,18 +158,6 @@ export default defineComponent({
     hasRole(roleNames: string[]): boolean {
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
-    },
-    /**
-     * Returns true when the current user may open the dashboard for the given
-     * station.  A user can manage a station when either:
-     *   - they have the 'manage-all-stations' permission (canOpenAnyDashboard), or
-     *   - they have the 'station_manager' role AND the station is assigned to them
-     *     for the currently selected event.
-     */
-    canManageStation(stationName: string): boolean {
-      if (this.canOpenAnyDashboard) return true
-      if (!this.hasRole(['station_manager'])) return false
-      return this.myStations.has(stationName)
     },
     async fetchMyStations() {
       const eventId = (this as any).getSelectedEventId()

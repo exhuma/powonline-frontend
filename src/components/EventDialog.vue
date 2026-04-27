@@ -192,12 +192,19 @@ export default defineComponent({
       if (this.event) {
         this.form.name = this.event.name
         this.form.title = this.event.title ?? null
-        this.form.startDateTime = moment(this.event.time_range.start).format(
-          'YYYY-MM-DDTHH:mm:00'
-        )
-        this.form.endDateTime = moment(this.event.time_range.end).format(
-          'YYYY-MM-DDTHH:mm:00'
-        )
+        if (this.event.time_range) {
+          this.form.startDateTime = moment(this.event.time_range.start).format(
+            'YYYY-MM-DDTHH:mm:00'
+          )
+          this.form.endDateTime = moment(this.event.time_range.end).format(
+            'YYYY-MM-DDTHH:mm:00'
+          )
+        } else {
+          this.form.startDateTime = moment().format('YYYY-MM-DDTHH:mm:00')
+          this.form.endDateTime = moment()
+            .add(1, 'day')
+            .format('YYYY-MM-DDTHH:mm:00')
+        }
       } else {
         this.form.name = ''
         this.form.title = null

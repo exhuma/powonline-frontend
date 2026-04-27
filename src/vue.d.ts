@@ -5,3 +5,14 @@ declare module '*.md' {
   const html: string
   export default html
 }
+
+import type { ThemeInstance, DisplayInstance } from 'vuetify'
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $vuetify: {
+      display: DisplayInstance
+      theme: ThemeInstance
+    }
+  }
+}

@@ -36,17 +36,20 @@ import vuetify from './plugins/vuetify'
 // ---------------------------------------------------------------------------
 
 async function loadConfig(): Promise<{ backendUrl: string }> {
-  try {
+  if (import.meta.env.PROD) {
+    // In production, we expect the config file to be present.  If it's not
+    // found or fails to parse, it's a fatal error and we should let it throw.
     const res = await fetch('/config.json')
-    if (res.ok) {
-      return res.json()
+    if (!res.ok) {
+      throw new Error(
+        `Failed to load config.json: ${res.status} ${res.statusText}`
+      )
     }
-  } catch {
-    // ignore — use fallback below
-  }
-  // Dev fallback: honour the Vite env var if present
-  return {
-    backendUrl: import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8000'
+    return res.json()
+  } else {
+    return {
+      backendUrl: import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8000'
+    }
   }
 }
 

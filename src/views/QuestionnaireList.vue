@@ -3,77 +3,26 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-comment-question</v-icon>
-            <v-toolbar-title>Questionnaire Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-btn color="primary" @click="openCreateDialog">
-              <v-icon start>mdi-plus</v-icon>
-              New Questionnaire
-            </v-btn>
-          </v-toolbar>
-          <v-data-table
-            :headers="questionnaireHeaders"
-            :items="questionnaires"
-            :items-per-page="15"
+          <QuestionnaireTable
+            v-if="!$vuetify.display.smAndDown"
+            :questionnaires="questionnaires"
+            :stations="stations"
             :loading="loading"
-            :sort-by="[{ key: 'order' }, { key: 'name' }]"
-            class="elevation-0"
-          >
-            <template v-slot:item.station_name="{ item }">
-              <v-select
-                :items="[{ name: '-- None --' }, ...stations]"
-                :model-value="
-                  stations.find((s) => s.name === item.station_name) || {
-                    name: '-- None --'
-                  }
-                "
-                item-title="name"
-                item-value="name"
-                hide-details
-                variant="plain"
-                density="compact"
-                return-object
-                @update:model-value="stationUpdated($event, item)"
-              ></v-select>
-            </template>
-            <template v-slot:item.name="{ item }">
-              <v-text-field
-                v-model="item.name"
-                hide-details
-                variant="plain"
-                density="compact"
-                style="font-size: 90%"
-                @change="
-                  questionnaireUpdated(item, item.originalName || item.name)
-                "
-                @focus="item.originalName = item.name"
-              ></v-text-field>
-            </template>
-            <template v-slot:item.max_score="{ item }">
-              <v-text-field
-                v-model="item.max_score"
-                type="number"
-                hide-details
-                variant="plain"
-                density="compact"
-                @change="
-                  questionnaireUpdated(item, item.originalName || item.name)
-                "
-                @focus="item.originalName = item.name"
-              ></v-text-field>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <v-list-item
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  class="text-error"
-                  @click="confirmDelete(item)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            @open-create="openCreateDialog"
+            @open-delete="confirmDelete"
+            @station-updated="stationUpdated"
+            @questionnaire-updated="questionnaireUpdated"
+          />
+          <QuestionnaireCards
+            v-else
+            :questionnaires="questionnaires"
+            :stations="stations"
+            :loading="loading"
+            @open-create="openCreateDialog"
+            @open-delete="confirmDelete"
+            @station-updated="stationUpdated"
+            @questionnaire-updated="questionnaireUpdated"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -131,11 +80,12 @@ import model from '@/model'
 import type { Questionnaire } from '@/remote/model/questionnaire'
 import type { Station } from '@/remote/model/station'
 import EventBus from '@/plugins/eventBus'
-import RowActions from '@/components/RowActions.vue'
+import QuestionnaireTable from '@/components/management/desktop/QuestionnaireTable.vue'
+import QuestionnaireCards from '@/components/management/mobile/QuestionnaireCards.vue'
 
 export default defineComponent({
   name: 'QuestionnaireList',
-  components: { RowActions },
+  components: { QuestionnaireTable, QuestionnaireCards },
   inject: ['getSelectedEventId'],
 
   data() {
@@ -147,13 +97,7 @@ export default defineComponent({
       showCreateDialog: false,
       showDeleteDialog: false,
       newQuestionnaire: model.questionnaire.makeEmpty() as any,
-      deletingQuestionnaire: null as Questionnaire | null,
-      questionnaireHeaders: [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Max. Score', key: 'max_score', sortable: true },
-        { title: 'Station', key: 'station_name', sortable: true },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-      ]
+      deletingQuestionnaire: null as Questionnaire | null
     }
   },
 
@@ -216,7 +160,7 @@ export default defineComponent({
       this.deletingQuestionnaire = null
     },
     async stationUpdated(
-      station: Station | { name: '' },
+      station: Station | { name: string },
       questionnaire: Questionnaire
     ) {
       const eventId = (this as any).getSelectedEventId()
@@ -234,8 +178,7 @@ export default defineComponent({
             eventId
           )
         }
-        const updatedQuestionnaires = await api.fetchQuestionnaires(eventId)
-        this.questionnaires = updatedQuestionnaires
+        this.questionnaires = await api.fetchQuestionnaires(eventId)
       } catch (e) {
         console.error('Failed to update station assignment', e)
         EventBus.emit('snackRequested', {
