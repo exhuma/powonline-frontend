@@ -17,7 +17,7 @@
             </v-btn>
           </v-toolbar>
           <v-data-table
-            :headers="headers"
+            :headers="visibleHeaders"
             :items="sortedStations"
             :items-per-page="15"
             :loading="loading"
@@ -139,7 +139,8 @@ import { defineComponent } from 'vue'
 import type { Session } from '@/App.vue'
 import { api } from '@/main'
 import model from '@/model'
-import type { Station } from '@/remote/model/station'
+import type { AnyStation, Station } from '@/remote/model/station'
+import { isFullStation } from '@/remote/model/station'
 import RowActions from '@/components/RowActions.vue'
 import { hasPermission } from '@/permissions'
 
@@ -151,7 +152,7 @@ export default defineComponent({
   data() {
     return {
       loading: false,
-      stations: [] as Station[],
+      stations: [] as AnyStation[],
       /** Names of stations assigned to the current user for the selected event */
       myStations: new Set<string>(),
       showStationDialog: false,
@@ -159,13 +160,11 @@ export default defineComponent({
       errorDialog: false,
       errorText: '',
       editingStation: null as Station | null,
-      deletingStation: null as Station | null,
+      deletingStation: null as AnyStation | null,
       stationForm: model.station.makeEmpty() as any,
       headers: [
         { title: 'Name', key: 'name', sortable: true },
         { title: 'Order', key: 'order', sortable: true },
-        { title: 'Contact', key: 'contact', sortable: true },
-        { title: 'Phone', key: 'phone', sortable: false },
         { title: 'Departure', key: 'is_start', sortable: false },
         { title: 'Arrival', key: 'is_end', sortable: false },
         { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
@@ -178,7 +177,24 @@ export default defineComponent({
       const session = this.session as Session
       return hasPermission(session.roles, 'manage-all-stations')
     },
-    sortedStations(): Station[] {
+    hasContactData(): boolean {
+      return this.stations.some((s) => isFullStation(s))
+    },
+    visibleHeaders(): object[] {
+      if (this.hasContactData) {
+        return [
+          { title: 'Name', key: 'name', sortable: true },
+          { title: 'Order', key: 'order', sortable: true },
+          { title: 'Contact', key: 'contact', sortable: true },
+          { title: 'Phone', key: 'phone', sortable: false },
+          { title: 'Departure', key: 'is_start', sortable: false },
+          { title: 'Arrival', key: 'is_end', sortable: false },
+          { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+        ]
+      }
+      return (this as any).headers
+    },
+    sortedStations(): AnyStation[] {
       return this.stations
         .slice()
         .sort(
@@ -241,16 +257,17 @@ export default defineComponent({
       this.stationForm = model.station.makeEmpty()
       this.showStationDialog = true
     },
-    openEditDialog(station: Station) {
+    openEditDialog(station: AnyStation) {
+      if (!isFullStation(station)) return
       this.editingStation = station
       this.stationForm = { ...station }
       this.showStationDialog = true
     },
-    confirmDelete(station: Station) {
+    confirmDelete(station: AnyStation) {
       this.deletingStation = station
       this.showDeleteDialog = true
     },
-    openDashboard(station: Station) {
+    openDashboard(station: AnyStation) {
       const eventId = (this as any).getSelectedEventId()
       this.$router.push(`/event/${eventId}/station/${station.name}`)
     },

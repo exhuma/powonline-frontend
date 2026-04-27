@@ -28,7 +28,7 @@
             </v-btn>
           </v-toolbar>
           <v-data-table
-            :headers="headers"
+            :headers="visibleHeaders"
             :items="filteredTeams"
             :items-per-page="15"
             :loading="loading"
@@ -117,7 +117,8 @@ import { defineComponent } from 'vue'
 import type { Session } from '@/App.vue'
 import { api, pinnedEvent } from '@/main'
 import model from '@/model'
-import type { Team } from '@/remote/model/team'
+import type { AnyTeam, Team } from '@/remote/model/team'
+import { isFullTeam } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
 import RowActions from '@/components/RowActions.vue'
 import TeamForm from '@/components/forms/TeamForm.vue'
@@ -130,19 +131,17 @@ export default defineComponent({
   data() {
     return {
       loading: false,
-      teams: [] as Team[],
+      teams: [] as AnyTeam[],
       routes: [] as Route[],
       teamFilter: '',
       showTeamDialog: false,
       showDeleteDialog: false,
       editingTeam: null as Team | null,
-      deletingTeam: null as Team | null,
+      deletingTeam: null as AnyTeam | null,
       teamForm: model.team.makeEmpty() as any,
       headers: [
         { title: 'Name', key: 'name', sortable: true },
         { title: 'Route', key: 'route_name', sortable: true },
-        { title: 'Contact', key: 'contact', sortable: true },
-        { title: 'Email', key: 'email', sortable: true },
         { title: 'Status', key: 'status', sortable: false },
         { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
       ]
@@ -150,14 +149,30 @@ export default defineComponent({
   },
 
   computed: {
-    filteredTeams(): Team[] {
+    hasContactData(): boolean {
+      return this.teams.some((t) => isFullTeam(t))
+    },
+    visibleHeaders(): object[] {
+      if (this.hasContactData) {
+        return [
+          { title: 'Name', key: 'name', sortable: true },
+          { title: 'Route', key: 'route_name', sortable: true },
+          { title: 'Contact', key: 'contact', sortable: true },
+          { title: 'Email', key: 'email', sortable: true },
+          { title: 'Status', key: 'status', sortable: false },
+          { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+        ]
+      }
+      return (this as any).headers
+    },
+    filteredTeams(): AnyTeam[] {
       if (!this.teamFilter || this.teamFilter.length < 3) return this.teams
       const fltr = this.teamFilter.toLowerCase()
       return this.teams.filter((t) => {
-        return (
-          t.name.toLowerCase().includes(fltr) ||
-          (t.contact || '').toLowerCase().includes(fltr)
-        )
+        const contactMatch = isFullTeam(t)
+          ? (t.contact || '').toLowerCase().includes(fltr)
+          : false
+        return t.name.toLowerCase().includes(fltr) || contactMatch
       })
     }
   },
@@ -212,7 +227,8 @@ export default defineComponent({
       this.teamForm = newTeam
       this.showTeamDialog = true
     },
-    openEditDialog(team: Team) {
+    openEditDialog(team: AnyTeam) {
+      if (!isFullTeam(team)) return
       this.editingTeam = team
       this.teamForm = { ...team }
       this.showTeamDialog = true
@@ -220,7 +236,7 @@ export default defineComponent({
     onTeamFormUpdated(team: Team) {
       this.teamForm = team
     },
-    confirmDelete(team: Team) {
+    confirmDelete(team: AnyTeam) {
       this.deletingTeam = team
       this.showDeleteDialog = true
     },

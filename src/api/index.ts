@@ -12,9 +12,9 @@
 import moment from 'moment'
 import type { Moment } from 'moment'
 import type { Upload } from '@/remote/model/upload'
-import type { Station } from '@/remote/model/station'
+import type { AnyStation, Station } from '@/remote/model/station'
 import type { Questionnaire } from '@/remote/model/questionnaire'
-import type { Team } from '@/remote/model/team'
+import type { AnyTeam, Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
 import type { AssignmentMap } from '@/remote/model/assignmentMap'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
@@ -334,12 +334,12 @@ export class ApiClient {
   // Teams
   // -------------------------------------------------------------------------
 
-  async fetchTeams(eventId: number): Promise<Team[]> {
+  async fetchTeams(eventId: number): Promise<AnyTeam[]> {
     const data: any = await this._json(`${this.baseUrl}/events/${eventId}/team`)
     return data.items
   }
 
-  async fetchTeam(teamName: string, eventId: number): Promise<Team> {
+  async fetchTeam(teamName: string, eventId: number): Promise<AnyTeam> {
     return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
   }
 
@@ -370,7 +370,7 @@ export class ApiClient {
   async fetchTeamStations(
     teamName: string,
     eventId: number
-  ): Promise<Station[]> {
+  ): Promise<AnyStation[]> {
     const data: any = await this._json(
       `${this.baseUrl}/events/${eventId}/team/${teamName}/stations`
     )
@@ -381,7 +381,7 @@ export class ApiClient {
   // Stations
   // -------------------------------------------------------------------------
 
-  async fetchStations(eventId: number): Promise<Station[]> {
+  async fetchStations(eventId: number): Promise<AnyStation[]> {
     const data: any = await this._json(
       `${this.baseUrl}/events/${eventId}/station`
     )

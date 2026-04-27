@@ -1,5 +1,10 @@
 <template>
   <div>
+    <v-alert v-if="publicTeamWarning" type="warning" class="mb-2">
+      Contact details are not available. You need the
+      <strong>event_owner</strong> or <strong>event_co_admin</strong> role to
+      view or edit full team information.
+    </v-alert>
     <v-tabs slider-color="accent" v-model="activeTab" grow>
       <v-tab value="teamInfo" key="teamInfo" ripple>Team Info</v-tab>
       <v-tab value="contactInfo" key="contactInfo" ripple>Contact Info</v-tab>
@@ -178,6 +183,7 @@
 import model from '@/model'
 import moment from 'moment'
 import DateTimePicker from '@/components/DateTimePicker.vue'
+import { isFullTeam } from '@/remote/model/team'
 
 import { defineComponent } from 'vue'
 const TeamForm = defineComponent({
@@ -202,7 +208,8 @@ const TeamForm = defineComponent({
       showPlannedStartTimeDialog: false,
       showEffectiveStartTimeDialog: false,
       showFinishTimeDialog: false,
-      localTeam: JSON.parse(JSON.stringify(this.team))
+      localTeam: JSON.parse(JSON.stringify(this.team)),
+      publicTeamWarning: !isFullTeam(this.team as any)
     }
   },
 

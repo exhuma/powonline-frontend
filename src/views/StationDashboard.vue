@@ -86,7 +86,8 @@ import {
   questionnaireScores
 } from '@/composables/useRealtimeStream'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
-import type { Team } from '@/remote/model/team'
+import type { AnyTeam } from '@/remote/model/team'
+import { isFullTeam } from '@/remote/model/team'
 import type { RelatedTeamEntry } from '@/api'
 
 type RelatedTeamEntryWithAge = RelatedTeamEntry & {
@@ -147,7 +148,7 @@ const StationDashboard = defineComponent({
       previousStation: '' as string,
       nextStation: '' as string,
       dashboard: [] as DashboardRow[],
-      teams: [] as Team[]
+      teams: [] as AnyTeam[]
     }
   },
 
@@ -188,9 +189,10 @@ const StationDashboard = defineComponent({
       const fltr = this.teamFilter.toLowerCase()
       return all.filter((item: any) => {
         const teamDetails = this.teams.find((t) => t.name === item.team)
-        const contactMatches = teamDetails
-          ? (teamDetails.contact || '').toLowerCase().includes(fltr)
-          : false
+        const contactMatches =
+          teamDetails && isFullTeam(teamDetails)
+            ? (teamDetails.contact || '').toLowerCase().includes(fltr)
+            : false
         const nameMatches = item.team.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
@@ -324,7 +326,7 @@ const StationDashboard = defineComponent({
         })
         return []
       })
-      this.teams = teams as Team[]
+      this.teams = teams as AnyTeam[]
 
       try {
         const prevStates = (await api.fetchRelatedTeams(
