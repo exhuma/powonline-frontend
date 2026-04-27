@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import RouteList from '@/views/RouteList.vue'
 import StationDashboard from '@/views/StationDashboard.vue'
-import ScoreBoard from '@/views/ScoreBoard.vue'
 import GlobalDashboard from '@/views/GlobalDashboard.vue'
 import StationList from '@/views/StationList.vue'
 import QuestionnaireList from '@/views/QuestionnaireList.vue'
@@ -31,7 +30,6 @@ import { pinnedEvent } from '@/pinnedEvent'
 const eventChildren = [
   { path: 'dashboard', component: GlobalDashboard },
   { path: 'matrix', component: GlobalDashboard },
-  { path: 'scoreboard', component: ScoreBoard },
   { path: 'station', component: StationList },
   { path: 'station/:stationName', component: StationDashboard },
   { path: 'team', component: TeamList, name: 'team_list' },

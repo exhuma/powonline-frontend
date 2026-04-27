@@ -432,13 +432,6 @@ const App = defineComponent({
           to: dashboard,
           icon: 'mdi-border-all'
         })
-      const scoreboard = ep('scoreboard')
-      if (scoreboard)
-        eventRoutes.push({
-          label: 'Scoreboard',
-          to: scoreboard,
-          icon: 'mdi-format-list-numbered'
-        })
       const gallery = ep('gallery')
       if (gallery)
         eventRoutes.push({ label: 'Photos', to: gallery, icon: 'mdi-image' })
@@ -550,14 +543,6 @@ const App = defineComponent({
           label: 'Dashboard',
           to: dashboard,
           icon: 'mdi-border-all'
-        })
-      }
-      const scoreboard = ep('scoreboard')
-      if (scoreboard) {
-        output.push({
-          label: 'Scoreboard',
-          to: scoreboard,
-          icon: 'mdi-format-list-numbered'
         })
       }
       const gallery = ep('gallery')

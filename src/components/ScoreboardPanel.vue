@@ -57,6 +57,19 @@
   min-height: 0;
 }
 
+@media (max-width: 600px) {
+  .scoreboard-inline {
+    height: auto;
+    overflow: visible;
+  }
+
+  .scoreboard-list-wrap {
+    overflow-y: visible;
+    flex: none;
+    min-height: unset;
+  }
+}
+
 .scoreboard-list {
   background: transparent !important;
 }
