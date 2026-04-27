@@ -30,7 +30,7 @@
         return-object
         :loading="loading"
         :disabled="loading"
-        @change="onEventChanged"
+        @update:modelValue="onEventChanged"
       >
       </v-select>
       <v-combobox
