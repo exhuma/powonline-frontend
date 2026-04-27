@@ -10,19 +10,47 @@
       </v-btn>
     </v-toolbar>
     <v-data-table
+      v-model:sort-by="sortBy"
       :headers="visibleHeaders"
       :items="stations"
       :items-per-page="15"
       :loading="loading"
       class="elevation-0"
     >
-      <template v-slot:item.is_start="{ item }">
+      <template #item.order="{ item, index }">
+        <div class="d-flex align-center ga-1">
+          <template v-if="isSortedByOrder && canEdit">
+            <v-btn
+              icon
+              size="x-small"
+              variant="text"
+              :disabled="index === 0"
+              @click="moveUp(index)"
+            >
+              <v-icon size="small">mdi-chevron-up</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ item.order }}</span>
+          <template v-if="isSortedByOrder && canEdit">
+            <v-btn
+              icon
+              size="x-small"
+              variant="text"
+              :disabled="index === stations.length - 1"
+              @click="moveDown(index)"
+            >
+              <v-icon size="small">mdi-chevron-down</v-icon>
+            </v-btn>
+          </template>
+        </div>
+      </template>
+      <template #item.is_start="{ item }">
         <v-icon v-if="item.is_start" color="green">mdi-check</v-icon>
       </template>
-      <template v-slot:item.is_end="{ item }">
+      <template #item.is_end="{ item }">
         <v-icon v-if="item.is_end" color="green">mdi-check</v-icon>
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template #item.actions="{ item }">
         <RowActions>
           <template #pinned>
             <v-btn
@@ -62,7 +90,6 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import type { AnyStation } from '@/remote/model/station'
-import { isFullStation } from '@/remote/model/station'
 import RowActions from '@/components/RowActions.vue'
 
 export default defineComponent({
@@ -79,12 +106,26 @@ export default defineComponent({
     canOpenAnyDashboard: { type: Boolean, default: false },
     hasContactData: { type: Boolean, default: false }
   },
-  emits: ['open-create', 'open-edit', 'open-delete', 'open-dashboard'],
+  emits: [
+    'open-create',
+    'open-edit',
+    'open-delete',
+    'open-dashboard',
+    'reorder'
+  ],
+  data() {
+    return {
+      sortBy: [{ key: 'order', order: 'asc' as const }]
+    }
+  },
   computed: {
+    isSortedByOrder(): boolean {
+      return this.sortBy.length > 0 && this.sortBy[0].key === 'order'
+    },
     visibleHeaders(): object[] {
       const base: object[] = [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Order', key: 'order', sortable: true }
+        { title: 'Order', key: 'order', sortable: true },
+        { title: 'Name', key: 'name', sortable: true }
       ]
       if (this.hasContactData) {
         base.push(
@@ -109,6 +150,25 @@ export default defineComponent({
     canDashboard(stationName: string): boolean {
       if (this.canOpenAnyDashboard) return true
       return this.myStations.has(stationName)
+    },
+    moveUp(index: number) {
+      this.swap(index, index - 1)
+    },
+    moveDown(index: number) {
+      this.swap(index, index + 1)
+    },
+    swap(i: number, j: number) {
+      let list = this.stations.slice()
+      // If order values are not unique, renumber sequentially before swapping
+      const orders = list.map((s) => s.order)
+      const hasduplicates = new Set(orders).size !== orders.length
+      if (hasduplicates) {
+        list = list.map((s, idx) => ({ ...s, order: idx + 1 }))
+      }
+      const tmp = list[i].order
+      list[i] = { ...list[i], order: list[j].order }
+      list[j] = { ...list[j], order: tmp }
+      this.$emit('reorder', list)
     }
   }
 })

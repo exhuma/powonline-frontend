@@ -39,6 +39,9 @@
       <v-expansion-panel v-for="team in filteredItems" :key="team.name">
         <v-expansion-panel-title>
           <div class="d-flex align-center ga-2 w-100 pr-2">
+            <span class="text-caption text-disabled mr-1"
+              >#{{ team.order }}</span
+            >
             <span class="font-weight-medium">{{ team.name }}</span>
             <v-spacer />
             <v-chip v-if="team.route_name" size="x-small" class="mr-1">{{

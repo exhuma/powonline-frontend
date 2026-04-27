@@ -11,6 +11,7 @@
             @open-create="openCreateDialog"
             @open-edit="openEditDialog"
             @open-delete="confirmDelete"
+            @reorder="onReorderTeams"
           />
           <TeamCards
             v-else
@@ -187,6 +188,28 @@ export default defineComponent({
       }
       this.teamForm = model.team.makeEmpty()
       this.showTeamDialog = false
+    },
+    async onReorderTeams(reorderedTeams: AnyTeam[]) {
+      const eventId = (this as any).getSelectedEventId()
+      if (!eventId) return
+      // Apply new order values optimistically so the UI updates immediately
+      const changed: AnyTeam[] = []
+      for (const team of reorderedTeams) {
+        const idx = this.teams.findIndex((t) => t.name === team.name)
+        if (idx < 0) continue
+        if (this.teams[idx].order !== team.order) {
+          this.teams[idx] = { ...this.teams[idx], order: team.order }
+          changed.push(this.teams[idx])
+        }
+      }
+      // Persist each changed team in the background
+      for (const team of changed) {
+        try {
+          await api.updateTeam(team.name, team as any, eventId)
+        } catch (e) {
+          console.error('Failed to update team order', e)
+        }
+      }
     },
     async doDelete() {
       this.showDeleteDialog = false

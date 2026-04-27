@@ -21,23 +21,51 @@
       </v-btn>
     </v-toolbar>
     <v-data-table
+      v-model:sort-by="sortBy"
       :headers="visibleHeaders"
       :items="filteredItems"
       :items-per-page="15"
       :loading="loading"
       class="elevation-0"
     >
-      <template v-slot:item.route_name="{ item }">
+      <template #item.order="{ item, index }">
+        <div class="d-flex align-center ga-1">
+          <template v-if="isSortedByOrder && canEdit">
+            <v-btn
+              icon
+              size="x-small"
+              variant="text"
+              :disabled="index === 0"
+              @click="moveUp(index)"
+            >
+              <v-icon size="small">mdi-chevron-up</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ item.order }}</span>
+          <template v-if="isSortedByOrder && canEdit">
+            <v-btn
+              icon
+              size="x-small"
+              variant="text"
+              :disabled="index === filteredItems.length - 1"
+              @click="moveDown(index)"
+            >
+              <v-icon size="small">mdi-chevron-down</v-icon>
+            </v-btn>
+          </template>
+        </div>
+      </template>
+      <template #item.route_name="{ item }">
         <v-chip v-if="item.route_name" size="small">{{
           item.route_name
         }}</v-chip>
       </template>
-      <template v-slot:item.status="{ item }">
+      <template #item.status="{ item }">
         <v-chip size="small" :color="statusColor(item)">
           {{ statusLabel(item) }}
         </v-chip>
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template #item.actions="{ item }">
         <RowActions>
           <template #pinned>
             <v-btn
@@ -78,18 +106,23 @@ export default defineComponent({
     loading: { type: Boolean, default: false },
     canEdit: { type: Boolean, default: false }
   },
-  emits: ['open-create', 'open-edit', 'open-delete'],
+  emits: ['open-create', 'open-edit', 'open-delete', 'reorder'],
   data() {
     return {
-      filterText: ''
+      filterText: '',
+      sortBy: [{ key: 'order', order: 'asc' as const }]
     }
   },
   computed: {
+    isSortedByOrder(): boolean {
+      return this.sortBy.length > 0 && this.sortBy[0].key === 'order'
+    },
     hasContactData(): boolean {
       return this.teams.some((t) => isFullTeam(t))
     },
     visibleHeaders(): object[] {
-      const base = [
+      const base: object[] = [
+        { title: 'Order', key: 'order', sortable: true },
         { title: 'Name', key: 'name', sortable: true },
         { title: 'Route', key: 'route_name', sortable: true }
       ]
@@ -127,6 +160,25 @@ export default defineComponent({
       if (team.completed) return 'success'
       if (!team.accepted) return 'warning'
       return 'primary'
+    },
+    moveUp(index: number) {
+      this.swap(index, index - 1)
+    },
+    moveDown(index: number) {
+      this.swap(index, index + 1)
+    },
+    swap(i: number, j: number) {
+      let list = this.filteredItems.slice()
+      // If order values are not unique, renumber sequentially before swapping
+      const orders = list.map((t) => t.order)
+      const hasDuplicates = new Set(orders).size !== orders.length
+      if (hasDuplicates) {
+        list = list.map((t, idx) => ({ ...t, order: idx + 1 }))
+      }
+      const tmp = list[i].order
+      list[i] = { ...list[i], order: list[j].order }
+      list[j] = { ...list[j], order: tmp }
+      this.$emit('reorder', list)
     }
   }
 })

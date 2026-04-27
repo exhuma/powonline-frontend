@@ -112,9 +112,6 @@
                 />
               </template>
               <v-list-item-title>
-                <span class="text-caption text-disabled mr-1"
-                  >#{{ station.order }}</span
-                >
                 {{ station.name }}
                 <v-chip
                   v-if="station.is_start"

@@ -15,6 +15,7 @@
             @open-edit="openEditDialog"
             @open-delete="confirmDelete"
             @open-dashboard="openDashboard"
+            @reorder="onReorderStations"
           />
           <StationCards
             v-else
@@ -43,12 +44,6 @@
             v-model="stationForm.name"
             label="Station name"
             :disabled="!!editingStation"
-          />
-          <v-text-field
-            v-model.number="stationForm.order"
-            type="number"
-            label="Station Ordering"
-            hint="This field is used to sort stations"
           />
           <v-checkbox
             v-model="stationForm.is_start"
@@ -235,8 +230,29 @@ export default defineComponent({
       }
       this.showStationDialog = false
     },
+    async onReorderStations(reorderedStations: AnyStation[]) {
+      const eventId = (this as any).getSelectedEventId()
+      if (!eventId) return
+      // Apply new order values optimistically so the UI updates immediately
+      const changed: AnyStation[] = []
+      for (const station of reorderedStations) {
+        const idx = this.stations.findIndex((s) => s.name === station.name)
+        if (idx < 0) continue
+        if (this.stations[idx].order !== station.order) {
+          this.stations[idx] = { ...this.stations[idx], order: station.order }
+          changed.push(this.stations[idx])
+        }
+      }
+      // Persist each changed station in the background
+      for (const station of changed) {
+        try {
+          await api.updateStation(station.name, station as any, eventId)
+        } catch (e) {
+          console.error('Failed to update station order', e)
+        }
+      }
+    },
     async doDelete() {
-      this.showDeleteDialog = false
       if (!this.deletingStation) return
       const eventId = (this as any).getSelectedEventId()
       try {
