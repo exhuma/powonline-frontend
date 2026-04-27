@@ -28,14 +28,16 @@
           v-model="teamFilter"
           append-icon="mdi-magnify"
           clearable
+          density="compact"
           label="Find a team by name/contact"
+          variant="outlined"
           @click:clear="onFilterCleared"
           hint="Filter list of teams by name and/or contact"
           class="ml-5 mr-5"
         ></v-text-field>
 
-        <v-row class="pl-5 pr-5">
-          <v-col cols="4">
+        <v-row>
+          <v-col cols="12">
             <v-checkbox
               class="ml-4"
               name="showFinished"
