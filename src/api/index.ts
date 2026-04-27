@@ -36,7 +36,7 @@ export type EventInfo = {
   name: string
   title?: string | null
   has_favicon?: boolean
-  time_range: TimeRange
+  time_range: TimeRange | null
   inserted?: string | null
   updated?: string | null
 }

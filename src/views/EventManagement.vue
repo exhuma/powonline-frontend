@@ -222,12 +222,18 @@ export default defineComponent({
         this.loading = false
       }
     },
-    formatDateRange(timeRange: { start: string; end: string }): string {
+    formatDateRange(timeRange: { start: string; end: string } | null): string {
+      if (!timeRange) {
+        return 'empty'
+      }
       const start = moment(timeRange.start).format('MMM D, YYYY HH:mm')
       const end = moment(timeRange.end).format('MMM D, YYYY HH:mm')
       return `${start} – ${end}`
     },
     statusLabel(event: EventInfo): string {
+      if (!event.time_range) {
+        return 'N/A'
+      }
       const now = moment()
       const start = moment(event.time_range.start)
       const end = moment(event.time_range.end)

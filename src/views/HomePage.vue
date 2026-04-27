@@ -113,6 +113,9 @@ export default defineComponent({
       const now = moment()
       const events: EventInfo[] = (this.getEvents as () => EventInfo[])()
       return events.filter((event: EventInfo) => {
+        if (!event.time_range) {
+          return true
+        }
         const end = moment(event.time_range.end)
         const start = moment(event.time_range.start)
         return end.isAfter(now) || start.isAfter(now)
@@ -148,6 +151,9 @@ export default defineComponent({
       this.$router.push(`/event/${event.id}/dashboard`)
     },
     formatDateRange(timeRange: { start: string; end: string }): string {
+      if (!timeRange) {
+        return 'empty'
+      }
       const start = moment(timeRange.start).format('MMM D, YYYY HH:mm')
       const end = moment(timeRange.end).format('MMM D, YYYY HH:mm')
       return `${start} – ${end}`
