@@ -15,15 +15,30 @@
         ></state-icon>
       </v-col>
       <v-col cols="10" md="6" class="pa-0">
-        <div class="related-stations">
-          <div class="left" v-ripple @click="goTo('previous')">
-            {{ previousStation }}
-          </div>
-          <h2 class="stationName">{{ stationName }}</h2>
-          <div class="right" v-ripple @click="goTo('next')">
-            {{ nextStation }}
-          </div>
+        <div
+          class="d-flex align-center justify-space-between px-2 py-1 station-nav-bar"
+        >
+          <v-btn
+            variant="text"
+            density="compact"
+            prepend-icon="mdi-chevron-left"
+            :disabled="!previousStation"
+            @click="goTo('previous')"
+            class="nav-btn"
+            >{{ previousStation || '—' }}</v-btn
+          >
+          <span class="stationName text-subtitle-1">{{ stationName }}</span>
+          <v-btn
+            variant="text"
+            density="compact"
+            append-icon="mdi-chevron-right"
+            :disabled="!nextStation"
+            @click="goTo('next')"
+            class="nav-btn"
+            >{{ nextStation || '—' }}</v-btn
+          >
         </div>
+
         <v-text-field
           v-model="teamFilter"
           append-icon="mdi-magnify"
@@ -33,23 +48,12 @@
           variant="outlined"
           @click:clear="onFilterCleared"
           hint="Filter list of teams by name and/or contact"
-          class="ml-5 mr-5"
+          class="ml-5 mr-5 mt-2"
         ></v-text-field>
 
-        <v-row>
-          <v-col cols="12">
-            <v-checkbox
-              class="ml-4"
-              name="showFinished"
-              label="Show finished teams"
-              v-model="showFinished"
-            />
-          </v-col>
-        </v-row>
-
         <small-station-dashboard-item
-          v-for="(state, idx) in filteredAllTeams"
-          class="mb-4 ml-5 mr-5"
+          v-for="(state, idx) in activeTeams"
+          class="mb-3 ml-5 mr-5"
           @scoreUpdated="onScoreUpdated"
           @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
           @saveClicked="onSaveClicked"
@@ -57,8 +61,44 @@
           :state="state"
           :teams="teams"
           :questionnaire-scores="questionnaireScores"
-          :key="'small' + idx"
+          :key="'active' + idx"
         ></small-station-dashboard-item>
+
+        <div
+          v-if="finishedTeams.length > 0"
+          class="ml-5 mr-5 mt-2 mb-3 done-panel-wrapper"
+        >
+          <v-expansion-panels variant="accordion">
+            <v-expansion-panel>
+              <v-expansion-panel-title>
+                <v-icon class="mr-2" color="success"
+                  >mdi-radiobox-marked</v-icon
+                >
+                Done
+                <v-badge
+                  :content="finishedTeams.length"
+                  color="success"
+                  inline
+                  class="ml-2"
+                ></v-badge>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text class="pa-0">
+                <small-station-dashboard-item
+                  v-for="(state, idx) in finishedTeams"
+                  class="mb-3"
+                  @scoreUpdated="onScoreUpdated"
+                  @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+                  @saveClicked="onSaveClicked"
+                  @stateAdvanced="onStateAdvanced"
+                  :state="state"
+                  :teams="teams"
+                  :questionnaire-scores="questionnaireScores"
+                  :key="'finished' + idx"
+                ></small-station-dashboard-item>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </div>
       </v-col>
       <v-col
         cols="1"
@@ -142,9 +182,6 @@ const StationDashboard = defineComponent({
   data() {
     return {
       teamFilter: '',
-      showPending: true,
-      showArrived: true,
-      showFinished: false,
       previousStates: [] as RelatedTeamEntryWithAge[],
       nextStates: [] as RelatedTeamEntryWithAge[],
       previousStation: '' as string,
@@ -157,13 +194,6 @@ const StationDashboard = defineComponent({
   computed: {
     stationName(): string {
       return String(this.$route.params.stationName)
-    },
-    selectedStates(): string[] {
-      const output: string[] = []
-      if (this.showPending) output.push('unknown')
-      if (this.showArrived) output.push('arrived')
-      if (this.showFinished) output.push('finished')
-      return output
     },
     allTeams(): unknown[] {
       const output: any[] = []
@@ -181,15 +211,12 @@ const StationDashboard = defineComponent({
       })
       return output
     },
-    filteredAllTeams(): unknown[] {
-      const all = this.allTeams.filter((item: any) =>
-        this.selectedStates.includes(item.state)
-      )
+    filteredTeams(): unknown[] {
       if (!this.teamFilter || this.teamFilter.length < 3) {
-        return all
+        return this.allTeams
       }
       const fltr = this.teamFilter.toLowerCase()
-      return all.filter((item: any) => {
+      return this.allTeams.filter((item: any) => {
         const teamDetails = this.teams.find((t) => t.name === item.team)
         const contactMatches =
           teamDetails && isFullTeam(teamDetails)
@@ -198,6 +225,16 @@ const StationDashboard = defineComponent({
         const nameMatches = item.team.toLowerCase().includes(fltr)
         return nameMatches || contactMatches
       })
+    },
+    activeTeams(): unknown[] {
+      return (this.filteredTeams as any[]).filter(
+        (item: any) => item.state !== 'finished'
+      )
+    },
+    finishedTeams(): unknown[] {
+      return (this.filteredTeams as any[]).filter(
+        (item: any) => item.state === 'finished'
+      )
     }
   },
 
@@ -397,39 +434,24 @@ export default StationDashboard
 
 <style scoped>
 .stationName {
-  text-align: center;
   color: #c0c0c0;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.related-stations {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  position: relative;
-  top: 0;
-  left: 0;
-}
-
-.related-stations > DIV {
-  display: flex;
-  align-items: center;
+.station-nav-bar {
   border-top: 1px solid #272727;
   border-bottom: 1px solid #272727;
-  color: #c0c0c0;
-  font-size: 80%;
-  font-weight: bold;
   background-color: #151515;
 }
-.related-stations > DIV.left {
-  padding-right: 1.5em;
-  padding-left: 0.7em;
-  border-right: 1px solid #272727;
-}
-.related-stations > DIV.right {
-  padding-left: 1.5em;
-  padding-right: 0.7em;
-  border-left: 1px solid #272727;
+
+.nav-btn {
+  color: #c0c0c0;
+  font-size: 80%;
+  max-width: 40%;
+  overflow: hidden;
 }
 
 .quick-stat-column {
@@ -442,7 +464,7 @@ export default StationDashboard
   align-items: center;
 }
 .quick-stat-column:hover,
-.related-stations:hover > DIV {
+.station-nav-bar:hover {
   background-color: #181818;
   cursor: pointer;
 }
@@ -451,6 +473,10 @@ export default StationDashboard
 }
 .quick-stat-column.right {
   border-left: 1px solid #272727;
+}
+
+.done-panel-wrapper {
+  overflow: hidden;
 }
 
 .old {

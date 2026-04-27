@@ -1,43 +1,52 @@
 <template>
   <v-card>
-    <v-card-title class="bg-primary darken-3 pa-1 pl-3 pr-3">
-      <span :class="hasCancelled ? 'cancelled' : ''"
-        ><h4>{{ state.team }}</h4></span
-      >
+    <v-card-title class="bg-primary darken-3 pa-1 pl-3 pr-3 card-title">
+      <span :class="hasCancelled ? 'cancelled' : ''">{{ state.team }}</span>
       <span class="cancelledHeader" v-if="hasCancelled">Cancelled</span>
     </v-card-title>
-    <v-card-text>
-      <v-container>
-        <v-row align="center">
-          <v-col cols="12">
+    <v-card-text class="pt-3 pb-2 px-3">
+      <v-container class="pa-0">
+        <v-row align="stretch" dense>
+          <v-col cols="6" class="d-flex flex-column">
             <v-text-field
               @keyup.enter="onScoreEnter"
               @change="updateScore"
               type="number"
               v-model="state.score"
               label="Score"
+              density="comfortable"
+              variant="outlined"
+              hide-details
+              prepend-inner-icon="mdi-gamepad-variant-outline"
+              class="flex-grow-1"
             />
           </v-col>
-        </v-row>
-        <v-row align="center">
-          <v-col cols="12">
+          <v-col cols="6" class="d-flex flex-column">
             <v-text-field
               @keyup.enter="onQuestionnaireScoreEnter"
               @change="updateQuestionnaireScore"
               type="number"
               v-model="questionnaireScore.score"
-              :label="'Questionnaire Score (' + questionnaireScore.name + ')'"
+              :label="'Q-Score (' + questionnaireScore.name + ')'"
+              density="comfortable"
+              variant="outlined"
+              hide-details
+              prepend-inner-icon="mdi-clipboard-list-outline"
+              class="flex-grow-1"
             />
           </v-col>
-        </v-row>
-        <v-row align="center">
-          <v-col cols="6">
-            <v-btn class="action-button" @click="advanceState(state)"
+          <v-col cols="6" class="d-flex flex-column">
+            <v-btn
+              class="action-button flex-grow-1"
+              @click="advanceState(state)"
               ><state-icon :state="state.state"></state-icon
             ></v-btn>
           </v-col>
-          <v-col cols="6">
-            <v-btn class="action-button" @click="saveChanges" color="success"
+          <v-col cols="6" class="d-flex flex-column">
+            <v-btn
+              class="action-button flex-grow-1"
+              @click="saveChanges"
+              color="success"
               ><v-icon>mdi-content-save</v-icon></v-btn
             >
           </v-col>
@@ -48,14 +57,21 @@
 </template>
 
 <style scoped>
+.card-title {
+  font-size: 0.95rem;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
 .action-button {
-  min-height: 4em;
+  min-height: 3rem;
   width: 100%;
+  height: 100%;
 }
 .cancelledHeader {
   color: #fa0;
   margin-left: 1em;
-  font-size: 100%;
+  font-size: 90%;
   font-weight: bold;
 }
 
