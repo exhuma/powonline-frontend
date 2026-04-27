@@ -3,196 +3,46 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-account-multiple</v-icon>
-            <v-toolbar-title>User Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-select
-              v-model="selectedEvent"
-              :items="events"
-              item-title="name"
-              item-value="id"
-              return-object
-              clearable
-              hide-details
-              density="compact"
-              label="Event"
-              style="max-width: 220px"
-              class="mr-2"
-              :loading="loadingEvents"
-              @update:model-value="onEventChanged"
-            />
-            <v-text-field
-              v-model="userFilterText"
-              append-inner-icon="mdi-magnify"
-              label="Filter users"
-              hide-details
-              density="compact"
-              style="max-width: 220px"
-              class="mr-2"
-            ></v-text-field>
-            <v-btn
-              v-if="hasRole(['admin'])"
-              color="primary"
-              @click="openCreateDialog"
-            >
-              <v-icon start>mdi-plus</v-icon>
-              New User
-            </v-btn>
-          </v-toolbar>
-
-          <v-alert v-if="errorMessage" type="error" class="mb-2">
-            {{ errorMessage }}
-          </v-alert>
-
-          <v-data-table
-            :headers="headers"
-            :items="filteredUsers"
-            :items-per-page="15"
+          <UserTable
+            v-if="!$vuetify.display.smAndDown"
+            :users="users"
+            :events="events"
+            :selected-event="selectedEvent"
+            :available-stations="availableStations"
+            :all-roles="allRoles"
+            :user-roles="userRoles"
+            :user-stations="userStations"
+            :loading-user-data="loadingUserData"
             :loading="loading"
-            class="elevation-0"
-          >
-            <!-- Name column -->
-            <template v-slot:item.name="{ item }">
-              <div class="d-flex align-center ga-2">
-                <v-avatar size="32" v-if="item.avatar_url">
-                  <img :src="item.avatar_url" />
-                </v-avatar>
-                <v-avatar size="32" v-else>
-                  <v-icon>mdi-face-man</v-icon>
-                </v-avatar>
-                {{ item.name }}
-              </div>
-            </template>
-
-            <!-- Roles column: chips + inline dropdown to toggle -->
-            <template v-slot:item.roles="{ item }">
-              <v-menu :close-on-content-click="false" location="bottom start">
-                <template #activator="{ props: menuProps }">
-                  <div
-                    class="d-flex flex-wrap ga-1 align-center cursor-pointer py-1"
-                    v-bind="menuProps"
-                  >
-                    <v-chip
-                      v-for="role in userRoles[item.name] ?? []"
-                      :key="role"
-                      size="small"
-                      color="primary"
-                      variant="tonal"
-                      >{{ role }}</v-chip
-                    >
-                    <v-icon
-                      v-if="!(userRoles[item.name] ?? []).length"
-                      size="small"
-                      color="grey"
-                      >mdi-chevron-down</v-icon
-                    >
-                  </div>
-                </template>
-                <v-card min-width="200">
-                  <v-card-text class="pa-2">
-                    <div
-                      v-if="loadingUserData[item.name]"
-                      class="text-center pa-2"
-                    >
-                      <v-progress-circular indeterminate size="20" />
-                    </div>
-                    <v-list v-else density="compact">
-                      <v-list-item
-                        v-for="role in allRoles"
-                        :key="role"
-                        :title="role"
-                        @click="toggleRole(item.name, role)"
-                      >
-                        <template #prepend>
-                          <v-checkbox-btn
-                            :model-value="
-                              (userRoles[item.name] ?? []).includes(role)
-                            "
-                            @click.stop="toggleRole(item.name, role)"
-                          />
-                        </template>
-                      </v-list-item>
-                    </v-list>
-                  </v-card-text>
-                </v-card>
-              </v-menu>
-            </template>
-
-            <!-- Stations column: chips + inline dropdown (only when event selected) -->
-            <template v-slot:item.stations="{ item }">
-              <template v-if="!selectedEvent">
-                <span class="text-grey text-caption">Select an event</span>
-              </template>
-              <v-menu
-                v-else
-                :close-on-content-click="false"
-                location="bottom start"
-              >
-                <template #activator="{ props: menuProps }">
-                  <div
-                    class="d-flex flex-wrap ga-1 align-center cursor-pointer py-1"
-                    v-bind="menuProps"
-                  >
-                    <v-chip
-                      v-for="station in userStations[item.name] ?? []"
-                      :key="station"
-                      size="small"
-                      color="secondary"
-                      variant="tonal"
-                      >{{ station }}</v-chip
-                    >
-                    <v-icon
-                      v-if="!(userStations[item.name] ?? []).length"
-                      size="small"
-                      color="grey"
-                      >mdi-chevron-down</v-icon
-                    >
-                  </div>
-                </template>
-                <v-card min-width="200">
-                  <v-card-text class="pa-2">
-                    <div
-                      v-if="loadingUserData[item.name]"
-                      class="text-center pa-2"
-                    >
-                      <v-progress-circular indeterminate size="20" />
-                    </div>
-                    <v-list v-else density="compact">
-                      <v-list-item
-                        v-for="station in availableStations"
-                        :key="station"
-                        :title="station"
-                        @click="toggleStation(item.name, station)"
-                      >
-                        <template #prepend>
-                          <v-checkbox-btn
-                            :model-value="
-                              (userStations[item.name] ?? []).includes(station)
-                            "
-                            @click.stop="toggleStation(item.name, station)"
-                          />
-                        </template>
-                      </v-list-item>
-                    </v-list>
-                  </v-card-text>
-                </v-card>
-              </v-menu>
-            </template>
-
-            <!-- Actions column -->
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <v-list-item
-                  v-if="hasRole(['admin'])"
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  base-color="error"
-                  @click="openDeleteDialog(item.name)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            :loading-events="loadingEvents"
+            :error-message="errorMessage"
+            :can-edit="hasRole(['admin'])"
+            @open-create="openCreateDialog"
+            @open-delete="openDeleteDialog"
+            @event-changed="onEventChanged"
+            @toggle-role="toggleRole"
+            @toggle-station="toggleStation"
+          />
+          <UserCards
+            v-else
+            :users="users"
+            :events="events"
+            :selected-event="selectedEvent"
+            :available-stations="availableStations"
+            :all-roles="allRoles"
+            :user-roles="userRoles"
+            :user-stations="userStations"
+            :loading-user-data="loadingUserData"
+            :loading="loading"
+            :loading-events="loadingEvents"
+            :error-message="errorMessage"
+            :can-edit="hasRole(['admin'])"
+            @open-create="openCreateDialog"
+            @open-delete="openDeleteDialog"
+            @event-changed="onEventChanged"
+            @toggle-role="toggleRole"
+            @toggle-station="toggleStation"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -226,9 +76,10 @@
     <v-dialog v-model="showDeleteDialog" max-width="400px">
       <v-card>
         <v-card-title>Delete user "{{ deletingUserName }}"?</v-card-title>
-        <v-card-text>
-          This will permanently delete the user and all related information.
-        </v-card-text>
+        <v-card-text
+          >This will permanently delete the user and all related
+          information.</v-card-text
+        >
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
@@ -246,11 +97,12 @@ import { api } from '@/main'
 import type { EventInfo } from '@/api/index'
 import model from '@/model'
 import type { User } from '@/remote/model/user'
-import RowActions from '@/components/RowActions.vue'
+import UserTable from '@/components/management/desktop/UserTable.vue'
+import UserCards from '@/components/management/mobile/UserCards.vue'
 
 export default defineComponent({
   name: 'UserList',
-  components: { RowActions },
+  components: { UserTable, UserCards },
   inject: ['session'],
 
   data() {
@@ -258,7 +110,6 @@ export default defineComponent({
       loading: false,
       loadingEvents: false,
       users: [] as User[],
-      userFilterText: '',
       errorMessage: '',
       showCreateDialog: false,
       showDeleteDialog: false,
@@ -266,35 +117,11 @@ export default defineComponent({
       newUser: model.user.makeEmpty() as any,
       events: [] as EventInfo[],
       selectedEvent: null as EventInfo | null,
-      /** All stations belonging to the selected event */
       availableStations: [] as string[],
-      /** All possible role names (populated from first user fetch) */
       allRoles: [] as string[],
-      /** Map of userName → assigned role names */
       userRoles: {} as Record<string, string[]>,
-      /** Map of userName → assigned station names (for selected event) */
       userStations: {} as Record<string, string[]>,
-      /** Set of userNames whose data is currently being fetched */
-      loadingUserData: {} as Record<string, boolean>,
-      headers: [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Roles', key: 'roles', sortable: false },
-        { title: 'Stations', key: 'stations', sortable: false },
-        {
-          title: 'Actions',
-          key: 'actions',
-          sortable: false,
-          align: 'end' as const
-        }
-      ]
-    }
-  },
-
-  computed: {
-    filteredUsers(): User[] {
-      if (this.userFilterText.trim() === '') return this.users
-      const fltr = this.userFilterText.trim().toLowerCase()
-      return this.users.filter((u) => u.name.toLowerCase().includes(fltr))
+      loadingUserData: {} as Record<string, boolean>
     }
   },
 
@@ -309,7 +136,6 @@ export default defineComponent({
       this.users = users
       this.events = events
       this.errorMessage = ''
-      // Pre-load roles for all users
       await this.refreshAllRoles()
     } catch {
       this.errorMessage = 'Unable to fetch users (are you logged in?)'
@@ -324,17 +150,14 @@ export default defineComponent({
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
     },
-
     openCreateDialog() {
       this.newUser = model.user.makeEmpty()
       this.showCreateDialog = true
     },
-
     openDeleteDialog(userName: string) {
       this.deletingUserName = userName
       this.showDeleteDialog = true
     },
-
     async onDeleteConfirmed() {
       try {
         await api.deleteUser(this.deletingUserName)
@@ -347,7 +170,6 @@ export default defineComponent({
       this.showDeleteDialog = false
       this.deletingUserName = ''
     },
-
     async onCreateConfirmed() {
       try {
         const created = await api.addUser(this.newUser)
@@ -360,8 +182,6 @@ export default defineComponent({
       this.newUser = model.user.makeEmpty()
       this.showCreateDialog = false
     },
-
-    /** Reload roles for every user, collecting the full set of possible roles. */
     async refreshAllRoles() {
       const roleSet = new Set<string>()
       await Promise.all(
@@ -385,8 +205,6 @@ export default defineComponent({
       )
       this.allRoles = Array.from(roleSet).sort()
     },
-
-    /** Reload station assignments for all users for the currently selected event. */
     async refreshAllStations() {
       if (!this.selectedEvent) {
         this.users.forEach((u) => {
@@ -415,8 +233,8 @@ export default defineComponent({
         })
       )
     },
-
     async onEventChanged(event: EventInfo | null) {
+      this.selectedEvent = event
       this.availableStations = []
       this.users.forEach((u) => {
         this.userStations[u.name] = []
@@ -430,11 +248,9 @@ export default defineComponent({
       }
       await this.refreshAllStations()
     },
-
     async toggleRole(userName: string, roleName: string) {
       const current = this.userRoles[userName] ?? []
       const hasRole = current.includes(roleName)
-      // Optimistic update
       this.userRoles[userName] = hasRole
         ? current.filter((r) => r !== roleName)
         : [...current, roleName]
@@ -446,15 +262,12 @@ export default defineComponent({
         }
       } catch (e) {
         console.error('Failed to toggle role', e)
-        // Revert
         this.userRoles[userName] = current
       }
     },
-
     async toggleStation(userName: string, stationName: string) {
       const current = this.userStations[userName] ?? []
       const hasStation = current.includes(stationName)
-      // Optimistic update
       this.userStations[userName] = hasStation
         ? current.filter((s) => s !== stationName)
         : [...current, stationName]
@@ -467,7 +280,6 @@ export default defineComponent({
         }
       } catch (e) {
         console.error('Failed to toggle station', e)
-        // Revert
         this.userStations[userName] = current
       }
     }

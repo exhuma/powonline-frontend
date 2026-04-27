@@ -13,7 +13,7 @@
         </template>
       </v-snackbar>
       <v-app-bar app v-if="isTitleBarVisible" extension-height="0">
-        <v-btn class="hidden-sm-and-up" icon @click="toggleSideMenu"
+        <v-btn v-if="isMobile" icon @click="toggleSideMenu"
           ><v-icon>mdi-menu</v-icon></v-btn
         >
         <v-toolbar-title
@@ -53,23 +53,22 @@
         </v-tooltip>
       </v-app-bar>
 
-      <v-navigation-drawer
-        temporary
-        app
-        v-model="sideMenuVisible"
-        class="hidden-sm-and-up"
-      >
+      <v-navigation-drawer temporary app v-model="sideMenuVisible">
         <v-list>
-          <v-list-item
-            v-for="route in navRoutes"
-            :to="route.to"
-            :key="route.to"
-          >
-            <template #prepend>
-              <v-icon>{{ route.icon }}</v-icon>
-            </template>
-            <v-list-item-title>{{ route.label }}</v-list-item-title>
-          </v-list-item>
+          <template v-for="group in navGroups" :key="group.label">
+            <v-list-subheader>{{ group.label }}</v-list-subheader>
+            <v-list-item
+              v-for="route in group.routes"
+              :to="route.to"
+              :key="route.to"
+              @click="sideMenuVisible = false"
+            >
+              <template #prepend>
+                <v-icon>{{ route.icon }}</v-icon>
+              </template>
+              <v-list-item-title>{{ route.label }}</v-list-item-title>
+            </v-list-item>
+          </template>
         </v-list>
       </v-navigation-drawer>
 
@@ -152,8 +151,7 @@
         <v-bottom-navigation
           app
           transition="slide-y-transition"
-          class="hidden-xs-only"
-          v-if="isBottomNavVisible"
+          v-if="!isMobile && isBottomNavVisible"
         >
           <v-btn
             v-for="route in navRoutes"
@@ -407,6 +405,121 @@ const App = defineComponent({
     }
   },
   computed: {
+    isMobile(): boolean {
+      return this.$vuetify.display.smAndDown
+    },
+    navGroups(): {
+      label: string
+      routes: { label: string; to: string; icon: string }[]
+    }[] {
+      const roles: string[] = this.session.roles
+      const hasRole = (r: string) =>
+        roles.includes('admin') || roles.includes(r)
+      const eventId = this.selectedEventId
+      const ep = (path: string): string | null => {
+        if (pinnedEvent.value) return `/${path}`
+        return eventId ? `/event/${eventId}/${path}` : null
+      }
+
+      const eventRoutes: { label: string; to: string; icon: string }[] = []
+      const adminRoutes: { label: string; to: string; icon: string }[] = []
+      const generalRoutes: { label: string; to: string; icon: string }[] = []
+
+      const dashboard = ep('dashboard')
+      if (dashboard)
+        eventRoutes.push({
+          label: 'Dashboard',
+          to: dashboard,
+          icon: 'mdi-border-all'
+        })
+      const scoreboard = ep('scoreboard')
+      if (scoreboard)
+        eventRoutes.push({
+          label: 'Scoreboard',
+          to: scoreboard,
+          icon: 'mdi-format-list-numbered'
+        })
+      const gallery = ep('gallery')
+      if (gallery)
+        eventRoutes.push({ label: 'Photos', to: gallery, icon: 'mdi-image' })
+      if (hasRole('station_manager')) {
+        const station = ep('station')
+        if (station)
+          eventRoutes.push({
+            label: 'Stations',
+            to: station,
+            icon: 'mdi-map-marker'
+          })
+      }
+      if (this.tokenIsAvailable) {
+        const uploads = ep('uploads')
+        if (uploads)
+          eventRoutes.push({
+            label: 'Uploads',
+            to: uploads,
+            icon: 'mdi-cloud-upload'
+          })
+      }
+
+      if (hasRole('admin')) {
+        const questionnaire = ep('questionnaire')
+        if (questionnaire)
+          adminRoutes.push({
+            label: 'Questionnaires',
+            to: questionnaire,
+            icon: 'mdi-script-text'
+          })
+        const team = ep('team')
+        if (team)
+          adminRoutes.push({
+            label: 'Teams',
+            to: team,
+            icon: 'mdi-account-group'
+          })
+        const route = ep('route')
+        if (route)
+          adminRoutes.push({ label: 'Routes', to: route, icon: 'mdi-gesture' })
+        const audit = ep('auditlog')
+        if (audit)
+          adminRoutes.push({
+            label: 'Audit',
+            to: audit,
+            icon: 'mdi-receipt-text'
+          })
+        adminRoutes.push({ label: 'Users', to: '/user', icon: 'mdi-face-man' })
+        adminRoutes.push({
+          label: 'Events',
+          to: '/events',
+          icon: 'mdi-calendar-multiple'
+        })
+      }
+
+      generalRoutes.push({
+        label: 'Changelog',
+        to: '/changelog',
+        icon: 'mdi-information'
+      })
+      generalRoutes.push({ label: 'Manual', to: '/manual', icon: 'mdi-book' })
+      if (this.tokenIsAvailable) {
+        generalRoutes.push({
+          label: 'Account',
+          to: '/account',
+          icon: 'mdi-account-cog'
+        })
+      }
+
+      const groups: {
+        label: string
+        routes: { label: string; to: string; icon: string }[]
+      }[] = []
+      if (eventRoutes.length)
+        groups.push({ label: 'Event', routes: eventRoutes })
+      if (adminRoutes.length)
+        groups.push({ label: 'Admin', routes: adminRoutes })
+      if (generalRoutes.length)
+        groups.push({ label: 'General', routes: generalRoutes })
+      return groups
+    },
     appVersion() {
       return __APP_VERSION__
     },
