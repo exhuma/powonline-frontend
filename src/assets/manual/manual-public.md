@@ -1,59 +1,71 @@
 # Public Pages
 
 ::: admonition tip
-Some features are available to non-staff users after logging in (f.ex. uploading
-photos). Logging in for non-staff members can be done at any moment using either
-Facebook or Google.
+Some features become available after logging in — for example, uploading
+photos to the gallery. The login button is in the top-right corner of every
+page.
 :::
+
+## Logging In
+
+Tap the person icon (&#9711;) in the top-right corner of the app bar to open
+the login dialog. Enter your username and password and press **Login**.
+
+![Login Dialog](/manual/images/login-dialog.png 'Login Dialog')
+
+Once you are logged in your username is shown in the app bar and a logout
+button (&#8594;) replaces the login icon.
+
+## Selecting an Event
+
+After opening the app you will see a list of available upcoming events. Tap
+the event you want to follow to enter it.
 
 ## The Dashboard
 
-The dashboard shows the progress of each team during the current event. As of
-2023, three types of dashboard are available:
+The dashboard shows the live progress of every team during the event. Each
+team is represented as a row of coloured segments — one segment per station
+on their route.
 
-- The "combined dashboard" shows all teams as one list. The line fills up as the
-  team progresses along the stations. If the team arrived at a station, the line
-  is lightly/faintly colored. If the team has finished the station, it will be
-  fully colored.
+- A **fully coloured** segment means the team has **finished** that station.
+- A **faintly coloured / pulsing** segment means the team has **arrived** at
+  that station and is still there.
+- An **empty / dark** segment means the team has **not yet reached** that
+  station.
+- A segment marked with a diagonal line means the station is **unreachable**
+  for that team.
 
-  - The "Overall Progress" shows the combined progress of all teams. When this
-    bar fills up, the event is over.
-  - "Finished" and "cancelled" teams will be moved to a separate section.
-  - The colour of the line represents the "route".
+Teams are grouped by their route. Each route card shows the route name, a
+percentage-complete figure and a thin aggregate progress bar at the top.
 
-  ![Combined Dashboard](/manual/images/combined-dashboard.png 'Combined Dashboard')
+A "Finished" section at the bottom of each route card lists teams that have
+completed the entire route.
 
-- The "separate dashboard" is similar to the "combined dashboard" but it shows
-  one section for each route.
+![Dashboard](/manual/images/combined-dashboard.png 'Dashboard')
 
-  ![Separate Dashboard](/manual/images/separate-dashboard.png 'Separate Dashboard')
-
-- The "legacy dashboard" contains information on each station, including state
-  icons.
-
-  ![Legacy Dashboard](/manual/images/legacy-dashboard.png 'Legacy Dashboard')
-
-  ::: admonition warning
-  Because station ordering on the "legacy dashboard" depends on route, the order
-  in which the icons will update may be confusing.
-  :::
+The dashboard refreshes automatically in real-time.
 
 ## The Scoreboard
 
-This page shows the leaderboard, including the team scores. It updates
-automatically.
+The right column of the dashboard (or a slide-in panel on narrow screens)
+shows the live leaderboard. Teams are ranked by their total score. The top
+three positions are highlighted with gold, silver and bronze badges. Scores
+animate smoothly when they change.
+
+![Scoreboard](/manual/images/scoreboard.png 'Scoreboard')
 
 ## Photo Gallery
 
-The photo gallery contains images collected during the event. To add pictures,
-either log-in and use the upload button on the gallery page (this button only
-appears when logged in), or send a photo to the e-mail communicated during the
-event.
+The gallery shows photos collected during the event. Tap any thumbnail to
+view it full-size.
+
+To add your own photos, log in and use the upload button at the bottom-right
+of the gallery page — this button only appears when you are logged in.
 
 ## Changelog
 
-This contains a list of changes made in the application.
+A list of recent changes made to the application.
 
 ## Manual
 
-The user-manual (you are reading this right now).
+The user manual you are reading now.

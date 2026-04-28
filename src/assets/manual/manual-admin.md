@@ -1,81 +1,127 @@
 # Admin Manual
 
-## Station Details
+::: admonition note
+Admin features are only available after logging in with an account that has
+the `admin` role. On mobile, all admin pages are accessible from the
+navigation drawer (tap &#9776; in the top-left).
+:::
 
-Accessing the "Station List" provides an option to modify stations.
+---
 
-Important Options:
+## Station List & Station Details
 
-- "Station Ordering" defines the "sorting" used for stations
-- "Departure Station" marks this station as the beginning of the trail. When a
-  team is marked as "arrived" on this station, the "effective start time" is
-  registered.
-- "Arrival Station" marks this station as the end of the trail. When a
-  team is marked as "arrived" on this station, it is automatically flagged as
-  "finished".
+The **Stations** page lists every station for the current event.
 
 ![Station List](/manual/images/station-list.png 'Station List')
 
-## Team List & Details
+Tap the **edit icon** (&#9998;) on a station card to modify it. The
+following fields are available:
 
-::: admonition tip
-This can be used to mark a team as "cancelled" or "finished" even if they did
-not pass the "arrival station". This gives valuable information to station
-staff. They will see a "cancelled" team and will know that they don't have to
-wait for that team.
+- **Station name** — the unique identifier for the station (cannot be
+  changed after creation).
+- **Departure Station** — mark this as the start of the route. When a team
+  is marked as *Arrived* here, the team's effective start time is recorded.
+- **Arrival Station** — mark this as the end of the route. When a team is
+  marked as *Arrived* here, they are automatically flagged as *Finished*.
+- **Phone Number** — contact phone for this station (optional).
+- **Contact** — name of the person responsible for this station (optional).
+
+The **clipboard icon** (&#x1F4CB;) next to a station opens the
+[Station Dashboard](#station-dashboard) for that station.
+
+::: admonition note
+Admins can open the dashboard for **any** station directly from this list.
+Station managers can only open dashboards for stations assigned to them.
 :::
 
+### Station Ordering
+
+Stations are displayed in the order defined by their **order** field. You
+can drag and drop rows in the desktop view to reorder them. The order
+determines which station is shown as "previous" and "next" in the Station
+Dashboard side strips.
+
+---
+
+## Team List & Team Details
+
+The **Teams** page lists every team registered for the current event.
+
 ![Team List](/manual/images/team-list.png 'Team List')
+
+Tap a team's **edit icon** to open the Team Panel.
+
 ![Team Panel](/manual/images/team-panel.png 'Team Panel')
 
-If you're logged in, and have been granted access to a station, the
-"station-dashboard" will become available for that station.
+From here you can:
+
+- Edit the team's **name**, **route** and **contact** information.
+- **Delete** the team (requires confirmation).
+- **Save** any changes.
+
+::: admonition tip
+Use the Team Panel to manually mark a team as **cancelled** or **finished**
+even if they have not reached the Arrival Station. This immediately informs
+all station dashboards that the team is no longer active.
+:::
+
+---
+
+## Station Dashboard
+
+See the [Station Dashboard section in the Staff Manual](../staff) for full
+details. As an admin you can open the dashboard for **any** station.
 
 ![Station Dashboard](/manual/images/station-dashboard.png 'Station Dashboard')
 
-The station-dashboard has a lot of features in one view. These are (in order of
-importance):
+---
 
 ## Upload Management
 
-As "Admin" you have access to view and delete any photo from the system if
-necessary.
+The **Uploads** page lets you view and delete **any** photo in the system —
+including photos submitted by other users or received by e-mail.
 
-This includes both images submitted via e-mail or via direct-upload.
+Tap the preview icon to view a photo full-screen, or the delete icon to
+remove it.
 
-## Route Management
-
-This view is used to add, edit or remove routes from the system.
-
-::: admonition warning
-This view is currently a bit tricky to use. Especially assigning stations and
-teams to routes. This is currently not needed for Lost XX and will be reworked
-in a future version.
-:::
+---
 
 ## User Management
 
-This view is used to add, edit or remove users from the system.
+The **Users** page (accessible from the navigation drawer) lets you create,
+view and delete user accounts.
+
+![User Management](/manual/images/user-panel.png 'User Management')
+
+Each user card shows:
+
+- The **username**.
+- The user's **roles** (displayed as coloured chips).
 
 ::: admonition important
-For users to have access to the station dashboard they must be flagged as
-"station_manager" and need to have at least one station assigned to them!
+For a user to access the Station Dashboard for a specific station they must:
+1. Have the `station_manager` role assigned.
+2. Have that station assigned to them for the current event.
+
+Both conditions must be met. Use the Users page to manage roles and station
+assignments.
 :::
 
 ::: admonition note
-Users with the `admin` role are granted the `manage-all-stations` permission,
-which allows them to open the dashboard for any station directly from the
-Station List.
+Users with the `admin` role have the `manage-all-stations` permission, which
+lets them open the dashboard for every station from the Station List without
+needing individual station assignments.
 :::
 
-![User Panel](/manual/images/user-panel.png 'User Panel')
+---
 
 ## Audit Log
 
-This view shows a chronological history of score- and state-changes for each
-team across all stations.
-
-This can prove helpful to retrace changes in scores in case of doubt or upon
-request.
+The **Audit** page shows a full chronological history of every score change
+and state change made during the event.
 
 ![Audit Log](/manual/images/audit-log.png 'Audit Log')
+
+Each row shows the timestamp, team name, station name and what changed (a
+state transition or a new score value). Use this view to investigate
+disputed scores or to verify that state updates were recorded correctly.

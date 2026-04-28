@@ -2,100 +2,131 @@
 
 ## Important Concepts
 
-### Team "states"
+### Team States
 
-A team can be in one of three different "states" for each station:
+A team has a **state** for each station it passes through. There are four
+possible states:
 
-- Unknown/Pending: The team has not yet arrived on the station
-- Arrived/Playing: The team has arrived at the station
-- Finished: The team has left the station
+| State | Meaning |
+|---|---|
+| **Unknown / Pending** | The team has not yet arrived at this station |
+| **Arrived** | The team is currently at this station |
+| **Finished** | The team has left this station |
+| **Unreachable** | This station cannot be reached by this team |
 
-These three states are shown as icons throughout the application:
+The states are shown as icons throughout the application:
 
 - Unknown/Pending: ![Pending](/manual/images/icon-pending.png 'State Icon: Pending')
-- Arrived/Playing: ![Arrived](/manual/images/icon-arrived.png 'State Icon: Arrived')
+- Arrived: ![Arrived](/manual/images/icon-arrived.png 'State Icon: Arrived')
 - Finished: ![Finished](/manual/images/icon-finished.png 'State Icon: Finished')
 
-### Finished Teams
+### Team Completion
 
-A team can be considered as "done" with the event through various means:
+A team is considered to have completed the event when **any** of the
+following happens:
 
-- The team has been marked as "finished" on the arrival station (the station
-  must be configured as "arrival" in the system).
-- The staff manually marks the team as "cancelled"
-- The staff manually marks the team as "finished"
+- The team is marked as **finished** at the designated **Arrival Station**.
+- A staff member manually marks the team as **cancelled**.
+- A staff member manually marks the team as **finished** from the Team List.
 
 ::: admonition important
-**Staff**: Marking a team as "finished" or "cancelled" gives valuable
-information to stations. This information is shown on the station dashboard. It
-lets stations know that they no longer need to wait for those teams. The staff
-should make sure that this information is kept up-to-date and correct.
-
-The states "cancelled" and "finished" are displayed slightly differently in the
-user-interface.
+**Keep the states up to date.** Stations receive the states of neighbouring
+stations in their dashboard. If teams are marked finished promptly, the next
+station can see them coming and prepare. Cancellations are equally important:
+stations will stop waiting for a cancelled team.
 :::
+
+---
+
+## Navigation
+
+On mobile, tap the **hamburger menu (&#9776;)** in the top-left to open the
+navigation drawer. The available items depend on your role and the currently
+selected event:
+
+- **Dashboard** — live event progress overview
+- **Photos** — photo gallery
+- **Stations** — station list and dashboards (station managers and admins)
+- **Uploads** — manage your photo uploads (when logged in)
 
 ---
 
 ## Station List
 
-The Station List shows all stations registered for the event. This view can be
-used by administrators to add, remote and/or edit stations.
+The Station List shows every station registered for the current event.
 
 ![Station List](/manual/images/station-list.png 'Station List')
 
-## Station Dashboard
+Tap the **clipboard icon** next to a station to open its dashboard.
 
 ::: admonition tip
-This is the main view for the event staff managing a station and can be accessed
-by clicking on the "Clipboard" icon in the station list:
-
-![Clipboard](/manual/images/clipboard.png 'Clipboard')
+The clipboard button is only available for stations you have been assigned to
+(or for all stations if you have the `admin` role).
 :::
 
-If you're logged in, and have been granted access to a station, the
-"station-dashboard" will become available for that station.
+---
+
+## Station Dashboard
+
+The Station Dashboard is the primary working view for station staff.
 
 ![Station Dashboard](/manual/images/station-dashboard.png 'Station Dashboard')
 
-The station-dashboard has a lot of features in one view. These are (in order of
-importance):
+### Layout
 
-### Team "cards"
+The screen is divided into three vertical areas:
 
-Each team is represented by a card. The card can be used to:
+- **Left strip** — icons showing the states of teams at the **previous**
+  station. Brighter icons are more recent. Tap this strip to jump to the
+  previous station.
+- **Centre column** — the main content area (described below).
+- **Right strip** — icons showing the states of teams at the **next**
+  station. Brighter icons are more recent. Tap this strip to jump to the
+  next station.
 
-- Update the score for this station
-- Update the score for the quizz/questionnaire for this station
-- Set the "state" (unknown/arrived/finished) by clicking on the state-icon
-  button.
-
-### Filter/Find
-
-For convenience, the text-box at the top can be used to quickly find a team by
-name or by contact-name. While the "Show finished teams" option is disabled, you
-will only see cards for teams that are still in the game. **As soon as you mark
-the team as finished** it will be hidden. To see it again (for example if you
-accidentally click the button) you can find it back by enabling that option.
-
-### Previous/Next Station "peek"
-
-The left/right side of the view display state icons for the stations right
-**before** and **after** this station. The names of these stations are displayed
-in the corner. Those "peek" areas are clickable to navigate to those stations.
-
-The icons in those areas are **brighter if the change happened recently**. And
-the more recent changes are displayed at the top.
-
-For example: If a station has recently marked 5 teams as "finished" you will see
-5 green "finished" icons brightly at the top. This gives you an indication that
-those 5 teams will soon arrive at your station and you can prepare for the
-arrival.
-
-If the icons are faded, the change has happened a while ago and the teams have
-probably already passed.
-
-:::admonition tip
-Other station dashboards will also be available for convenience. But you will
-only be able to modify data from the station you have been granted access to.
+::: admonition tip
+Use the side strips to predict incoming traffic. If the previous station has
+recently finished many teams (bright green icons at the top), those teams
+will be arriving at your station soon.
 :::
+
+### Navigation Bar
+
+At the top of the centre column the names of the **previous** and **next**
+stations are shown as tappable buttons. Use these to quickly jump between
+stations.
+
+### Find a Team
+
+A filter box lets you search for a team by name or contact person (minimum
+3 characters). Only matching teams will be shown while the filter is active.
+
+### Team Cards
+
+Each active team is shown as a card with:
+
+- **Team name** in the card header (shown with a strikethrough and an
+  "Cancelled" label if the team has been cancelled)
+- **Score** — the numeric score for this station. Edit and press Enter or
+  tap away to save, or use the Save button.
+- **Q-Score** — the questionnaire score for this station (label shows the
+  questionnaire name). Saved the same way.
+- **State button** — shows the current state icon. Tap it to **advance the
+  state** in sequence: Unknown → Arrived → Finished.
+- **Save button** (&#128190;) — saves both score fields at once.
+
+### Finished Teams
+
+Teams that have been marked as **Finished** at this station are moved into a
+collapsible **"Done"** section at the bottom. Expand it to see or edit them.
+
+---
+
+## Tips for Station Staff
+
+- Mark teams as **Arrived** as soon as they appear at your station — this
+  information is immediately visible to the next station.
+- Mark teams as **Finished** when they leave — this removes them from the
+  active list and updates the dashboard for everyone.
+- If a team skips your station entirely, leave them as **Unknown** or contact
+  the event admin to mark them cancelled.

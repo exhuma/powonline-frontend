@@ -107,7 +107,7 @@
                   @keyup.enter="loginUser"
                   v-model="username"
                   ref="LoginDialogUsername"
-                  label="Enter a new username"
+                  label="Username"
                   autofocus
                 />
                 <v-text-field
