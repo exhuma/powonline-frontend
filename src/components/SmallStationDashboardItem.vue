@@ -33,6 +33,7 @@
               hide-details
               prepend-inner-icon="mdi-clipboard-list-outline"
               class="flex-grow-1"
+              :disabled="!hasQuestionnaire"
             />
           </v-col>
           <v-col cols="6" class="d-flex flex-column">
@@ -106,6 +107,10 @@ const SmallStationDashboardIcon = defineComponent({
     questionnaireScores: {
       type: Object as () => QuestionnaireScores,
       default: () => ({})
+    },
+    hasQuestionnaire: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

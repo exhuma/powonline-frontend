@@ -61,6 +61,7 @@
           :state="state"
           :teams="teams"
           :questionnaire-scores="questionnaireScores"
+          :has-questionnaire="hasQuestionnaire"
           :key="'active' + idx"
         ></small-station-dashboard-item>
 
@@ -93,6 +94,7 @@
                   :state="state"
                   :teams="teams"
                   :questionnaire-scores="questionnaireScores"
+                  :has-questionnaire="hasQuestionnaire"
                   :key="'finished' + idx"
                 ></small-station-dashboard-item>
               </v-expansion-panel-text>
@@ -131,6 +133,7 @@ import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { AnyTeam } from '@/remote/model/team'
 import { isFullTeam } from '@/remote/model/team'
 import type { RelatedTeamEntry } from '@/api'
+import type { Questionnaire } from '@/remote/model/questionnaire'
 
 type RelatedTeamEntryWithAge = RelatedTeamEntry & {
   ageClass?: Record<string, boolean>
@@ -187,13 +190,19 @@ const StationDashboard = defineComponent({
       previousStation: '' as string,
       nextStation: '' as string,
       dashboard: [] as DashboardRow[],
-      teams: [] as AnyTeam[]
+      teams: [] as AnyTeam[],
+      questionnaires: [] as Questionnaire[]
     }
   },
 
   computed: {
     stationName(): string {
       return String(this.$route.params.stationName)
+    },
+    hasQuestionnaire(): boolean {
+      return this.questionnaires.some(
+        (q) => q.station_name === this.stationName
+      )
     },
     allTeams(): unknown[] {
       const output: any[] = []
@@ -356,6 +365,13 @@ const StationDashboard = defineComponent({
       this.nextStation = ''
 
       await this.fetchDashboard()
+
+      this.questionnaires = await api
+        .fetchQuestionnaires(eventId)
+        .catch((e) => {
+          console.error('Failed to fetch questionnaires', e)
+          return []
+        })
 
       const teams = await api.fetchTeams(eventId).catch((e) => {
         console.error('Failed to fetch teams', e)
