@@ -129,13 +129,15 @@ import {
   lastQuestionnaireScoreChange,
   questionnaireScores
 } from '@/composables/useRealtimeStream'
+import type { StateChangePayload } from '@/composables/useRealtimeStream'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { AnyTeam } from '@/remote/model/team'
 import { isFullTeam } from '@/remote/model/team'
 import type { RelatedTeamEntry } from '@/api'
 import type { Questionnaire } from '@/remote/model/questionnaire'
 
-type RelatedTeamEntryWithAge = RelatedTeamEntry & {
+type RelatedTeamEntryWithAge = Omit<RelatedTeamEntry, 'state'> & {
+  state: string
   ageClass?: Record<string, boolean>
 }
 
@@ -160,10 +162,16 @@ const StationDashboard = defineComponent({
   setup() {
     const stopHandles: (() => void)[] = []
 
-    function registerCallbacks(onStateOrScore: () => void) {
+    function registerCallbacks(
+      onStateOrScore: () => void,
+      onStateChange?: (p: StateChangePayload) => void
+    ) {
       stopHandles.push(
         watch(lastStateChange, (val) => {
-          if (val !== null) onStateOrScore()
+          if (val !== null) {
+            onStateOrScore()
+            if (onStateChange) onStateChange(val)
+          }
         }),
         watch(lastScoreChange, (val) => {
           if (val !== null) onStateOrScore()
@@ -191,7 +199,8 @@ const StationDashboard = defineComponent({
       nextStation: '' as string,
       dashboard: [] as DashboardRow[],
       teams: [] as AnyTeam[],
-      questionnaires: [] as Questionnaire[]
+      questionnaires: [] as Questionnaire[],
+      ageIntervalId: null as number | null
     }
   },
 
@@ -251,11 +260,37 @@ const StationDashboard = defineComponent({
     await this.refresh()
     // SSE-driven refresh: re-fetch per-station dashboard on state/score changes.
     // Questionnaire scores are updated surgically in the composable — no callback needed.
-    ;(this as any).registerCallbacks(() => this.fetchDashboard())
+    ;(this as any).registerCallbacks(
+      () => this.fetchDashboard(),
+      (p: StateChangePayload) => {
+        // Surgically update side-column icons when a neighbouring station changes.
+        if (p.station === this.previousStation) {
+          const entry = this.previousStates.find((e) => e.team === p.team)
+          if (entry) {
+            entry.state = p.new_state
+            entry.updateAge = 1 // just changed → recent opacity
+            applyAgeClasses([entry])
+          }
+        }
+        if (p.station === this.nextStation) {
+          const entry = this.nextStates.find((e) => e.team === p.team)
+          if (entry) {
+            entry.state = p.new_state
+            entry.updateAge = 1 // just changed → recent opacity
+            applyAgeClasses([entry])
+          }
+        }
+      }
+    )
+    // Periodically age the side-column icons so their opacity stays accurate.
+    this.ageIntervalId = window.setInterval(() => this.tickAgeClasses(), 60_000)
   },
 
   beforeUnmount() {
     ;(this as any).stopWatchers()
+    if (this.ageIntervalId !== null) {
+      window.clearInterval(this.ageIntervalId)
+    }
   },
 
   watch: {
@@ -265,6 +300,14 @@ const StationDashboard = defineComponent({
   },
 
   methods: {
+    tickAgeClasses() {
+      const tick = 60
+      ;[...this.previousStates, ...this.nextStates].forEach((entry) => {
+        if (entry.updateAge !== undefined) entry.updateAge += tick
+      })
+      applyAgeClasses(this.previousStates)
+      applyAgeClasses(this.nextStates)
+    },
     updateTeamStationState(state: any) {
       const teamInfo = this.dashboard.find((t) => t.team === state.team)
       if (!teamInfo) return
@@ -388,7 +431,7 @@ const StationDashboard = defineComponent({
           this.stationName,
           'previous',
           eventId
-        )) as RelatedTeamEntryWithAge[]
+        )) as unknown as RelatedTeamEntryWithAge[]
         applyAgeClasses(prevStates)
         this.previousStates = prevStates
       } catch (e) {
@@ -404,7 +447,7 @@ const StationDashboard = defineComponent({
           this.stationName,
           'next',
           eventId
-        )) as RelatedTeamEntryWithAge[]
+        )) as unknown as RelatedTeamEntryWithAge[]
         applyAgeClasses(nextStates)
         this.nextStates = nextStates
       } catch (e) {
