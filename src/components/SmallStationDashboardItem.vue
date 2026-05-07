@@ -19,6 +19,7 @@
               hide-details
               prepend-inner-icon="mdi-gamepad-variant-outline"
               class="flex-grow-1"
+              :disabled="!eventLive"
             />
           </v-col>
           <v-col cols="6" class="d-flex flex-column">
@@ -33,13 +34,14 @@
               hide-details
               prepend-inner-icon="mdi-clipboard-list-outline"
               class="flex-grow-1"
-              :disabled="!hasQuestionnaire"
+              :disabled="!eventLive || !hasQuestionnaire"
             />
           </v-col>
           <v-col cols="6" class="d-flex flex-column">
             <v-btn
               class="action-button flex-grow-1"
               @click="advanceState(state)"
+              :disabled="!eventLive"
               ><state-icon :state="state.state"></state-icon
             ></v-btn>
           </v-col>
@@ -48,6 +50,7 @@
               class="action-button flex-grow-1"
               @click="saveChanges"
               color="success"
+              :disabled="!eventLive"
               ><v-icon>mdi-content-save</v-icon></v-btn
             >
           </v-col>
@@ -111,6 +114,10 @@ const SmallStationDashboardIcon = defineComponent({
     hasQuestionnaire: {
       type: Boolean,
       default: false
+    },
+    eventLive: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {

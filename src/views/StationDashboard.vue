@@ -51,6 +51,17 @@
           class="ml-5 mr-5 mt-2"
         ></v-text-field>
 
+        <v-alert
+          v-if="!isEventLive"
+          type="warning"
+          density="compact"
+          variant="tonal"
+          class="ml-5 mr-5 mt-2 mb-1"
+          icon="mdi-clock-alert-outline"
+        >
+          Actions are only available during the event window.
+        </v-alert>
+
         <small-station-dashboard-item
           v-for="(state, idx) in activeTeams"
           class="mb-3 ml-5 mr-5"
@@ -62,6 +73,7 @@
           :teams="teams"
           :questionnaire-scores="questionnaireScores"
           :has-questionnaire="hasQuestionnaire"
+          :event-live="isEventLive"
           :key="'active' + idx"
         ></small-station-dashboard-item>
 
@@ -95,6 +107,7 @@
                   :teams="teams"
                   :questionnaire-scores="questionnaireScores"
                   :has-questionnaire="hasQuestionnaire"
+                  :event-live="isEventLive"
                   :key="'finished' + idx"
                 ></small-station-dashboard-item>
               </v-expansion-panel-text>
@@ -133,8 +146,25 @@ import type { StateChangePayload } from '@/composables/useRealtimeStream'
 import type { DashboardRow } from '@/remote/model/dashboardRow'
 import type { AnyTeam } from '@/remote/model/team'
 import { isFullTeam } from '@/remote/model/team'
-import type { RelatedTeamEntry } from '@/api'
+import type { RelatedTeamEntry, EventInfo } from '@/api'
 import type { Questionnaire } from '@/remote/model/questionnaire'
+
+/**
+ * Returns true when the API error indicates the request was rejected because
+ * the action was attempted outside the configured event time window.
+ */
+function isOutsideWindowError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false
+  try {
+    const body = JSON.parse(err.message)
+    return (
+      typeof body?.detail === 'string' &&
+      body.detail.includes('outside the event window')
+    )
+  } catch {
+    return false
+  }
+}
 
 type RelatedTeamEntryWithAge = Omit<RelatedTeamEntry, 'state'> & {
   state: string
@@ -157,7 +187,7 @@ function applyAgeClasses(data: RelatedTeamEntryWithAge[]) {
 
 const StationDashboard = defineComponent({
   name: 'station_dashboard',
-  inject: ['getSelectedEventId'],
+  inject: ['getSelectedEventId', 'getEvents'],
 
   setup() {
     const stopHandles: (() => void)[] = []
@@ -200,7 +230,8 @@ const StationDashboard = defineComponent({
       dashboard: [] as DashboardRow[],
       teams: [] as AnyTeam[],
       questionnaires: [] as Questionnaire[],
-      ageIntervalId: null as number | null
+      ageIntervalId: null as number | null,
+      isEventLive: true
     }
   },
 
@@ -341,7 +372,9 @@ const StationDashboard = defineComponent({
       } catch (err) {
         console.error('Failed to advance state', err)
         EventBus.emit('snackRequested', {
-          message: 'Failed to advance state',
+          message: isOutsideWindowError(err)
+            ? 'This event is not currently active. Actions are only available during the event window.'
+            : 'Failed to advance state',
           color: 'error'
         })
       }
@@ -360,7 +393,9 @@ const StationDashboard = defineComponent({
       } catch (err) {
         console.error('Failed to set station score', err)
         EventBus.emit('snackRequested', {
-          message: 'Failed to set score',
+          message: isOutsideWindowError(err)
+            ? 'This event is not currently active. Actions are only available during the event window.'
+            : 'Failed to set score',
           color: 'error'
         })
       }
@@ -383,7 +418,9 @@ const StationDashboard = defineComponent({
       } catch (err) {
         console.error('Failed to set questionnaire score', err)
         EventBus.emit('snackRequested', {
-          message: 'Failed to set questionnaire score',
+          message: isOutsideWindowError(err)
+            ? 'This event is not currently active. Actions are only available during the event window.'
+            : 'Failed to set questionnaire score',
           color: 'error'
         })
       }
@@ -393,6 +430,21 @@ const StationDashboard = defineComponent({
         message: 'Changes saved',
         color: 'success'
       })
+    },
+    updateIsEventLive() {
+      // @ts-expect-error inject
+      const eventId = this.getSelectedEventId()
+      const events: EventInfo[] = (this as any).getEvents() ?? []
+      const event = events.find((e) => e.id === eventId)
+      if (!event?.time_range) {
+        // No time window configured — do not block actions
+        this.isEventLive = true
+        return
+      }
+      const now = Date.now()
+      this.isEventLive =
+        now >= new Date(event.time_range.start).getTime() &&
+        now <= new Date(event.time_range.end).getTime()
     },
     async fetchDashboard() {
       // @ts-expect-error inject
@@ -485,6 +537,7 @@ const StationDashboard = defineComponent({
           color: 'error'
         })
       }
+      this.updateIsEventLive()
     }
   }
 })
