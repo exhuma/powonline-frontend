@@ -46,21 +46,11 @@
                   @click="selectEvent(event)"
                   class="rounded mb-1"
                   style="border: 1px solid rgba(0, 0, 0, 0.12)"
+                  :title="event.name"
+                  :subtitle="formatDateRange(event.time_range)"
+                  :append-icon="'mdi-chevron-right'"
+                  :prepend-icon="'mdi-calendar'"
                 >
-                  <v-list-item-avatar color="primary">
-                    <v-icon dark>mdi-calendar</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="font-weight-medium">
-                      {{ event.name }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ formatDateRange(event.time_range) }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-icon color="primary">mdi-chevron-right</v-icon>
-                  </v-list-item-action>
                 </v-list-item>
               </v-list>
             </v-card-text>
@@ -150,7 +140,7 @@ export default defineComponent({
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push(`/event/${event.id}/dashboard`)
     },
-    formatDateRange(timeRange: { start: string; end: string }): string {
+    formatDateRange(timeRange: { start: string; end: string } | null): string {
       if (!timeRange) {
         return 'empty'
       }
