@@ -244,8 +244,8 @@ const StationDashboard = defineComponent({
         (q) => q.station_name === this.stationName
       )
     },
-    allTeams(): unknown[] {
-      const output: any[] = []
+    allTeams(): {team: string, station: string, state: string , score: number}[] {
+      const output: {team: string, station: string, state: string , score: number}[] = []
       this.dashboard.forEach((teamInfo) => {
         teamInfo.stations.forEach((stationState) => {
           if (stationState.name !== this.stationName) return
@@ -260,7 +260,7 @@ const StationDashboard = defineComponent({
       })
       return output
     },
-    filteredTeams(): unknown[] {
+    filteredTeams() {
       if (!this.teamFilter || this.teamFilter.length < 3) {
         return this.allTeams
       }
@@ -275,13 +275,13 @@ const StationDashboard = defineComponent({
         return nameMatches || contactMatches
       })
     },
-    activeTeams(): unknown[] {
-      return (this.filteredTeams as any[]).filter(
+    activeTeams() {
+      return (this.filteredTeams).filter(
         (item: any) => item.state !== 'finished'
       )
     },
-    finishedTeams(): unknown[] {
-      return (this.filteredTeams as any[]).filter(
+    finishedTeams() {
+      return (this.filteredTeams).filter(
         (item: any) => item.state === 'finished'
       )
     }
