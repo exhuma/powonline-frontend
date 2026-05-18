@@ -3,53 +3,28 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-image-multiple</v-icon>
-            <v-toolbar-title>Upload Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <image-upload
-              class="mr-2"
-              :fab="false"
-              label="Upload"
-              @uploadStarted="onUploadStarted"
-              @uploadFailed="onUploadFailed"
-              @uploadFinished="onUploadDone"
-            ></image-upload>
-            <v-btn @click="refreshImages">
-              <v-icon start>mdi-refresh</v-icon>
-              Refresh
-            </v-btn>
-          </v-toolbar>
-          <v-data-table
-            :headers="headers"
-            :items="files"
-            :items-per-page="15"
+          <UploadsTable
+            v-if="!$vuetify.display.smAndDown"
+            :files="files"
             :loading="loading"
-            class="elevation-0"
-          >
-            <template v-slot:item.thumbnail="{ item }">
-              <v-img
-                @click="openPreview(item)"
-                max-height="150"
-                :lazy-src="item.tiny"
-                :src="item.thumbnail"
-                style="cursor: pointer"
-              />
-            </template>
-            <template v-slot:item.name="{ item }">
-              <a :href="item.href">{{ item.name }}</a>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <v-list-item
-                  prepend-icon="mdi-delete-forever"
-                  title="Delete"
-                  class="text-error"
-                  @click="confirmDelete(item)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            @refresh="refreshImages"
+            @open-preview="openPreview"
+            @open-delete="confirmDelete"
+            @upload-started="onUploadStarted"
+            @upload-failed="onUploadFailed"
+            @upload-finished="onUploadDone"
+          />
+          <UploadsCards
+            v-else
+            :files="files"
+            :loading="loading"
+            @refresh="refreshImages"
+            @open-preview="openPreview"
+            @open-delete="confirmDelete"
+            @upload-started="onUploadStarted"
+            @upload-failed="onUploadFailed"
+            @upload-finished="onUploadDone"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -110,11 +85,11 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment'
 import { type Upload } from '@/remote/model/upload'
 import { defineComponent } from 'vue'
 import { api } from '@/main'
-import RowActions from '@/components/RowActions.vue'
+import UploadsTable from '@/components/management/desktop/UploadsTable.vue'
+import UploadsCards from '@/components/management/mobile/UploadsCards.vue'
 
 function sortUploads(uploadsRaw: { [key: string]: Upload[] }): Upload[] {
   return Object.values(uploadsRaw)
@@ -124,7 +99,7 @@ function sortUploads(uploadsRaw: { [key: string]: Upload[] }): Upload[] {
 
 export default defineComponent({
   name: 'Uploads',
-  components: { RowActions },
+  components: { UploadsTable, UploadsCards },
   inject: ['getSelectedEventId'],
 
   data() {
@@ -134,14 +109,7 @@ export default defineComponent({
       showDeleteDialog: false,
       previewImage: { href: '', tiny: '' } as { href: string; tiny: string },
       deletingFile: null as Upload | null,
-      uploadsRaw: {} as { [key: string]: Upload[] },
-      headers: [
-        { title: 'Thumbnail', key: 'thumbnail', sortable: false },
-        { title: 'User', key: 'username', sortable: true },
-        { title: 'File Name', key: 'name', sortable: true },
-        { title: 'Upload Time', key: 'formattedDate', sortable: true },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-      ]
+      uploadsRaw: {} as { [key: string]: Upload[] }
     }
   },
 

@@ -3,81 +3,30 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-calendar-multiple</v-icon>
-            <v-toolbar-title>Event Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-btn color="primary" @click="openCreateDialog">
-              <v-icon start>mdi-plus</v-icon>
-              New Event
-            </v-btn>
-          </v-toolbar>
-          <v-data-table
-            :headers="headers"
-            :items="events"
-            :items-per-page="15"
+          <EventTable
+            v-if="!$vuetify.display.smAndDown"
+            :events="events"
             :loading="loading"
-            class="elevation-0"
-          >
-            <template v-slot:item.time_range="{ item }">
-              {{ formatDateRange(item.time_range) }}
-            </template>
-            <template v-slot:item.status="{ item }">
-              <v-chip size="small" :color="statusColor(item)" dark>
-                {{ statusLabel(item) }}
-              </v-chip>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <template #pinned>
-                  <v-btn
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="selectEvent(item)"
-                    title="Select event"
-                  >
-                    <v-icon>mdi-check-circle</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openEditDialog(item)"
-                    title="Edit event"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn
-                    icon
-                    size="small"
-                    variant="text"
-                    :color="pinnedEvent?.id === item.id ? 'primary' : undefined"
-                    :title="
-                      pinnedEvent?.id === item.id
-                        ? 'Current domain is mapped to this event'
-                        : 'Manage domains'
-                    "
-                    @click="openDomainsDialog(item)"
-                  >
-                    <v-icon>mdi-web</v-icon>
-                  </v-btn>
-                </template>
-
-                <v-list-item
-                  prepend-icon="mdi-account-multiple"
-                  title="Manage members"
-                  @click="openMembersDialog(item)"
-                />
-                <v-list-item
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  class="text-error"
-                  @click="confirmDelete(item)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            :pinned-event-id="pinnedEvent ? pinnedEvent.id : null"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+            @open-domains="openDomainsDialog"
+            @open-members="openMembersDialog"
+            @select-event="selectEvent"
+          />
+          <EventCards
+            v-else
+            :events="events"
+            :loading="loading"
+            :pinned-event-id="pinnedEvent ? pinnedEvent.id : null"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+            @open-domains="openDomainsDialog"
+            @open-members="openMembersDialog"
+            @select-event="selectEvent"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -127,9 +76,7 @@
             </v-list-item>
           </v-list>
           <div v-else class="text--secondary mb-2">No domains configured.</div>
-
           <v-divider class="my-3"></v-divider>
-
           <v-form @submit.prevent="addDomain">
             <v-text-field
               v-model="newDomain"
@@ -170,17 +117,17 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import moment from 'moment'
 import type { EventInfo, EventDomain } from '@/api'
 import EventDialog from '@/components/EventDialog.vue'
 import EventMemberManager from '@/components/EventMemberManager.vue'
-import RowActions from '@/components/RowActions.vue'
+import EventTable from '@/components/management/desktop/EventTable.vue'
+import EventCards from '@/components/management/mobile/EventCards.vue'
 import { api } from '@/main'
 import { pinnedEvent } from '@/pinnedEvent'
 
 export default defineComponent({
   name: 'EventManagement',
-  components: { EventDialog, EventMemberManager, RowActions },
+  components: { EventDialog, EventMemberManager, EventTable, EventCards },
   inject: ['getSelectedEventId', 'setSelectedEventId'],
   data() {
     return {
@@ -196,13 +143,7 @@ export default defineComponent({
       domainsEvent: null as EventInfo | null,
       eventDomains: [] as EventDomain[],
       newDomain: '',
-      domainError: '' as string,
-      headers: [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Date Range', key: 'time_range', sortable: false },
-        { title: 'Status', key: 'status', sortable: false },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-      ]
+      domainError: '' as string
     }
   },
   computed: {
@@ -221,25 +162,6 @@ export default defineComponent({
       } finally {
         this.loading = false
       }
-    },
-    formatDateRange(timeRange: { start: string; end: string }): string {
-      const start = moment(timeRange.start).format('MMM D, YYYY HH:mm')
-      const end = moment(timeRange.end).format('MMM D, YYYY HH:mm')
-      return `${start} – ${end}`
-    },
-    statusLabel(event: EventInfo): string {
-      const now = moment()
-      const start = moment(event.time_range.start)
-      const end = moment(event.time_range.end)
-      if (now.isBefore(start)) return 'Upcoming'
-      if (now.isAfter(end)) return 'Past'
-      return 'Active'
-    },
-    statusColor(event: EventInfo): string {
-      const label = this.statusLabel(event)
-      if (label === 'Active') return 'green'
-      if (label === 'Upcoming') return 'blue'
-      return 'grey'
     },
     selectEvent(event: EventInfo) {
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
@@ -265,7 +187,6 @@ export default defineComponent({
       this.showDeleteDialog = false
       if (!this.deletingEvent) return
       await api.deleteEvent(this.deletingEvent.id)
-      // If we deleted the selected event, clear selection and go back to landing page
       const currentId = (this.getSelectedEventId as () => number | null)()
       if (currentId === this.deletingEvent.id) {
         ;(this.setSelectedEventId as (id: number | null) => void)(null)

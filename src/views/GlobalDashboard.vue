@@ -95,6 +95,33 @@
   z-index: 500;
   transition: bottom 0.2s ease;
 }
+
+/* ── Mobile (≤ 600 px — Vuetify xs breakpoint) ─────────────────────────── */
+@media (max-width: 600px) {
+  .global-dashboard {
+    height: auto;
+    overflow: visible;
+  }
+
+  .three-col-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .route-col {
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .scoreboard-col {
+    height: auto;
+    overflow: visible;
+  }
+
+  .fullscreen-fab {
+    display: none;
+  }
+}
 </style>
 
 <script lang="ts">

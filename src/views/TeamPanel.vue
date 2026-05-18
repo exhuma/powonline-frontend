@@ -37,7 +37,8 @@
 import { defineComponent } from 'vue'
 import type { Session } from '@/App.vue'
 import { api } from '@/main'
-import type { Team } from '@/remote/model/team'
+import type { AnyTeam, Team } from '@/remote/model/team'
+import { isFullTeam } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
 import TeamForm from '@/components/forms/TeamForm.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
@@ -50,7 +51,7 @@ const TeamPanel = defineComponent({
   data() {
     return {
       loading: false,
-      team: null as Team | null,
+      team: null as AnyTeam | null,
       routes: [] as Route[]
     }
   },
@@ -77,7 +78,7 @@ const TeamPanel = defineComponent({
       const session = this.session as Session
       return session.roles.includes(roleName)
     },
-    onTeamUpdated(team: Team) {
+    onTeamUpdated(team: AnyTeam) {
       this.team = team
     },
     async onTeamDeleted() {
@@ -98,12 +99,20 @@ const TeamPanel = defineComponent({
     },
     async save() {
       if (!this.team) return
+      if (!isFullTeam(this.team)) {
+        this.$emit('snackRequested', {
+          message:
+            'Cannot save: full team data not available. You need the event_owner or event_co_admin role.',
+          color: 'red'
+        })
+        return
+      }
       const eventId = (this as any).getSelectedEventId()
       this.team.comments = this.team.comments || ''
       try {
         await api.updateTeam(
           String(this.$route.params.teamName),
-          this.team,
+          this.team as Team,
           eventId
         )
         this.$emit('snackRequested', { message: 'Save successful' })

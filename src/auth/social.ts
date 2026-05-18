@@ -10,16 +10,16 @@
  * route, where AuthCallback.vue calls store.dispatch('checkSession').
  */
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string
-
 /**
  * Redirect the browser to begin an OAuth2 PKCE flow for the given provider.
  *
- * @param provider  Provider name as returned by GET /auth/providers (e.g. "google")
+ * @param provider    Provider name as returned by GET /auth/providers (e.g. "google")
+ * @param backendUrl  The resolved backend base URL (from runtime config, not build-time env).
+ *                    Pass `api.baseUrl` from the ApiClient instance created in main.ts.
  */
-export function startSocialLogin(provider: string): void {
+export function startSocialLogin(provider: string, backendUrl: string): void {
   // The backend callback URL — the IdP will redirect here with the code.
-  const backendCallbackUrl = `${BACKEND_URL}/auth/callback/${provider}`
+  const backendCallbackUrl = `${backendUrl}/auth/callback/${provider}`
 
   // The frontend URL the backend should redirect to after successful login.
   const frontendCallbackUrl = `${window.location.origin}/auth/callback`
@@ -29,7 +29,7 @@ export function startSocialLogin(provider: string): void {
     frontend_url: frontendCallbackUrl
   })
 
-  window.location.href = `${BACKEND_URL}/auth/social/${provider}?${params}`
+  window.location.href = `${backendUrl}/auth/social/${provider}?${params}`
 }
 
 export default { startSocialLogin }

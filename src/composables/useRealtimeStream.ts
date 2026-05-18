@@ -147,8 +147,7 @@ export async function initData(eventId: number): Promise<void> {
 // ---------------------------------------------------------------------------
 
 function _buildUrl(eventId: number): string {
-  const base = (import.meta as any).env?.VITE_BACKEND_URL ?? ''
-  return `${base}/events/${eventId}/stream`
+  return `${api.baseUrl}/events/${eventId}/stream`
 }
 
 function _handleMessage(raw: string): void {

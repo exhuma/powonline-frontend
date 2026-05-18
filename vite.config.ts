@@ -68,7 +68,8 @@ export default defineConfig({
     }
   },
   define: {
-    __APP_VERSION__: JSON.stringify(packageJson.version)
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+    __COMMIT_SHA__: JSON.stringify(process.env.VITE_COMMIT_SHA ?? 'dev')
   },
   test: {
     setupFiles: ['tests/setup.ts'],

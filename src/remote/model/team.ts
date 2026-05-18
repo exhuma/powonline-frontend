@@ -19,3 +19,24 @@ export interface Team {
   route_name: string | null
   email: string
 }
+
+/** Reduced schema returned for unauthenticated / low-privilege callers. */
+export interface TeamPublic {
+  name: string
+  order: number
+  route_name: string | null
+  cancelled: boolean
+  accepted: boolean
+  completed: boolean
+  planned_start_time: string | null
+}
+
+export type AnyTeam = Team | TeamPublic
+
+export function isFullTeam(team: AnyTeam): team is Team {
+  return 'email' in team
+}
+
+export function isPublicTeam(team: AnyTeam): team is TeamPublic {
+  return !isFullTeam(team)
+}

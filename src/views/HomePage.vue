@@ -30,16 +30,13 @@
                   There are no upcoming events you can access.
                 </p>
                 <v-btn
-                  v-if="isEventAdmin"
+                  v-if="isLoggedIn"
                   color="primary"
                   @click="showCreateDialog = true"
                 >
                   <v-icon start>mdi-plus</v-icon>
                   Create New Event
                 </v-btn>
-                <p v-else class="text-body-2">
-                  Please contact an administrator to set up an event.
-                </p>
               </div>
 
               <v-list v-else lines="two">
@@ -49,26 +46,16 @@
                   @click="selectEvent(event)"
                   class="rounded mb-1"
                   style="border: 1px solid rgba(0, 0, 0, 0.12)"
+                  :title="event.name"
+                  :subtitle="formatDateRange(event.time_range)"
+                  :append-icon="'mdi-chevron-right'"
+                  :prepend-icon="'mdi-calendar'"
                 >
-                  <v-list-item-avatar color="primary">
-                    <v-icon dark>mdi-calendar</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="font-weight-medium">
-                      {{ event.name }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ formatDateRange(event.time_range) }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-icon color="primary">mdi-chevron-right</v-icon>
-                  </v-list-item-action>
                 </v-list-item>
               </v-list>
             </v-card-text>
 
-            <v-card-actions v-if="isEventAdmin && futureEvents.length > 0">
+            <v-card-actions v-if="isLoggedIn && futureEvents.length > 0">
               <v-spacer></v-spacer>
               <v-btn
                 variant="text"
@@ -116,14 +103,16 @@ export default defineComponent({
       const now = moment()
       const events: EventInfo[] = (this.getEvents as () => EventInfo[])()
       return events.filter((event: EventInfo) => {
+        if (!event.time_range) {
+          return true
+        }
         const end = moment(event.time_range.end)
         const start = moment(event.time_range.start)
         return end.isAfter(now) || start.isAfter(now)
       })
     },
-    isEventAdmin(): boolean {
-      const roles: string[] = (this.session as Session).roles || []
-      return roles.includes('admin_events') || roles.includes('admin')
+    isLoggedIn(): boolean {
+      return Boolean((this.session as Session).userName)
     }
   },
   async mounted() {
@@ -151,7 +140,10 @@ export default defineComponent({
       ;(this.setSelectedEventId as (id: number) => void)(event.id)
       this.$router.push(`/event/${event.id}/dashboard`)
     },
-    formatDateRange(timeRange: { start: string; end: string }): string {
+    formatDateRange(timeRange: { start: string; end: string } | null): string {
+      if (!timeRange) {
+        return 'empty'
+      }
       const start = moment(timeRange.start).format('MMM D, YYYY HH:mm')
       const end = moment(timeRange.end).format('MMM D, YYYY HH:mm')
       return `${start} – ${end}`

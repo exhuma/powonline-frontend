@@ -3,66 +3,32 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-toolbar flat color="transparent">
-            <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
-            <v-toolbar-title>Station Management</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-            <v-btn
-              v-if="hasRole(['admin'])"
-              color="primary"
-              @click="openCreateDialog"
-            >
-              <v-icon start>mdi-plus</v-icon>
-              New Station
-            </v-btn>
-          </v-toolbar>
-          <v-data-table
-            :headers="headers"
-            :items="sortedStations"
-            :items-per-page="15"
+          <StationTable
+            v-if="!$vuetify.display.smAndDown"
+            :stations="sortedStations"
             :loading="loading"
-            class="elevation-0"
-          >
-            <template v-slot:item.is_start="{ item }">
-              <v-icon v-if="item.is_start" color="green">mdi-check</v-icon>
-            </template>
-            <template v-slot:item.is_end="{ item }">
-              <v-icon v-if="item.is_end" color="green">mdi-check</v-icon>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <RowActions>
-                <template #pinned>
-                  <v-btn
-                    v-if="hasRole(['admin'])"
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openEditDialog(item)"
-                    title="Edit station"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-if="canManageStation(item.name)"
-                    icon
-                    size="small"
-                    variant="text"
-                    @click="openDashboard(item)"
-                    title="Open dashboard"
-                  >
-                    <v-icon>mdi-clipboard-text</v-icon>
-                  </v-btn>
-                </template>
-                <v-list-item
-                  v-if="hasRole(['admin'])"
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  class="text-error"
-                  @click="confirmDelete(item)"
-                />
-              </RowActions>
-            </template>
-          </v-data-table>
+            :can-edit="hasRole(['admin'])"
+            :my-stations="myStations"
+            :can-open-any-dashboard="canOpenAnyDashboard"
+            :has-contact-data="hasContactData"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+            @open-dashboard="openDashboard"
+            @reorder="onReorderStations"
+          />
+          <StationCards
+            v-else
+            :stations="sortedStations"
+            :loading="loading"
+            :can-edit="hasRole(['admin'])"
+            :my-stations="myStations"
+            :can-open-any-dashboard="canOpenAnyDashboard"
+            @open-create="openCreateDialog"
+            @open-edit="openEditDialog"
+            @open-delete="confirmDelete"
+            @open-dashboard="openDashboard"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -78,12 +44,6 @@
             v-model="stationForm.name"
             label="Station name"
             :disabled="!!editingStation"
-          />
-          <v-text-field
-            v-model.number="stationForm.order"
-            type="number"
-            label="Station Ordering"
-            hint="This field is used to sort stations"
           />
           <v-checkbox
             v-model="stationForm.is_start"
@@ -139,19 +99,21 @@ import { defineComponent } from 'vue'
 import type { Session } from '@/App.vue'
 import { api } from '@/main'
 import model from '@/model'
-import type { Station } from '@/remote/model/station'
-import RowActions from '@/components/RowActions.vue'
+import type { AnyStation, Station } from '@/remote/model/station'
+import { isFullStation } from '@/remote/model/station'
+import StationTable from '@/components/management/desktop/StationTable.vue'
+import StationCards from '@/components/management/mobile/StationCards.vue'
 import { hasPermission } from '@/permissions'
 
 export default defineComponent({
   name: 'StationList',
-  components: { RowActions },
+  components: { StationTable, StationCards },
   inject: ['getSelectedEventId', 'session'],
 
   data() {
     return {
       loading: false,
-      stations: [] as Station[],
+      stations: [] as AnyStation[],
       /** Names of stations assigned to the current user for the selected event */
       myStations: new Set<string>(),
       showStationDialog: false,
@@ -159,17 +121,8 @@ export default defineComponent({
       errorDialog: false,
       errorText: '',
       editingStation: null as Station | null,
-      deletingStation: null as Station | null,
-      stationForm: model.station.makeEmpty() as any,
-      headers: [
-        { title: 'Name', key: 'name', sortable: true },
-        { title: 'Order', key: 'order', sortable: true },
-        { title: 'Contact', key: 'contact', sortable: true },
-        { title: 'Phone', key: 'phone', sortable: false },
-        { title: 'Departure', key: 'is_start', sortable: false },
-        { title: 'Arrival', key: 'is_end', sortable: false },
-        { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-      ]
+      deletingStation: null as AnyStation | null,
+      stationForm: model.station.makeEmpty() as any
     }
   },
 
@@ -178,7 +131,10 @@ export default defineComponent({
       const session = this.session as Session
       return hasPermission(session.roles, 'manage-all-stations')
     },
-    sortedStations(): Station[] {
+    hasContactData(): boolean {
+      return this.stations.some((s) => isFullStation(s))
+    },
+    sortedStations(): AnyStation[] {
       return this.stations
         .slice()
         .sort(
@@ -197,18 +153,6 @@ export default defineComponent({
     hasRole(roleNames: string[]): boolean {
       const session = this.session as Session
       return roleNames.some((r) => session.roles.includes(r))
-    },
-    /**
-     * Returns true when the current user may open the dashboard for the given
-     * station.  A user can manage a station when either:
-     *   - they have the 'manage-all-stations' permission (canOpenAnyDashboard), or
-     *   - they have the 'station_manager' role AND the station is assigned to them
-     *     for the currently selected event.
-     */
-    canManageStation(stationName: string): boolean {
-      if (this.canOpenAnyDashboard) return true
-      if (!this.hasRole(['station_manager'])) return false
-      return this.myStations.has(stationName)
     },
     async fetchMyStations() {
       const eventId = (this as any).getSelectedEventId()
@@ -241,16 +185,17 @@ export default defineComponent({
       this.stationForm = model.station.makeEmpty()
       this.showStationDialog = true
     },
-    openEditDialog(station: Station) {
+    openEditDialog(station: AnyStation) {
+      if (!isFullStation(station)) return
       this.editingStation = station
       this.stationForm = { ...station }
       this.showStationDialog = true
     },
-    confirmDelete(station: Station) {
+    confirmDelete(station: AnyStation) {
       this.deletingStation = station
       this.showDeleteDialog = true
     },
-    openDashboard(station: Station) {
+    openDashboard(station: AnyStation) {
       const eventId = (this as any).getSelectedEventId()
       this.$router.push(`/event/${eventId}/station/${station.name}`)
     },
@@ -285,8 +230,29 @@ export default defineComponent({
       }
       this.showStationDialog = false
     },
+    async onReorderStations(reorderedStations: AnyStation[]) {
+      const eventId = (this as any).getSelectedEventId()
+      if (!eventId) return
+      // Apply new order values optimistically so the UI updates immediately
+      const changed: AnyStation[] = []
+      for (const station of reorderedStations) {
+        const idx = this.stations.findIndex((s) => s.name === station.name)
+        if (idx < 0) continue
+        if (this.stations[idx].order !== station.order) {
+          this.stations[idx] = { ...this.stations[idx], order: station.order }
+          changed.push(this.stations[idx])
+        }
+      }
+      // Persist each changed station in the background
+      for (const station of changed) {
+        try {
+          await api.updateStation(station.name, station as any, eventId)
+        } catch (e) {
+          console.error('Failed to update station order', e)
+        }
+      }
+    },
     async doDelete() {
-      this.showDeleteDialog = false
       if (!this.deletingStation) return
       const eventId = (this as any).getSelectedEventId()
       try {

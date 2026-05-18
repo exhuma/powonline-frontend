@@ -12,9 +12,9 @@
 import moment from 'moment'
 import type { Moment } from 'moment'
 import type { Upload } from '@/remote/model/upload'
-import type { Station } from '@/remote/model/station'
+import type { AnyStation, Station } from '@/remote/model/station'
 import type { Questionnaire } from '@/remote/model/questionnaire'
-import type { Team } from '@/remote/model/team'
+import type { AnyTeam, Team } from '@/remote/model/team'
 import type { Route } from '@/remote/model/route'
 import type { AssignmentMap } from '@/remote/model/assignmentMap'
 import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
@@ -34,7 +34,9 @@ export type TimeRange = {
 export type EventInfo = {
   id: number
   name: string
-  time_range: TimeRange
+  title?: string | null
+  has_favicon?: boolean
+  time_range: TimeRange | null
   inserted?: string | null
   updated?: string | null
 }
@@ -205,6 +207,7 @@ export class ApiClient {
 
   async createEvent(event: {
     name: string
+    title?: string | null
     time_range: TimeRange
   }): Promise<EventInfo> {
     return this._json(`${this.baseUrl}/events`, {
@@ -215,7 +218,7 @@ export class ApiClient {
 
   async updateEvent(
     eventId: number,
-    event: { name?: string; time_range?: TimeRange }
+    event: { name?: string; title?: string | null; time_range?: TimeRange }
   ): Promise<EventInfo> {
     return this._json(`${this.baseUrl}/events/${eventId}`, {
       method: 'PUT',
@@ -297,15 +300,46 @@ export class ApiClient {
   }
 
   // -------------------------------------------------------------------------
+  // Event favicon
+  // -------------------------------------------------------------------------
+
+  /**
+   * Returns the URL to fetch the favicon for an event.
+   * Suitable for use in a <link rel="icon"> href.
+   */
+  eventFaviconUrl(eventId: number): string {
+    return `${this.baseUrl}/events/${eventId}/favicon`
+  }
+
+  async uploadEventFavicon(eventId: number, file: File): Promise<void> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await this._fetch(
+      `${this.baseUrl}/events/${eventId}/favicon`,
+      { method: 'POST', body: formData }
+    )
+    if (!response.ok) {
+      const text = await response.text().catch(() => response.statusText)
+      throw new Error(text)
+    }
+  }
+
+  async deleteEventFavicon(eventId: number): Promise<void> {
+    await this._json(`${this.baseUrl}/events/${eventId}/favicon`, {
+      method: 'DELETE'
+    })
+  }
+
+  // -------------------------------------------------------------------------
   // Teams
   // -------------------------------------------------------------------------
 
-  async fetchTeams(eventId: number): Promise<Team[]> {
+  async fetchTeams(eventId: number): Promise<AnyTeam[]> {
     const data: any = await this._json(`${this.baseUrl}/events/${eventId}/team`)
     return data.items
   }
 
-  async fetchTeam(teamName: string, eventId: number): Promise<Team> {
+  async fetchTeam(teamName: string, eventId: number): Promise<AnyTeam> {
     return this._json(`${this.baseUrl}/events/${eventId}/team/${teamName}`)
   }
 
@@ -336,7 +370,7 @@ export class ApiClient {
   async fetchTeamStations(
     teamName: string,
     eventId: number
-  ): Promise<Station[]> {
+  ): Promise<AnyStation[]> {
     const data: any = await this._json(
       `${this.baseUrl}/events/${eventId}/team/${teamName}/stations`
     )
@@ -347,7 +381,7 @@ export class ApiClient {
   // Stations
   // -------------------------------------------------------------------------
 
-  async fetchStations(eventId: number): Promise<Station[]> {
+  async fetchStations(eventId: number): Promise<AnyStation[]> {
     const data: any = await this._json(
       `${this.baseUrl}/events/${eventId}/station`
     )
@@ -685,6 +719,10 @@ export class ApiClient {
 
   async deleteUser(userName: string): Promise<void> {
     await this._json(`${this.baseUrl}/user/${userName}`, { method: 'DELETE' })
+  }
+
+  async deleteMyAccount(): Promise<void> {
+    await this._json(`${this.baseUrl}/user/me`, { method: 'DELETE' })
   }
 
   async fetchUserRoles(userName: string): Promise<string[]> {

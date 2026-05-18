@@ -49,7 +49,6 @@
             <span class="team-name" :class="{ cancelled: row.cancelled }">{{
               row.team
             }}</span>
-            <span class="team-score">{{ row.totalScore }} pts</span>
           </div>
           <div class="team-row__track" ref="trackContainers">
             <RouteTrack
@@ -80,7 +79,6 @@
         >
           <div class="team-row__label">
             <span class="team-name">{{ row.team }}</span>
-            <span class="team-score">{{ row.totalScore }} pts</span>
           </div>
           <div class="team-row__track">
             <RouteTrack
