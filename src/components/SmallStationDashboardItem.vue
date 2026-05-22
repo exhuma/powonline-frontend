@@ -1,8 +1,8 @@
 <template>
   <v-card>
     <v-card-title class="bg-primary darken-3 pa-1 pl-3 pr-3 card-title">
-      <span :class="hasCancelled ? 'cancelled' : ''">{{ state.team }}</span>
-      <span class="cancelledHeader" v-if="hasCancelled">Cancelled</span>
+      <span :class="cancelled ? 'cancelled' : ''">{{ teamName }}</span>
+      <span class="cancelledHeader" v-if="cancelled">Cancelled</span>
     </v-card-title>
     <v-card-text class="pt-3 pb-2 px-3">
       <v-container class="pa-0">
@@ -12,14 +12,14 @@
               @keyup.enter="onScoreEnter"
               @change="updateScore"
               type="number"
-              v-model="state.score"
+              :value="stationScore"
               label="Score"
               density="comfortable"
               variant="outlined"
               hide-details
               prepend-inner-icon="mdi-gamepad-variant-outline"
               class="flex-grow-1"
-              :disabled="!eventLive"
+              :disabled="disabled"
             />
           </v-col>
           <v-col cols="6" class="d-flex flex-column">
@@ -27,22 +27,22 @@
               @keyup.enter="onQuestionnaireScoreEnter"
               @change="updateQuestionnaireScore"
               type="number"
-              v-model="questionnaireScore.score"
-              :label="'Q-Score (' + questionnaireScore.name + ')'"
+              :value="questionnaireScore"
+              label="Q-Score"
               density="comfortable"
               variant="outlined"
               hide-details
               prepend-inner-icon="mdi-clipboard-list-outline"
               class="flex-grow-1"
-              :disabled="!eventLive || !hasQuestionnaire"
+              :disabled="disabled || !hasQuestionnaire"
             />
           </v-col>
           <v-col cols="6" class="d-flex flex-column">
             <v-btn
               class="action-button flex-grow-1"
-              @click="advanceState(state)"
-              :disabled="!eventLive"
-              ><state-icon :state="state.state"></state-icon
+              @click="advanceState"
+              :disabled="disabled"
+              ><state-icon :state="state"></state-icon
             ></v-btn>
           </v-col>
           <v-col cols="6" class="d-flex flex-column">
@@ -50,7 +50,7 @@
               class="action-button flex-grow-1"
               @click="saveChanges"
               color="success"
-              :disabled="!eventLive"
+              :disabled="disabled"
               ><v-icon>mdi-content-save</v-icon></v-btn
             >
           </v-col>
@@ -87,88 +87,63 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { Team } from '@/remote/model/team'
-import type { QuestionnaireScores } from '@/remote/model/questionnaireScores'
 
 const SmallStationDashboardIcon = defineComponent({
   name: 'small-station-dashboard-item',
   props: {
+    questionnaireScore: {
+      type: Number,
+      default: 0
+    },
+    stationScore: {
+      type: Number,
+      default: 0
+    },
     state: {
-      type: Object,
-      default: () => ({})
+      type: String,
+      required: true
     },
     cancelled: {
       type: Boolean,
       default: false
     },
-    // Array of all teams so we can look up cancelled status
-    teams: {
-      type: Array as () => Team[],
-      default: () => []
-    },
-    // QuestionnaireScores: { [teamName]: { [stationName]: { name, score } } }
-    questionnaireScores: {
-      type: Object as () => QuestionnaireScores,
-      default: () => ({})
+    teamName: {
+      type: String
     },
     hasQuestionnaire: {
       type: Boolean,
       default: false
     },
-    eventLive: {
+    disabled: {
       type: Boolean,
-      default: true
-    }
-  },
-  computed: {
-    hasCancelled(): boolean {
-      const teamDetails = (this.teams as Team[]).find(
-        (t) => t.name === this.state.team
-      )
-      return teamDetails ? teamDetails.cancelled : false
-    },
-    questionnaireScore(): { name: string; score: number } {
-      const teamScores = (this.questionnaireScores as QuestionnaireScores)[
-        this.state.team
-      ]
-      if (!teamScores) return { name: 'unknown', score: 0 }
-      const score = teamScores[this.state.station]
-      if (!score) return { name: 'unknown', score: 0 }
-      return score
+      default: false
     }
   },
   methods: {
-    advanceState: function (_state?: any) {
-      this.$emit('stateAdvanced', this.state)
+    advanceState: function () {
+      this.$emit('state-advance-requested', this.teamName)
     },
     onScoreEnter: function (event: Event) {
       const newValue = (event.target as HTMLInputElement).value
-      this.$emit('scoreUpdated', this.state, newValue)
+      this.$emit('update:station-score', Number.parseFloat(newValue))
     },
     updateScore: function (evt: Event) {
       const newValue = (evt.target as HTMLInputElement).value
-      this.$emit('scoreUpdated', this.state, newValue)
+      this.$emit('update:station-score', Number.parseFloat(newValue))
     },
     onQuestionnaireScoreEnter: function (event: Event) {
       const newValue = (event.target as HTMLInputElement).value
-      this.$emit('questionnaireScoreUpdated', {
-        score: newValue,
-        team: this.state.team
-      })
+      this.$emit('update:questionnaire-score', newValue)
     },
     updateQuestionnaireScore: function (evt: Event) {
       const newValue = (evt.target as HTMLInputElement).value
-      this.$emit('questionnaireScoreUpdated', {
-        score: newValue,
-        team: this.state.team
-      })
+      this.$emit('update:questionnaire-score', newValue)
     },
-    saveChanges: function (_event?: Event) {
-      this.$emit('scoreUpdated', this.state, this.state.score)
-      this.$emit('questionnaireScoreUpdated', {
-        score: this.questionnaireScore.score,
-        team: this.state.team
-      })
+    saveChanges: function () {
+      // deliberate no-op
+      //   The code-paths which react to "change" events already handle the
+      //   necessary updates, so this is just a placeholder for the "Save"
+      //   button. It gives the user something to click on.
     }
   }
 })

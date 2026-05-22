@@ -65,15 +65,19 @@
         <small-station-dashboard-item
           v-for="(state, idx) in activeTeams"
           class="mb-3 ml-5 mr-5"
-          @scoreUpdated="onScoreUpdated"
-          @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+          @update:station-score="
+            (newScore: number) => onScoreUpdated(state.team, newScore)
+          "
+          @update:questionnaire-score="onQuestionnaireScoreUpdated"
           @saveClicked="onSaveClicked"
-          @stateAdvanced="onStateAdvanced"
-          :state="state"
-          :teams="teams"
-          :questionnaire-scores="questionnaireScores"
+          @state-advance-requested="onStateAdvanced"
+          :questionnaire-score="getQuestionnaireScore(state.team)"
+          :station-score="state.score"
+          :state="state.state"
+          :cancelled="state.cancelled"
+          :team-name="state.team"
           :has-questionnaire="hasQuestionnaire"
-          :event-live="isEventLive"
+          :disabled="!isEventLive"
           :key="'active' + idx"
         ></small-station-dashboard-item>
 
@@ -99,15 +103,19 @@
                 <small-station-dashboard-item
                   v-for="(state, idx) in finishedTeams"
                   class="mb-3"
-                  @scoreUpdated="onScoreUpdated"
-                  @questionnaireScoreUpdated="onQuestionnaireScoreUpdated"
+                  @update:station-score="
+                    (newScore: number) => onScoreUpdated(state.team, newScore)
+                  "
+                  @update:questionnaire-score="onQuestionnaireScoreUpdated"
                   @saveClicked="onSaveClicked"
-                  @stateAdvanced="onStateAdvanced"
-                  :state="state"
-                  :teams="teams"
-                  :questionnaire-scores="questionnaireScores"
+                  @state-advance-requested="onStateAdvanced"
+                  :questionnaire-score="getQuestionnaireScore(state.team)"
+                  :station-score="state.score"
+                  :state="state.state"
+                  :cancelled="state.cancelled"
+                  :team-name="state.team"
                   :has-questionnaire="hasQuestionnaire"
-                  :event-live="isEventLive"
+                  :disabled="!isEventLive"
                   :key="'finished' + idx"
                 ></small-station-dashboard-item>
               </v-expansion-panel-text>
@@ -149,6 +157,14 @@ import { isFullTeam } from '@/remote/model/team'
 import type { RelatedTeamEntry, EventInfo } from '@/api'
 import type { Questionnaire } from '@/remote/model/questionnaire'
 
+type TTeamSummary = {
+  team: string
+  station: string
+  state: string
+  score: number
+  cancelled: boolean
+}
+
 /**
  * Returns true when the API error indicates the request was rejected because
  * the action was attempted outside the configured event time window.
@@ -176,11 +192,11 @@ function applyAgeClasses(data: RelatedTeamEntryWithAge[]) {
   const old = 1 * 60 * 60
   data.forEach((item) => {
     if (!item.updateAge || item.updateAge > ancient) {
-      ;(item as any).ageClass = { ancient: true }
+      item.ageClass = { ancient: true }
     } else if (item.updateAge > old) {
-      ;(item as any).ageClass = { old: true }
+      item.ageClass = { old: true }
     } else {
-      ;(item as any).ageClass = { recent: true }
+      item.ageClass = { recent: true }
     }
   })
 }
@@ -244,8 +260,8 @@ const StationDashboard = defineComponent({
         (q) => q.station_name === this.stationName
       )
     },
-    allTeams(): {team: string, station: string, state: string , score: number}[] {
-      const output: {team: string, station: string, state: string , score: number}[] = []
+    allTeams(): TTeamSummary[] {
+      const output: TTeamSummary[] = []
       this.dashboard.forEach((teamInfo) => {
         teamInfo.stations.forEach((stationState) => {
           if (stationState.name !== this.stationName) return
@@ -254,7 +270,8 @@ const StationDashboard = defineComponent({
             team: teamInfo.team,
             station: this.stationName,
             state: stationState.state,
-            score: stationState.score
+            score: stationState.score,
+            cancelled: teamInfo.team_has_cancelled
           })
         })
       })
@@ -265,7 +282,7 @@ const StationDashboard = defineComponent({
         return this.allTeams
       }
       const fltr = this.teamFilter.toLowerCase()
-      return this.allTeams.filter((item: any) => {
+      return this.allTeams.filter((item) => {
         const teamDetails = this.teams.find((t) => t.name === item.team)
         const contactMatches =
           teamDetails && isFullTeam(teamDetails)
@@ -275,15 +292,11 @@ const StationDashboard = defineComponent({
         return nameMatches || contactMatches
       })
     },
-    activeTeams() {
-      return (this.filteredTeams).filter(
-        (item: any) => item.state !== 'finished'
-      )
+    activeTeams(): TTeamSummary[] {
+      return this.filteredTeams.filter((item) => item.state !== 'finished')
     },
-    finishedTeams() {
-      return (this.filteredTeams).filter(
-        (item: any) => item.state === 'finished'
-      )
+    finishedTeams(): TTeamSummary[] {
+      return this.filteredTeams.filter((item) => item.state === 'finished')
     }
   },
 
@@ -291,7 +304,7 @@ const StationDashboard = defineComponent({
     await this.refresh()
     // SSE-driven refresh: re-fetch per-station dashboard on state/score changes.
     // Questionnaire scores are updated surgically in the composable — no callback needed.
-    ;(this as any).registerCallbacks(
+    this.registerCallbacks(
       () => this.fetchDashboard(),
       (p: StateChangePayload) => {
         // Surgically update side-column icons when a neighbouring station changes.
@@ -318,7 +331,7 @@ const StationDashboard = defineComponent({
   },
 
   beforeUnmount() {
-    ;(this as any).stopWatchers()
+    this.stopWatchers()
     if (this.ageIntervalId !== null) {
       window.clearInterval(this.ageIntervalId)
     }
@@ -339,15 +352,12 @@ const StationDashboard = defineComponent({
       applyAgeClasses(this.previousStates)
       applyAgeClasses(this.nextStates)
     },
-    updateTeamStationState(state: any) {
-      const teamInfo = this.dashboard.find((t) => t.team === state.team)
-      if (!teamInfo) return
-      const stationState = teamInfo.stations.find(
-        (s) => s.name === this.stationName
-      )
-      if (!stationState) return
-      stationState.score = parseFloat(state.score)
-      stationState.state = state.state
+    getQuestionnaireScore(teamName: string): { name: string; score: number } {
+      const teamScores = this.questionnaireScores[teamName]
+      if (!teamScores) return { name: 'unknown', score: 0 }
+      const score = teamScores[this.stationName]
+      if (!score) return { name: 'unknown', score: 0 }
+      return score
     },
     onFilterCleared() {
       this.teamFilter = ''
@@ -363,11 +373,11 @@ const StationDashboard = defineComponent({
         console.warn(`No station "${relation}" of ${this.stationName}`)
       }
     },
-    async onStateAdvanced(state: any) {
+    async onStateAdvanced(teamName: string) {
       // @ts-expect-error inject
       const eventId = this.getSelectedEventId()
       try {
-        await api.advanceState(this.stationName, state.team, eventId)
+        await api.advanceState(this.stationName, teamName, eventId)
         await this.fetchDashboard()
       } catch (err) {
         console.error('Failed to advance state', err)
@@ -379,17 +389,11 @@ const StationDashboard = defineComponent({
         })
       }
     },
-    async onScoreUpdated(state: any, newScore: string) {
+    async onScoreUpdated(teamName: string, newScore: number) {
       // @ts-expect-error inject
       const eventId = this.getSelectedEventId()
       try {
-        await api.setStationScore(
-          this.stationName,
-          state.team,
-          parseFloat(newScore),
-          eventId
-        )
-        this.updateTeamStationState(state)
+        await api.setStationScore(this.stationName, teamName, newScore, eventId)
       } catch (err) {
         console.error('Failed to set station score', err)
         EventBus.emit('snackRequested', {
@@ -431,10 +435,14 @@ const StationDashboard = defineComponent({
         color: 'success'
       })
     },
-    updateIsEventLive() {
+    async getEvents(): Promise<EventInfo[]> {
+      const events = await api.fetchEvents()
+      return events
+    },
+    async updateIsEventLive() {
       // @ts-expect-error inject
       const eventId = this.getSelectedEventId()
-      const events: EventInfo[] = (this as any).getEvents() ?? []
+      const events = await this.getEvents()
       const event = events.find((e) => e.id === eventId)
       if (!event?.time_range) {
         // No time window configured — do not block actions
